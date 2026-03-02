@@ -231,6 +231,14 @@ namespace margelo::nitro::test::bridge::swift {
     };
   }
   
+  // pragma MARK: std::function<void(const TreeNode& /* node */)>
+  Func_void_TreeNode create_Func_void_TreeNode(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroTest::Func_void_TreeNode::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const TreeNode& node) mutable -> void {
+      swiftClosure.call(node);
+    };
+  }
+  
   // pragma MARK: std::function<double()>
   Func_double create_Func_double(void* NON_NULL swiftClosureWrapper) noexcept {
     auto swiftClosure = NitroTest::Func_double::fromUnsafe(swiftClosureWrapper);
