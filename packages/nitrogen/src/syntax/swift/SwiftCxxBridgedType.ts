@@ -33,6 +33,7 @@ import { ErrorType } from '../types/ErrorType.js'
 import { createSwiftFunctionBridge } from './SwiftFunction.js'
 import type { Language } from '../../getPlatformSpecs.js'
 
+
 // TODO: Remove enum bridge once Swift fixes bidirectional enums crashing the `-Swift.h` header.
 
 export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
@@ -128,7 +129,13 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
     return bridge
   }
 
-  getRequiredImports(language: Language): SourceImport[] {
+  getRequiredImports(
+    language: Language,
+    visited = new Set<Type>()
+  ): SourceImport[] {
+    if (visited.has(this.type)) return []
+    visited.add(this.type)
+
     const imports = this.type.getRequiredImports(language)
 
     if (language === 'c++') {
@@ -154,13 +161,16 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
         return
       }
       const bridged = new SwiftCxxBridgedType(t)
-      imports.push(...bridged.getRequiredImports(language))
+      imports.push(...bridged.getRequiredImports(language, visited))
     })
 
     return imports
   }
 
-  getExtraFiles(): SourceFile[] {
+  getExtraFiles(visited = new Set<Type>()): SourceFile[] {
+    if (visited.has(this.type)) return []
+    visited.add(this.type)
+
     const files: SourceFile[] = []
 
     switch (this.type.kind) {
@@ -170,7 +180,7 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
         files.push(extensionFile)
         extensionFile.referencedTypes.forEach((t) => {
           const bridge = new SwiftCxxBridgedType(t)
-          files.push(...bridge.getExtraFiles())
+          files.push(...bridge.getExtraFiles(visited))
         })
         break
       }
@@ -209,7 +219,7 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
         return
       }
       const bridged = new SwiftCxxBridgedType(t)
-      files.push(...bridged.getExtraFiles())
+      files.push(...bridged.getExtraFiles(visited))
     })
 
     return files
