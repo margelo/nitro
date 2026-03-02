@@ -28,10 +28,8 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `TreeNode` to properly resolve imports.
-namespace margelo::nitro::test { struct TreeNode; }
 
-#include "TreeNode"
+
 #include <vector>
 #include <functional>
 #include <optional>

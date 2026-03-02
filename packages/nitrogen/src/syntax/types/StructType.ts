@@ -149,7 +149,7 @@ export class StructType implements Type {
         // During cyclic initialization, declarationFile isn't available yet.
         // Use the structName directly to construct the import.
         imports.push({
-          name: this.structName,
+          name: `${this.structName}.hpp`,
           language: 'c++',
           forwardDeclaration: getForwardDeclaration(
             'struct',
