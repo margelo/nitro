@@ -16,13 +16,12 @@
 #include <optional>
 #include <vector>
 
+// Forward declaration of `JTreeNode` to properly resolve imports.
+namespace margelo::nitro::test { struct JTreeNode; }
+
 namespace margelo::nitro::test {
 
   using namespace facebook;
-
-  // Forward declarations for cyclic dependencies
-  struct JTreeNode;
-  struct Jundefined;
 
   /**
    * Represents the Java/Kotlin callback `(node: TreeNode) -> Unit`.

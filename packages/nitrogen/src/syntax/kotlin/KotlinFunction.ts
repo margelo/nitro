@@ -1,10 +1,12 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
 import { indent } from '../../utils.js'
+import { getForwardDeclaration } from '../c++/getForwardDeclaration.js'
 import { includeHeader } from '../c++/includeNitroHeader.js'
 import { getReferencedTypes } from '../getReferencedTypes.js'
 import { createFileMetadataString, isNotDuplicate } from '../helpers.js'
 import type { SourceFile, SourceImport } from '../SourceFile.js'
 import { FunctionType } from '../types/FunctionType.js'
+import { getTypeAs } from '../types/getTypeAs.js'
 import { StructType } from '../types/StructType.js'
 import { addJNINativeRegistration } from './JNINativeRegistrations.js'
 import { KotlinCxxBridgedType } from './KotlinCxxBridgedType.js'
@@ -17,11 +19,11 @@ function detectCyclicStructDependencies(functionType: FunctionType): { cyclicNam
   const referencedTypes = getReferencedTypes(functionType)
   for (const refType of referencedTypes) {
     if (refType.kind === 'struct') {
-      const structType = refType as StructType
+      const structType = getTypeAs(refType, StructType)
       // Check if this struct references our function type
       const structRefs = getReferencedTypes(structType)
       for (const structRef of structRefs) {
-        if (structRef.kind === 'function' && (structRef as FunctionType).specializationName === funcName) {
+        if (structRef.kind === 'function' && getTypeAs(structRef, FunctionType).specializationName === funcName) {
           cyclicNames.add(structType.structName)
           break
         }
@@ -252,7 +254,7 @@ return ${bridgedReturn.parseFromKotlinToCpp('__result', 'c++', true)};
 
     // Forward declarations for cyclic struct types
     const forwardDeclarations = Array.from(cyclicNames)
-      .map((n) => `  struct J${n};`)
+      .map((n) => getForwardDeclaration('struct', `J${n}`, cxxNamespace))
       .sort()
       .join('\n')
 
@@ -266,12 +268,11 @@ ${createFileMetadataString(`J${name}.hpp`)}
 
 ${regularIncludes.join('\n')}
 
+${forwardDeclarations}
+
 namespace ${cxxNamespace} {
 
   using namespace facebook;
-
-  // Forward declarations for cyclic dependencies
-${forwardDeclarations}
 
   /**
    * Represents the Java/Kotlin callback \`${functionType.getCode('kotlin')}\`.

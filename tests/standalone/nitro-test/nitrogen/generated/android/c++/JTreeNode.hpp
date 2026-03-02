@@ -16,12 +16,12 @@
 #include <optional>
 #include <vector>
 
+// Forward declaration of `JFunc_void_TreeNode` to properly resolve imports.
+namespace margelo::nitro::test { struct JFunc_void_TreeNode; }
+
 namespace margelo::nitro::test {
 
   using namespace facebook;
-
-  // Forward declarations for cyclic dependencies
-  struct JFunc_void_TreeNode;
 
   /**
    * The C++ JNI bridge between the C++ struct "TreeNode" and the the Kotlin data class "TreeNode".

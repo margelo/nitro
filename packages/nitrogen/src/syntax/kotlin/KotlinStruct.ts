@@ -1,10 +1,12 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
 import { capitalizeName, indent } from '../../utils.js'
+import { getForwardDeclaration } from '../c++/getForwardDeclaration.js'
 import { includeHeader } from '../c++/includeNitroHeader.js'
 import { getReferencedTypes } from '../getReferencedTypes.js'
 import { createFileMetadataString, isNotDuplicate } from '../helpers.js'
 import type { SourceFile, SourceImport } from '../SourceFile.js'
 import { FunctionType } from '../types/FunctionType.js'
+import { getTypeAs } from '../types/getTypeAs.js'
 import { StructType } from '../types/StructType.js'
 import { KotlinCxxBridgedType } from './KotlinCxxBridgedType.js'
 
@@ -25,13 +27,13 @@ function detectCyclicFunctionDependencies(structType: StructType): {
     const referencedTypes = getReferencedTypes(prop)
     for (const refType of referencedTypes) {
       if (refType.kind === 'function') {
-        const funcType = refType as FunctionType
+        const funcType = getTypeAs(refType, FunctionType)
         // Check if this function references our struct
         const funcRefs = getReferencedTypes(funcType)
         for (const funcRef of funcRefs) {
           if (
             funcRef.kind === 'struct' &&
-            (funcRef as StructType).structName === structName
+            getTypeAs(funcRef, StructType).structName === structName
           ) {
             cyclicNames.add(funcType.specializationName)
             break
@@ -192,7 +194,7 @@ data class ${structType.structName}(
 
     // Forward declarations for cyclic function types
     const forwardDeclarations = Array.from(cyclicNames)
-      .map((name) => `  struct J${name};`)
+      .map((name) => getForwardDeclaration('struct', `J${name}`, cxxNamespace))
       .sort()
       .join('\n')
 
@@ -206,12 +208,11 @@ ${createFileMetadataString(`J${structType.structName}.hpp`)}
 
 ${regularIncludes.join('\n')}
 
+${forwardDeclarations}
+
 namespace ${cxxNamespace} {
 
   using namespace facebook;
-
-  // Forward declarations for cyclic dependencies
-${forwardDeclarations}
 
   /**
    * The C++ JNI bridge between the C++ struct "${structType.structName}" and the the Kotlin data class "${structType.structName}".
