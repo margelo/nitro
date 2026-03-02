@@ -106,3 +106,30 @@ Since structs are just flat value types, each key/value is eagerly converted fro
 
 This is fine for small structs and benefits from low allocation cost, but contains an overhead when your structs growing larger.
 Use [Hybrid Objects](hybrid-objects) to implement a way to lazily convert each key/value instead.
+
+## Direct cyclic references are not supported
+
+An `interface` **cannot** directly reference itself. Nitrogen will throw an error during code generation. However, referencing through something like an array, callback, or promise works:
+
+<div className="side-by-side-container">
+<div className="side-by-side-block">
+
+```ts title="Bad ❌"
+interface Person {
+  name: string
+  bestFriend: Person
+}
+```
+
+</div>
+<div className="side-by-side-block">
+
+```ts title="Good ✅"
+interface Person {
+  name: string
+  friends: Person[]
+}
+```
+
+</div>
+</div>
