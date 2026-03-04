@@ -721,6 +721,12 @@ OptionalCallback HybridTestObjectCpp::bounceOptionalCallback(const OptionalCallb
 
 std::optional<OptionalEnumWrapper> HybridTestObjectCpp::bounceOptionalEnumStruct(const std::optional<OptionalEnumWrapper>& value) {
   return value;
+Gallery HybridTestObjectCpp::bounceGallery(const Gallery& gallery) {
+  return gallery;
+}
+
+TreeNode HybridTestObjectCpp::bounceTreeNode(const TreeNode& node) {
+  return node;
 }
 
 std::shared_ptr<ArrayBuffer> HybridTestObjectCpp::createArrayBufferFromNativeBuffer(bool /* copy */) {

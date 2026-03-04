@@ -572,6 +572,14 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return value
   }
 
+  func bounceGallery(gallery: Gallery) throws -> Gallery {
+    return gallery
+  }
+
+  func bounceTreeNode(node: TreeNode) throws -> TreeNode {
+    return node
+  }
+
   func createArrayBufferFromNativeBuffer(copy: Bool) throws -> ArrayBuffer {
     let data = Data(count: 1024 * 1024 * 10)  // 10 MB
     if copy {

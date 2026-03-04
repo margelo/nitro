@@ -536,6 +536,14 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return value
   }
 
+  override fun bounceGallery(gallery: Gallery): Gallery {
+    return gallery
+  }
+
+  override fun bounceTreeNode(node: TreeNode): TreeNode {
+    return node
+  }
+
   override fun createArrayBufferFromNativeBuffer(copy: Boolean): ArrayBuffer {
     val hardwareBuffer =
       HardwareBuffer.create(
