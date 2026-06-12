@@ -49,6 +49,8 @@ target_sources(
   ../nitrogen/generated/android/c++/JVariant_HybridTestObjectSwiftKotlinSpec_Person.cpp
   ../nitrogen/generated/android/c++/JVariant_Boolean_Double.cpp
   ../nitrogen/generated/android/c++/JVariant_______Unit_Double.cpp
+  ../nitrogen/generated/android/c++/JTreeNode.cpp
+  ../nitrogen/generated/android/c++/JFunc_void_TreeNode.cpp
   ../nitrogen/generated/android/c++/JVariant_OldEnum_Boolean.cpp
   ../nitrogen/generated/android/c++/JVariant_Powertrain_Car.cpp
   ../nitrogen/generated/android/c++/JVariant_WeirdNumbersEnum_Boolean.cpp

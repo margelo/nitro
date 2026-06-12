@@ -581,6 +581,10 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
+  abstract fun bounceGallery(gallery: Gallery): Gallery
+  
+  @DoNotStrip
+  @Keep
   abstract fun bounceTreeNode(node: TreeNode): TreeNode
   
   @DoNotStrip

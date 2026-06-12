@@ -177,6 +177,8 @@ namespace margelo::nitro::test {
     OptionalWrapper bounceOptionalWrapper(const OptionalWrapper& wrapper) override;
     OptionalCallback bounceOptionalCallback(const OptionalCallback& value) override;
     std::optional<OptionalEnumWrapper> bounceOptionalEnumStruct(const std::optional<OptionalEnumWrapper>& value) override;
+    Gallery bounceGallery(const Gallery& gallery) override;
+    TreeNode bounceTreeNode(const TreeNode& node) override;
     std::shared_ptr<ArrayBuffer> createArrayBuffer() override;
     std::shared_ptr<ArrayBuffer> createArrayBufferFromNativeBuffer(bool copy) override;
     std::shared_ptr<ArrayBuffer> createHardwareBuffer(double width, double height, double layers, HardwareBufferFormat format) override;

@@ -131,6 +131,21 @@ namespace margelo::nitro::test::bridge::swift {
     return optional.value();
   }
   
+  // pragma MARK: std::optional<std::variant<double, std::string>>
+  /**
+   * Specialized version of `std::optional<std::variant<double, std::string>>`.
+   */
+  using std__optional_std__variant_double__std__string__ = std::optional<std::variant<double, std::string>>;
+  inline std::optional<std::variant<double, std::string>> create_std__optional_std__variant_double__std__string__(const std::variant<double, std::string>& value) noexcept {
+    return std::optional<std::variant<double, std::string>>(value);
+  }
+  inline bool has_value_std__optional_std__variant_double__std__string__(const std::optional<std::variant<double, std::string>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::variant<double, std::string> get_std__optional_std__variant_double__std__string__(const std::optional<std::variant<double, std::string>>& optional) noexcept {
+    return optional.value();
+  }
+  
   // pragma MARK: std::variant<double, std::string>
   /**
    * Wrapper struct for `std::variant<double, std::string>`.
@@ -158,21 +173,6 @@ namespace margelo::nitro::test::bridge::swift {
   }
   inline std__variant_double__std__string_ create_std__variant_double__std__string_(const std::string& value) noexcept {
     return std__variant_double__std__string_(value);
-  }
-  
-  // pragma MARK: std::optional<std::variant<double, std::string>>
-  /**
-   * Specialized version of `std::optional<std::variant<double, std::string>>`.
-   */
-  using std__optional_std__variant_double__std__string__ = std::optional<std::variant<double, std::string>>;
-  inline std::optional<std::variant<double, std::string>> create_std__optional_std__variant_double__std__string__(const std::variant<double, std::string>& value) noexcept {
-    return std::optional<std::variant<double, std::string>>(value);
-  }
-  inline bool has_value_std__optional_std__variant_double__std__string__(const std::optional<std::variant<double, std::string>>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline std::variant<double, std::string> get_std__optional_std__variant_double__std__string__(const std::optional<std::variant<double, std::string>>& optional) noexcept {
-    return optional.value();
   }
   
   // pragma MARK: std::unordered_map<std::string, double>

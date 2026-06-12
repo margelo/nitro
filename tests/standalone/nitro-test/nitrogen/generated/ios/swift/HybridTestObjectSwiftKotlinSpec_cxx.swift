@@ -2364,6 +2364,18 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   }
   
   @inline(__always)
+  public final func bounceGallery(gallery: Gallery) -> bridge.Result_Gallery_ {
+    do {
+      let __result = try self.__implementation.bounceGallery(gallery: gallery)
+      let __resultCpp = __result
+      return bridge.create_Result_Gallery_(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_Gallery_(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
   public final func bounceTreeNode(node: TreeNode) -> bridge.Result_TreeNode_ {
     do {
       let __result = try self.__implementation.bounceTreeNode(node: node)
