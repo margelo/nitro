@@ -4,8 +4,14 @@
 
 #pragma once
 
-#include "ReactNativeCore.hpp"
+#include "NitroDefines.hpp"
 
+// This header includes <react/renderer/*> headers, which cannot be compiled as part of a
+// clang module - so it is hidden from the Swift-facing `NitroModules` module and can only
+// be included textually, from C++.
+#if !NITRO_BUILDING_MODULE(NitroModules)
+
+#include "ReactNativeCore.hpp"
 #include <memory>
 #include <utility>
 
@@ -49,3 +55,5 @@ private:
 };
 
 } // namespace margelo::nitro
+
+#endif
