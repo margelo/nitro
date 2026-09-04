@@ -20,6 +20,7 @@
     "build": "bun nitro build && bun nitrogen build && bun nitro-test-external build && bun nitro-test build",
     "bootstrap": "bun i && bun run build && cd apps/example && bundle install && bun pods",
     "typecheck": "bun --filter=\"**\" typecheck",
+    "check:app-versions": "bun scripts/check-app-versions.mjs",
     "lint": "bun nitro lint && bun nitrogen lint && bun nitro-test lint && bun example lint",
     "lint-cpp": "./scripts/clang-format.sh",
     "lint-swift": "./scripts/swift-format.sh",
@@ -91,6 +92,10 @@
           },
           {
             "file": "apps/example/package.json",
+            "path": "version"
+          },
+          {
+            "file": "apps/benchmark/package.json",
             "path": "version"
           }
         ]
