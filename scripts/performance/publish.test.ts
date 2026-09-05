@@ -8,6 +8,8 @@ const metadata: ReportMetadata = {
   pullRequestNumber: 123,
   baseSha: 'a'.repeat(40),
   headSha: 'b'.repeat(40),
+  baseSuiteHash: 'c'.repeat(64),
+  headSuiteHash: 'c'.repeat(64),
   platforms: ['android', 'ios'],
 }
 
@@ -80,5 +82,16 @@ describe('Bencher publications', () => {
     expect(() =>
       bencherArguments(main, 'ios', 'base', '/validated', 'nitro')
     ).toThrow()
+  })
+  test('a changed suite records head without an invented paired baseline', () => {
+    const changed = { ...metadata, headSuiteHash: 'd'.repeat(64) }
+    const publications = bencherPublications(changed, '/validated', 'nitro')
+    expect(publications.map((entry) => entry.revision)).toEqual([
+      'head',
+      'head',
+    ])
+    expect(publications.flatMap((entry) => entry.command)).not.toContain(
+      '--start-point'
+    )
   })
 })

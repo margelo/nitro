@@ -14,6 +14,18 @@ if (platform !== 'android' && platform !== 'ios') {
 }
 
 const configuration: BenchmarkRunConfiguration = {
+  ...(argumentsMap.has('calibration') ? { calibration: true as const } : {}),
+  ...(argumentsMap.has('work-id')
+    ? {
+        work: {
+          id: requiredArgument(argumentsMap, 'work-id'),
+          iterations: Number(requiredArgument(argumentsMap, 'iterations')),
+          chunkIterations: Number(
+            requiredArgument(argumentsMap, 'chunk-iterations')
+          ),
+        },
+      }
+    : {}),
   ...(argumentsMap.has('benchmark-index')
     ? {
         benchmarkIndex: Number(
@@ -90,5 +102,6 @@ try {
   process.exitCode = 1
 } finally {
   clearTimeout(timeout)
-  await server.stop(true)
+  // Finish the accepted HTTP response before closing the receiver.
+  await server.stop()
 }

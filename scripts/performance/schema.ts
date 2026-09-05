@@ -67,7 +67,28 @@ function validateConfiguration(value: unknown): BenchmarkRunConfiguration {
   if (!SUITE_HASH_PATTERN.test(suiteHash)) {
     throw new Error('configuration.suiteHash must be a SHA-256 digest.')
   }
+  const work = value.work
+  if (work !== undefined && !isObject(work))
+    throw new Error('configuration.work must be an object.')
+  if (value.calibration !== undefined && value.calibration !== true)
+    throw new Error('Invalid calibration flag.')
   return {
+    ...(value.calibration === true ? { calibration: true as const } : {}),
+    ...(work === undefined
+      ? {}
+      : {
+          work: {
+            id: stringValue(work.id, 'configuration.work.id'),
+            iterations: positiveInteger(
+              work.iterations,
+              'configuration.work.iterations'
+            ),
+            chunkIterations: positiveInteger(
+              work.chunkIterations,
+              'configuration.work.chunkIterations'
+            ),
+          },
+        }),
     ...(value.benchmarkIndex === undefined
       ? {}
       : {
@@ -121,11 +142,7 @@ function validateEnvironment(value: unknown): BenchmarkRunEnvironment {
 function validateMetric(value: unknown, index: number): BenchmarkMetric {
   if (!isObject(value)) throw new Error(`metrics[${index}] must be an object.`)
   const samples = value.samplesNsPerOp
-  if (
-    !Array.isArray(samples) ||
-    samples.length === 0 ||
-    samples.length > MAX_SAMPLES
-  ) {
+  if (!Array.isArray(samples) || samples.length > MAX_SAMPLES) {
     throw new Error(`metrics[${index}].samplesNsPerOp has invalid length.`)
   }
   const samplesNsPerOp = samples.map((sample, sampleIndex) =>
@@ -206,6 +223,13 @@ export function validateBenchmarkRun(value: unknown): BenchmarkRunResult {
   ) {
     throw new Error('metrics must be a non-empty bounded array.')
   }
+  const configuration = validateConfiguration(value.configuration)
+  if (
+    configuration.calibration &&
+    (value.runner.warmupCount !== 0 || value.runner.sampleCount !== 0)
+  ) {
+    throw new Error('Calibration must not contain warmup or measured samples.')
+  }
   const validatedMetrics = metrics.map(validateMetric)
   const benchmarkCount = positiveInteger(value.benchmarkCount, 'benchmarkCount')
   if (benchmarkCount > MAX_METRICS || benchmarkCount < metrics.length) {
@@ -232,7 +256,7 @@ export function validateBenchmarkRun(value: unknown): BenchmarkRunResult {
     schemaVersion: 1,
     suiteVersion: 1,
     benchmarkCount,
-    configuration: validateConfiguration(value.configuration),
+    configuration,
     environment: validateEnvironment(value.environment),
     runner: {
       targetBatchDurationMs: finiteNumber(
@@ -241,14 +265,12 @@ export function validateBenchmarkRun(value: unknown): BenchmarkRunResult {
         1,
         10_000
       ),
-      warmupCount: positiveInteger(
-        value.runner.warmupCount,
-        'runner.warmupCount'
-      ),
-      sampleCount: positiveInteger(
-        value.runner.sampleCount,
-        'runner.sampleCount'
-      ),
+      warmupCount: configuration.calibration
+        ? finiteNumber(value.runner.warmupCount, 'runner.warmupCount', 0, 100)
+        : positiveInteger(value.runner.warmupCount, 'runner.warmupCount'),
+      sampleCount: configuration.calibration
+        ? finiteNumber(value.runner.sampleCount, 'runner.sampleCount', 0, 100)
+        : positiveInteger(value.runner.sampleCount, 'runner.sampleCount'),
     },
     startedAt,
     durationMs: finiteNumber(value.durationMs, 'durationMs'),
@@ -264,7 +286,7 @@ export function validateExpectedRun(
   for (const key of Object.keys(
     expected
   ) as (keyof BenchmarkRunConfiguration)[]) {
-    if (actual[key] !== expected[key]) {
+    if (JSON.stringify(actual[key]) !== JSON.stringify(expected[key])) {
       throw new Error(`Result configuration mismatch for ${key}.`)
     }
   }

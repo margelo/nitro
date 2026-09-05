@@ -370,15 +370,20 @@ jobs:
           PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
         run: |
           mkdir -p performance-report/raw/android performance-report/raw/ios
+          cmp artifacts/android/suite.json artifacts/ios/suite.json
           bun scripts/performance/report.ts \
+            --suite artifacts/android/suite.json \
             --output performance-report/performance-report.json \
             --repository "$REPOSITORY" \
             --event-name "${{ github.event_name }}" \
             --pull-request "$PR_NUMBER" \
             --base-sha "${{ needs.prepare.outputs.base_sha }}" \
             --head-sha "${{ needs.prepare.outputs.head_sha }}"
-          cp artifacts/android/base-*.json artifacts/android/head-*.json performance-report/raw/android/
-          cp artifacts/ios/base-*.json artifacts/ios/head-*.json performance-report/raw/ios/
+          for PLATFORM in android ios; do
+            for RESULT in artifacts/"$PLATFORM"/{base,head,calibration}-*.json; do
+              if [[ -f "$RESULT" ]]; then cp "$RESULT" performance-report/raw/"$PLATFORM"/; fi
+            done
+          done
 
       - name: Upload aggregate report
         if: needs.prepare.outputs.relevant == 'true'

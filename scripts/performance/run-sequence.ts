@@ -30,13 +30,24 @@ const [baseSuiteHash, headSuiteHash] = await Promise.all([
   calculateSuiteHash(headRoot),
 ])
 
+await Bun.write(
+  path.join(outputDirectory, 'suite.json'),
+  `${JSON.stringify({ baseSuiteHash, headSuiteHash }, null, 2)}\n`
+)
+
 async function runOne(
   revision: 'base' | 'head',
   sequence: number,
-  reverse: boolean
+  reverse: boolean,
+  calibration = false
 ): Promise<void> {
   const isBase = revision === 'base'
-  const output = path.join(outputDirectory, `${revision}-${sequence}.json`)
+  const output = path.join(
+    outputDirectory,
+    calibration
+      ? `calibration-${revision}.json`
+      : `${revision}-${sequence}.json`
+  )
   const runId = `${platform}-${revision}-${sequence}`
   const startedAt = performance.now()
   console.info(
@@ -45,6 +56,15 @@ async function runOne(
   const command = [
     'bun',
     path.join(import.meta.dir, 'run-device.ts'),
+    ...(calibration
+      ? ['--calibration', 'true']
+      : [
+          '--work-plan',
+          path.join(
+            outputDirectory,
+            `calibration-${isBase || baseSuiteHash === headSuiteHash ? 'base' : 'head'}.json`
+          ),
+        ]),
     '--platform',
     platform,
     '--app',
@@ -81,7 +101,19 @@ async function runOne(
   )
 }
 
-await runOne('base', 1, false)
-await runOne('head', 1, false)
-await runOne('head', 2, true)
-await runOne('base', 2, true)
+// Derive one plan from base, then discard every calibration process. Changed
+// suites need separate plans and will be reported without a comparison.
+if (baseSuiteHash === headSuiteHash) {
+  await runOne('base', 0, false, true)
+  await runOne('base', 1, false)
+  await runOne('head', 1, false)
+  await runOne('head', 2, true)
+  await runOne('base', 2, true)
+} else {
+  console.info(
+    '[NitroBenchmark] Benchmark definitions changed; measuring a new head baseline only.'
+  )
+  await runOne('head', 0, false, true)
+  await runOne('head', 1, false)
+  await runOne('head', 2, true)
+}

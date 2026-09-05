@@ -17,7 +17,8 @@ export function bencherArguments(
 ): string[] {
   const baselineBranch = `baseline-${metadata.baseSha}`
   const isBase = revision === 'base'
-  if (isBase && metadata.pullRequestNumber == null) {
+  const comparable = metadata.baseSuiteHash === metadata.headSuiteHash
+  if (isBase && (metadata.pullRequestNumber == null || !comparable)) {
     throw new Error('Only PR reports need a paired baseline upload.')
   }
   const command = [
@@ -40,7 +41,7 @@ export function bencherArguments(
     '--file',
     path.join(directory, `bencher-${isBase ? 'base-' : ''}${platform}.json`),
   ]
-  if (!isBase && metadata.pullRequestNumber != null) {
+  if (!isBase && metadata.pullRequestNumber != null && comparable) {
     command.push(
       '--start-point',
       baselineBranch,
@@ -57,7 +58,8 @@ export function bencherPublications(
   project: string
 ) {
   const revisions =
-    metadata.pullRequestNumber == null
+    metadata.pullRequestNumber == null ||
+    metadata.baseSuiteHash !== metadata.headSuiteHash
       ? (['head'] as const)
       : (['base', 'head'] as const)
   // Seed every testbed before creating the PR branch. Never reset that branch

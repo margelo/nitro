@@ -51,6 +51,9 @@ export function compareRuns(
   if (baseRuns.length === 0 || baseRuns.length !== headRuns.length) {
     throw new Error('A matching base run is required for every head run.')
   }
+  if ([...baseRuns, ...headRuns].some((run) => run.configuration.calibration)) {
+    throw new Error('Calibration runs cannot be compared as measurements.')
+  }
   const { platform, commitSha: baseSha, suiteHash } = baseRuns[0]!.configuration
   const headSha = headRuns[0]!.configuration.commitSha
   for (const [runs, sha] of [
@@ -115,6 +118,17 @@ export function compareRuns(
     ) {
       throw new Error(`Benchmark ${id} is missing or has a different version.`)
     }
+    if (
+      [...base, ...head].some(
+        (metric) =>
+          metric.iterations !== base[0]!.iterations ||
+          metric.chunkIterations !== base[0]!.chunkIterations
+      )
+    ) {
+      throw new Error(
+        `Benchmark ${id} executed unequal work between process runs.`
+      )
+    }
     const baseSamples = base.flatMap((metric) => metric.samplesNsPerOp)
     const headSamples = head.flatMap((metric) => metric.samplesNsPerOp)
     const baseMedian = median(baseSamples)
@@ -148,13 +162,22 @@ export function toBencherMetricFormat(
   return Object.fromEntries(
     [...indexMetrics(runs)]
       .sort(([left], [right]) => left.localeCompare(right))
-      .map(([id, metrics]) => [
-        id,
-        {
-          latency: {
-            value: median(metrics.flatMap((metric) => metric.samplesNsPerOp)),
+      .map(([id, metrics]) => {
+        if (
+          metrics.length !== runs.length ||
+          metrics.some((metric) => metric.version !== metrics[0]!.version)
+        )
+          throw new Error(
+            `Benchmark ${id} is missing or changed between head processes.`
+          )
+        return [
+          id,
+          {
+            latency: {
+              value: median(metrics.flatMap((metric) => metric.samplesNsPerOp)),
+            },
           },
-        },
-      ])
+        ]
+      })
   )
 }

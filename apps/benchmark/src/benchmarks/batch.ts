@@ -20,12 +20,12 @@ export const benchmarkRuntime: BenchmarkRuntime = {
 export async function executeBatch(
   definition: BenchmarkDefinition,
   iterations: number,
-  runtime: BenchmarkRuntime
-): Promise<{ durationMs: number; checksum: number }> {
-  const chunkIterations = Math.min(
+  runtime: BenchmarkRuntime,
+  chunkIterations = Math.min(
     iterations,
     definition.maxChunkIterations ?? iterations
   )
+): Promise<{ durationMs: number; checksum: number }> {
   if (!Number.isSafeInteger(chunkIterations) || chunkIterations < 1) {
     throw new Error(`Benchmark ${definition.id} has an invalid chunk size.`)
   }

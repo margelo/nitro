@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises'
 import { parseArguments, requiredArgument } from './args'
 
 /** The artifact contains raw runs plus provenance. Only trusted code derives a report. */
@@ -8,6 +9,8 @@ export interface PerformanceReport {
   pullRequestNumber: number | null
   baseSha: string
   headSha: string
+  baseSuiteHash: string
+  headSuiteHash: string
   workflowRunId: number
   runAttempt: number
 }
@@ -30,7 +33,12 @@ if (import.meta.main) {
   ) {
     throw new Error(`Unsupported event: ${eventName}`)
   }
+  const { baseSuiteHash, headSuiteHash } = JSON.parse(
+    await readFile(requiredArgument(args, 'suite'), 'utf8')
+  ) as Pick<PerformanceReport, 'baseSuiteHash' | 'headSuiteHash'>
   const report: PerformanceReport = {
+    baseSuiteHash,
+    headSuiteHash,
     schemaVersion: 2,
     eventName,
     repository: requiredArgument(args, 'repository'),

@@ -1,3 +1,4 @@
+import { calibrateBenchmarkDefinitions } from './runner'
 import * as React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import {
@@ -23,6 +24,12 @@ function isRunConfiguration(
   if (value == null || typeof value !== 'object') return false
   const candidate = value as Partial<BenchmarkRunConfiguration>
   return (
+    (candidate.calibration === undefined || candidate.calibration === true) &&
+    (candidate.work === undefined ||
+      (candidate.work != null &&
+        typeof candidate.work.id === 'string' &&
+        Number.isSafeInteger(candidate.work.iterations) &&
+        Number.isSafeInteger(candidate.work.chunkIterations))) &&
     typeof candidate.runId === 'string' &&
     typeof candidate.reverse === 'boolean' &&
     typeof candidate.commitSha === 'string' &&
@@ -87,17 +94,35 @@ async function run(): Promise<BenchmarkRunResult> {
         )
   if (selected.length === 0)
     throw new Error('Requested benchmark index is outside the suite.')
-  const metrics = await runBenchmarkDefinitions(selected, {
-    ...RUNNER_OPTIONS,
-    reverse: configuration.reverse,
-  })
+  const runner = configuration.calibration
+    ? { ...RUNNER_OPTIONS, warmupCount: 0, sampleCount: 0 }
+    : RUNNER_OPTIONS
+  const metrics = configuration.calibration
+    ? (
+        await calibrateBenchmarkDefinitions(
+          selected,
+          runner.targetBatchDurationMs
+        )
+      ).map((work, index) => ({
+        ...work,
+        version: selected[index]!.version,
+        family: selected[index]!.family,
+        implementation: selected[index]!.implementation,
+        samplesNsPerOp: [],
+        checksum: 0,
+      }))
+    : await runBenchmarkDefinitions(
+        selected,
+        { ...runner, reverse: configuration.reverse },
+        configuration.work == null ? [] : [configuration.work]
+      )
 
   return {
     schemaVersion: 1,
     suiteVersion: 1,
     configuration,
     environment,
-    runner: RUNNER_OPTIONS,
+    runner,
     startedAt,
     durationMs: performance.now() - start,
     metrics,

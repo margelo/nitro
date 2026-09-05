@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, spyOn, test } from 'bun:test'
-import { runBenchmarkDefinitions } from '../../apps/benchmark/src/benchmarks/runner'
+import {
+  calibrateBenchmarkDefinitions,
+  runBenchmarkDefinitions,
+} from '../../apps/benchmark/src/benchmarks/runner'
 import {
   benchmarkRuntime,
   executeBatch,
@@ -11,6 +14,9 @@ import {
 import type { BenchmarkDefinition } from '../../apps/benchmark/src/benchmarks/types'
 
 const runtime = { collectGarbage() {}, async yieldToRuntime() {} }
+const work = [
+  { id: 'javascript/control/fake-clock', iterations: 1, chunkIterations: 1 },
+]
 
 afterEach(() => {
   spyOn(performance, 'now').mockRestore()
@@ -53,6 +59,7 @@ describe('benchmark runner', () => {
         sampleCount: 2,
         reverse: false,
       },
+      work,
       runtime
     )
 
@@ -74,6 +81,7 @@ describe('benchmark runner', () => {
           sampleCount: 1,
           reverse: false,
         },
+        work,
         runtime
       )
     ).rejects.toThrow('returned checksum 2, expected 99')
@@ -216,36 +224,65 @@ describe('benchmark runner', () => {
     expect(result).toEqual({ durationMs: 150, checksum: 20_000 })
   })
 
-  test('recalibrates after warmup and freezes iterations for all 20 measured samples', async () => {
+  test('calibrates once and executes identical work on slower fresh runtimes', async () => {
     let now = 0
-    let calls = 0
-    const counts: number[] = []
     spyOn(performance, 'now').mockImplementation(() => now)
-    const [metric] = await runBenchmarkDefinitions(
-      [
-        {
-          ...definition((n) => n * 2),
-          initialIterations: 1_000,
-          maxIterations: 1_000_000,
-          run(n) {
-            counts.push(n)
-            now += n * (++calls > 2 ? 0.075 : 0.15)
-            return n * 2
-          },
-        },
-      ],
-      {
-        targetBatchDurationMs: 150,
-        warmupCount: 5,
-        sampleCount: 20,
-        reverse: false,
+    const makeDefinition = (speed: number, counts: number[]) => ({
+      ...definition((n) => n * 2),
+      initialIterations: 100,
+      maxIterations: 100_000,
+      maxChunkIterations: 250,
+      run(n: number) {
+        counts.push(n)
+        now += n * speed
+        return n * 2
       },
+    })
+    const calibrationCalls: number[] = []
+    const plan = await calibrateBenchmarkDefinitions(
+      [makeDefinition(0.15, calibrationCalls)],
+      150,
       runtime
     )
-    expect(metric?.iterations).toBe(2_000)
-    expect(metric?.chunkIterations).toBe(2_000)
-    expect(counts.slice(-20)).toEqual(Array(20).fill(2_000))
-    expect(metric?.samplesNsPerOp).toEqual(Array(20).fill(75_000))
+    expect(plan[0]?.iterations).toBe(1_000)
+    for (const speed of [0.15, 0.3, 1.5]) {
+      const measuredCalls: number[] = []
+      const result = await runBenchmarkDefinitions(
+        [makeDefinition(speed, measuredCalls)],
+        {
+          targetBatchDurationMs: 150,
+          warmupCount: 5,
+          sampleCount: 20,
+          reverse: false,
+        },
+        plan,
+        runtime
+      )
+      expect(measuredCalls).toEqual(Array(25 * 4).fill(250))
+      expect(result[0]?.samplesNsPerOp).toEqual(Array(20).fill(speed * 1e6))
+    }
+  })
+
+  test('rejects incompatible work counts instead of silently reducing head work', async () => {
+    for (const plan of [
+      [],
+      [{ ...work[0]!, iterations: 2 }],
+      [{ ...work[0]!, chunkIterations: 2 }],
+    ]) {
+      await expect(
+        runBenchmarkDefinitions(
+          [definition((n) => n * 2)],
+          {
+            targetBatchDurationMs: 1,
+            warmupCount: 1,
+            sampleCount: 1,
+            reverse: false,
+          },
+          plan,
+          runtime
+        )
+      ).rejects.toThrow('incompatible work counts')
+    }
   })
 
   test('preserves slow measured samples instead of filtering scheduler stalls', async () => {
@@ -257,7 +294,7 @@ describe('benchmark runner', () => {
         {
           ...definition((n) => n * 2),
           run(n) {
-            now += ++calls === 4 ? 10 : 1
+            now += ++calls === 2 ? 10 : 1
             return n * 2
           },
         },
@@ -268,6 +305,7 @@ describe('benchmark runner', () => {
         sampleCount: 2,
         reverse: false,
       },
+      work,
       runtime
     )
     expect(metric?.samplesNsPerOp).toEqual([10_000_000, 1_000_000])

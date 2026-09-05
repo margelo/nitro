@@ -100,4 +100,19 @@ describe('performance comparison', () => {
       ).suiteComparable
     ).toBe(false)
   })
+  test('rejects unequal work and calibration data even if timings look identical', () => {
+    const base = run(BASE_SHA, [100, 100])
+    const head = run(HEAD_SHA, [100, 100])
+    head.metrics[0]!.iterations = 9_000
+    expect(() => compareRuns([base], [head])).toThrow('unequal work')
+    head.metrics[0]!.iterations = base.metrics[0]!.iterations
+    head.configuration.calibration = true
+    expect(() => compareRuns([base], [head])).toThrow('Calibration runs')
+    expect(() => validateBenchmarkRun(head)).toThrow(
+      'Calibration must not contain'
+    )
+    head.configuration.calibration = undefined
+    head.metrics[0]!.samplesNsPerOp = []
+    expect(() => validateBenchmarkRun(head)).toThrow('Sample count')
+  })
 })

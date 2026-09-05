@@ -11,7 +11,8 @@ export async function runIsolatedCases(
   const ids = new Set<string>()
   for (let index = 0; index < count; index++) {
     const run = index === 0 ? first : validateBenchmarkRun(await runCase(index))
-    validateExpectedRun(run, { ...first.configuration, benchmarkIndex: index })
+    const { work: _firstWork, ...sharedConfiguration } = first.configuration
+    validateExpectedRun(run, { ...sharedConfiguration, benchmarkIndex: index })
     if (
       run.benchmarkCount !== count ||
       run.metrics.length !== 1 ||
@@ -34,6 +35,7 @@ export async function runIsolatedCases(
   }
   const configuration = { ...first.configuration }
   delete configuration.benchmarkIndex
+  delete configuration.work
   return {
     ...first,
     configuration,

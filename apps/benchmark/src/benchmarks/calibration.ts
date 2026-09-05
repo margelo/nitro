@@ -20,7 +20,7 @@ export async function calibrateIterations(
     if (!Number.isFinite(durationMs) || durationMs < 0) {
       throw new Error('Calibration requires a finite, non-negative duration.')
     }
-    // Aim inside the requested 100–200 ms window, leaving room for drift.
+    // Choose a practical batch duration; this does not establish steady state.
     if (durationMs >= targetMs * 0.8 && durationMs <= targetMs * 1.2) {
       if (++confirmations === 2) return iterations
       continue
@@ -39,5 +39,7 @@ export async function calibrateIterations(
       maximum
     )
   }
-  throw new Error('Batch duration did not stabilize during calibration.')
+  throw new Error(
+    'Calibration could not reach the target duration within its step limit.'
+  )
 }

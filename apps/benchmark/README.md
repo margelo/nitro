@@ -61,9 +61,10 @@ Local runs do not upload results.
 
 Each metric targets 150 ms of timed work per sample (roughly
 100–200 ms), using round iteration counts with two significant digits, such as
-1,500,000 or 24,000. Calibration can grow or shrink the count and is rechecked
-after five warmup batches. That count is then frozen for twenty measured samples;
-slow samples are retained, not discarded or adaptively shortened.
+1,500,000 or 24,000. Calibration chooses the count in a separate process that is discarded. The
+measurement process performs five warmup batches and twenty samples using those
+fixed counts. In paired runs, both revisions share the base-derived count and
+chunk size for each case. Slow samples are retained without shortening the work.
 
 Allocation-heavy cases split a sample into bounded chunks, collecting garbage
 after each chunk and yielding for native cleanup at most every four chunks,

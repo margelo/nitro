@@ -95,6 +95,8 @@ async function createFixture(root: string): Promise<{
     pullRequestNumber: 123,
     baseSha: BASE_SHA,
     headSha: HEAD_SHA,
+    baseSuiteHash: SUITE_HASH,
+    headSuiteHash: SUITE_HASH,
     workflowRunId: 123456789,
     runAttempt: 1,
   })
@@ -244,6 +246,42 @@ describe('trusted performance report validation', () => {
       if (kind === 'raw-mode') value.environment.dev = true
       await writeJson(file, value)
       expect((await validate(fixture)).exitCode).not.toBe(0)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+  test('changed suites accept a head-only baseline; comparable suites require base', async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-performance-'))
+    try {
+      const fixture = await createFixture(root)
+      for (const platform of ['android', 'ios'])
+        for (const sequence of [1, 2]) {
+          await rm(
+            path.join(
+              fixture.artifact,
+              'raw',
+              platform,
+              `base-${sequence}.json`
+            )
+          )
+        }
+      expect((await validate(fixture)).exitCode).not.toBe(0)
+      const file = path.join(fixture.artifact, 'performance-report.json')
+      const manifest = JSON.parse(await readFile(file, 'utf8'))
+      manifest.baseSuiteHash = 'd'.repeat(64)
+      await writeJson(file, manifest)
+      expect((await validate(fixture)).exitCode).toBe(0)
+      expect(
+        await readFile(
+          path.join(fixture.output, 'performance-summary.md'),
+          'utf8'
+        )
+      ).toContain('require a new baseline')
+      expect(
+        await Bun.file(
+          path.join(fixture.output, 'bencher-base-ios.json')
+        ).exists()
+      ).toBe(false)
     } finally {
       await rm(root, { recursive: true, force: true })
     }

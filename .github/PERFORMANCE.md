@@ -6,8 +6,10 @@ order for the second pair. Each case gets a fresh app process; installation,
 startup, transport and process restarts are outside timing. There is no automatic
 third pair. Manual reruns are retained as identifiable workflow attempts.
 
-Each case records twenty ordered batch averages after five warmup batches.
-Calibration targets 150 ms of timed work; this target does not establish steady
+A separate base calibration process chooses one per-case iteration and chunk
+plan. Both revisions then use that plan for five warmup batches and twenty ordered
+measurements in fresh processes. Incompatible counts fail rather than silently
+shortening head work. Calibration targets 150 ms of timed work; this target does not establish steady
 state or erase drift. Allocation-heavy cases sum bounded timed chunks with
 explicit cleanup outside timing. Raw `iterations`, `chunkIterations` and ordered
 `samplesNsPerOp` describe the work; timed sample milliseconds are
@@ -27,12 +29,14 @@ failures still fail CI. Turning observed differences into a regression gate need
 empirical validation on unchanged commits and intentional slowdowns on each
 unchanged suite/testbed. No Promise case is permanently exempt. Scheduled/manual
 runs with the same base and head SHA measure baseline variation explicitly.
-Changed benchmark definitions require a new baseline and are not compared.
+Changed benchmark definitions run two head-only measurements as a new baseline,
+without executing the old base app or publishing an invented paired baseline.
+This also handles the first rollout of a new runner protocol.
 
 ## Artifacts and publishing
 
 The canonical artifact is `performance-report-<attempt>`: raw JSON for every
-base/head process plus `performance-report.json` with repository, revisions,
+measured process and discarded calibration plan, plus `performance-report.json` with repository, revisions,
 workflow run and attempt provenance. Artifacts remain available for 30 days.
 The PR comment links its exact immutable artifact ID; downloads require GitHub
 access. An agent can inspect the JSON instead of scraping the rendered table.

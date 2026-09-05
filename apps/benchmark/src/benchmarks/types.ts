@@ -54,19 +54,25 @@ export interface BenchmarkRunnerOptions {
   reverse: boolean
 }
 
-export interface BenchmarkMetric {
+export interface BenchmarkWork {
   id: string
-  version: number
-  family: BenchmarkFamily
-  implementation: BenchmarkImplementation
   iterations: number
   /** Maximum operations between untimed garbage collections. */
   chunkIterations: number
+}
+
+export interface BenchmarkMetric extends BenchmarkWork {
+  version: number
+  family: BenchmarkFamily
+  implementation: BenchmarkImplementation
   samplesNsPerOp: number[]
   checksum: number
 }
 
 export interface BenchmarkRunConfiguration {
+  /** Calibration is discarded; measurement always uses a fresh process. */
+  calibration?: true
+  work?: BenchmarkWork
   /** Select one case in suite order for a fresh-process measurement. */
   benchmarkIndex?: number
   runId: string

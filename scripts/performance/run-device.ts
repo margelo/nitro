@@ -1,4 +1,4 @@
-import { median } from '../../apps/benchmark/src/benchmarks/statistics'
+import type { BenchmarkWork } from '../../apps/benchmark/src/benchmarks/types'
 import path from 'node:path'
 import { mkdir, readFile } from 'node:fs/promises'
 import { parseArguments, requiredArgument } from './args'
@@ -76,12 +76,30 @@ const receiverArguments = [
   requiredArgument(argumentsMap, 'toolchain'),
 ]
 
-async function runCase(index: number) {
-  const caseOutput = path.join(casesDirectory, `case-${index}.json`)
+async function runCase(
+  index: number,
+  calibration: boolean,
+  work?: BenchmarkWork
+) {
+  const caseOutput = path.join(
+    casesDirectory,
+    `${calibration ? 'calibration' : 'case'}-${index}.json`
+  )
   const receiver = Bun.spawn(
     [
       'bun',
       ...receiverArguments,
+      ...(calibration ? ['--calibration', 'true'] : []),
+      ...(work == null
+        ? []
+        : [
+            '--work-id',
+            work.id,
+            '--iterations',
+            String(work.iterations),
+            '--chunk-iterations',
+            String(work.chunkIterations),
+          ]),
       '--output',
       caseOutput,
       '--benchmark-index',
@@ -164,7 +182,7 @@ async function runCase(index: number) {
     )
     const metric = result.metrics[0]!
     console.info(
-      `[NitroBenchmark] case ${index + 1}/${result.benchmarkCount}: ${metric.id}, ${metric.iterations} ops/sample, median timed batch ${((median(metric.samplesNsPerOp) * metric.iterations) / 1e6).toFixed(1)} ms`
+      `[NitroBenchmark] ${calibration ? 'calibration' : 'measurement'} case ${index + 1}/${result.benchmarkCount}: ${metric.id}, ${metric.iterations} ops/sample`
     )
     return result
   } catch (error) {
@@ -244,5 +262,39 @@ if (platform === 'android') {
   )
   await command('xcrun', ['simctl', 'install', deviceId, app])
 }
-const result = await runIsolatedCases(runCase)
+const workFile = argumentsMap.get('work-plan')?.[0]
+const plan =
+  workFile == null
+    ? undefined
+    : validateBenchmarkRun(JSON.parse(await readFile(workFile, 'utf8')))
+const work = plan?.metrics.map(({ id, iterations, chunkIterations }) => ({
+  id,
+  iterations,
+  chunkIterations,
+}))
+if (
+  plan != null &&
+  (plan.configuration.calibration !== true ||
+    plan.configuration.suiteHash !==
+      requiredArgument(argumentsMap, 'suite-hash'))
+) {
+  throw new Error('Work plan must be calibration for the measured suite.')
+}
+if (
+  plan != null &&
+  plan.configuration.reverse !== (argumentsMap.get('reverse')?.[0] === 'true')
+)
+  work?.reverse()
+const result = await runIsolatedCases(async (index) => {
+  if (argumentsMap.has('calibration')) return runCase(index, true)
+  let counts = work?.[index]
+  if (counts == null) {
+    if (work != null) throw new Error('Work plan is missing a benchmark case.')
+    const calibration = await runCase(index, true)
+    const { id, iterations, chunkIterations } = calibration.metrics[0]!
+    counts = { id, iterations, chunkIterations }
+  }
+  // runCase terminates its process before returning, including calibration.
+  return runCase(index, false, counts)
+})
 await Bun.write(output, `${JSON.stringify(result, null, 2)}\n`)

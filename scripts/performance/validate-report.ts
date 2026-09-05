@@ -181,7 +181,22 @@ function validateReport(value: unknown): PerformanceReport {
   if (!isSafeSha(baseSha) || !isSafeSha(headSha)) {
     throw new Error('Report SHAs are invalid.')
   }
+  const baseSuiteHash = boundedString(
+    report.baseSuiteHash,
+    'report.baseSuiteHash'
+  )
+  const headSuiteHash = boundedString(
+    report.headSuiteHash,
+    'report.headSuiteHash'
+  )
+  if (
+    !/^[0-9a-f]{64}$/.test(baseSuiteHash) ||
+    !/^[0-9a-f]{64}$/.test(headSuiteHash)
+  )
+    throw new Error('Invalid report suite hashes.')
   return {
+    baseSuiteHash,
+    headSuiteHash,
     schemaVersion: 2,
     eventName,
     repository: boundedString(report.repository, 'report.repository'),
@@ -285,7 +300,12 @@ async function loadRawRuns(
         run.configuration.runId !== `${platform}-${revision}-${sequence}` ||
         run.configuration.reverse !== (sequence === 2) ||
         run.configuration.platform !== platform ||
+        run.configuration.benchmarkIndex !== undefined ||
+        run.metrics.length !== run.benchmarkCount ||
         run.configuration.commitSha !== expectedSha ||
+        run.configuration.suiteHash !==
+          (revision === 'base' ? report.baseSuiteHash : report.headSuiteHash) ||
+        run.configuration.calibration !== undefined ||
         run.runner.targetBatchDurationMs !== 150 ||
         run.runner.warmupCount !== 5 ||
         run.runner.sampleCount !== 20 ||
@@ -304,14 +324,27 @@ async function loadRawRuns(
 
 const rebuiltComparisons = await Promise.all(
   (['android', 'ios'] as const).map(async (platform) => {
-    const [baseRuns, headRuns] = await Promise.all([
-      loadRawRuns(platform, 'base', report.baseSha),
-      loadRawRuns(platform, 'head', report.headSha),
-    ])
-    if (baseRuns.length !== headRuns.length) {
-      throw new Error('Base and head run counts must match.')
-    }
-    const comparison = compareRuns(baseRuns, headRuns)
+    const headRuns = await loadRawRuns(platform, 'head', report.headSha)
+    const comparable = report.baseSuiteHash === report.headSuiteHash
+    const baseFiles = (
+      await readdir(path.join(artifactDirectory, 'raw', platform))
+    ).filter((file) => /^base-/.test(file))
+    if (!comparable && baseFiles.length !== 0)
+      throw new Error(
+        'Changed suites must not upload incomparable base measurements.'
+      )
+    const baseRuns = comparable
+      ? await loadRawRuns(platform, 'base', report.baseSha)
+      : []
+    const comparison = comparable
+      ? compareRuns(baseRuns, headRuns)
+      : {
+          platform,
+          baseSha: report.baseSha,
+          headSha: report.headSha,
+          suiteComparable: false,
+          comparisons: [],
+        }
     return { comparison, baseRuns, headRuns }
   })
 )
@@ -338,6 +371,8 @@ await Bun.write(
       pullRequestNumber: report.pullRequestNumber,
       baseSha: report.baseSha,
       headSha: report.headSha,
+      baseSuiteHash: report.baseSuiteHash,
+      headSuiteHash: report.headSuiteHash,
       workflowRunUrl,
       platforms: rebuiltComparisons.map(
         ({ comparison }) => comparison.platform
@@ -353,6 +388,7 @@ for (const { comparison, baseRuns, headRuns } of rebuiltComparisons) {
     [`base-${comparison.platform}`, baseRuns],
     [comparison.platform, headRuns],
   ] as const) {
+    if (runs.length === 0) continue
     await Bun.write(
       path.join(outputDirectory, `bencher-${suffix}.json`),
       `${JSON.stringify(toBencherMetricFormat(runs), null, 2)}\n`
