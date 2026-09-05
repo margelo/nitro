@@ -167,7 +167,7 @@ jobs:
           fi
 
       - name: Run paired Android benchmarks
-        uses: reactivecircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808 # v2
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         with:
           api-level: 36
           arch: x86_64
