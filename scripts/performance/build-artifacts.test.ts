@@ -38,6 +38,11 @@ for (const platform of ['android', 'ios'] as const) {
           '#!/bin/sh\ncp "$GITHUB_WORKSPACE/metadata.json" apps/build.json\n'
         )
         await chmod(bun, 0o755)
+        for (const tool of ['java', 'xcodebuild']) {
+          const file = path.join(root, 'bin', tool)
+          await Bun.write(file, '#!/bin/sh\necho fixture-tool-version\n')
+          await chmod(file, 0o755)
+        }
         const script = path.join(
           root,
           `head/scripts/performance/build-${platform}.sh`
