@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { parseArguments, requiredArgument } from './args'
 
@@ -13,11 +14,19 @@ export interface PerformanceReport {
   headSuiteHash: string
   workflowRunId: number
   runAttempt: number
+  artifacts: Record<'android' | 'ios', PlatformArtifacts>
+}
+
+export interface PlatformArtifacts {
+  buildId: number
+  buildAttempt: number
+  measurementId: number
+  measurementAttempt: number
 }
 
 export interface ReportMetadata extends Omit<
   PerformanceReport,
-  'schemaVersion' | 'workflowRunId' | 'runAttempt'
+  'schemaVersion' | 'workflowRunId' | 'runAttempt' | 'artifacts'
 > {
   platforms: ('android' | 'ios')[]
 }
@@ -36,7 +45,28 @@ if (import.meta.main) {
   const { baseSuiteHash, headSuiteHash } = JSON.parse(
     await readFile(requiredArgument(args, 'suite'), 'utf8')
   ) as Pick<PerformanceReport, 'baseSuiteHash' | 'headSuiteHash'>
+  const raw = requiredArgument(args, 'raw-directory')
+  async function artifacts(
+    platform: 'android' | 'ios'
+  ): Promise<PlatformArtifacts> {
+    const build = await Bun.file(path.join(raw, platform, 'build.json')).json()
+    const measurement = await Bun.file(
+      path.join(raw, platform, 'measurement.json')
+    ).json()
+    return {
+      buildId: measurement.buildArtifactId,
+      buildAttempt: build.runAttempt,
+      measurementId: Number(
+        process.env[`${platform.toUpperCase()}_ARTIFACT_ID`]
+      ),
+      measurementAttempt: measurement.runAttempt,
+    }
+  }
   const report: PerformanceReport = {
+    artifacts: {
+      android: await artifacts('android'),
+      ios: await artifacts('ios'),
+    },
     baseSuiteHash,
     headSuiteHash,
     schemaVersion: 2,

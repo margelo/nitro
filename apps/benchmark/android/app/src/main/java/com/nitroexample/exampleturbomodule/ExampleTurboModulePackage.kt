@@ -7,9 +7,9 @@ import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
 
 class ExampleTurboModulePackage: BaseReactPackage() {
-    override fun getModule(name: String, context: ReactApplicationContext): NativeModule? {
+    override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
         if (name == ExampleTurboModuleModule.NAME) {
-            return ExampleTurboModuleModule(context)
+            return ExampleTurboModuleModule(reactContext)
         } else {
             return null
         }
@@ -21,7 +21,6 @@ class ExampleTurboModulePackage: BaseReactPackage() {
                 ExampleTurboModuleModule.NAME,
                 false, // canOverrideExistingModule
                 false, // needsEagerInit
-                true, // hasConstants
                 false, // isCxxModule
                 true // isTurboModule
             )

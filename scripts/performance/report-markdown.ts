@@ -3,6 +3,7 @@ import {
   type MetricComparison,
   type PlatformComparison,
 } from './comparison'
+import type { PerformanceReport } from './report'
 
 const OPERATION_NAMES: Readonly<Record<string, string>> = {
   'add-numbers': 'addNumbers()',
@@ -117,6 +118,7 @@ export function renderPerformanceReportMarkdown(
     workflowRunUrl?: string
     artifactId?: number
     runAttempt?: number
+    artifacts?: PerformanceReport['artifacts']
   }
 ): string {
   const lines = [
@@ -178,6 +180,16 @@ export function renderPerformanceReportMarkdown(
   if (options.artifactId != null && options.workflowRunUrl != null) {
     lines.push(
       `Raw measurements: [performance-report-${options.runAttempt} (JSON artifact)](${options.workflowRunUrl}/artifacts/${options.artifactId}). Run ${options.workflowRunUrl.split('/').at(-1)}, attempt ${options.runAttempt}. Download requires GitHub access.`,
+      ''
+    )
+  }
+  const platformArtifacts = options.artifacts
+  if (platformArtifacts != null && options.workflowRunUrl != null) {
+    lines.push(
+      ...(['android', 'ios'] as const).map((platform) => {
+        const artifacts = platformArtifacts[platform]
+        return `${platformName(platform)}: [measurements, attempt ${artifacts.measurementAttempt}](${options.workflowRunUrl}/artifacts/${artifacts.measurementId}), [apps, attempt ${artifacts.buildAttempt}](${options.workflowRunUrl}/artifacts/${artifacts.buildId}).`
+      }),
       ''
     )
   }

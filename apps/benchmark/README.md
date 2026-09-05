@@ -14,12 +14,8 @@ Debug benchmark or publish anything to Bencher.
 From the repository root:
 
 ```sh
-bun install --frozen-lockfile
-bun benchmark build:android
-
-bun benchmark bundle-install
-bun benchmark pods
-bun benchmark build:ios
+bash scripts/performance/build-android.sh "$PWD"
+bash scripts/performance/build-ios.sh "$PWD"
 ```
 
 Both platforms use the normal `Release` configuration, an embedded optimized
@@ -86,8 +82,10 @@ the timed batch. Operation-induced allocations remain inside it.
 
 See [performance CI](../../.github/PERFORMANCE.md) for observed comparisons,
 process variability, raw artifacts, trusted reporting, and Bencher publishing.
-Base and head are built independently. Same-revision scheduled/manual runs show
-baseline variation. Performance remains report-only.
+CI retains exact app artifacts for measurement-only reruns. It builds both
+revisions when comparable, reuses one binary for identical SHAs, and builds only
+head when definitions changed. Same-revision scheduled/manual runs show baseline
+variation. Performance remains report-only.
 
 The example's former benchmark screen and TurboModule control have moved here.
 No public Nitro API changes are needed. App dependency versions initially match

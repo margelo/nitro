@@ -1,6 +1,6 @@
 import { appendFile, readFile } from 'node:fs/promises'
 
-interface Artifact {
+export interface Artifact {
   id: number
   name: string
   expired: boolean
@@ -69,6 +69,10 @@ if (import.meta.main) {
   ])
   if (artifactResponse.total_count > 100 || jobResponse.total_count > 100)
     throw new Error('Performance run exceeds the artifact/job lookup limit.')
+  await Bun.write(
+    'trusted-artifacts.json',
+    JSON.stringify(artifactResponse.artifacts)
+  )
   const id = selectReportArtifact(
     run.conclusion,
     run.run_attempt,

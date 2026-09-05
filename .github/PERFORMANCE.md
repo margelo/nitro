@@ -33,11 +33,33 @@ Changed benchmark definitions run two head-only measurements as a new baseline,
 without executing the old base app or publishing an invented paired baseline.
 This also handles the first rollout of a new runner protocol.
 
+## Saved apps and measurement reruns
+
+The workflow separates preparation, platform builds, platform measurements and
+collection. Each measurement job downloads the immutable app artifact ID produced
+by its build job; base and head still run together on one machine. A changed suite
+builds only head. An identical base/head SHA reuses the same binary for both sides.
+Otherwise each revision is built from its own checkout with the same build script.
+
+Use GitHub's **Re-run job and dependent jobs** on `measure-android` or
+`measure-ios` to repeat measurements without rebuilding successful ancestors.
+Collection downloads the exact result IDs from those jobs. An untouched platform
+keeps its original attempt; the report records and links both platform measurement
+attempts and their app build attempts. Rerunning all jobs intentionally rebuilds.
+Apps and results expire after 30 days; an expired artifact requires a new build.
+
+The app artifact includes base/head SHAs, suite hashes, Release configuration,
+architecture and toolchain metadata. iOS apps are tar archives to preserve
+permissions and symlinks. Gradle's basic cache is the sole Android cache owner;
+Gradle still checks source/task inputs, while exact app reuse is by artifact ID.
+There is no new iOS compiler cache. First-run speed or CI stability improvements
+have not been measured; app reuse specifically avoids build work on manual reruns.
+
 ## Artifacts and publishing
 
 The canonical artifact is `performance-report-<attempt>`: raw JSON for every
 measured process and discarded calibration plan, plus `performance-report.json` with repository, revisions,
-workflow run and attempt provenance. Artifacts remain available for 30 days.
+workflow run and attempt provenance, original build metadata and measurement artifact IDs. Artifacts remain available for 30 days.
 The PR comment links its exact immutable artifact ID; downloads require GitHub
 access. An agent can inspect the JSON instead of scraping the rendered table.
 
@@ -46,17 +68,17 @@ forks and main runs. It downloads the exact artifact from the triggering attempt
 validates bounded JSON against GitHub's run and current PR metadata, and computes
 the comparison, Markdown and Bencher values from raw samples. It never installs
 or executes PR code or app artifacts. Docs-only and cancelled runs skip
-publication. Relevant failures remain failures. Stale PR results are skipped.
+publication. Markdown/MDX-only edits also skip measurements inside package/app directories. Relevant failures remain failures. Stale PR results are skipped.
 
 The trusted publisher uses `BENCHER_KEY` as an Actions secret. Its CLI version and
 binary digest are pinned. Bencher receives median latency values without invented
 bounds; its JSON adapter requires only `value`. PR publications seed both measured
 platform baselines at `baseline-<base SHA>` before recording the head at
-`pr-<number>`. Main runs record main history. User comments are never edited.
+`pr-<number>`. Main runs record main history. Bencher receives history only: it does not post a second GitHub comment or create alert-driven checks. The trusted renderer owns the one PR comment. User comments are never edited.
 
 The raw-manifest publisher and producer land together in the first cleanup PR.
 Until that PR reaches the default branch, the previous trusted reporter cannot
-consume its new manifest. Merge that PR before running later stack revisions;
+consume its new manifest. Merge the complete producer/publisher stack before relying on its new provenance contract;
 there is no permanent old-schema reporting path. Existing raw app results may
 contain extra summary fields, which the raw parser ignores.
 
@@ -102,3 +124,17 @@ Removing that variable switches back to the default identity. Configured app
 authentication failures fail the posting job rather than silently switching authors.
 The first run after switching identities creates a new comment; subsequent runs
 update that bot's comment. Earlier comments keep their original author and avatar.
+
+## Remaining upstream warnings
+
+The benchmark now uses the supported ReactModuleInfo constructor and matching
+`reactContext` parameter name. Its Gradle property assignments use current syntax.
+AGP/RN and Nitro package Gradle warnings remain outside that focused app edit.
+Android uses supported `-gpu swiftshader` with required KVM CPU acceleration.
+
+The emulator action hardcodes `cmdline-tools/latest`. Older hosted SDK managers
+can still emit the XML v3/v4 metadata warning. Updating only the action does not
+replace an installed SDK manager; latest command-line tools 23 also deprecates
+`sdkmanager` in favor of the Android CLI. This change logs the selected SDK manager
+and version, and leaves provisioning to the runner/action rather than patching its
+SDK layout. This inherited warning is not suppressed.

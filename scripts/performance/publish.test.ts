@@ -62,6 +62,9 @@ describe('Bencher publications', () => {
     ])
     for (const { command } of publications) {
       expect(command).not.toContain('--start-point-reset')
+      expect(command).not.toContain('--github-actions')
+      expect(command).not.toContain('--ci-number')
+      expect(command).not.toContain('--error-on-alert')
     }
   })
 

@@ -1,4 +1,5 @@
-import type { PerformanceReport } from './report'
+import type { PerformanceReport, PlatformArtifacts } from './report'
+import type { Artifact } from './select-report'
 import { appendFile, mkdir, readdir, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
@@ -194,7 +195,30 @@ function validateReport(value: unknown): PerformanceReport {
     !/^[0-9a-f]{64}$/.test(headSuiteHash)
   )
     throw new Error('Invalid report suite hashes.')
+  const artifactValues = object(report.artifacts, 'report.artifacts')
+  function artifacts(platform: 'android' | 'ios'): PlatformArtifacts {
+    const values = object(artifactValues[platform], `${platform} artifacts`)
+    const result = {} as PlatformArtifacts
+    for (const key of [
+      'buildId',
+      'buildAttempt',
+      'measurementId',
+      'measurementAttempt',
+    ] as const) {
+      const value = finiteNumber(values[key], `${platform}.${key}`)
+      if (!Number.isSafeInteger(value) || value < 1)
+        throw new Error('Invalid platform artifact provenance.')
+      result[key] = value
+    }
+    if (
+      result.buildAttempt > result.measurementAttempt ||
+      result.measurementAttempt > Number(report.runAttempt)
+    )
+      throw new Error('Platform artifacts come from a future attempt.')
+    return result
+  }
   return {
+    artifacts: { android: artifacts('android'), ios: artifacts('ios') },
     baseSuiteHash,
     headSuiteHash,
     schemaVersion: 2,
@@ -277,6 +301,63 @@ if (report.eventName === 'pull_request') {
     )
   }
 }
+const builds = new Map<string, Record<string, unknown>>()
+const trustedArtifacts = (await readBoundedJson(
+  requiredArgument(argumentsMap, 'trusted-artifacts')
+)) as Artifact[]
+for (const platform of ['android', 'ios'] as const) {
+  const ids = report.artifacts[platform]
+  for (const [id, name] of [
+    [ids.buildId, `performance-apps-${platform}-${ids.buildAttempt}`],
+    [ids.measurementId, `performance-${platform}-${ids.measurementAttempt}`],
+  ] as const) {
+    if (
+      !trustedArtifacts.some(
+        (artifact) =>
+          artifact.id === id && artifact.name === name && !artifact.expired
+      )
+    ) {
+      throw new Error(
+        `${platform} references an artifact outside this workflow run or attempt.`
+      )
+    }
+  }
+  const build = object(
+    await readBoundedJson(
+      path.join(artifactDirectory, 'raw', platform, 'build.json')
+    ),
+    `${platform} build`
+  )
+  if (
+    build.platform !== platform ||
+    build.baseSha !== report.baseSha ||
+    build.headSha !== report.headSha ||
+    build.baseSuiteHash !== report.baseSuiteHash ||
+    build.headSuiteHash !== report.headSuiteHash ||
+    build.workflowRunId !== report.workflowRunId ||
+    build.runAttempt !== ids.buildAttempt ||
+    build.configuration !== 'Release'
+  ) {
+    throw new Error(
+      `${platform} app build metadata does not match this report.`
+    )
+  }
+  const measurement = object(
+    await readBoundedJson(
+      path.join(artifactDirectory, 'raw', platform, 'measurement.json')
+    ),
+    `${platform} measurement`
+  )
+  if (
+    measurement.buildArtifactId !== ids.buildId ||
+    measurement.runAttempt !== ids.measurementAttempt
+  )
+    throw new Error(
+      `${platform} measurement provenance does not match this report.`
+    )
+  builds.set(platform, build)
+}
+
 async function loadRawRuns(
   platform: 'android' | 'ios',
   revision: 'base' | 'head',
@@ -300,6 +381,8 @@ async function loadRawRuns(
         run.configuration.runId !== `${platform}-${revision}-${sequence}` ||
         run.configuration.reverse !== (sequence === 2) ||
         run.configuration.platform !== platform ||
+        run.configuration.architecture !== builds.get(platform)!.architecture ||
+        run.configuration.toolchain !== builds.get(platform)!.toolchain ||
         run.configuration.benchmarkIndex !== undefined ||
         run.metrics.length !== run.benchmarkCount ||
         run.configuration.commitSha !== expectedSha ||
@@ -325,6 +408,8 @@ async function loadRawRuns(
 const rebuiltComparisons = await Promise.all(
   (['android', 'ios'] as const).map(async (platform) => {
     const headRuns = await loadRawRuns(platform, 'head', report.headSha)
+    // This also checks the two baseline processes share work and runtime settings.
+    compareRuns([headRuns[0]!], [headRuns[1]!])
     const comparable = report.baseSuiteHash === report.headSuiteHash
     const baseFiles = (
       await readdir(path.join(artifactDirectory, 'raw', platform))
@@ -359,9 +444,11 @@ const markdown = renderPerformanceReportMarkdown(
     workflowRunUrl,
     artifactId: Number(requiredArgument(argumentsMap, 'artifact-id')),
     runAttempt: report.runAttempt,
+    artifacts: report.artifacts,
   }
 )
 await Bun.write(path.join(outputDirectory, 'performance-summary.md'), markdown)
+
 await Bun.write(
   path.join(outputDirectory, 'metadata.json'),
   `${JSON.stringify(

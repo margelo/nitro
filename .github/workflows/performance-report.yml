@@ -7,7 +7,6 @@ on:
 
 permissions:
   actions: read
-  checks: write
   contents: read
   pull-requests: write
 
@@ -62,6 +61,7 @@ jobs:
             --expected-repository "$GITHUB_REPOSITORY" \
             --trusted-workflow-event "$GITHUB_EVENT_PATH" \
             --artifact-id "${{ steps.select.outputs.artifact_id }}" \
+            --trusted-artifacts trusted-artifacts.json \
             "${TRUSTED_PR_ARGUMENTS[@]}"
 
       - name: Create Nitro Modules Bot token
@@ -91,10 +91,9 @@ jobs:
         run: |
           printf '%s  %s\n' 'c2d3a6a7fae654246134e5ced1408bdb9ba4e198b0ac3b903af17a06574a7e08' "$(command -v bencher)" | sha256sum --check -
 
-      - name: Publish to Bencher and GitHub
+      - name: Publish Bencher history
         if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true'
         env:
           BENCHER_API_KEY: ${{ secrets.BENCHER_KEY }}
           BENCHER_PROJECT: nitro
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun scripts/performance/publish.ts --directory validated-report

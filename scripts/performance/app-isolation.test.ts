@@ -22,7 +22,15 @@ test('the benchmark app has no Harness or example UI dependencies', async () => 
 })
 
 test('performance CI builds the standalone Release app without custom variants', async () => {
-  const workflow = await read('.github/workflows/performance.yml')
+  const workflow = (
+    await Promise.all(
+      [
+        '.github/workflows/performance.yml',
+        'scripts/performance/build-android.sh',
+        'scripts/performance/build-ios.sh',
+      ].map(read)
+    )
+  ).join('\n')
   expect(workflow).toContain('cd apps/benchmark/android')
   expect(workflow).toContain(':app:assembleRelease')
   expect(workflow).toContain('-configuration Release')

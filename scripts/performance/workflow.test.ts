@@ -1,5 +1,7 @@
 import { expect, test } from 'bun:test'
-import { readFile } from 'node:fs/promises'
+import { readFile, mkdtemp, mkdir, rm } from 'node:fs/promises'
+import path from 'node:path'
+import os from 'node:os'
 
 test('Android performance CI requires KVM and cannot fall back to software emulation', async () => {
   const source = await readFile(
@@ -8,7 +10,7 @@ test('Android performance CI requires KVM and cannot fall back to software emula
   )
   const workflow = Bun.YAML.parse(source) as {
     jobs: {
-      android: {
+      'measure-android': {
         steps: {
           name?: string
           run?: string
@@ -17,12 +19,12 @@ test('Android performance CI requires KVM and cannot fall back to software emula
       }
     }
   }
-  const steps = workflow.jobs.android.steps
+  const steps = workflow.jobs['measure-android'].steps
   const kvmIndex = steps.findIndex(
     (step) => step.name === 'Enable KVM for benchmark measurements'
   )
   const buildIndex = steps.findIndex(
-    (step) => step.name === 'Build head benchmark APK'
+    (step) => step.name === 'Run paired Android benchmarks'
   )
   expect(kvmIndex).toBeGreaterThanOrEqual(0)
   expect(kvmIndex).toBeLessThan(buildIndex)
@@ -78,7 +80,82 @@ test('one trusted publisher handles internal and fork reports without executing 
   ).toBe('${{ steps.select.outputs.artifact_id }}')
   expect(
     steps.findIndex((s) => s.name === 'Verify pinned Bencher binary')
-  ).toBeLessThan(
-    steps.findIndex((s) => s.name === 'Publish to Bencher and GitHub')
-  )
+  ).toBeLessThan(steps.findIndex((s) => s.name === 'Publish Bencher history'))
 })
+
+test.each([false, true])(
+  'package docs skip measurements unless native code also changed: %s',
+  async (nativeChange) => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-relevance-'))
+    try {
+      async function git(...args: string[]) {
+        const child = Bun.spawn(['git', ...args], {
+          cwd: root,
+          stdout: 'pipe',
+          stderr: 'pipe',
+        })
+        const output = await new Response(child.stdout).text()
+        if ((await child.exited) !== 0)
+          throw new Error(await new Response(child.stderr).text())
+        return output.trim()
+      }
+      await git('init', '-q')
+      await git(
+        '-c',
+        'user.name=Fixture',
+        '-c',
+        'user.email=fixture@example.com',
+        'commit',
+        '--allow-empty',
+        '-qm',
+        'base'
+      )
+      const base = await git('rev-parse', 'HEAD')
+      const directory = path.join(root, 'packages/react-native-nitro-modules')
+      await mkdir(directory, { recursive: true })
+      await Bun.write(path.join(directory, 'README.md'), 'documentation')
+      await Bun.write(path.join(directory, 'guide.mdx'), 'documentation')
+      if (nativeChange)
+        await Bun.write(path.join(directory, 'Runtime.cpp'), '// native change')
+      await git('add', '.')
+      await git(
+        '-c',
+        'user.name=Fixture',
+        '-c',
+        'user.email=fixture@example.com',
+        'commit',
+        '-qm',
+        'head'
+      )
+      const workflow = Bun.YAML.parse(
+        await readFile(
+          new URL('../../.github/workflows/performance.yml', import.meta.url),
+          'utf8'
+        )
+      ) as any
+      const script = workflow.jobs.prepare.steps.find(
+        (step: any) => step.id === 'metadata'
+      ).run
+      const child = Bun.spawn(['bash', '-euo', 'pipefail', '-c', script], {
+        cwd: root,
+        env: {
+          ...process.env,
+          EVENT_NAME: 'pull_request',
+          PR_BASE_SHA: base,
+          PR_HEAD_SHA: await git('rev-parse', 'HEAD'),
+          PR_NUMBER: '1',
+          GITHUB_OUTPUT: path.join(root, 'outputs'),
+          GITHUB_STEP_SUMMARY: path.join(root, 'summary'),
+        },
+        stdout: 'pipe',
+        stderr: 'pipe',
+      })
+      expect(await child.exited).toBe(0)
+      expect(await Bun.file(path.join(root, 'outputs')).text()).toContain(
+        `relevant=${nativeChange}`
+      )
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  }
+)

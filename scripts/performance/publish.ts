@@ -84,11 +84,8 @@ if (import.meta.main) {
   const directory = requiredArgument(argumentsMap, 'directory')
   const project = process.env.BENCHER_PROJECT
   const apiKey = process.env.BENCHER_API_KEY
-  const githubToken = process.env.GITHUB_TOKEN
-  if (!project?.trim() || !apiKey?.trim() || !githubToken?.trim()) {
-    throw new Error(
-      'BENCHER_PROJECT, BENCHER_API_KEY, and GITHUB_TOKEN are required.'
-    )
+  if (!project?.trim() || !apiKey?.trim()) {
+    throw new Error('BENCHER_PROJECT and BENCHER_API_KEY are required.')
   }
   const metadata: ReportMetadata = JSON.parse(
     await readFile(path.join(directory, 'metadata.json'), 'utf8')
@@ -98,17 +95,6 @@ if (import.meta.main) {
     directory,
     project
   )) {
-    if (revision === 'head') {
-      command.push(
-        '--github-actions',
-        githubToken,
-        '--ci-id',
-        `nitro-${platform}-release`,
-        '--ci-public-links'
-      )
-      if (metadata.pullRequestNumber != null)
-        command.push('--ci-number', String(metadata.pullRequestNumber))
-    }
     // The Bencher key is environment-only, never an argument or log message.
     const child = Bun.spawn(command, {
       env: { ...Bun.env, BENCHER_API_KEY: apiKey },

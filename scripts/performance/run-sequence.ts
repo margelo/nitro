@@ -3,6 +3,7 @@ import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
 import { validateBenchmarkRun } from './schema'
 import { calculateSuiteHash } from './suite-hash'
+import type { BuildMetadata } from './build-metadata'
 
 const argumentsMap = parseArguments(Bun.argv.slice(2))
 const platform = requiredArgument(argumentsMap, 'platform')
@@ -11,8 +12,6 @@ if (platform !== 'android' && platform !== 'ios') {
 }
 const baseApp = path.resolve(requiredArgument(argumentsMap, 'base-app'))
 const headApp = path.resolve(requiredArgument(argumentsMap, 'head-app'))
-const baseRoot = path.resolve(requiredArgument(argumentsMap, 'base-root'))
-const headRoot = path.resolve(requiredArgument(argumentsMap, 'head-root'))
 const baseSha = requiredArgument(argumentsMap, 'base-sha')
 const headSha = requiredArgument(argumentsMap, 'head-sha')
 const outputDirectory = path.resolve(
@@ -25,10 +24,48 @@ const architecture = requiredArgument(argumentsMap, 'architecture')
 const toolchain = requiredArgument(argumentsMap, 'toolchain')
 
 await mkdir(outputDirectory, { recursive: true })
-const [baseSuiteHash, headSuiteHash] = await Promise.all([
-  calculateSuiteHash(baseRoot),
-  calculateSuiteHash(headRoot),
-])
+// CI binds the downloaded apps to their original build, even on job reruns.
+// Local callers can still point at their two source checkouts.
+const metadataPath = argumentsMap.get('build-metadata')?.[0]
+const build: BuildMetadata | undefined =
+  metadataPath == null
+    ? undefined
+    : JSON.parse(await readFile(metadataPath, 'utf8'))
+if (
+  build != null &&
+  (build.baseSha !== baseSha ||
+    build.headSha !== headSha ||
+    build.platform !== platform ||
+    build.architecture !== architecture ||
+    build.toolchain !== toolchain ||
+    build.configuration !== 'Release' ||
+    build.workflowRunId !== Number(process.env.GITHUB_RUN_ID))
+) {
+  throw new Error(
+    'Downloaded app metadata does not match the requested revisions or testbed.'
+  )
+}
+const [baseSuiteHash, headSuiteHash] =
+  build == null
+    ? await Promise.all([
+        calculateSuiteHash(
+          path.resolve(requiredArgument(argumentsMap, 'base-root'))
+        ),
+        calculateSuiteHash(
+          path.resolve(requiredArgument(argumentsMap, 'head-root'))
+        ),
+      ])
+    : [build.baseSuiteHash, build.headSuiteHash]
+if (build != null) {
+  await Bun.write(
+    path.join(outputDirectory, 'build.json'),
+    `${JSON.stringify(build, null, 2)}\n`
+  )
+  await Bun.write(
+    path.join(outputDirectory, 'measurement.json'),
+    `${JSON.stringify({ buildArtifactId: Number(process.env.BUILD_ARTIFACT_ID), runAttempt: Number(process.env.GITHUB_RUN_ATTEMPT) }, null, 2)}\n`
+  )
+}
 
 await Bun.write(
   path.join(outputDirectory, 'suite.json'),

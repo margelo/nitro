@@ -2,12 +2,18 @@ import { expect, test } from 'bun:test'
 import { chmod, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import { calculateSuiteHash } from './suite-hash'
 
 // Exercise the real controller/receiver with a tiny process standing in for
 // simctl's app. Runner tests separately exercise timed work and slowdown bounds.
-test.each([false, true])(
-  'fresh processes share calibrated work; changed suite = %s',
-  async (changedSuite) => {
+test.each([
+  [false, false],
+  [true, false],
+  [false, true],
+  [true, true],
+])(
+  'fresh processes share calibrated work; changed suite = %s, saved apps = %s',
+  async (changedSuite, savedApps) => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'nitro-sequence-'))
     try {
       const simulator = path.join(directory, 'simulator.ts')
@@ -54,6 +60,24 @@ test.each([false, true])(
           '// old benchmark'
         )
       }
+      const metadataPath = path.join(directory, 'build.json')
+      await Bun.write(
+        metadataPath,
+        JSON.stringify({
+          platform: 'ios',
+          baseSha: 'a'.repeat(40),
+          headSha: 'b'.repeat(40),
+          baseSuiteHash: await calculateSuiteHash(
+            changedSuite ? baseRoot : root
+          ),
+          headSuiteHash: await calculateSuiteHash(root),
+          architecture: 'arm64',
+          toolchain: 'fixture',
+          configuration: 'Release',
+          workflowRunId: 123,
+          runAttempt: 1,
+        })
+      )
       const child = Bun.spawn(
         [
           'bun',
@@ -64,10 +88,14 @@ test.each([false, true])(
           directory,
           '--head-app',
           directory,
-          '--base-root',
-          changedSuite ? baseRoot : root,
-          '--head-root',
-          root,
+          ...(savedApps
+            ? ['--build-metadata', metadataPath]
+            : [
+                '--base-root',
+                changedSuite ? baseRoot : root,
+                '--head-root',
+                root,
+              ]),
           '--base-sha',
           'a'.repeat(40),
           '--head-sha',
@@ -90,6 +118,9 @@ test.each([false, true])(
             ...process.env,
             PATH: `${directory}:${process.env.PATH}`,
             SIMULATOR_LOG: log,
+            GITHUB_RUN_ID: '123',
+            GITHUB_RUN_ATTEMPT: '2',
+            BUILD_ARTIFACT_ID: '456',
             CHANGED_SUITE: String(changedSuite),
           },
           stdout: 'pipe',
@@ -108,6 +139,14 @@ test.each([false, true])(
         exitCode: 0,
         error: '',
       })
+      if (savedApps) {
+        expect(
+          (await Bun.file(path.join(output, 'build.json')).json()).runAttempt
+        ).toBe(1)
+        expect(
+          await Bun.file(path.join(output, 'measurement.json')).json()
+        ).toEqual({ buildArtifactId: 456, runAttempt: 2 })
+      }
       const processes = (await readFile(log, 'utf8'))
         .trim()
         .split('\n')

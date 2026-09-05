@@ -72,12 +72,29 @@ async function createFixture(root: string): Promise<{
   output: string
   trustedEvent: string
   trustedPullRequest: string
+  trustedArtifacts: string
 }> {
   const artifact = path.join(root, 'artifact')
   const output = path.join(root, 'output')
   for (const platform of ['android', 'ios'] as const) {
     const directory = path.join(artifact, 'raw', platform)
     await mkdir(directory, { recursive: true })
+    await writeJson(path.join(directory, 'measurement.json'), {
+      buildArtifactId: platform === 'android' ? 1 : 3,
+      runAttempt: 1,
+    })
+    await writeJson(path.join(directory, 'build.json'), {
+      platform,
+      baseSha: BASE_SHA,
+      headSha: HEAD_SHA,
+      baseSuiteHash: SUITE_HASH,
+      headSuiteHash: SUITE_HASH,
+      architecture: platform === 'ios' ? 'arm64' : 'x86_64',
+      toolchain: 'fixed toolchain',
+      configuration: 'Release',
+      workflowRunId: 123456789,
+      runAttempt: 1,
+    })
     for (const revision of ['base', 'head'] as const) {
       for (const sequence of [1, 2]) {
         await writeJson(
@@ -99,6 +116,20 @@ async function createFixture(root: string): Promise<{
     headSuiteHash: SUITE_HASH,
     workflowRunId: 123456789,
     runAttempt: 1,
+    artifacts: {
+      android: {
+        buildId: 1,
+        buildAttempt: 1,
+        measurementId: 2,
+        measurementAttempt: 1,
+      },
+      ios: {
+        buildId: 3,
+        buildAttempt: 1,
+        measurementId: 4,
+        measurementAttempt: 1,
+      },
+    },
   })
 
   const trustedEvent = path.join(root, 'workflow-run.json')
@@ -120,7 +151,20 @@ async function createFixture(root: string): Promise<{
     base: { sha: BASE_SHA, repo: { full_name: REPOSITORY } },
     head: { sha: HEAD_SHA, repo: { full_name: FORK_REPOSITORY } },
   })
-  return { artifact, output, trustedEvent, trustedPullRequest }
+  const trustedArtifacts = path.join(root, 'trusted-artifacts.json')
+  await writeJson(trustedArtifacts, [
+    { id: 1, name: 'performance-apps-android-1', expired: false },
+    { id: 2, name: 'performance-android-1', expired: false },
+    { id: 3, name: 'performance-apps-ios-1', expired: false },
+    { id: 4, name: 'performance-ios-1', expired: false },
+  ])
+  return {
+    artifact,
+    output,
+    trustedEvent,
+    trustedPullRequest,
+    trustedArtifacts,
+  }
 }
 
 async function validate(fixture: Awaited<ReturnType<typeof createFixture>>) {
@@ -136,6 +180,8 @@ async function validate(fixture: Awaited<ReturnType<typeof createFixture>>) {
       REPOSITORY,
       '--trusted-workflow-event',
       fixture.trustedEvent,
+      '--trusted-artifacts',
+      fixture.trustedArtifacts,
       '--artifact-id',
       '987',
       '--trusted-pull-request',
@@ -269,6 +315,17 @@ describe('trusted performance report validation', () => {
       const file = path.join(fixture.artifact, 'performance-report.json')
       const manifest = JSON.parse(await readFile(file, 'utf8'))
       manifest.baseSuiteHash = 'd'.repeat(64)
+      for (const platform of ['android', 'ios']) {
+        const buildFile = path.join(
+          fixture.artifact,
+          'raw',
+          platform,
+          'build.json'
+        )
+        const build = await Bun.file(buildFile).json()
+        build.baseSuiteHash = manifest.baseSuiteHash
+        await writeJson(buildFile, build)
+      }
       await writeJson(file, manifest)
       expect((await validate(fixture)).exitCode).toBe(0)
       expect(
@@ -282,8 +339,48 @@ describe('trusted performance report validation', () => {
           path.join(fixture.output, 'bencher-base-ios.json')
         ).exists()
       ).toBe(false)
+      const headFile = path.join(fixture.artifact, 'raw/ios/head-2.json')
+      const head = await Bun.file(headFile).json()
+      head.metrics[0].iterations += 1
+      await writeJson(headFile, head)
+      expect((await validate(fixture)).error).toContain('unequal work')
     } finally {
       await rm(root, { recursive: true, force: true })
     }
   })
+})
+
+test('rerunning Android retains the exact earlier iOS measurements and app builds', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-attempts-'))
+  try {
+    const fixture = await createFixture(root)
+    const manifestFile = path.join(fixture.artifact, 'performance-report.json')
+    const manifest = await Bun.file(manifestFile).json()
+    manifest.runAttempt = 2
+    manifest.artifacts.android.measurementId = 5
+    manifest.artifacts.android.measurementAttempt = 2
+    await writeJson(
+      path.join(fixture.artifact, 'raw/android/measurement.json'),
+      { buildArtifactId: 1, runAttempt: 2 }
+    )
+    await writeJson(manifestFile, manifest)
+    const event = await Bun.file(fixture.trustedEvent).json()
+    event.workflow_run.run_attempt = 2
+    await writeJson(fixture.trustedEvent, event)
+    const artifacts = await Bun.file(fixture.trustedArtifacts).json()
+    artifacts.push({ id: 5, name: 'performance-android-2', expired: false })
+    await writeJson(fixture.trustedArtifacts, artifacts)
+    expect(await validate(fixture)).toEqual({ exitCode: 0, error: '' })
+    const markdown = await Bun.file(
+      path.join(fixture.output, 'performance-summary.md')
+    ).text()
+    expect(markdown).toContain('Android: [measurements, attempt 2]')
+    expect(markdown).toContain('iOS: [measurements, attempt 1]')
+    // An unrelated artifact cannot substitute for the retained iOS attempt.
+    manifest.artifacts.ios.measurementId = 5
+    await writeJson(manifestFile, manifest)
+    expect((await validate(fixture)).exitCode).not.toBe(0)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
