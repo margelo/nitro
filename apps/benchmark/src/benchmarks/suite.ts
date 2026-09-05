@@ -291,6 +291,20 @@ function createObjectBenchmarks(
     createBufferBenchmark(
       object,
       implementation,
+      'bounce-native-4-kib',
+      object.copyBuffer(smallBuffer),
+      'bounce'
+    ),
+    createBufferBenchmark(
+      object,
+      implementation,
+      'bounce-native-1-mib',
+      object.copyBuffer(largeBuffer),
+      'bounce'
+    ),
+    createBufferBenchmark(
+      object,
+      implementation,
       'copy-4-kib',
       smallBuffer,
       'copy'
@@ -337,6 +351,30 @@ function createObjectBenchmarks(
           checksum += await object.promiseReturnsInstantly()
         }
         return assertNumber(checksum, 'promiseReturnsInstantly')
+      },
+    },
+    {
+      id: `${prefix}/promise/deferred-worker-with-trigger`,
+      version: 1,
+      family: 'promise',
+      implementation,
+      kind: 'async',
+      maxChunkIterations: 5_000,
+      collectNativeGarbage:
+        implementation === 'nitro-platform' && Platform.OS === 'android'
+          ? collectJavaGarbage
+          : undefined,
+      expectedChecksum: (iterations) => iterations * 55,
+      async run(iterations) {
+        let checksum = 0
+        for (let index = 0; index < iterations; index++) {
+          const promise = object.createPendingPromise()
+          // Includes the trigger call: completion cannot race ahead of the
+          // pending Promise's conversion to JS in createPendingPromise().
+          object.resolvePendingPromiseOnWorker()
+          checksum += await promise
+        }
+        return assertNumber(checksum, 'resolvePendingPromiseOnWorker')
       },
     },
   ]

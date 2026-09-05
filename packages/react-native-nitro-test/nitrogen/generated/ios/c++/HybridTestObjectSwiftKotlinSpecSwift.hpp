@@ -664,6 +664,20 @@ namespace margelo::nitro::test {
       auto __value = std::move(__result.value());
       return __value;
     }
+    inline std::shared_ptr<Promise<double>> createPendingPromise() override {
+      auto __result = _swiftPart.createPendingPromise();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline void resolvePendingPromiseOnWorker() override {
+      auto __result = _swiftPart.resolvePendingPromiseOnWorker();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+    }
     inline std::shared_ptr<Promise<void>> promiseThatResolvesVoidInstantly() override {
       auto __result = _swiftPart.promiseThatResolvesVoidInstantly();
       if (__result.hasError()) [[unlikely]] {

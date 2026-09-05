@@ -380,6 +380,14 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
+  abstract fun createPendingPromise(): Promise<Double>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun resolvePendingPromiseOnWorker(): Unit
+  
+  @DoNotStrip
+  @Keep
   abstract fun promiseThatResolvesVoidInstantly(): Promise<Unit>
   
   @DoNotStrip

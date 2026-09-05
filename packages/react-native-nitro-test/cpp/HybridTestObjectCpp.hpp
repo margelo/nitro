@@ -45,6 +45,7 @@ private:
   std::optional<std::function<void(double)>> _optionalCallback;
   bool _hasBooleanWritable;
   bool _isBooleanWritable;
+  std::shared_ptr<Promise<double>> _pendingPromise;
 
 private:
   static inline uint64_t calculateFibonacci(int count) noexcept {
@@ -205,6 +206,8 @@ public:
   std::shared_ptr<Promise<void>> promiseThrows() override;
   std::shared_ptr<Promise<double>> promiseReturnsInstantly() override;
   std::shared_ptr<Promise<double>> promiseReturnsInstantlyAsync() override;
+  std::shared_ptr<Promise<double>> createPendingPromise() override;
+  void resolvePendingPromiseOnWorker() override;
   std::shared_ptr<Promise<void>> promiseThatResolvesVoidInstantly() override;
   std::shared_ptr<Promise<std::optional<double>>> promiseThatResolvesToUndefined() override;
   std::shared_ptr<Promise<std::optional<double>>> awaitNullablePromise() override;

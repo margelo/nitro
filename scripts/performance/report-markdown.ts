@@ -9,6 +9,10 @@ const OPERATION_NAMES: Readonly<Record<string, string>> = {
   'ascii-short': 'short ASCII string',
   'bounce-1-mib': 'bounce(1 MiB)',
   'bounce-4-kib': 'bounce(4 KiB)',
+  'bounce-native-4-kib': 'bounce native-owned buffer (4 KiB)',
+  'bounce-native-1-mib': 'bounce native-owned buffer (1 MiB)',
+  'deferred-worker-with-trigger':
+    'deferred worker Promise (includes trigger call)',
   'copy-1-mib': 'copy(1 MiB)',
   'copy-4-kib': 'copy(4 KiB)',
   'create': 'create()',

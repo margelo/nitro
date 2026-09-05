@@ -5,10 +5,13 @@
 //  Created by Marc Rousavy on 11.08.24.
 //
 
+import Dispatch
 import NitroModules
 import NitroTestExternal
 
 class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
+  private var pendingPromise: Promise<Double>?
+
   var optionalArray: [String]? = []
 
   var someVariant: Variant_Double_String = .first(55)
@@ -461,6 +464,26 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
   func promiseReturnsInstantlyAsync() throws -> Promise<Double> {
     return Promise.async {
       return 55.0
+    }
+  }
+
+  func createPendingPromise() throws -> Promise<Double> {
+    guard pendingPromise == nil else {
+      throw RuntimeError.error(withMessage: "A pending Promise is already waiting for completion.")
+    }
+    let promise = Promise<Double>()
+    pendingPromise = promise
+    return promise
+  }
+
+  func resolvePendingPromiseOnWorker() throws {
+    guard let promise = pendingPromise else {
+      throw RuntimeError.error(withMessage: "No pending Promise is waiting for completion.")
+    }
+    // Only JS calls access the slot; the worker owns the extracted Promise.
+    pendingPromise = nil
+    DispatchQueue.global().async {
+      promise.resolve(withResult: 55.0)
     }
   }
 

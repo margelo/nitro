@@ -142,6 +142,8 @@ namespace margelo::nitro::test {
     std::shared_ptr<Promise<void>> promiseThrows() override;
     std::shared_ptr<Promise<double>> promiseReturnsInstantly() override;
     std::shared_ptr<Promise<double>> promiseReturnsInstantlyAsync() override;
+    std::shared_ptr<Promise<double>> createPendingPromise() override;
+    void resolvePendingPromiseOnWorker() override;
     std::shared_ptr<Promise<void>> promiseThatResolvesVoidInstantly() override;
     std::shared_ptr<Promise<std::optional<double>>> promiseThatResolvesToUndefined() override;
     std::shared_ptr<Promise<std::optional<double>>> awaitNullablePromise() override;

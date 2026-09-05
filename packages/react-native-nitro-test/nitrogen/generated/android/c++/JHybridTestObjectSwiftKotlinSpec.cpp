@@ -1077,6 +1077,26 @@ namespace margelo::nitro::test {
       return __promise;
     }();
   }
+  std::shared_ptr<Promise<double>> JHybridTestObjectSwiftKotlinSpec::createPendingPromise() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("createPendingPromise");
+    auto __result = method(_javaPart);
+    return [&]() {
+      auto __promise = Promise<double>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<jni::JDouble>(__boxedResult);
+        __promise->resolve(__result->value());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  void JHybridTestObjectSwiftKotlinSpec::resolvePendingPromiseOnWorker() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void()>("resolvePendingPromiseOnWorker");
+    method(_javaPart);
+  }
   std::shared_ptr<Promise<void>> JHybridTestObjectSwiftKotlinSpec::promiseThatResolvesVoidInstantly() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("promiseThatResolvesVoidInstantly");
     auto __result = method(_javaPart);

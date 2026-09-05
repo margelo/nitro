@@ -11,13 +11,22 @@ import com.margelo.nitro.core.NullType
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.resolved
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.Instant
 
 @Keep
 @DoNotStrip
 class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
+  private var pendingPromise: Promise<Double>? = null
+
+  private companion object {
+    val promiseScope = CoroutineScope(Dispatchers.Default)
+  }
+
   override var numberValue: Double = 0.0
   override var boolValue: Boolean = false
   override var stringValue: String = ""
@@ -313,6 +322,22 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
   override fun promiseReturnsInstantlyAsync(): Promise<Double> {
     return Promise.async {
       return@async 55.0
+    }
+  }
+
+  override fun createPendingPromise(): Promise<Double> {
+    check(pendingPromise == null) { "A pending Promise is already waiting for completion." }
+    val promise = Promise<Double>()
+    pendingPromise = promise
+    return promise
+  }
+
+  override fun resolvePendingPromiseOnWorker() {
+    val promise = checkNotNull(pendingPromise) { "No pending Promise is waiting for completion." }
+    // Only JS calls access the slot; the worker owns the extracted Promise.
+    pendingPromise = null
+    promiseScope.launch {
+      promise.resolve(55.0)
     }
   }
 

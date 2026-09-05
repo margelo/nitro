@@ -246,6 +246,10 @@ interface SharedTestObjectProps {
   promiseThrows(): Promise<void>
   promiseReturnsInstantly(): Promise<number>
   promiseReturnsInstantlyAsync(): Promise<number>
+  // Stays pending until the separate JS call schedules its native completion.
+  // Only one Promise may be waiting for that trigger on each TestObject.
+  createPendingPromise(): Promise<number>
+  resolvePendingPromiseOnWorker(): void
   promiseThatResolvesVoidInstantly(): Promise<void>
   promiseThatResolvesToUndefined(): Promise<number | undefined>
   awaitNullablePromise(): Promise<number | undefined>
