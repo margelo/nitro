@@ -37,9 +37,8 @@ on:
       - '**/nitro.json'
 
 env:
-  USE_CCACHE: 1
   XCODE_VERSION: '26.5'
-  IOS_SIMULATOR_DESTINATION: 'platform=iOS Simulator,arch=arm64,name=iPhone 17 Pro'
+  IOS_SIMULATOR_DESTINATION: 'generic/platform=iOS Simulator'
 
 jobs:
   build:
@@ -58,7 +57,7 @@ jobs:
 
       - name: Set USE_FRAMEWORKS
         if: matrix.use_frameworks != ''
-        run: echo "USE_FRAMEWORKS=${{ matrix.use_frameworks }}" >> $GITHUB_ENV
+        run: echo "USE_FRAMEWORKS=${{ matrix.use_frameworks }}" >> "$GITHUB_ENV"
 
       - name: Install npm dependencies (bun)
         run: bun install
@@ -68,13 +67,14 @@ jobs:
         with:
           max-size: 1.5G
           key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.XCODE_VERSION }}-${{ matrix.use_frameworks }}-ccache-example-ios
-          create-symlink: true
       - name: Setup ccache behavior
         run: |
-          echo "CCACHE_SLOPPINESS=clang_index_store,file_stat_matches,include_file_ctime,include_file_mtime,ivfsoverlay,pch_defines,modules,system_headers,time_macros" >> $GITHUB_ENV
-          echo "CCACHE_FILECLONE=true" >> $GITHUB_ENV
-          echo "CCACHE_DEPEND=true" >> $GITHUB_ENV
-          echo "CCACHE_INODECACHE=true" >> $GITHUB_ENV
+          {
+            echo "CCACHE_SLOPPINESS=clang_index_store,file_stat_matches,include_file_ctime,include_file_mtime,ivfsoverlay,pch_defines,modules,system_headers,time_macros"
+            echo "CCACHE_FILECLONE=true"
+            echo "CCACHE_DEPEND=true"
+            echo "CCACHE_INODECACHE=true"
+          } >> "$GITHUB_ENV"
 
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
@@ -110,7 +110,8 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild \
-            CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
+            C_COMPILER_LAUNCHER="$(command -v ccache)" \
+            CLANG_ENABLE_EXPLICIT_MODULES_WITH_COMPILER_LAUNCHER=YES \
             -derivedDataPath build -UseModernBuildSystem=YES \
             -workspace NitroExample.xcworkspace \
             -scheme NitroExample \
@@ -119,5 +120,6 @@ jobs:
             -destination '${{ env.IOS_SIMULATOR_DESTINATION }}' \
             -showBuildTimingSummary \
             ONLY_ACTIVE_ARCH=YES \
+            ARCHS=arm64 \
             build \
             CODE_SIGNING_ALLOWED=NO | xcbeautify --renderer github-actions

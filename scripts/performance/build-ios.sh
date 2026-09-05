@@ -7,7 +7,6 @@ bundle install
 bun pods
 cd ios
 xcodebuild \
-  CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
   -derivedDataPath build-benchmark \
   -workspace NitroBenchmark.xcworkspace \
   -scheme NitroBenchmark \
