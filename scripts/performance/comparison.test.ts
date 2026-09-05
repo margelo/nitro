@@ -14,6 +14,7 @@ function run(
   return {
     schemaVersion: 1,
     suiteVersion: 1,
+    benchmarkCount: 1,
     configuration: {
       runId: `run-${sha[0]}`,
       reverse: false,
@@ -44,18 +45,9 @@ function run(
         version: 1,
         family: 'primitive',
         implementation: 'nitro-cpp',
-        advisory: false,
         iterations: 10_000,
         chunkIterations: 10_000,
         samplesNsPerOp: samples,
-        medianNsPerOp: samples[2]!,
-        p95NsPerOp: Math.max(...samples),
-        medianAbsoluteDeviationNsPerOp: 1,
-        robustCoefficientOfVariationPercent: 1,
-        medianConfidenceInterval95: [
-          Math.min(...samples),
-          Math.max(...samples),
-        ],
         checksum: 42,
       },
     ],
@@ -63,141 +55,49 @@ function run(
 }
 
 describe('performance comparison', () => {
-  test('validates chunk sizes and accepts older single-chunk results', () => {
-    const result = run(BASE_SHA, [99, 100, 100, 101, 100])
-    result.metrics[0]!.chunkIterations = 1_000
-    expect(validateBenchmarkRun(result).metrics[0]!.chunkIterations).toBe(1_000)
-    const legacy = JSON.parse(JSON.stringify(result))
-    delete legacy.metrics[0].chunkIterations
-    expect(validateBenchmarkRun(legacy).metrics[0]!.chunkIterations).toBe(
-      10_000
-    )
-    for (const invalid of [0, -1, 1.5, 10_001]) {
-      result.metrics[0]!.chunkIterations = invalid
-      expect(() => validateBenchmarkRun(result)).toThrow()
+  test('requires explicit bounded chunk counts and Release Hermes', () => {
+    const result = run(BASE_SHA, [100, 100])
+    for (const chunk of [0, -1, 1.5, 10_001, undefined]) {
+      expect(() =>
+        validateBenchmarkRun({
+          ...result,
+          metrics: [{ ...result.metrics[0], chunkIterations: chunk }],
+        })
+      ).toThrow()
     }
+    result.environment.dev = true
+    expect(() => validateBenchmarkRun(result)).toThrow('production Hermes')
   })
 
-  test('keeps an A/A run unchanged', () => {
-    const samples = [99, 100, 100, 101, 100]
-    const comparison = compareRuns(
-      [run(BASE_SHA, samples)],
-      [run(HEAD_SHA, samples)],
-      true
+  test('retains process disagreement even when pooled medians match', () => {
+    const result = compareRuns(
+      [run(BASE_SHA, [80, 80]), run(BASE_SHA, [120, 120])],
+      [run(HEAD_SHA, [120, 120]), run(HEAD_SHA, [80, 80])]
     )
-    expect(comparison.comparisons[0]?.verdict).toBe('unchanged')
-    expect(comparison.hasRegression).toBe(false)
+    expect(result.comparisons[0]?.deltaPercent).toBe(0)
+    expect(result.comparisons[0]?.baseProcessMedians).toEqual([80, 120])
+    expect(result.comparisons[0]?.pairChangesPercent[0]).toBe(50)
+    expect(result.comparisons[0]?.pairChangesPercent[1]).toBeCloseTo(-33.3333)
   })
 
-  test('detects regressions and improvements', () => {
-    const base = [run(BASE_SHA, [99, 100, 100, 101, 100])]
-    const regression = compareRuns(
-      base,
-      [run(HEAD_SHA, [114, 115, 115, 116, 115])],
-      true
+  test('reports observed changes without inventing confidence bounds', () => {
+    const result = compareRuns(
+      [run(BASE_SHA, [99, 100, 101])],
+      [run(HEAD_SHA, [119, 120, 121])]
     )
-    expect(regression.comparisons[0]?.verdict).toBe('regression')
-
-    const improvement = compareRuns(
-      base,
-      [run(HEAD_SHA, [84, 85, 85, 86, 85])],
-      true
-    )
-    expect(improvement.comparisons[0]?.verdict).toBe('improvement')
+    expect(result.comparisons[0]?.deltaPercent).toBeCloseTo(20)
+    expect(result.comparisons[0]?.baseMadPercent).toBe(1)
+    expect(toBencherMetricFormat([run(HEAD_SHA, [119, 120, 121])])).toEqual({
+      'nitro-cpp/primitive/add-numbers': { latency: { value: 120 } },
+    })
   })
 
-  test('does not mistake process-level A/A drift for independent evidence', () => {
-    // Rounded run medians from the accelerated Android bootstrap A/A run.
-    const samples = (value: number) =>
-      Array.from({ length: 20 }, (_, index) => value + (index % 3) - 1)
-    const comparison = compareRuns(
-      [540, 527, 523].map((value) => run(BASE_SHA, samples(value))),
-      [529, 579, 556].map((value) => run(HEAD_SHA, samples(value))),
-      true
-    )
-    expect(comparison.hasRegression).toBe(false)
-    expect(comparison.comparisons[0]?.verdict).toBe('inconclusive')
+  test('does not compare changed benchmark definitions', () => {
     expect(
-      comparison.comparisons[0]?.deltaConfidenceInterval95[0]
-    ).toBeLessThan(0)
-    expect(comparison.rerunRecommended).toBe(true)
-  })
-
-  test('detects a consistent 15% change across independent process pairs', () => {
-    for (const scale of [0.85, 1.15]) {
-      const samples = [99, 100, 100, 101, 100]
-      const comparison = compareRuns(
-        [1, 2, 3].map(() => run(BASE_SHA, samples)),
-        [1, 2, 3].map(() =>
-          run(
-            HEAD_SHA,
-            samples.map((n) => n * scale)
-          )
-        ),
-        true
-      )
-      expect(comparison.comparisons[0]?.verdict).toBe(
-        scale > 1 ? 'regression' : 'improvement'
-      )
-    }
-  })
-
-  test('does not let high CV hide a change whose paired interval is decisive', () => {
-    const centers = [80, 100, 120]
-    const base = centers.map((center) =>
-      run(BASE_SHA, [center - 1, center, center, center + 1, center])
-    )
-    const head = centers.map((center) =>
-      run(HEAD_SHA, [
-        center * 2 - 2,
-        center * 2,
-        center * 2,
-        center * 2 + 2,
-        center * 2,
-      ])
-    )
-    const comparison = compareRuns(base, head, true)
-    const metric = comparison.comparisons[0]!
-    expect(metric.baseRobustCvPercent).toBeGreaterThan(5)
-    expect(metric.headRobustCvPercent).toBeGreaterThan(5)
-    expect(metric.deltaConfidenceInterval95[0]).toBeGreaterThan(0)
-    expect(metric.verdict).toBe('regression')
-  })
-
-  test('marks changed suites for rebaseline', () => {
-    const comparison = compareRuns(
-      [run(BASE_SHA, [99, 100, 100, 101, 100], 'c'.repeat(64))],
-      [run(HEAD_SHA, [99, 100, 100, 101, 100], 'd'.repeat(64))],
-      true
-    )
-    expect(comparison.suiteComparable).toBe(false)
-    expect(comparison.comparisons).toEqual([])
-  })
-
-  test('validates release metadata and converts BMF', () => {
-    const result = validateBenchmarkRun(run(HEAD_SHA, [99, 100, 100, 101, 100]))
-    const bmf = toBencherMetricFormat([result])
-    expect(bmf['nitro-cpp/primitive/add-numbers']?.latency.value).toBe(100)
-  })
-
-  test('includes between-run variation in Bencher confidence bounds', () => {
-    const bmf = toBencherMetricFormat(
-      [100, 200, 300].map((value) =>
-        run(
-          HEAD_SHA,
-          Array.from({ length: 20 }, () => value)
-        )
-      )
-    )
-    const latency = bmf['nitro-cpp/primitive/add-numbers']!.latency
-    expect(latency.value).toBe(200)
-    expect(latency.lower_value).toBe(100)
-    expect(latency.upper_value).toBe(300)
-  })
-
-  test('rejects a non-release result', () => {
-    const invalid = run(HEAD_SHA, [99, 100, 100, 101, 100])
-    invalid.environment.dev = true
-    expect(() => validateBenchmarkRun(invalid)).toThrow('production Hermes')
+      compareRuns(
+        [run(BASE_SHA, [100])],
+        [run(HEAD_SHA, [100], 'd'.repeat(64))]
+      ).suiteComparable
+    ).toBe(false)
   })
 })

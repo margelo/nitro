@@ -166,7 +166,7 @@ describe('benchmark runner', () => {
     expect(result.checksum).toBe(2 * 500_500 + 125_250)
   })
 
-  test('chunks advisory async methods without timing cleanup', async () => {
+  test('chunks async methods without timing cleanup', async () => {
     let now = 0
     spyOn(performance, 'now').mockImplementation(() => now)
     const result = await executeBatch(

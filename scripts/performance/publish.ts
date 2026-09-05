@@ -1,52 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
-import { isSafeSha } from './schema'
-
-export interface Metadata {
-  repository: string
-  eventName: 'pull_request' | 'push' | 'schedule' | 'workflow_dispatch'
-  pullRequestNumber: number | null
-  baseSha: string
-  headSha: string
-  platforms: ('android' | 'ios')[]
-}
-
-export function validateMetadata(value: unknown): Metadata {
-  if (value == null || typeof value !== 'object') {
-    throw new Error('Invalid metadata.')
-  }
-  const metadata = value as Partial<Metadata>
-  if (
-    typeof metadata.repository !== 'string' ||
-    (metadata.eventName !== 'pull_request' &&
-      metadata.eventName !== 'push' &&
-      metadata.eventName !== 'schedule' &&
-      metadata.eventName !== 'workflow_dispatch') ||
-    (metadata.pullRequestNumber !== null &&
-      (!Number.isInteger(metadata.pullRequestNumber) ||
-        (metadata.pullRequestNumber ?? 0) < 1)) ||
-    typeof metadata.baseSha !== 'string' ||
-    typeof metadata.headSha !== 'string' ||
-    !isSafeSha(metadata.baseSha) ||
-    !isSafeSha(metadata.headSha) ||
-    !Array.isArray(metadata.platforms) ||
-    metadata.platforms.length !== 2 ||
-    new Set(metadata.platforms).size !== 2 ||
-    metadata.platforms.some(
-      (platform) => platform !== 'android' && platform !== 'ios'
-    )
-  ) {
-    throw new Error('Invalid metadata.')
-  }
-  if (
-    (metadata.eventName === 'pull_request') !==
-    (metadata.pullRequestNumber !== null)
-  ) {
-    throw new Error('PR event and number must agree.')
-  }
-  return metadata as Metadata
-}
+import type { ReportMetadata } from './report'
 
 const testbeds = {
   android: 'nitro-benchmark-android-release-x86-64-api-36-ubuntu-24-04-kvm',
@@ -54,7 +9,7 @@ const testbeds = {
 } as const
 
 export function bencherArguments(
-  metadata: Metadata,
+  metadata: ReportMetadata,
   platform: 'android' | 'ios',
   revision: 'base' | 'head',
   directory: string,
@@ -97,7 +52,7 @@ export function bencherArguments(
 }
 
 export function bencherPublications(
-  metadata: Metadata,
+  metadata: ReportMetadata,
   directory: string,
   project: string
 ) {
@@ -133,8 +88,8 @@ if (import.meta.main) {
       'BENCHER_PROJECT, BENCHER_API_KEY, and GITHUB_TOKEN are required.'
     )
   }
-  const metadata = validateMetadata(
-    JSON.parse(await readFile(path.join(directory, 'metadata.json'), 'utf8'))
+  const metadata: ReportMetadata = JSON.parse(
+    await readFile(path.join(directory, 'metadata.json'), 'utf8')
   )
   for (const { platform, revision, command } of bencherPublications(
     metadata,

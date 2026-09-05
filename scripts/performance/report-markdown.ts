@@ -1,16 +1,8 @@
-import type { MetricComparison, PlatformComparison } from './comparison'
-
-export interface PlatformReportMarkdownInput {
-  comparison: PlatformComparison
-}
-
-export interface PerformanceReportMarkdownOptions {
-  advisory: boolean
-  repository: string
-  baseSha: string
-  headSha: string
-  workflowRunUrl?: string
-}
+import {
+  REPORTING_THRESHOLD_PERCENT,
+  type MetricComparison,
+  type PlatformComparison,
+} from './comparison'
 
 const OPERATION_NAMES: Readonly<Record<string, string>> = {
   'add-numbers': 'addNumbers()',
@@ -89,135 +81,101 @@ function formatPercent(value: number): string {
 function directionalChange(deltaPercent: number): string {
   if (deltaPercent > 0) return `+${formatPercent(deltaPercent)}% slower`
   if (deltaPercent < 0) return `-${formatPercent(deltaPercent)}% faster`
-  return '~0% unchanged'
+  return '~0% observed change'
 }
 
-function difference(metric: MetricComparison): string {
-  switch (metric.verdict) {
-    case 'regression':
-      return `🔴 ${directionalChange(metric.deltaPercent)}`
-    case 'improvement':
-      return `🟢 ${directionalChange(metric.deltaPercent)}`
-    case 'inconclusive':
-      return `🟡 ${directionalChange(metric.deltaPercent)} (noisy)`
-    case 'advisory':
-      return `ℹ️ ${directionalChange(metric.deltaPercent)} (advisory)`
-    case 'unchanged':
-      return `⚪ ~${formatPercent(metric.deltaPercent)}% unchanged`
-  }
-}
-
-function measurement(
-  metric: MetricComparison,
-  revision: 'base' | 'head'
-): string {
-  const before = metric.baseMedianNsPerOp
-  const after = metric.headMedianNsPerOp
-  const value = revision === 'base' ? before : after
-  const isFaster = revision === 'base' ? before < after : after < before
-  const formatted = formatNumber(value)
-  return isFaster ? `<strong>${formatted}</strong>` : formatted
-}
-
-function renderMetricTable(
+function table(
   metrics: readonly MetricComparison[],
-  platform: PlatformComparison['platform'],
-  indentation = 0
+  platform: PlatformComparison['platform']
 ): string {
-  const indent = ' '.repeat(indentation)
-  const level1 = ' '.repeat(indentation + 2)
-  const level2 = ' '.repeat(indentation + 4)
-  const level3 = ' '.repeat(indentation + 6)
-  const lines = [
-    `${indent}<table>`,
-    `${level1}<thead>`,
-    `${level2}<tr>`,
-    `${level3}<th align="left">Benchmark</th>`,
-    `${level3}<th align="right">Before</th>`,
-    `${level3}<th align="right">After</th>`,
-    `${level3}<th align="left">Difference</th>`,
-    `${level2}</tr>`,
-    `${level1}</thead>`,
-    `${level1}<tbody>`,
-  ]
-  for (const metric of metrics) {
-    lines.push(
-      `${level2}<tr>`,
-      `${level3}<td>${benchmarkName(metric.id, platform)}</td>`,
-      `${level3}<td align="right">${measurement(metric, 'base')}</td>`,
-      `${level3}<td align="right">${measurement(metric, 'head')}</td>`,
-      `${level3}<td>${difference(metric)}</td>`,
-      `${level2}</tr>`
-    )
-  }
-  lines.push(`${level1}</tbody>`, `${indent}</table>`)
-  return lines.join('\n')
-}
-
-function renderPlatform(input: PlatformReportMarkdownInput): string[] {
-  const { comparison } = input
-  const name = platformName(comparison.platform)
-  const lines = [`### ${name}`]
-  if (!comparison.suiteComparable) {
-    lines.push(
-      '',
-      '> Benchmark definitions changed in this PR. Results require a new baseline and are not compared.'
-    )
-    return lines
-  }
-
-  const changed = comparison.comparisons.filter(
-    (metric) =>
-      metric.verdict === 'regression' || metric.verdict === 'improvement'
-  )
-  const other = comparison.comparisons.filter(
-    (metric) =>
-      metric.verdict !== 'regression' && metric.verdict !== 'improvement'
-  )
-  lines.push(
-    '',
-    changed.length === 0
-      ? 'Performance is unchanged! 😎'
-      : renderMetricTable(changed, comparison.platform),
-    '',
-    '<details>',
-    '  <summary>All Benchmarks</summary>',
-    other.length === 0
-      ? '  <p>Every benchmark had a decisive change.</p>'
-      : renderMetricTable(other, comparison.platform, 2),
-    '</details>'
-  )
-  return lines
+  return [
+    '| Benchmark | Base p50 | Head p50 | Observed change |',
+    '| --- | ---: | ---: | --- |',
+    ...metrics.map((metric) => {
+      const pairMin = Math.min(...metric.pairChangesPercent)
+      const pairMax = Math.max(...metric.pairChangesPercent)
+      const quality =
+        pairMin <= -REPORTING_THRESHOLD_PERCENT &&
+        pairMax >= REPORTING_THRESHOLD_PERCENT
+          ? '; process pairs disagree'
+          : ''
+      return `| ${benchmarkName(metric.id, platform)} | ${formatNumber(metric.baseMedianNsPerOp)} | ${formatNumber(metric.headMedianNsPerOp)} | ${directionalChange(metric.deltaPercent)}${quality} |`
+    }),
+  ].join('\n')
 }
 
 export function renderPerformanceReportMarkdown(
-  platforms: readonly PlatformReportMarkdownInput[],
-  options: PerformanceReportMarkdownOptions
+  platforms: readonly PlatformComparison[],
+  options: {
+    repository: string
+    baseSha: string
+    headSha: string
+    workflowRunUrl?: string
+    artifactId?: number
+    runAttempt?: number
+  }
 ): string {
-  const orderedPlatforms = [...platforms].sort(
-    ({ comparison: left }, { comparison: right }) =>
-      left.platform === right.platform ? 0 : left.platform === 'ios' ? -1 : 1
-  )
   const lines = [
     '## Performance Report',
     '',
-    options.advisory
-      ? '> ⚠️ **Advisory:** Results do not fail this PR while the baseline is being calibrated.'
-      : '> Stable metrics are enforced against their calibrated regression budgets.',
+    '> **Report only:** Measurements do not fail this PR. Process pairs describe this run; they do not establish statistical confidence.',
   ]
-  for (const platform of orderedPlatforms) {
-    lines.push('', ...renderPlatform(platform))
+  if (options.baseSha === options.headSha) {
+    lines.push(
+      '',
+      'Same-revision baseline run. Differences show measurement variation, not a code change.'
+    )
   }
-
-  const compareUrl = `https://github.com/${options.repository}/compare/${options.baseSha}..${options.headSha}`
-  const rawOutput =
-    options.workflowRunUrl == null
-      ? ''
-      : ` ([view raw output](${options.workflowRunUrl}))`
+  for (const platform of [...platforms].sort((a, b) =>
+    b.platform.localeCompare(a.platform)
+  )) {
+    lines.push('', `### ${platformName(platform.platform)}`, '')
+    if (!platform.suiteComparable) {
+      lines.push(
+        'Benchmark definitions changed. Results require a new baseline and are not compared.'
+      )
+      continue
+    }
+    const changed = platform.comparisons.filter(
+      (metric) => Math.abs(metric.deltaPercent) >= REPORTING_THRESHOLD_PERCENT
+    )
+    lines.push(
+      changed.length === 0
+        ? `No observed change reached the ${REPORTING_THRESHOLD_PERCENT}% reporting threshold. This does not establish equal performance.`
+        : table(changed, platform.platform)
+    )
+    lines.push(
+      '',
+      '<details>',
+      '<summary>All benchmarks and process variation</summary>',
+      '',
+      table(platform.comparisons, platform.platform),
+      '',
+      '| Benchmark | Base process p50 | Head process p50 | Paired changes | Sample MAD / p50 (base, head) |',
+      '| --- | --- | --- | --- | --- |'
+    )
+    for (const metric of platform.comparisons) {
+      lines.push(
+        `| ${benchmarkName(metric.id, platform.platform)} | ${metric.baseProcessMedians.map(formatNumber).join(', ')} | ${metric.headProcessMedians.map(formatNumber).join(', ')} | ${metric.pairChangesPercent.map(directionalChange).join(', ')} | ${metric.baseMadPercent.toFixed(1)}%, ${metric.headMadPercent.toFixed(1)}% |`
+      )
+    }
+    lines.push(
+      '',
+      'p50 is the median of timed batch averages in ns/op, not individual-call latency. MAD describes sample spread; ordered raw samples retain within-process drift.',
+      '',
+      '</details>'
+    )
+  }
   lines.push(
     '',
-    `Benchmarking Code Diff [\`${options.baseSha.slice(0, 8)}\`...\`${options.headSha.slice(0, 8)}\`](${compareUrl})${rawOutput}`,
+    `Benchmarking Code Diff [\`${options.baseSha.slice(0, 8)}\`...\`${options.headSha.slice(0, 8)}\`](https://github.com/${options.repository}/compare/${options.baseSha}..${options.headSha})${options.workflowRunUrl == null ? '' : ` ([view CI run](${options.workflowRunUrl}))`}`,
     ''
   )
+  if (options.artifactId != null && options.workflowRunUrl != null) {
+    lines.push(
+      `Raw measurements: [performance-report-${options.runAttempt} (JSON artifact)](${options.workflowRunUrl}/artifacts/${options.artifactId}). Run ${options.workflowRunUrl.split('/').at(-1)}, attempt ${options.runAttempt}. Download requires GitHub access.`,
+      ''
+    )
+  }
   return lines.join('\n')
 }

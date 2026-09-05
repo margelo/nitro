@@ -24,7 +24,6 @@ interface BenchmarkDefinitionBase {
   version: number
   family: BenchmarkFamily
   implementation: BenchmarkImplementation
-  advisory?: boolean
   initialIterations?: number
   maxIterations?: number
   /** Bound live allocations, not the total operations in a measured sample. */
@@ -60,16 +59,10 @@ export interface BenchmarkMetric {
   version: number
   family: BenchmarkFamily
   implementation: BenchmarkImplementation
-  advisory: boolean
   iterations: number
   /** Maximum operations between untimed garbage collections. */
   chunkIterations: number
   samplesNsPerOp: number[]
-  medianNsPerOp: number
-  p95NsPerOp: number
-  medianAbsoluteDeviationNsPerOp: number
-  robustCoefficientOfVariationPercent: number
-  medianConfidenceInterval95: [number, number]
   checksum: number
 }
 

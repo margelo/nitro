@@ -1,12 +1,8 @@
+import type { ReportMetadata } from './report'
 import { describe, expect, test } from 'bun:test'
-import {
-  bencherArguments,
-  bencherPublications,
-  validateMetadata,
-  type Metadata,
-} from './publish'
+import { bencherArguments, bencherPublications } from './publish'
 
-const metadata: Metadata = {
+const metadata: ReportMetadata = {
   repository: 'margelo/nitro',
   eventName: 'pull_request',
   pullRequestNumber: 123,
@@ -84,17 +80,5 @@ describe('Bencher publications', () => {
     expect(() =>
       bencherArguments(main, 'ios', 'base', '/validated', 'nitro')
     ).toThrow()
-  })
-
-  test('rejects missing/duplicate platforms and inconsistent PR metadata', () => {
-    expect(validateMetadata(metadata)).toEqual(metadata)
-    for (const invalid of [
-      { ...metadata, platforms: ['ios', 'ios'] },
-      { ...metadata, platforms: [] },
-      { ...metadata, pullRequestNumber: null },
-      { ...metadata, eventName: 'push' },
-      { ...metadata, headSha: 'not-a-sha' },
-    ])
-      expect(() => validateMetadata(invalid)).toThrow()
   })
 })

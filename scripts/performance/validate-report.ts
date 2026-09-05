@@ -1,12 +1,8 @@
-import { mkdir, readdir, readFile, stat } from 'node:fs/promises'
+import type { PerformanceReport } from './report'
+import { appendFile, mkdir, readdir, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
-import {
-  compareRuns,
-  type MetricComparison,
-  type PlatformComparison,
-  toBencherMetricFormat,
-} from './comparison'
+import { compareRuns, toBencherMetricFormat } from './comparison'
 import { renderPerformanceReportMarkdown } from './report-markdown'
 import { isSafeSha, validateBenchmarkRun } from './schema'
 import type { BenchmarkRunResult } from '../../apps/benchmark/src/benchmarks/types'
@@ -18,6 +14,7 @@ interface TrustedWorkflowRunEvent {
   repository: { full_name: string }
   workflow_run: {
     id: number
+    run_attempt: number
     html_url: string
     event: 'pull_request' | 'push' | 'schedule' | 'workflow_dispatch'
     head_sha: string
@@ -27,19 +24,9 @@ interface TrustedWorkflowRunEvent {
 
 interface TrustedPullRequest {
   number: number
+  state: string
   base: { sha: string; repo: { full_name: string } }
   head: { sha: string; repo: { full_name: string } }
-}
-
-interface PerformanceReport {
-  schemaVersion: 1
-  eventName: 'pull_request' | 'push' | 'schedule' | 'workflow_dispatch'
-  repository: string
-  pullRequestNumber: number | null
-  baseSha: string
-  headSha: string
-  generatedAt: string
-  comparisons: PlatformComparison[]
 }
 
 function object(value: unknown, name: string): Record<string, unknown> {
@@ -104,6 +91,10 @@ function validateTrustedWorkflowRunEvent(
     },
     workflow_run: {
       id,
+      run_attempt: finiteNumber(
+        workflowRun.run_attempt,
+        'workflow_run.run_attempt'
+      ),
       html_url: boundedString(
         workflowRun.html_url,
         'event.workflow_run.html_url'
@@ -139,6 +130,7 @@ function validateTrustedPullRequest(value: unknown): TrustedPullRequest {
   }
   return {
     number,
+    state: boundedString(pullRequest.state, 'pull_request.state'),
     base: {
       sha: baseSha,
       repo: {
@@ -160,97 +152,9 @@ function validateTrustedPullRequest(value: unknown): TrustedPullRequest {
   }
 }
 
-function validateMetricComparison(value: unknown): MetricComparison {
-  const metric = object(value, 'metric comparison')
-  const id = boundedString(metric.id, 'metric.id')
-  if (!METRIC_ID_PATTERN.test(id)) throw new Error(`Unsafe metric ID: ${id}`)
-  const interval = metric.deltaConfidenceInterval95
-  if (!Array.isArray(interval) || interval.length !== 2) {
-    throw new Error(`Invalid confidence interval for ${id}.`)
-  }
-  const verdict = metric.verdict
-  if (
-    verdict !== 'improvement' &&
-    verdict !== 'regression' &&
-    verdict !== 'unchanged' &&
-    verdict !== 'inconclusive' &&
-    verdict !== 'advisory'
-  ) {
-    throw new Error(`Invalid verdict for ${id}.`)
-  }
-  if (typeof metric.advisory !== 'boolean') {
-    throw new Error(`Invalid advisory state for ${id}.`)
-  }
-  return {
-    id,
-    advisory: metric.advisory,
-    baseMedianNsPerOp: finiteNumber(metric.baseMedianNsPerOp, `${id}.base`),
-    headMedianNsPerOp: finiteNumber(metric.headMedianNsPerOp, `${id}.head`),
-    deltaPercent: finiteNumber(metric.deltaPercent, `${id}.delta`),
-    deltaConfidenceInterval95: [
-      finiteNumber(interval[0], `${id}.interval[0]`),
-      finiteNumber(interval[1], `${id}.interval[1]`),
-    ],
-    baseRobustCvPercent: finiteNumber(
-      metric.baseRobustCvPercent,
-      `${id}.baseCv`
-    ),
-    headRobustCvPercent: finiteNumber(
-      metric.headRobustCvPercent,
-      `${id}.headCv`
-    ),
-    budgetPercent: finiteNumber(metric.budgetPercent, `${id}.budget`),
-    verdict,
-  }
-}
-
-function validateComparison(value: unknown): PlatformComparison {
-  const comparison = object(value, 'comparison')
-  const platform = comparison.platform
-  if (platform !== 'ios' && platform !== 'android') {
-    throw new Error('Invalid comparison platform.')
-  }
-  const baseSha = boundedString(comparison.baseSha, 'comparison.baseSha')
-  const headSha = boundedString(comparison.headSha, 'comparison.headSha')
-  if (!isSafeSha(baseSha) || !isSafeSha(headSha)) {
-    throw new Error('Comparison SHAs are invalid.')
-  }
-  if (
-    typeof comparison.suiteComparable !== 'boolean' ||
-    typeof comparison.advisoryMode !== 'boolean' ||
-    typeof comparison.rerunRecommended !== 'boolean' ||
-    typeof comparison.hasRegression !== 'boolean'
-  ) {
-    throw new Error('Comparison flags are invalid.')
-  }
-  if (
-    !Array.isArray(comparison.comparisons) ||
-    comparison.comparisons.length > 100
-  ) {
-    throw new Error('Comparison metrics are invalid.')
-  }
-  return {
-    schemaVersion: 1,
-    platform,
-    baseSha,
-    headSha,
-    baseSuiteHash: boundedString(comparison.baseSuiteHash, 'baseSuiteHash'),
-    headSuiteHash: boundedString(comparison.headSuiteHash, 'headSuiteHash'),
-    suiteComparable: comparison.suiteComparable,
-    advisoryMode: comparison.advisoryMode,
-    rerunRecommended: comparison.rerunRecommended,
-    hasRegression: comparison.hasRegression,
-    comparisons: comparison.comparisons.map(validateMetricComparison),
-  }
-}
-
 function validateReport(value: unknown): PerformanceReport {
   const report = object(value, 'report')
-  if (
-    report.schemaVersion !== 1 ||
-    !Array.isArray(report.comparisons) ||
-    report.comparisons.length !== 2
-  ) {
+  if (report.schemaVersion !== 2) {
     throw new Error('Invalid performance report.')
   }
   const pullRequestNumber =
@@ -277,26 +181,15 @@ function validateReport(value: unknown): PerformanceReport {
   if (!isSafeSha(baseSha) || !isSafeSha(headSha)) {
     throw new Error('Report SHAs are invalid.')
   }
-  const comparisons = report.comparisons.map(validateComparison)
-  if (
-    !comparisons.some((comparison) => comparison.platform === 'android') ||
-    !comparisons.some((comparison) => comparison.platform === 'ios')
-  ) {
-    throw new Error('Report must contain Android and iOS exactly once.')
-  }
-  const generatedAt = boundedString(report.generatedAt, 'report.generatedAt')
-  if (Number.isNaN(Date.parse(generatedAt))) {
-    throw new Error('Report timestamp is invalid.')
-  }
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     eventName,
     repository: boundedString(report.repository, 'report.repository'),
     pullRequestNumber,
     baseSha,
     headSha,
-    generatedAt,
-    comparisons,
+    workflowRunId: finiteNumber(report.workflowRunId, 'report.workflowRunId'),
+    runAttempt: finiteNumber(report.runAttempt, 'report.runAttempt'),
   }
 }
 
@@ -319,7 +212,9 @@ if (
   trustedWorkflowEvent.repository.full_name !== expectedRepository ||
   trustedWorkflowEvent.workflow_run.event !== report.eventName ||
   report.repository !== expectedRepository ||
-  report.headSha !== trustedWorkflowEvent.workflow_run.head_sha
+  report.headSha !== trustedWorkflowEvent.workflow_run.head_sha ||
+  report.workflowRunId !== trustedWorkflowEvent.workflow_run.id ||
+  report.runAttempt !== trustedWorkflowEvent.workflow_run.run_attempt
 ) {
   throw new Error(
     'Artifact event metadata does not match the triggering workflow.'
@@ -342,13 +237,23 @@ if (report.eventName === 'pull_request') {
     pullRequest.base.repo.full_name !== expectedRepository ||
     pullRequest.head.repo.full_name !==
       trustedWorkflowEvent.workflow_run.head_repository.full_name ||
-    report.pullRequestNumber !== pullRequest.number ||
-    report.baseSha !== pullRequest.base.sha ||
-    report.headSha !== pullRequest.head.sha
+    report.pullRequestNumber !== pullRequest.number
   ) {
     throw new Error(
       'Artifact metadata does not match the trusted pull request.'
     )
+  }
+  if (
+    pullRequest.state !== 'open' ||
+    report.baseSha !== pullRequest.base.sha ||
+    report.headSha !== pullRequest.head.sha
+  ) {
+    console.info(
+      'Skipping stale performance results: the pull request advanced or closed.'
+    )
+    if (process.env.GITHUB_OUTPUT != null)
+      await appendFile(process.env.GITHUB_OUTPUT, 'stale=true\n')
+    process.exit(0)
   }
 } else {
   if (report.pullRequestNumber !== null) {
@@ -357,35 +262,28 @@ if (report.eventName === 'pull_request') {
     )
   }
 }
-if (
-  report.comparisons.some(
-    (comparison) =>
-      comparison.baseSha !== report.baseSha ||
-      comparison.headSha !== report.headSha
-  )
-) {
-  throw new Error('Platform comparison metadata does not match the report.')
-}
-
 async function loadRawRuns(
   platform: 'android' | 'ios',
   revision: 'base' | 'head',
   expectedSha: string
 ): Promise<BenchmarkRunResult[]> {
   const directory = path.join(artifactDirectory, 'raw', platform)
-  const filePattern = new RegExp(`^${revision}-[1-3]\\.json$`)
+  const filePattern = new RegExp(`^${revision}-[1-2]\\.json$`)
   const files = (await readdir(directory))
     .filter((file) => filePattern.test(file))
     .sort()
-  if (files.length < 2 || files.length > 3) {
-    throw new Error(`Expected two or three ${platform} ${revision} runs.`)
+  if (files.length !== 2) {
+    throw new Error(`Expected two ${platform} ${revision} runs.`)
   }
   return Promise.all(
     files.map(async (file) => {
       const run = validateBenchmarkRun(
         await readBoundedJson(path.join(directory, file))
       )
+      const sequence = Number(file.match(/-(\d)\.json$/)![1])
       if (
+        run.configuration.runId !== `${platform}-${revision}-${sequence}` ||
+        run.configuration.reverse !== (sequence === 2) ||
         run.configuration.platform !== platform ||
         run.configuration.commitSha !== expectedSha ||
         run.runner.targetBatchDurationMs !== 150 ||
@@ -405,33 +303,29 @@ async function loadRawRuns(
 }
 
 const rebuiltComparisons = await Promise.all(
-  report.comparisons.map(async (uploadedComparison) => {
-    if (!uploadedComparison.advisoryMode) {
-      throw new Error('Performance enforcement cannot be enabled by PR code.')
-    }
+  (['android', 'ios'] as const).map(async (platform) => {
     const [baseRuns, headRuns] = await Promise.all([
-      loadRawRuns(uploadedComparison.platform, 'base', report.baseSha),
-      loadRawRuns(uploadedComparison.platform, 'head', report.headSha),
+      loadRawRuns(platform, 'base', report.baseSha),
+      loadRawRuns(platform, 'head', report.headSha),
     ])
     if (baseRuns.length !== headRuns.length) {
       throw new Error('Base and head run counts must match.')
     }
-    const comparison = compareRuns(baseRuns, headRuns, true)
+    const comparison = compareRuns(baseRuns, headRuns)
     return { comparison, baseRuns, headRuns }
   })
 )
 
 await mkdir(outputDirectory, { recursive: true })
 const markdown = renderPerformanceReportMarkdown(
-  rebuiltComparisons.map(({ comparison }) => ({
-    comparison,
-  })),
+  rebuiltComparisons.map(({ comparison }) => comparison),
   {
-    advisory: true,
     repository: expectedRepository,
     baseSha: report.baseSha,
     headSha: report.headSha,
     workflowRunUrl,
+    artifactId: Number(requiredArgument(argumentsMap, 'artifact-id')),
+    runAttempt: report.runAttempt,
   }
 )
 await Bun.write(path.join(outputDirectory, 'performance-summary.md'), markdown)

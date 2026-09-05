@@ -59,7 +59,7 @@ For iOS, use `--platform ios`, a simulator UDID for `--device-id`, and the built
 `NitroBenchmark.app` for `--app`, with matching simulator/toolchain metadata.
 Local runs do not upload results.
 
-Each of the 40 metrics targets 150 ms of timed work per sample (roughly
+Each metric targets 150 ms of timed work per sample (roughly
 100–200 ms), using round iteration counts with two significant digits, such as
 1,500,000 or 24,000. Calibration can grow or shrink the count and is rechecked
 after five warmup batches. That count is then frozen for twenty measured samples;
@@ -83,11 +83,10 @@ the timed batch. Operation-induced allocations remain inside it.
 
 ## CI and reporting
 
-See [performance CI](../../.github/PERFORMANCE.md) for the paired comparison,
-noise calibration, artifacts, fork-safe reporting, and Bencher activation.
-The initial infrastructure PR uses the head binary for both sides for A/A
-validation because its base does not yet contain this app. Subsequent PRs build
-base and head independently. Performance verdicts remain advisory.
+See [performance CI](../../.github/PERFORMANCE.md) for observed comparisons,
+process variability, raw artifacts, trusted reporting, and Bencher publishing.
+Base and head are built independently. Same-revision scheduled/manual runs show
+baseline variation. Performance remains report-only.
 
 The example's former benchmark screen and TurboModule control have moved here.
 No public Nitro API changes are needed. App dependency versions initially match

@@ -1,3 +1,4 @@
+import { median } from '../../apps/benchmark/src/benchmarks/statistics'
 import path from 'node:path'
 import { mkdir, readFile } from 'node:fs/promises'
 import { parseArguments, requiredArgument } from './args'
@@ -163,7 +164,7 @@ async function runCase(index: number) {
     )
     const metric = result.metrics[0]!
     console.info(
-      `[NitroBenchmark] case ${index + 1}/${result.benchmarkCount}: ${metric.id}, ${metric.iterations} ops/sample, median timed batch ${((metric.medianNsPerOp * metric.iterations) / 1e6).toFixed(1)} ms`
+      `[NitroBenchmark] case ${index + 1}/${result.benchmarkCount}: ${metric.id}, ${metric.iterations} ops/sample, median timed batch ${((median(metric.samplesNsPerOp) * metric.iterations) / 1e6).toFixed(1)} ms`
     )
     return result
   } catch (error) {

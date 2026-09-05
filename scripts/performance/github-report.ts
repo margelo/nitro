@@ -1,15 +1,16 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
+import type { ReportMetadata } from './report'
 import { isSafeSha } from './schema'
 
 const COMMENT_MARKER = '<!-- nitro-performance-paired-comparison -->'
 
-interface PullRequestReport {
-  repository: string
+interface PullRequestReport extends Pick<
+  ReportMetadata,
+  'repository' | 'baseSha' | 'headSha'
+> {
   pullRequestNumber: number
-  baseSha: string
-  headSha: string
   markdown: string
 }
 
@@ -87,10 +88,7 @@ if (import.meta.main) {
   const directory = requiredArgument(argumentsMap, 'directory')
   const metadata = JSON.parse(
     await readFile(path.join(directory, 'metadata.json'), 'utf8')
-  ) as Omit<PullRequestReport, 'markdown'>
-  if (metadata.repository !== process.env.GITHUB_REPOSITORY) {
-    throw new Error('Report repository does not match the trusted workflow.')
-  }
+  ) as ReportMetadata
   if (metadata.pullRequestNumber != null) {
     const token = process.env.GITHUB_TOKEN
     if (token == null) throw new Error('GITHUB_TOKEN is required.')
@@ -99,7 +97,7 @@ if (import.meta.main) {
       'utf8'
     )
     const status = await postPerformanceComment(
-      { ...metadata, markdown },
+      { ...metadata, pullRequestNumber: metadata.pullRequestNumber, markdown },
       async (endpoint, method = 'GET', body) => {
         const response = await fetch(`https://api.github.com${endpoint}`, {
           method,

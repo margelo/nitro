@@ -1,10 +1,4 @@
-import {
-  bootstrapMedianConfidenceInterval,
-  median,
-  medianAbsoluteDeviation,
-  quantile,
-  robustCoefficientOfVariationPercent,
-} from './statistics'
+import { median } from './statistics'
 import { calibrateIterations, roundIterations } from './calibration'
 import { benchmarkRuntime, executeBatch, type BenchmarkRuntime } from './batch'
 import type {
@@ -72,28 +66,17 @@ export async function runBenchmarkDefinitions(
       version: definition.version,
       family: definition.family,
       implementation: definition.implementation,
-      advisory: definition.advisory ?? false,
       iterations,
       chunkIterations: Math.min(
         iterations,
         definition.maxChunkIterations ?? iterations
       ),
       samplesNsPerOp,
-      medianNsPerOp: median(samplesNsPerOp),
-      p95NsPerOp: quantile(samplesNsPerOp, 0.95),
-      medianAbsoluteDeviationNsPerOp: medianAbsoluteDeviation(samplesNsPerOp),
-      robustCoefficientOfVariationPercent:
-        robustCoefficientOfVariationPercent(samplesNsPerOp),
-      medianConfidenceInterval95: bootstrapMedianConfidenceInterval(
-        samplesNsPerOp,
-        2_000,
-        definition.id
-      ),
       checksum,
     }
     metrics.push(metric)
     console.info(
-      `[NitroBenchmark] ${metric.id}: ${metric.medianNsPerOp.toFixed(2)} ns/op; ${iterations} ops/sample, chunks of ${metric.chunkIterations}, median timed batch ${((metric.medianNsPerOp * iterations) / 1_000_000).toFixed(1)} ms`
+      `[NitroBenchmark] ${metric.id}: ${median(metric.samplesNsPerOp).toFixed(2)} ns/op; ${iterations} ops/sample, chunks of ${metric.chunkIterations}, median timed batch ${((median(metric.samplesNsPerOp) * iterations) / 1_000_000).toFixed(1)} ms`
     )
   }
 

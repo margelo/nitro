@@ -324,7 +324,6 @@ function createObjectBenchmarks(
       family: 'promise',
       implementation,
       kind: 'async',
-      advisory: true,
       // Release fulfilled Promise chains between chunks, outside the timer.
       maxChunkIterations: 5_000,
       collectNativeGarbage:
