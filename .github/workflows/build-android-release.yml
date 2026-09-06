@@ -11,6 +11,8 @@ jobs:
   build_release:
     name: Build Android Example App (release, new architecture)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -34,14 +36,14 @@ jobs:
           ./gradlew clean :app:assembleRelease --no-daemon --no-build-cache
 
       - name: Upload APK to Release
-        uses: actions/upload-release-asset@v1
+        if: github.event_name == 'release'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: apps/example/android/app/build/outputs/apk/release/app-release.apk
-          asset_name: "NitroExample-${{ github.event.release.tag_name }}.apk"
-          asset_content_type: application/vnd.android.package-archive
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          ASSET_NAME="NitroExample-${RELEASE_TAG}.apk"
+          mv apps/example/android/app/build/outputs/apk/release/app-release.apk "$ASSET_NAME"
+          gh release upload "$RELEASE_TAG" "$ASSET_NAME" --repo "$GITHUB_REPOSITORY"
 
       # Gradle cache doesn't like daemons
       - name: Stop Gradle Daemon
