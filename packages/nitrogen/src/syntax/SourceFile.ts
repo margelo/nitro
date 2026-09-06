@@ -72,7 +72,7 @@ export interface SourceImport {
 type GroupedFiles = Record<SourceFile['platform'], SourceFile[]>
 
 export function groupByPlatform(files: SourceFile[]): GroupedFiles {
-  const result: GroupedFiles = { shared: [], ios: [], android: [] }
+  const result: GroupedFiles = { shared: [], ios: [], android: [], windows: [] }
   for (const file of files) {
     result[file.platform].push(file)
   }

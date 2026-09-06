@@ -13,6 +13,7 @@
 
 #if __has_include(<cxxreact/ReactNativeVersion.h>)
 #include <cxxreact/ReactNativeVersion.h>
+#include <utility>
 #if REACT_NATIVE_VERSION_MINOR >= 78
 #define ENABLE_NATIVE_OBJECT_CREATE
 #endif

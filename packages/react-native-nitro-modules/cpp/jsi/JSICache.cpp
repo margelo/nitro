@@ -9,6 +9,7 @@
 #include "CommonGlobals.hpp"
 #include "JSIHelpers.hpp"
 #include "NitroDefines.hpp"
+#include <utility>
 
 namespace margelo::nitro {
 

@@ -10,16 +10,17 @@
 namespace margelo::nitro {
 template <typename TResult>
 class Promise;
+
+enum PromiseTask { WANTS_TO_RESOLVE, WANTS_TO_REJECT };
 } // namespace margelo::nitro
 
 #include "NitroTypeInfo.hpp"
 #include "Promise.hpp"
 #include <exception>
+#include <stdexcept>
 #include <string>
 
 namespace margelo::nitro {
-
-enum PromiseTask { WANTS_TO_RESOLVE, WANTS_TO_REJECT };
 
 template <typename TResult>
 void assertPromiseState(Promise<TResult>& promise, PromiseTask task) {

@@ -20,6 +20,7 @@ struct JSIConverter;
 #include <exception>
 #include <jsi/jsi.h>
 #include <memory>
+#include <utility>
 
 namespace margelo::nitro {
 

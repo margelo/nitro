@@ -9,7 +9,10 @@
 
 #include "BorrowingReference.hpp"
 #include "NitroDefines.hpp"
+#include <cstdint>
+#include <functional>
 #include <jsi/jsi.h>
+#include <memory>
 #include <thread>
 #include <vector>
 

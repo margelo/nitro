@@ -8,6 +8,7 @@
 #pragma once
 
 #include "BorrowingReference.hpp"
+#include <functional>
 #include <jsi/jsi.h>
 #include <unordered_map>
 

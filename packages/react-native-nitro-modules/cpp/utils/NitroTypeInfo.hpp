@@ -13,6 +13,7 @@
 #include <string>
 #include <type_traits>
 #include <typeindex>
+#include <typeinfo>
 
 namespace margelo::nitro {
 

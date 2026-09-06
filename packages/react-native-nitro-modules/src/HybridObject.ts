@@ -7,6 +7,7 @@
 export interface PlatformSpec {
   ios?: 'c++' | 'swift'
   android?: 'c++' | 'kotlin'
+  windows?: 'c++'
 }
 
 /**

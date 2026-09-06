@@ -22,6 +22,7 @@ import { Logger } from './Logger.js'
 import { NitroConfig } from './config/NitroConfig.js'
 import { createIOSAutolinking } from './autolinking/createIOSAutolinking.js'
 import { createAndroidAutolinking } from './autolinking/createAndroidAutolinking.js'
+import { createWindowsAutolinking } from './autolinking/createWindowsAutolinking.js'
 import type { Autolinking } from './autolinking/Autolinking.js'
 import { createGitAttributes } from './createGitAttributes.js'
 import type { PlatformSpec } from 'react-native-nitro-modules'
@@ -202,6 +203,9 @@ export async function runNitrogen({
   }
   if (usedPlatforms.includes('android')) {
     autolinkingFiles.push(createAndroidAutolinking(writtenFiles))
+  }
+  if (usedPlatforms.includes('windows')) {
+    autolinkingFiles.push(createWindowsAutolinking(writtenFiles))
   }
 
   for (const autolinking of autolinkingFiles) {

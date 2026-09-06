@@ -10,6 +10,7 @@ template <typename T, typename Enable>
 struct JSIConverter;
 } // namespace margelo::nitro
 
+#include <cstdint>
 #include <jsi/jsi.h>
 #include <type_traits>
 #include <variant>

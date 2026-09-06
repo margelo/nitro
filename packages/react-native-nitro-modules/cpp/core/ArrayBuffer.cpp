@@ -8,9 +8,13 @@
 #include "ArrayBuffer.hpp"
 #include "BorrowingReference.hpp"
 #include "NitroDefines.hpp"
+#include <cstdint>
+#include <cstring>
 #include <functional>
 #include <jsi/jsi.h>
+#include <memory>
 #include <thread>
+#include <utility>
 
 namespace margelo::nitro {
 
