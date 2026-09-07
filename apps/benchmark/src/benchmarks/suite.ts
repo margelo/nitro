@@ -93,6 +93,7 @@ function createObjectBenchmarks(
       family: 'primitive',
       implementation,
       kind: 'sync',
+      cleanup: 'none',
       expectedChecksum: sumFromOne,
       run(iterations) {
         let checksum = 0
@@ -109,6 +110,7 @@ function createObjectBenchmarks(
       family: 'primitive',
       implementation,
       kind: 'sync',
+      cleanup: 'none',
       expectedChecksum: addNumbersChecksum,
       run(iterations) {
         let checksum = 0
@@ -124,6 +126,7 @@ function createObjectBenchmarks(
       family: 'property',
       implementation,
       kind: 'sync',
+      cleanup: 'none',
       expectedChecksum: sumFromZero,
       run(iterations) {
         let checksum = 0
@@ -424,6 +427,9 @@ function createBufferBenchmark(
     family: 'array-buffer',
     implementation,
     kind: 'sync',
+    // iOS copies release their owned storage when Hermes collects the wrapper.
+    // Keep Android's existing policy, including JVM-backed Kotlin copies.
+    cleanup: operation === 'copy' && Platform.OS === 'ios' ? 'gc' : undefined,
     // Bounce does not copy the payload; its chunk bound is independent of size.
     maxChunkIterations:
       operation === 'bounce'
@@ -462,6 +468,7 @@ export function createBenchmarkSuite(): BenchmarkDefinition[] {
       family: 'control',
       implementation: 'javascript',
       kind: 'sync',
+      cleanup: 'none',
       expectedChecksum: addNumbersChecksum,
       run(iterations) {
         let checksum = 0
@@ -477,6 +484,7 @@ export function createBenchmarkSuite(): BenchmarkDefinition[] {
       family: 'control',
       implementation: 'turbo-module',
       kind: 'sync',
+      cleanup: 'none',
       expectedChecksum: addNumbersChecksum,
       run(iterations) {
         let checksum = 0

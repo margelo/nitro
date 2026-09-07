@@ -23,7 +23,10 @@ measure and short enough to fit the job budget. Roughly 150 ms per batch is the
 initial sizing target, not a pass/fail bound or a claim of steady performance.
 Retune deliberately using representative runs; a slow head must execute all of
 the same work. Allocation-heavy cases sum bounded timed chunks with explicit
-cleanup outside timing. Raw `iterations`, `chunkIterations` and ordered
+cleanup outside timing. The eight primitive-only control, method and numeric
+property cases skip per-batch GC and native frame waits. iOS buffer copies keep
+bounded Hermes GC but skip frame waits: collecting their wrappers releases the
+owned native storage. Other allocating cases retain GC and native yields. Raw `iterations`, `chunkIterations` and ordered
 `samplesNsPerOp` describe the work. Slow samples are retained.
 
 ## Reading results

@@ -72,9 +72,14 @@ Adding a case requires an explicit count. Revisit the counts when changing the
 case or device, using raw durations from representative runs; changes produce a
 new suite hash. The counts remain fixed during CI, even if a revision is slower.
 
+The eight primitive-only control, method and numeric property cases skip
+per-batch GC and frame waits. They still run in fresh processes with the same
+warmup and sample counts.
+
 Allocation-heavy cases split a sample into bounded chunks, collecting garbage
-after each chunk and yielding for native cleanup at most every four chunks,
-outside the timer. Kotlin buffer-copy and Promise cases also collect Java's heap
+after each chunk, outside the timer. iOS buffer copies use synchronous GC
+without frame waits; their wrappers release the owned native storage. Other
+allocating cases also yield for native cleanup after at most four chunks. Kotlin buffer-copy and Promise cases also collect Java's heap
 between chunks through a synchronous, benchmark-only TurboModule helper; Hermes
 GC alone cannot reclaim Java-backed direct buffers. Cleanup is excluded from
 timing. Each sample divides its accumulated timed duration by

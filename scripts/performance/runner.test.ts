@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, spyOn, test } from 'bun:test'
 import { runBenchmarkDefinitions } from '../../apps/benchmark/src/benchmarks/runner'
-import {
-  benchmarkRuntime,
-  executeBatch,
-} from '../../apps/benchmark/src/benchmarks/batch'
+import { executeBatch } from '../../apps/benchmark/src/benchmarks/batch'
 import { getBenchmarkIterations } from '../../apps/benchmark/src/benchmarks/iterations'
 import type { BenchmarkDefinition } from '../../apps/benchmark/src/benchmarks/types'
 
@@ -28,14 +25,68 @@ function definition(expectedChecksum: (iterations: number) => number) {
 }
 
 describe('benchmark runner', () => {
-  test('uses a positive-delay native yield, not the immediate timer fast path', async () => {
-    const timer = spyOn(globalThis, 'setTimeout')
-    try {
-      await benchmarkRuntime.yieldToRuntime()
-      expect(timer.mock.calls[0]?.[1]).toBe(1)
-    } finally {
-      timer.mockRestore()
-    }
+  test('primitive-only cases perform their full work without cleanup pauses', async () => {
+    let now = 0
+    const calls: number[] = []
+    spyOn(performance, 'now').mockImplementation(() => now)
+    const [metric] = await runBenchmarkDefinitions(
+      [
+        {
+          ...definition((n) => n * 2),
+          cleanup: 'none',
+          run(n) {
+            calls.push(n)
+            now += n * 0.00002
+            return n * 2
+          },
+        },
+      ],
+      { warmupCount: 5, sampleCount: 20, reverse: false },
+      'ios',
+      {
+        collectGarbage() {
+          throw new Error('Unexpected GC')
+        },
+        async yieldToRuntime() {
+          throw new Error('Unexpected native yield')
+        },
+      }
+    )
+    expect(calls).toEqual(Array(25).fill(iterations))
+    expect(metric?.samplesNsPerOp).toHaveLength(20)
+    expect(metric?.checksum).toBe(25 * iterations * 2)
+  })
+
+  test('GC-only cases retain bounded collections without native frame waits', async () => {
+    let now = 0
+    let collections = 0
+    const chunks: number[] = []
+    spyOn(performance, 'now').mockImplementation(() => now)
+    const result = await executeBatch(
+      {
+        ...definition((n) => n * 2),
+        cleanup: 'gc',
+        maxChunkIterations: 50,
+        run(n) {
+          chunks.push(n)
+          now += n
+          return n * 2
+        },
+      },
+      120,
+      {
+        collectGarbage() {
+          collections++
+          now += 1000
+        },
+        async yieldToRuntime() {
+          throw new Error('Unexpected native yield')
+        },
+      }
+    )
+    expect(chunks).toEqual([50, 50, 20])
+    expect(collections).toBe(4)
+    expect(result).toEqual({ durationMs: 120, checksum: 240 })
   })
 
   test('samples batches with a fake clock', async () => {

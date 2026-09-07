@@ -24,6 +24,9 @@ interface BenchmarkDefinitionBase {
   version: number
   family: BenchmarkFamily
   implementation: BenchmarkImplementation
+  /** Default: GC and native yields. Primitive-only cases need none;
+   * synchronous native ownership can use GC without frame waits. */
+  cleanup?: 'none' | 'gc'
   /** Bound live allocations, not the total operations in a measured sample. */
   maxChunkIterations?: number
   /** Additional native-heap cleanup after Hermes GC, outside measured time. */
