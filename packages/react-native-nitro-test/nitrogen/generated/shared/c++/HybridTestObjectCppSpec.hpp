@@ -281,6 +281,7 @@ namespace margelo::nitro::test {
       virtual double callbackSync(const std::function<double()>& callback) = 0;
       virtual std::function<double()> getSyncNumberCallback() = 0;
       virtual std::function<int64_t(int64_t /* value */)> bounceSyncInt64Callback(const std::function<int64_t(int64_t /* value */)>& callback) = 0;
+      virtual std::function<uint64_t(uint64_t /* value */)> bounceSyncUInt64Callback(const std::function<uint64_t(uint64_t /* value */)>& callback) = 0;
       virtual bool getIsViewBlue(const std::shared_ptr<HybridTestViewSpec>& view) = 0;
       virtual std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec> bounceExternalHybrid(const std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>& externalObject) = 0;
       virtual std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec> createInternalObject() = 0;

@@ -871,6 +871,10 @@ std::function<int64_t(int64_t)> HybridTestObjectCpp::bounceSyncInt64Callback(con
   return callback;
 }
 
+std::function<uint64_t(uint64_t)> HybridTestObjectCpp::bounceSyncUInt64Callback(const std::function<uint64_t(uint64_t)>& callback) {
+  return callback;
+}
+
 std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec> HybridTestObjectCpp::bounceExternalHybrid(
     const std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>& externalObject) {
   return externalObject;

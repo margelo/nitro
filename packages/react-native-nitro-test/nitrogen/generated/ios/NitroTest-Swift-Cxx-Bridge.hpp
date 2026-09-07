@@ -1765,6 +1765,29 @@ namespace margelo::nitro::test::bridge::swift {
     return Func_int64_t_int64_t_Wrapper(std::move(value));
   }
   
+  // pragma MARK: std::function<uint64_t(uint64_t /* value */)>
+  /**
+   * Specialized version of `std::function<uint64_t(uint64_t)>`.
+   */
+  using Func_uint64_t_uint64_t = std::function<uint64_t(uint64_t /* value */)>;
+  /**
+   * Wrapper class for a `std::function<uint64_t(uint64_t / * value * /)>`, this can be used from Swift.
+   */
+  class Func_uint64_t_uint64_t_Wrapper final {
+  public:
+    explicit Func_uint64_t_uint64_t_Wrapper(std::function<uint64_t(uint64_t /* value */)>&& func): _function(std::make_unique<std::function<uint64_t(uint64_t /* value */)>>(std::move(func))) {}
+    inline uint64_t call(uint64_t value) const noexcept {
+      auto __result = _function->operator()(value);
+      return __result;
+    }
+  private:
+    std::unique_ptr<std::function<uint64_t(uint64_t /* value */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_uint64_t_uint64_t create_Func_uint64_t_uint64_t(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_uint64_t_uint64_t_Wrapper wrap_Func_uint64_t_uint64_t(Func_uint64_t_uint64_t value) noexcept {
+    return Func_uint64_t_uint64_t_Wrapper(std::move(value));
+  }
+  
   // pragma MARK: std::shared_ptr<HybridTestViewSpec>
   /**
    * Specialized version of `std::shared_ptr<HybridTestViewSpec>`.
@@ -2343,6 +2366,15 @@ namespace margelo::nitro::test::bridge::swift {
   }
   inline Result_std__function_int64_t_int64_t____value______ create_Result_std__function_int64_t_int64_t____value______(const std::exception_ptr& error) noexcept {
     return Result<std::function<int64_t(int64_t /* value */)>>::withError(error);
+  }
+  
+  // pragma MARK: Result<std::function<uint64_t(uint64_t /* value */)>>
+  using Result_std__function_uint64_t_uint64_t____value______ = Result<std::function<uint64_t(uint64_t /* value */)>>;
+  inline Result_std__function_uint64_t_uint64_t____value______ create_Result_std__function_uint64_t_uint64_t____value______(const std::function<uint64_t(uint64_t /* value */)>& value) noexcept {
+    return Result<std::function<uint64_t(uint64_t /* value */)>>::withValue(value);
+  }
+  inline Result_std__function_uint64_t_uint64_t____value______ create_Result_std__function_uint64_t_uint64_t____value______(const std::exception_ptr& error) noexcept {
+    return Result<std::function<uint64_t(uint64_t /* value */)>>::withError(error);
   }
   
   // pragma MARK: Result<std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>>

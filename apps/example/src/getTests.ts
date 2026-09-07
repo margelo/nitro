@@ -2463,6 +2463,16 @@ export function getTests(
           .equals(value)
       )
     ),
+    ...[0n, 1n, 2n ** 63n, 2n ** 64n - 1n].map((value) =>
+      createTest(`UInt64 callback roundtrip preserves ${value}`, () =>
+        it(() => {
+          const callback = testObject.bounceSyncUInt64Callback((input) => input)
+          return callback(value)
+        })
+          .didNotThrow()
+          .equals(value)
+      )
+    ),
     createTest(
       'native void callback invokes its wrapped JS callback',
       async () =>
