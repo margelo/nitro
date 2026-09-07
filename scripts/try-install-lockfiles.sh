@@ -11,12 +11,14 @@ cd "$(pwd)" || exit 0
   bun i
   bun run build
 
-  # Install example pods
-  bun example bundle-install
-  bun example pods
+  # Refresh both apps' Ruby and CocoaPods lockfiles
+  for app in apps/example apps/benchmark; do
+    bun --cwd "$app" bundle-install
+    bun --cwd "$app" pods
+    git add "$app/Gemfile.lock" "$app/ios/Podfile.lock"
+  done
 
-  # Add everything to git
-  git add **/*.lock
+  git add bun.lock
 } || true
 
 # No errors - whatever.
