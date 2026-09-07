@@ -45,11 +45,10 @@ function isRunConfiguration(
   )
 }
 
-async function waitForRuntimeToSettle(): Promise<void> {
+async function waitForInitialFrames(): Promise<void> {
   await new Promise<void>((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
   })
-  await new Promise<void>((resolve) => setTimeout(resolve, 1_000))
 }
 
 async function readConfiguration(): Promise<BenchmarkRunConfiguration> {
@@ -79,7 +78,7 @@ async function run(): Promise<BenchmarkRunResult> {
   const configuration = await readConfiguration()
   const environment = getBenchmarkEnvironment()
   assertReleaseBenchmarkEnvironment(environment)
-  await waitForRuntimeToSettle()
+  await waitForInitialFrames()
 
   const startedAt = new Date().toISOString()
   const start = performance.now()
