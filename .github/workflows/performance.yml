@@ -305,33 +305,34 @@ jobs:
         with:
           artifact-ids: ${{ env.BUILD_ARTIFACT_ID }}
           path: apps
-      - name: Run paired iOS benchmarks
+      - name: Create and boot iOS simulator
+        timeout-minutes: 5
         run: |
           set -euo pipefail
-          mkdir -p apps/base apps/head
-          if [[ -f apps/base.app.tar.gz ]]; then tar -xzf apps/base.app.tar.gz -C apps/base; fi
-          tar -xzf apps/head.app.tar.gz -C apps/head
           DEVICE_ID=$(xcrun simctl create \
             'Nitro Performance' \
             'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro' \
             'com.apple.CoreSimulator.SimRuntime.iOS-26-5')
           echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
           xcrun simctl boot "$DEVICE_ID"
-          DEVICE_ID="$DEVICE_ID" bun -e '
-            const child = Bun.spawn(["xcrun", "simctl", "bootstatus", process.env.DEVICE_ID, "-b"], {
-              stdout: "inherit", stderr: "inherit", timeout: 300_000, killSignal: "SIGKILL",
-            });
-            if (await child.exited !== 0) throw new Error("iOS simulator did not boot successfully within five minutes.");
-          '
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+      - name: Run paired iOS benchmarks
+        run: |
+          set -euo pipefail
+          mkdir -p apps/base apps/head
+          if [[ -f apps/base.app.tar.gz ]]; then tar -xzf apps/base.app.tar.gz -C apps/base; fi
+          tar -xzf apps/head.app.tar.gz -C apps/head
           bun scripts/performance/run-sequence.ts \
             --platform ios --base-app apps/base/NitroBenchmark.app --head-app apps/head/NitroBenchmark.app \
             --build-metadata apps/build.json \
             --base-sha "$BASE_SHA" --head-sha "$HEAD_SHA" \
             --output-directory performance-ios --device-id "$DEVICE_ID" \
+            --fresh-ios-simulator true \
             --device 'iPhone 17 Pro simulator / Blacksmith 6 vCPU' --os-version 'iOS 26.5' \
             --architecture arm64 --toolchain "$(jq -r .toolchain apps/build.json)"
       - name: Delete simulator
         if: always() && env.DEVICE_ID != ''
+        timeout-minutes: 1
         run: |
           xcrun simctl shutdown "$DEVICE_ID" || true
           xcrun simctl delete "$DEVICE_ID" || true

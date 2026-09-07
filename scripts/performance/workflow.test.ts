@@ -3,6 +3,39 @@ import { readFile, mkdtemp, mkdir, rm } from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
 
+test('iOS creation and boot share a setup deadline before fresh-simulator measurements', async () => {
+  const workflow = Bun.YAML.parse(
+    await readFile(
+      new URL('../../.github/workflows/performance.yml', import.meta.url),
+      'utf8'
+    )
+  ) as any
+  const steps = workflow.jobs['measure-ios'].steps as any[]
+  const setupIndex = steps.findIndex(
+    (step) => step.name === 'Create and boot iOS simulator'
+  )
+  const measurementIndex = steps.findIndex(
+    (step) => step.name === 'Run paired iOS benchmarks'
+  )
+  const setup = steps[setupIndex]
+  expect(setupIndex).toBeGreaterThanOrEqual(0)
+  expect(setupIndex).toBeLessThan(measurementIndex)
+  expect(setup['timeout-minutes']).toBe(5)
+  for (const command of ['create', 'boot', 'bootstatus']) {
+    expect(setup.run).toContain(`xcrun simctl ${command}`)
+  }
+  // Retain the new ID for always() cleanup even if boot or bootstatus times out.
+  expect(setup.run.indexOf('>> "$GITHUB_ENV"')).toBeLessThan(
+    setup.run.indexOf('xcrun simctl boot')
+  )
+  expect(steps[measurementIndex].if).toBeUndefined()
+  expect(steps[measurementIndex].run).toContain('--fresh-ios-simulator true')
+  const cleanup = steps.find((step) => step.name === 'Delete simulator')
+  expect(cleanup.if).toBe("always() && env.DEVICE_ID != ''")
+  expect(cleanup['timeout-minutes']).toBe(1)
+  expect(cleanup.run).toContain('xcrun simctl delete "$DEVICE_ID"')
+})
+
 test('Android performance CI requires KVM and cannot fall back to software emulation', async () => {
   const source = await readFile(
     new URL('../../.github/workflows/performance.yml', import.meta.url),
