@@ -1,4 +1,3 @@
-import { calibrateBenchmarkDefinitions } from './runner'
 import * as React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import {
@@ -13,7 +12,6 @@ import {
 
 const CONTROLLER_URL = 'http://127.0.0.1:8173'
 const RUNNER_OPTIONS: Omit<BenchmarkRunnerOptions, 'reverse'> = {
-  targetBatchDurationMs: 150,
   warmupCount: 5,
   sampleCount: 20,
 }
@@ -24,12 +22,6 @@ function isRunConfiguration(
   if (value == null || typeof value !== 'object') return false
   const candidate = value as Partial<BenchmarkRunConfiguration>
   return (
-    (candidate.calibration === undefined || candidate.calibration === true) &&
-    (candidate.work === undefined ||
-      (candidate.work != null &&
-        typeof candidate.work.id === 'string' &&
-        Number.isSafeInteger(candidate.work.iterations) &&
-        Number.isSafeInteger(candidate.work.chunkIterations))) &&
     typeof candidate.runId === 'string' &&
     typeof candidate.reverse === 'boolean' &&
     typeof candidate.commitSha === 'string' &&
@@ -93,31 +85,15 @@ async function run(): Promise<BenchmarkRunResult> {
         )
   if (selected.length === 0)
     throw new Error('Requested benchmark index is outside the suite.')
-  const runner = configuration.calibration
-    ? { ...RUNNER_OPTIONS, warmupCount: 0, sampleCount: 0 }
-    : RUNNER_OPTIONS
-  const metrics = configuration.calibration
-    ? (
-        await calibrateBenchmarkDefinitions(
-          selected,
-          runner.targetBatchDurationMs
-        )
-      ).map((work, index) => ({
-        ...work,
-        version: selected[index]!.version,
-        family: selected[index]!.family,
-        implementation: selected[index]!.implementation,
-        samplesNsPerOp: [],
-        checksum: 0,
-      }))
-    : await runBenchmarkDefinitions(
-        selected,
-        { ...runner, reverse: configuration.reverse },
-        configuration.work == null ? [] : [configuration.work]
-      )
+  const runner = RUNNER_OPTIONS
+  const metrics = await runBenchmarkDefinitions(
+    selected,
+    { ...runner, reverse: configuration.reverse },
+    configuration.platform
+  )
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     suiteVersion: 1,
     configuration,
     environment,

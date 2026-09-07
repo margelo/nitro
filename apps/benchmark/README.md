@@ -51,9 +51,8 @@ The host installs each binary once, then launches a fresh process for each case
 and assembles their results. This releases Nitro's runtime-scoped JSI reference
 bookkeeping between cases; GC alone cannot clear that cache. Each process posts
 one result only after its timing is complete. Per-case raw results are kept beside
-the combined output in `base-1-cases/`, `head-1-cases/`, and
-`calibration-base-cases/` directories. For each case, calibration exits before
-base and head run back to back. Identical SHAs reuse one installed binary. Startup, transport, and process restarts are not timed.
+the combined output in `base-1-cases/` and `head-1-cases/` directories.
+For each case, base and head run back to back. Identical SHAs reuse one installed binary. Startup, transport, and process restarts are not timed.
 For iOS, use `--platform ios`, a simulator UDID for `--device-id`, and the built
 `NitroBenchmark.app` for `--base-app` and `--head-app`, with matching
 simulator/toolchain metadata.
@@ -62,12 +61,16 @@ app ID (omit the second build-script argument), and build head with the `.head`
 ID shown above. Pass the corresponding app paths, source roots, and commit SHAs.
 Local runs do not upload results.
 
-Each metric targets 150 ms of timed work per sample (roughly
-100–200 ms), using round iteration counts with two significant digits, such as
-1,500,000 or 24,000. Calibration chooses the count in a separate process that is discarded. The
-measurement process performs five warmup batches and twenty samples using those
-fixed counts. In paired runs, both revisions share the base-derived count and
-chunk size for each case. Slow samples are retained without shortening the work.
+Each metric has fixed Android/iOS counts in
+[`iterations.ts`](src/benchmarks/iterations.ts), seeded from the existing
+GitHub-runner results with roughly 150 ms of timed work per sample. There is no
+calibration process. Each measurement process performs five warmup batches and
+twenty samples. Both revisions share the checked-in count and chunk size for
+each case. Slow samples are retained without shortening the work.
+
+Adding a case requires an explicit count. Revisit the counts when changing the
+case or device, using raw durations from representative runs; changes produce a
+new suite hash. The counts remain fixed during CI, even if a revision is slower.
 
 Allocation-heavy cases split a sample into bounded chunks, collecting garbage
 after each chunk and yielding for native cleanup at most every four chunks,
@@ -76,8 +79,7 @@ between chunks through a synchronous, benchmark-only TurboModule helper; Hermes
 GC alone cannot reclaim Java-backed direct buffers. Cleanup is excluded from
 timing. Each sample divides its accumulated timed duration by
 the total operation count; the memory limit no longer caps the sample duration.
-Hermes `gc()` is required, and calibration fails rather than accepting a tiny
-cap-limited batch. Raw results include `iterations` and `chunkIterations`; each
+Hermes `gc()` is required. Raw results include `iterations` and `chunkIterations`; each
 sample's total timed milliseconds is `samplesNsPerOp[i] * iterations / 1e6`.
 These are operation-cost measurements with explicit inter-chunk cleanup excluded,
 not sustained allocation/GC throughput. Natural GC during an operation is timed.

@@ -4,7 +4,7 @@ import { combineIsolatedCases } from './isolated-cases'
 
 function result(index: number): BenchmarkRunResult {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     suiteVersion: 1,
     benchmarkCount: 3,
     configuration: {
@@ -25,7 +25,7 @@ function result(index: number): BenchmarkRunResult {
       dev: false,
       nitroBuildType: 'release',
     },
-    runner: { targetBatchDurationMs: 150, warmupCount: 5, sampleCount: 2 },
+    runner: { warmupCount: 5, sampleCount: 2 },
     startedAt: '2026-09-04T00:00:00.000Z',
     durationMs: 100,
     metrics: [

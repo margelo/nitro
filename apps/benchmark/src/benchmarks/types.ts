@@ -24,8 +24,6 @@ interface BenchmarkDefinitionBase {
   version: number
   family: BenchmarkFamily
   implementation: BenchmarkImplementation
-  initialIterations?: number
-  maxIterations?: number
   /** Bound live allocations, not the total operations in a measured sample. */
   maxChunkIterations?: number
   /** Additional native-heap cleanup after Hermes GC, outside measured time. */
@@ -48,20 +46,16 @@ export type BenchmarkDefinition =
   | AsyncBenchmarkDefinition
 
 export interface BenchmarkRunnerOptions {
-  targetBatchDurationMs: number
   warmupCount: number
   sampleCount: number
   reverse: boolean
 }
 
-export interface BenchmarkWork {
+export interface BenchmarkMetric {
   id: string
   iterations: number
   /** Maximum operations between untimed garbage collections. */
   chunkIterations: number
-}
-
-export interface BenchmarkMetric extends BenchmarkWork {
   version: number
   family: BenchmarkFamily
   implementation: BenchmarkImplementation
@@ -70,9 +64,6 @@ export interface BenchmarkMetric extends BenchmarkWork {
 }
 
 export interface BenchmarkRunConfiguration {
-  /** Calibration is discarded; measurement always uses a fresh process. */
-  calibration?: true
-  work?: BenchmarkWork
   /** Select one case in suite order for a fresh-process measurement. */
   benchmarkIndex?: number
   runId: string
@@ -94,7 +85,7 @@ export interface BenchmarkRunEnvironment {
 }
 
 export interface BenchmarkRunResult {
-  schemaVersion: 1
+  schemaVersion: 2
   suiteVersion: 1
   configuration: BenchmarkRunConfiguration
   environment: BenchmarkRunEnvironment

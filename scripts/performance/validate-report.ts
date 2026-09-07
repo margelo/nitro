@@ -385,8 +385,6 @@ async function loadRawRun(
     run.configuration.commitSha !== expectedSha ||
     run.configuration.suiteHash !==
       (revision === 'base' ? report.baseSuiteHash : report.headSuiteHash) ||
-    run.configuration.calibration !== undefined ||
-    run.runner.targetBatchDurationMs !== 150 ||
     run.runner.warmupCount !== 5 ||
     run.runner.sampleCount !== 20 ||
     run.metrics.some(
