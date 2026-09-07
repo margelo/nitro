@@ -21,14 +21,19 @@ export class NitroConfig {
     this.config = config
   }
 
+  static load(configPath: string): NitroConfig {
+    console.log(
+      chalk.reset(`🔧  Loading ${chalk.underline(configPath)} config...`)
+    )
+    const config = readUserConfig(configPath)
+    this.singleton = new NitroConfig(config)
+    return this.singleton
+  }
+
   static get current(): NitroConfig {
     if (this.singleton == null) {
-      console.log(
-        chalk.reset(`🔧  Loading ${chalk.underline('nitro.json')} config...`)
-      )
       const defaultConfigPath = './nitro.json'
-      const config = readUserConfig(defaultConfigPath)
-      this.singleton = new NitroConfig(config)
+      this.singleton = this.load(defaultConfigPath)
     }
     return this.singleton
   }

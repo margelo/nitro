@@ -10,6 +10,7 @@ import { promises as fs } from 'fs'
 import { isValidLogLevel, setLogLevel } from './Logger.js'
 import { initNewNitroModule } from './init.js'
 import { NITROGEN_VERSION } from './config/nitrogenVersion.js'
+import { NitroConfig } from './config/NitroConfig.js'
 
 const commandName = 'nitrogen'
 
@@ -57,6 +58,7 @@ await yargs(hideBin(process.argv))
     async (argv) => {
       const basePath = argv.basePath
       const outputDirectory = argv.out
+      NitroConfig.load(argv.config)
       await runNitrogenCommand(basePath, outputDirectory)
     }
   )
