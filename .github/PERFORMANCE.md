@@ -1,17 +1,17 @@
 # Release performance CI
 
 `Nitro Performance` builds the dedicated `apps/benchmark` Release/Hermes app.
-Each platform installs base and head side by side on the same machine. For each
-benchmark it measures base, then head immediately, before moving to the next
-benchmark. There is one AB pair, with five warmup batches and twenty measured
+Each platform installs base and head side by side on the same machine. It
+alternates base and head in each app's suite order, then finishes any remaining
+cases in the longer suite. With the same case order, each function runs back to back. There is one AB pair, with five warmup batches and twenty measured
 batches per process. Each case gets a fresh app process; installation, startup,
 transport and process restarts are outside timing. There is no automatic third
 pair. Manual reruns are retained as identifiable workflow attempts.
 
 Each case uses checked-in operation counts from
 [`iterations.ts`](../apps/benchmark/src/benchmarks/iterations.ts), separately for
-Android and iOS. Both revisions execute identical counts and chunk sizes; the
-comparison rejects unequal work. The initial counts are rounded to two significant digits from the measured
+Android and iOS. Each revision uses its own checked-in counts and chunk sizes.
+Timings are divided by the operation count before comparison. The initial counts are rounded to two significant digits from the measured
 medians in [GitHub run 34125332141, attempt 1](https://github.com/margelo/nitro/actions/runs/34125332141/attempts/1),
 using `150,000,000 ns / median ns per operation`.
 CI does not calibrate or adjust counts from observed speed. A new case requires
@@ -21,8 +21,8 @@ Review counts when changing the case or testbed. Use the raw batch duration
 (`ns/op * iterations / 1e6`) to check whether batches remain long enough to
 measure and short enough to fit the job budget. Roughly 150 ms per batch is the
 initial sizing target, not a pass/fail bound or a claim of steady performance.
-Retune deliberately using representative runs; a slow head must execute all of
-the same work. Allocation-heavy cases sum bounded timed chunks with explicit
+Retune deliberately using representative runs; a slow head still executes all
+its configured work. Allocation-heavy cases sum bounded timed chunks with explicit
 cleanup outside timing. The eight primitive-only control, method and numeric
 property cases skip per-batch GC and native frame waits. iOS buffer copies keep
 bounded Hermes GC but skip frame waits: collecting their wrappers releases the
@@ -34,8 +34,8 @@ owned native storage. Other allocating cases retain GC and native yields. Raw `i
 The main score is the median (p50) of batch averages in ns/op, not individual-call
 tail latency. The report shows every observed change of at least 5%, including
 Promise cases. This is a presentation threshold, not a calibrated regression
-budget. Expand the report for all metrics, individual process medians, matched
-pair changes, and sample MAD relative to p50. Matching pooled medians do not prove
+budget. Expand the report for the remaining metrics; the raw JSON retains all
+samples. Matching pooled medians do not prove
 equal performance. One pair cannot establish repeatability between launches or justify confidence
 intervals. Repeat measurement jobs or same-revision runs to investigate variation.
 
@@ -44,16 +44,20 @@ failures still fail CI. Turning observed differences into a regression gate need
 empirical validation on unchanged commits and intentional slowdowns on each
 unchanged suite/testbed. No Promise case is permanently exempt. Scheduled/manual
 runs with the same base and head SHA measure baseline variation explicitly.
-Changed benchmark definitions run one head-only measurement per case as a new baseline,
-without executing the old base app or publishing an invented paired baseline.
-This also handles the first rollout of a new runner protocol.
+Reports match results by benchmark ID, regardless of suite hashes, case order,
+versions, iteration counts or runner settings. New cases show their head timing
+as **⭐️ New**; removed cases retain their base timing with **❌ Removed** after.
+Changes to a benchmark or measurement method can affect its reported difference;
+the PR author interprets those changes. Suite hashes identify source code in
+artifacts, rather than deciding which results may be compared.
 
 ## Saved apps and measurement reruns
 
 The workflow separates preparation, platform builds, platform measurements and
 collection. Each measurement job downloads the immutable app artifact ID produced
-by its build job; base and head still run together on one machine. A changed suite
-builds only head. An identical base/head SHA reuses the same binary for both sides.
+by its build job; base and head still run together on one machine. Both revisions
+are built even when benchmark definitions change. An identical base/head SHA
+reuses the same binary for both sides.
 Otherwise each revision is built from its own checkout with the same build script.
 Base uses `com.margelo.nitrobenchmark`; head uses `com.margelo.nitrobenchmark.head`.
 Android keeps its Java namespace and fully qualified activity name unchanged.
@@ -70,7 +74,7 @@ The app artifact includes base/head SHAs, suite hashes, Release configuration,
 architecture and toolchain metadata. iOS apps are tar archives to preserve
 permissions and symlinks. Gradle's basic cache is the sole Android cache owner;
 Gradle still checks source/task inputs, while exact app reuse is by artifact ID.
-There is no new iOS compiler cache. App reuse avoids build work on manual reruns. With 46 cases, a comparable suite
+There is no new iOS compiler cache. App reuse avoids build work on manual reruns. With 46 cases in each revision, a run
 uses 92 fresh processes (46 base + 46 head).
 Closer comparisons reduce time separation, but fixed base-first order can still
 introduce bias; same-revision runs are needed to assess that on each testbed.

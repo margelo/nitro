@@ -31,11 +31,8 @@ function metric(
     pairChangesPercent: pairs,
   }
 }
-function report(
-  metrics: MetricComparison[],
-  suiteComparable = true
-): PlatformComparison {
-  return { platform: 'ios', ...options, suiteComparable, comparisons: metrics }
+function report(metrics: MetricComparison[]): PlatformComparison {
+  return { platform: 'ios', ...options, comparisons: metrics }
 }
 
 test('restores the original table, emphasis, colors, disclosure, and footer', () => {
@@ -147,9 +144,7 @@ test.each([
   expect(text.match(/<code>addNumbers\(\)<\/code>/g)).toHaveLength(1)
   expect(text).not.toMatch(/unchanged|equal performance|decisive|calibrat/)
   if (visible) {
-    expect(collapsed).toContain(
-      `Every benchmark reached the ${REPORTING_THRESHOLD_PERCENT}% reporting threshold.`
-    )
+    expect(collapsed).toContain('All benchmarks are shown above.')
   } else {
     expect(main).toContain(
       `No observed change reached the ${REPORTING_THRESHOLD_PERCENT}% reporting threshold.`
@@ -201,15 +196,35 @@ test('keeps iOS before Android and preserves names, escaping, and time units', (
   expect(text).toContain('<code>a-&lt;b&gt;&amp;&quot;&#39;()</code>')
 })
 
-test('same revision and changed suites are explicit', () => {
-  const changedSuite = renderPerformanceReportMarkdown(
-    [report([], false)],
+test('new and removed cases stay visible with no invented percentage change', () => {
+  const text = renderPerformanceReportMarkdown(
+    [
+      report([
+        {
+          ...metric('javascript/control/new-case', 0),
+          baseMedianNsPerOp: null,
+          deltaPercent: null,
+        },
+        {
+          ...metric('javascript/control/removed-case', 0),
+          headMedianNsPerOp: null,
+          deltaPercent: null,
+        },
+      ]),
+    ],
     options
   )
-  expect(changedSuite).toContain(
-    '> Benchmark definitions changed in this PR. Results require a new baseline and are not compared.'
-  )
-  expect(changedSuite).not.toContain('<table>')
+  const [main] = text.split('<details>')
+  expect(main).toContain('<code>newCase()</code>')
+  expect(main).toContain('<td align="right">—</td>')
+  expect(main).toContain('<td align="right">⭐️ New (100.0 ns)</td>')
+  expect(main).toContain('<code>removedCase()</code>')
+  expect(main).toContain('<td align="right">100.0 ns</td>')
+  expect(main).toContain('<td align="right">❌ Removed</td>')
+  expect(main).not.toMatch(/slower|faster|baseline|definitions changed/)
+})
+
+test('same-revision runs remain explicit', () => {
   expect(
     renderPerformanceReportMarkdown([], {
       ...options,

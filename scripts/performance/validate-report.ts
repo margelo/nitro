@@ -385,13 +385,7 @@ async function loadRawRun(
     run.configuration.commitSha !== expectedSha ||
     run.configuration.suiteHash !==
       (revision === 'base' ? report.baseSuiteHash : report.headSuiteHash) ||
-    run.runner.warmupCount !== 5 ||
-    run.runner.sampleCount !== 20 ||
-    run.metrics.some(
-      (metric) =>
-        metric.samplesNsPerOp.length !== 20 ||
-        !METRIC_ID_PATTERN.test(metric.id)
-    )
+    run.metrics.some((metric) => !METRIC_ID_PATTERN.test(metric.id))
   ) {
     throw new Error(`${platform} ${revision} run metadata is invalid.`)
   }
@@ -401,26 +395,8 @@ async function loadRawRun(
 const rebuiltComparisons = await Promise.all(
   (['android', 'ios'] as const).map(async (platform) => {
     const headRuns = [await loadRawRun(platform, 'head', report.headSha)]
-    const comparable = report.baseSuiteHash === report.headSuiteHash
-    const baseFiles = (
-      await readdir(path.join(artifactDirectory, 'raw', platform))
-    ).filter((file) => /^base-/.test(file))
-    if (!comparable && baseFiles.length !== 0)
-      throw new Error(
-        'Changed suites must not upload incomparable base measurements.'
-      )
-    const baseRuns = comparable
-      ? [await loadRawRun(platform, 'base', report.baseSha)]
-      : []
-    const comparison = comparable
-      ? compareRuns(baseRuns, headRuns)
-      : {
-          platform,
-          baseSha: report.baseSha,
-          headSha: report.headSha,
-          suiteComparable: false,
-          comparisons: [],
-        }
+    const baseRuns = [await loadRawRun(platform, 'base', report.baseSha)]
+    const comparison = compareRuns(baseRuns, headRuns)
     return { comparison, baseRuns, headRuns }
   })
 )

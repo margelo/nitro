@@ -86,14 +86,16 @@ describe('Bencher publications', () => {
       bencherArguments(main, 'ios', 'base', '/validated', 'nitro')
     ).toThrow()
   })
-  test('a changed suite records head without an invented paired baseline', () => {
+  test('a changed suite publishes both measured revisions', () => {
     const changed = { ...metadata, headSuiteHash: 'd'.repeat(64) }
     const publications = bencherPublications(changed, '/validated', 'nitro')
     expect(publications.map((entry) => entry.revision)).toEqual([
+      'base',
+      'base',
       'head',
       'head',
     ])
-    expect(publications.flatMap((entry) => entry.command)).not.toContain(
+    expect(publications.flatMap((entry) => entry.command)).toContain(
       '--start-point'
     )
   })

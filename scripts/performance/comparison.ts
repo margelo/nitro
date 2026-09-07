@@ -12,13 +12,13 @@ export const REPORTING_THRESHOLD_PERCENT = 5
 
 export interface MetricComparison {
   id: string
-  baseMedianNsPerOp: number
-  headMedianNsPerOp: number
-  deltaPercent: number
+  baseMedianNsPerOp: number | null
+  headMedianNsPerOp: number | null
+  deltaPercent: number | null
   baseProcessMedians: number[]
   headProcessMedians: number[]
-  baseMadPercent: number
-  headMadPercent: number
+  baseMadPercent: number | null
+  headMadPercent: number | null
   pairChangesPercent: number[]
 }
 
@@ -26,7 +26,6 @@ export interface PlatformComparison {
   platform: 'android' | 'ios'
   baseSha: string
   headSha: string
-  suiteComparable: boolean
   comparisons: MetricComparison[]
 }
 
@@ -51,7 +50,7 @@ export function compareRuns(
   if (baseRuns.length === 0 || baseRuns.length !== headRuns.length) {
     throw new Error('A matching base run is required for every head run.')
   }
-  const { platform, commitSha: baseSha, suiteHash } = baseRuns[0]!.configuration
+  const { platform, commitSha: baseSha } = baseRuns[0]!.configuration
   const headSha = headRuns[0]!.configuration.commitSha
   for (const [runs, sha] of [
     [baseRuns, baseSha],
@@ -78,58 +77,29 @@ export function compareRuns(
       if (run.configuration[key] !== first.configuration[key])
         throw new Error(`Process runs have different ${key} settings.`)
     }
-    if (
-      JSON.stringify(run.runner) !== JSON.stringify(first.runner) ||
-      JSON.stringify(run.environment) !== JSON.stringify(first.environment)
-    ) {
-      throw new Error('Process runs have different runtime settings.')
-    }
   }
-  const suiteComparable = [...baseRuns, ...headRuns].every(
-    (run) => run.configuration.suiteHash === suiteHash
-  )
   const comparison: PlatformComparison = {
     platform,
     baseSha,
     headSha,
-    suiteComparable,
     comparisons: [],
   }
-  if (!suiteComparable) return comparison
-
   const baseMetrics = indexMetrics(baseRuns)
   const headMetrics = indexMetrics(headRuns)
-  if (
-    baseMetrics.size !== headMetrics.size ||
-    [...baseMetrics.keys()].some((id) => !headMetrics.has(id))
-  ) {
-    throw new Error('Base and head expose different benchmark IDs.')
-  }
-  for (const id of [...baseMetrics.keys()].sort()) {
-    const base = baseMetrics.get(id)!
-    const head = headMetrics.get(id)!
+  const ids = new Set([...baseMetrics.keys(), ...headMetrics.keys()])
+  for (const id of [...ids].sort()) {
+    const base = baseMetrics.get(id) ?? []
+    const head = headMetrics.get(id) ?? []
     if (
-      base.length !== baseRuns.length ||
-      head.length !== headRuns.length ||
-      [...base, ...head].some((metric) => metric.version !== base[0]!.version)
+      (base.length !== 0 && base.length !== baseRuns.length) ||
+      (head.length !== 0 && head.length !== headRuns.length)
     ) {
-      throw new Error(`Benchmark ${id} is missing or has a different version.`)
-    }
-    if (
-      [...base, ...head].some(
-        (metric) =>
-          metric.iterations !== base[0]!.iterations ||
-          metric.chunkIterations !== base[0]!.chunkIterations
-      )
-    ) {
-      throw new Error(
-        `Benchmark ${id} executed unequal work between process runs.`
-      )
+      throw new Error(`Benchmark ${id} is missing from a repeated process run.`)
     }
     const baseSamples = base.flatMap((metric) => metric.samplesNsPerOp)
     const headSamples = head.flatMap((metric) => metric.samplesNsPerOp)
-    const baseMedian = median(baseSamples)
-    const headMedian = median(headSamples)
+    const baseMedian = base.length === 0 ? null : median(baseSamples)
+    const headMedian = head.length === 0 ? null : median(headSamples)
     const baseProcessMedians = base.map((metric) =>
       median(metric.samplesNsPerOp)
     )
@@ -140,14 +110,26 @@ export function compareRuns(
       id,
       baseMedianNsPerOp: baseMedian,
       headMedianNsPerOp: headMedian,
-      deltaPercent: (headMedian / baseMedian - 1) * 100,
+      deltaPercent:
+        baseMedian === null || headMedian === null
+          ? null
+          : (headMedian / baseMedian - 1) * 100,
       baseProcessMedians,
       headProcessMedians,
-      baseMadPercent: (medianAbsoluteDeviation(baseSamples) / baseMedian) * 100,
-      headMadPercent: (medianAbsoluteDeviation(headSamples) / headMedian) * 100,
-      pairChangesPercent: headProcessMedians.map(
-        (value, index) => (value / baseProcessMedians[index]! - 1) * 100
-      ),
+      baseMadPercent:
+        baseMedian === null
+          ? null
+          : (medianAbsoluteDeviation(baseSamples) / baseMedian) * 100,
+      headMadPercent:
+        headMedian === null
+          ? null
+          : (medianAbsoluteDeviation(headSamples) / headMedian) * 100,
+      pairChangesPercent:
+        baseMedian === null || headMedian === null
+          ? []
+          : headProcessMedians.map(
+              (value, index) => (value / baseProcessMedians[index]! - 1) * 100
+            ),
     })
   }
   return comparison

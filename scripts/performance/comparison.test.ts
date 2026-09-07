@@ -94,20 +94,45 @@ describe('performance comparison', () => {
     })
   })
 
-  test('does not compare changed benchmark definitions', () => {
-    expect(
-      compareRuns(
-        [run(BASE_SHA, [100])],
-        [run(HEAD_SHA, [100], 'd'.repeat(64))]
-      ).suiteComparable
-    ).toBe(false)
-  })
-  test('rejects unequal work and missing samples even if timings look identical', () => {
+  test('compares normalized timings even when the benchmark or runner changes', () => {
     const base = run(BASE_SHA, [100, 100])
+    const head = run(HEAD_SHA, [100, 100, 100], 'd'.repeat(64))
+    head.runner.warmupCount = 10
+    head.metrics[0]!.iterations = 20_000
+    head.metrics[0]!.chunkIterations = 5_000
+    head.metrics[0]!.version++
+    expect(compareRuns([base], [head]).comparisons[0]?.deltaPercent).toBe(0)
+    head.metrics[0]!.samplesNsPerOp = [200, 200, 200]
+    expect(compareRuns([base], [head]).comparisons[0]?.deltaPercent).toBe(100)
+  })
+
+  test('matches reordered cases by ID and retains new and removed timings', () => {
+    const base = run(BASE_SHA, [100, 100])
+    const head = run(HEAD_SHA, [120, 120], 'd'.repeat(64))
+    base.metrics.push({ ...base.metrics[0]!, id: 'removed' })
+    head.metrics.unshift({ ...head.metrics[0]!, id: 'new' })
+    base.benchmarkCount = head.benchmarkCount = 2
+    const metrics = compareRuns([base], [head]).comparisons
+    expect(
+      metrics.map(({ id, baseMedianNsPerOp, headMedianNsPerOp }) => [
+        id,
+        baseMedianNsPerOp,
+        headMedianNsPerOp,
+      ])
+    ).toEqual([
+      ['new', null, 120],
+      ['nitro-cpp/primitive/add-numbers', 100, 120],
+      ['removed', 100, null],
+    ])
+    expect(metrics[0]?.deltaPercent).toBeNull()
+    expect(metrics[1]?.deltaPercent).toBeCloseTo(20)
+    expect(metrics[2]?.deltaPercent).toBeNull()
+    expect(metrics[0]?.pairChangesPercent).toEqual([])
+    expect(metrics[2]?.pairChangesPercent).toEqual([])
+  })
+
+  test('still rejects missing samples', () => {
     const head = run(HEAD_SHA, [100, 100])
-    head.metrics[0]!.iterations = 9_000
-    expect(() => compareRuns([base], [head])).toThrow('unequal work')
-    head.metrics[0]!.iterations = base.metrics[0]!.iterations
     head.metrics[0]!.samplesNsPerOp = []
     expect(() => validateBenchmarkRun(head)).toThrow('Sample count')
   })

@@ -90,6 +90,7 @@ function directionalChange(deltaPercent: number): string {
 }
 
 function difference(metric: MetricComparison): string {
+  if (metric.deltaPercent === null) return '—'
   if (metric.deltaPercent > 0)
     return `🔴 ${directionalChange(metric.deltaPercent)}`
   if (metric.deltaPercent < 0)
@@ -104,8 +105,11 @@ function measurement(
   const before = metric.baseMedianNsPerOp
   const after = metric.headMedianNsPerOp
   const value = revision === 'base' ? before : after
-  const isFaster = revision === 'base' ? before < after : after < before
+  if (value === null) return revision === 'base' ? '—' : '❌ Removed'
   const formatted = formatNumber(value)
+  if (before === null) return `⭐️ New (${formatted})`
+  const isFaster =
+    after !== null && (revision === 'base' ? before < after : after < before)
   return isFaster ? `<strong>${formatted}</strong>` : formatted
 }
 
@@ -171,17 +175,15 @@ export function renderPerformanceReportMarkdown(
     b.platform.localeCompare(a.platform)
   )) {
     lines.push('', `### ${platformName(platform.platform)}`, '')
-    if (!platform.suiteComparable) {
-      lines.push(
-        '> Benchmark definitions changed in this PR. Results require a new baseline and are not compared.'
-      )
-      continue
-    }
     const changed = platform.comparisons.filter(
-      (metric) => Math.abs(metric.deltaPercent) >= REPORTING_THRESHOLD_PERCENT
+      (metric) =>
+        metric.deltaPercent === null ||
+        Math.abs(metric.deltaPercent) >= REPORTING_THRESHOLD_PERCENT
     )
     const other = platform.comparisons.filter(
-      (metric) => Math.abs(metric.deltaPercent) < REPORTING_THRESHOLD_PERCENT
+      (metric) =>
+        metric.deltaPercent !== null &&
+        Math.abs(metric.deltaPercent) < REPORTING_THRESHOLD_PERCENT
     )
     lines.push(
       changed.length === 0
@@ -191,7 +193,7 @@ export function renderPerformanceReportMarkdown(
       '<details>',
       '  <summary>All Benchmarks</summary>',
       other.length === 0
-        ? `  <p>Every benchmark reached the ${REPORTING_THRESHOLD_PERCENT}% reporting threshold.</p>`
+        ? '  <p>All benchmarks are shown above.</p>'
         : renderMetricTable(other, platform.platform, 2),
       '</details>'
     )

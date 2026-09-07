@@ -12,7 +12,7 @@ import os from 'node:os'
 import path from 'node:path'
 
 // Execute the real packaging/selection steps with tiny stand-ins for native
-// compilers. This checks missing-base handling and tar permissions/symlinks.
+// compilers. This checks both-revision builds and tar permissions/symlinks.
 for (const platform of ['android', 'ios'] as const) {
   test.each(['paired', 'same-sha', 'changed-suite'])(
     `${platform} app artifacts preserve exact build selection: %s`,
@@ -94,7 +94,7 @@ fi
         expect(
           (await Bun.file(path.join(root, 'builds')).text()).trim().split('\n')
         ).toEqual(
-          mode === 'paired'
+          mode !== 'same-sha'
             ? [
                 'head com.margelo.nitrobenchmark.head',
                 'base com.margelo.nitrobenchmark',
@@ -105,7 +105,7 @@ fi
           root,
           `apps/base.${platform === 'ios' ? 'app.tar.gz' : 'apk'}`
         )
-        expect(await Bun.file(base).exists()).toBe(mode !== 'changed-suite')
+        expect(await Bun.file(base).exists()).toBe(true)
         if (platform === 'ios') {
           const unpack = path.join(root, 'unpacked')
           await mkdir(unpack)

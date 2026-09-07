@@ -134,7 +134,7 @@ jobs:
           cp head/apps/benchmark/android/app/build/outputs/apk/release/app-release.apk apps/head.apk
           if [[ "$(jq -r .baseSha apps/build.json)" == "$(jq -r .headSha apps/build.json)" ]]; then
             cp apps/head.apk apps/base.apk
-          elif [[ "$(jq -r .baseSuiteHash apps/build.json)" == "$(jq -r .headSuiteHash apps/build.json)" ]]; then
+          else
             bash head/scripts/performance/build-android.sh "$GITHUB_WORKSPACE/base"
             cp base/apps/benchmark/android/app/build/outputs/apk/release/app-release.apk apps/base.apk
           fi
@@ -265,7 +265,7 @@ jobs:
           tar -czf apps/head.app.tar.gz -C head/apps/benchmark/ios/build-benchmark/Build/Products/Release-iphonesimulator NitroBenchmark.app
           if [[ "$(jq -r .baseSha apps/build.json)" == "$(jq -r .headSha apps/build.json)" ]]; then
             cp apps/head.app.tar.gz apps/base.app.tar.gz
-          elif [[ "$(jq -r .baseSuiteHash apps/build.json)" == "$(jq -r .headSuiteHash apps/build.json)" ]]; then
+          else
             bash head/scripts/performance/build-ios.sh "$GITHUB_WORKSPACE/base"
             tar -czf apps/base.app.tar.gz -C base/apps/benchmark/ios/build-benchmark/Build/Products/Release-iphonesimulator NitroBenchmark.app
           fi

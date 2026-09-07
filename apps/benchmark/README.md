@@ -52,7 +52,10 @@ and assembles their results. This releases Nitro's runtime-scoped JSI reference
 bookkeeping between cases; GC alone cannot clear that cache. Each process posts
 one result only after its timing is complete. Per-case raw results are kept beside
 the combined output in `base-1-cases/` and `head-1-cases/` directories.
-For each case, base and head run back to back. Identical SHAs reuse one installed binary. Startup, transport, and process restarts are not timed.
+Base and head launches alternate in each app's suite order; the report matches
+results by ID even when cases move, appear or disappear. With the same case order,
+each function runs back to back. Identical SHAs reuse one installed binary.
+Startup, transport, and process restarts are not timed.
 For iOS, use `--platform ios`, a simulator UDID for `--device-id`, and the built
 `NitroBenchmark.app` for `--base-app` and `--head-app`, with matching
 simulator/toolchain metadata.
@@ -65,12 +68,14 @@ Each metric has fixed Android/iOS counts in
 [`iterations.ts`](src/benchmarks/iterations.ts), seeded from the existing
 GitHub-runner results with roughly 150 ms of timed work per sample. There is no
 calibration process. Each measurement process performs five warmup batches and
-twenty samples. Both revisions share the checked-in count and chunk size for
+twenty samples. Each revision uses its own checked-in count and chunk size for
 each case. Slow samples are retained without shortening the work.
 
 Adding a case requires an explicit count. Revisit the counts when changing the
-case or device, using raw durations from representative runs; changes produce a
-new suite hash. The counts remain fixed during CI, even if a revision is slower.
+case or device, using raw durations from representative runs. The counts remain
+fixed during CI, even if a revision is slower. Changing a count or test definition
+does not disable comparisons; the report uses per-operation timings, and the PR
+author interprets any measurement changes.
 
 The eight primitive-only control, method and numeric property cases skip
 per-batch GC and frame waits. They still run in fresh processes with the same
@@ -97,9 +102,10 @@ the timed batch. Operation-induced allocations remain inside it.
 See [performance CI](../../.github/PERFORMANCE.md) for observed comparisons,
 process variability, raw artifacts, trusted reporting, and Bencher publishing.
 CI retains exact app artifacts for measurement-only reruns. It builds both
-revisions when comparable, reuses one binary for identical SHAs, and builds only
-head when definitions changed. Same-revision scheduled/manual runs show baseline
-variation. Performance remains report-only.
+revisions even when definitions change, and reuses one binary for identical SHAs.
+New and removed cases stay visible in the table without a percentage comparison.
+Same-revision scheduled/manual runs show baseline variation. Performance remains
+report-only.
 
 The example's former benchmark screen and TurboModule control have moved here.
 No public Nitro API changes are needed. App dependency versions initially match

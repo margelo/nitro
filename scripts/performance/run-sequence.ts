@@ -75,12 +75,11 @@ await Bun.write(
   `${JSON.stringify({ baseSuiteHash, headSuiteHash }, null, 2)}\n`
 )
 
-const comparable = baseSuiteHash === headSuiteHash
 const sameBinary = baseSha === headSha
 const headId = 'com.margelo.nitrobenchmark.head'
 const baseId = sameBinary ? headId : 'com.margelo.nitrobenchmark'
 await installApp(platform, deviceId, headApp, headId)
-if (comparable && !sameBinary) {
+if (!sameBinary) {
   await installApp(platform, deviceId, baseApp, baseId)
 }
 
@@ -109,21 +108,23 @@ async function runCase(
   )
 }
 
-if (!comparable) {
-  console.info(
-    '[NitroBenchmark] Benchmark definitions changed; measuring a new head baseline only.'
-  )
-}
 const baseRuns: BenchmarkRunResult[] = []
 const headRuns: BenchmarkRunResult[] = []
-// Discover the suite size from the first measurement. Each launch is a fresh
-// process; finish base then head for this case before moving to the next one.
-let count = 1
-for (let index = 0; index < count; index++) {
-  if (comparable) baseRuns.push(await runCase('base', index))
-  const head = await runCase('head', index)
-  headRuns.push(head)
-  if (index === 0) count = head.benchmarkCount!
+// Each revision reports its own suite size. Alternate fresh processes while
+// both have cases left; the report matches their results by ID, not position.
+let baseCount = 1
+let headCount = 1
+for (let index = 0; index < Math.max(baseCount, headCount); index++) {
+  if (index < baseCount) {
+    const base = await runCase('base', index)
+    baseRuns.push(base)
+    if (index === 0) baseCount = base.benchmarkCount!
+  }
+  if (index < headCount) {
+    const head = await runCase('head', index)
+    headRuns.push(head)
+    if (index === 0) headCount = head.benchmarkCount!
+  }
 }
 for (const [name, runs] of [
   ['base-1', baseRuns],

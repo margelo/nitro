@@ -3,6 +3,7 @@ import { chmod, mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { calculateSuiteHash } from './suite-hash'
+import { compareRuns } from './comparison'
 
 // Exercise the real controller/receiver with a tiny process standing in for
 // simctl's app. Runner tests separately exercise fixed work across different execution speeds.
@@ -10,15 +11,30 @@ test.each([
   ['ios', 'paired', false],
   ['ios', 'paired', true],
   ['ios', 'changed-suite', true],
+  ['ios', 'added-case', true],
+  ['ios', 'removed-case', true],
   ['ios', 'same-sha', true],
   ['android', 'paired', true],
   ['android', 'same-sha', true],
   ['android', 'changed-suite', true],
+  ['android', 'added-case', true],
+  ['android', 'removed-case', true],
   ['ios', 'invalid-result', true],
 ] as const)(
   '%s per-case comparisons: %s, saved apps = %s',
   async (platform, mode, savedApps) => {
-    const changedSuite = mode === 'changed-suite'
+    const changedSuite = [
+      'changed-suite',
+      'added-case',
+      'removed-case',
+    ].includes(mode)
+    const baseIds = ['javascript/control/first', 'javascript/control/second']
+    const headIds =
+      mode === 'added-case'
+        ? [baseIds[1]!, 'javascript/control/new', baseIds[0]!]
+        : mode === 'removed-case'
+          ? [baseIds[1]!]
+          : baseIds
     const sameBinary = mode === 'same-sha'
     const headSha = sameBinary ? 'a'.repeat(40) : 'b'.repeat(40)
     const directory = await mkdtemp(path.join(os.tmpdir(), 'nitro-sequence-'))
@@ -29,10 +45,11 @@ test.each([
         `
       import { appendFile } from 'node:fs/promises'
       const configuration = await (await fetch('http://127.0.0.1:8173/config')).json()
-      if (process.env.CHANGED_SUITE === 'true' && configuration.commitSha.startsWith('a')) throw new Error('Old base must not receive the new protocol.')
-      const index = configuration.reverse ? 1 - configuration.benchmarkIndex : configuration.benchmarkIndex
-      const id = ['javascript/control/first', 'javascript/control/second'][index]
-      const work = { id, iterations: [1000, 500][index], chunkIterations: [250, 100][index] }
+      const ids = JSON.parse(process.env[configuration.runId.includes('-head-') ? 'HEAD_IDS' : 'BASE_IDS'])
+      const index = configuration.reverse ? ids.length - 1 - configuration.benchmarkIndex : configuration.benchmarkIndex
+      const id = ids[index]
+      if (id == null) throw new Error("Requested case outside this app's suite")
+      const work = { id, iterations: id.endsWith('/first') ? 1000 : 500, chunkIterations: id.endsWith('/first') ? 250 : 100 }
       const appId = process.argv[2]
       const expectedId = process.env.SAME_BINARY === 'true' || configuration.runId.includes('-head-') ? 'com.margelo.nitrobenchmark.head' : 'com.margelo.nitrobenchmark'
       if (appId !== expectedId) throw new Error('Launched the wrong app: ' + appId)
@@ -40,7 +57,7 @@ test.each([
       const count = 20
       const response = await fetch('http://127.0.0.1:8173/result', {
         method: 'POST', body: JSON.stringify({
-          schemaVersion: 2, suiteVersion: 1, benchmarkCount: 2, configuration,
+          schemaVersion: 2, suiteVersion: 1, benchmarkCount: ids.length, configuration,
           environment: { reactNativeVersion: '0.85.3', hermes: true, dev: false, nitroBuildType: 'release' },
           runner: { warmupCount: 5, sampleCount: count },
           startedAt: new Date().toISOString(), durationMs: 100,
@@ -149,7 +166,8 @@ test.each([
             GITHUB_RUN_ID: '123',
             GITHUB_RUN_ATTEMPT: '2',
             BUILD_ARTIFACT_ID: '456',
-            CHANGED_SUITE: String(changedSuite),
+            BASE_IDS: JSON.stringify(baseIds),
+            HEAD_IDS: JSON.stringify(headIds),
           },
           stdout: 'pipe',
           stderr: 'pipe',
@@ -191,7 +209,7 @@ test.each([
       }).toEqual({ exitCode: 0, error: '' })
       const installs = commands.filter((args) => args.includes('install'))
       expect(installs.map((args) => args.at(-1))).toEqual(
-        sameBinary || changedSuite
+        sameBinary
           ? [path.join(directory, 'head.app')]
           : [path.join(directory, 'head.app'), path.join(directory, 'base.app')]
       )
@@ -232,7 +250,7 @@ test.each([
         ).toEqual({ buildArtifactId: 456, runAttempt: 2 })
       }
       expect(new Set(processes.map((entry) => entry.pid)).size).toBe(
-        changedSuite ? 2 : 4
+        baseIds.length + headIds.length
       )
       expect(
         processes.map((entry) => [
@@ -240,36 +258,57 @@ test.each([
           entry.configuration.runId,
         ])
       ).toEqual(
-        [0, 1].flatMap((index) =>
-          changedSuite
-            ? [[index, `${platform}-head-1`]]
-            : [
-                [index, `${platform}-base-1`],
-                [index, `${platform}-head-1`],
+        mode === 'added-case'
+          ? [
+              [0, `${platform}-base-1`],
+              [0, `${platform}-head-1`],
+              [1, `${platform}-base-1`],
+              [1, `${platform}-head-1`],
+              [2, `${platform}-head-1`],
+            ]
+          : mode === 'removed-case'
+            ? [
+                [0, `${platform}-base-1`],
+                [0, `${platform}-head-1`],
+                [1, `${platform}-base-1`],
               ]
-        )
+            : [
+                [0, `${platform}-base-1`],
+                [0, `${platform}-head-1`],
+                [1, `${platform}-base-1`],
+                [1, `${platform}-head-1`],
+              ]
       )
       expect(
         (await readdir(output)).some((name) => name.startsWith('calibration'))
       ).toBe(false)
-      for (const file of changedSuite ? ['head-1'] : ['base-1', 'head-1']) {
-        const run = JSON.parse(
-          await readFile(path.join(output, `${file}.json`), 'utf8')
-        )
-        const metrics = run.metrics.sort(
-          (a: { id: string }, b: { id: string }) => a.id.localeCompare(b.id)
-        )
+      const base = await Bun.file(path.join(output, 'base-1.json')).json()
+      const head = await Bun.file(path.join(output, 'head-1.json')).json()
+      expect(base.metrics.map((metric: { id: string }) => metric.id)).toEqual(
+        baseIds
+      )
+      expect(head.metrics.map((metric: { id: string }) => metric.id)).toEqual(
+        headIds
+      )
+      const comparisons = compareRuns([base], [head]).comparisons
+      expect(
+        comparisons.find((metric) => metric.id === baseIds[1])?.deltaPercent
+      ).toBe(0)
+      if (mode === 'added-case') {
         expect(
-          metrics.map(
-            (metric: { iterations: number; chunkIterations: number }) => [
-              metric.iterations,
-              metric.chunkIterations,
-            ]
-          )
-        ).toEqual([
-          [1000, 250],
-          [500, 100],
-        ])
+          comparisons.find((metric) => metric.id === 'javascript/control/new')
+            ?.baseMedianNsPerOp
+        ).toBeNull()
+        // The first case moved to index 2, but still compares against base index 0.
+        expect(
+          comparisons.find((metric) => metric.id === baseIds[0])?.deltaPercent
+        ).toBe(0)
+      }
+      if (mode === 'removed-case') {
+        expect(
+          comparisons.find((metric) => metric.id === baseIds[0])
+            ?.headMedianNsPerOp
+        ).toBeNull()
       }
     } finally {
       await rm(directory, { recursive: true, force: true })

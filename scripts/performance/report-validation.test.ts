@@ -290,48 +290,73 @@ describe('trusted performance report validation', () => {
       await rm(root, { recursive: true, force: true })
     }
   })
-  test('changed suites accept a head-only baseline; comparable suites require base', async () => {
+  test('changed suites compare shared IDs and report new and removed cases', async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-performance-'))
     try {
       const fixture = await createFixture(root)
-      for (const platform of ['android', 'ios']) {
-        await rm(path.join(fixture.artifact, 'raw', platform, 'base-1.json'))
-      }
-      expect((await validate(fixture)).exitCode).not.toBe(0)
       const file = path.join(fixture.artifact, 'performance-report.json')
-      const manifest = JSON.parse(await readFile(file, 'utf8'))
-      manifest.baseSuiteHash = 'd'.repeat(64)
-      for (const platform of ['android', 'ios']) {
-        const buildFile = path.join(
-          fixture.artifact,
-          'raw',
-          platform,
-          'build.json'
-        )
-        const build = await Bun.file(buildFile).json()
-        build.baseSuiteHash = manifest.baseSuiteHash
-        await writeJson(buildFile, build)
-      }
+      const manifest = await Bun.file(file).json()
+      manifest.headSuiteHash = 'd'.repeat(64)
       await writeJson(file, manifest)
-      expect((await validate(fixture)).exitCode).toBe(0)
-      expect(
-        await readFile(
-          path.join(fixture.output, 'performance-summary.md'),
-          'utf8'
-        )
-      ).toContain('require a new baseline')
+      for (const platform of ['android', 'ios']) {
+        const directory = path.join(fixture.artifact, 'raw', platform)
+        const buildFile = path.join(directory, 'build.json')
+        const build = await Bun.file(buildFile).json()
+        build.headSuiteHash = manifest.headSuiteHash
+        await writeJson(buildFile, build)
+        const baseFile = path.join(directory, 'base-1.json')
+        const base = await Bun.file(baseFile).json()
+        base.metrics.push({
+          ...base.metrics[0],
+          id: 'nitro-cpp/primitive/removed-case',
+        })
+        base.benchmarkCount = 2
+        await writeJson(baseFile, base)
+        const headFile = path.join(directory, 'head-1.json')
+        const head = await Bun.file(headFile).json()
+        head.configuration.suiteHash = manifest.headSuiteHash
+        head.runner = { warmupCount: 10, sampleCount: 10 }
+        head.metrics[0].samplesNsPerOp = Array(10).fill(120)
+        head.metrics[0].iterations *= 2
+        head.metrics[0].version++
+        head.metrics.unshift({
+          ...head.metrics[0],
+          id: 'nitro-cpp/primitive/new-case',
+        })
+        head.benchmarkCount = 2
+        await writeJson(headFile, head)
+      }
+      expect(await validate(fixture)).toEqual({ exitCode: 0, error: '' })
+      const markdown = await Bun.file(
+        path.join(fixture.output, 'performance-summary.md')
+      ).text()
+      expect(markdown).toContain('🔴 +20% slower')
+      expect(markdown).toContain('⭐️ New (120.0 ns)')
+      expect(markdown).toContain('❌ Removed')
+      expect(markdown).not.toContain('require a new baseline')
       expect(
         await Bun.file(
           path.join(fixture.output, 'bencher-base-ios.json')
         ).exists()
-      ).toBe(false)
+      ).toBe(true)
+
+      // Suite changes cannot excuse a missing or duplicated process artifact.
+      const baseFile = path.join(fixture.artifact, 'raw/ios/base-1.json')
+      const base = await Bun.file(baseFile).json()
+      await rm(baseFile)
+      expect((await validate(fixture)).error).toContain(
+        'Expected one ios base run'
+      )
+      await writeJson(baseFile, base)
       await writeJson(
         path.join(fixture.artifact, 'raw/ios/head-2.json'),
         await Bun.file(
           path.join(fixture.artifact, 'raw/ios/head-1.json')
         ).json()
       )
-      expect((await validate(fixture)).error).toContain('Expected one')
+      expect((await validate(fixture)).error).toContain(
+        'Expected one ios head run'
+      )
     } finally {
       await rm(root, { recursive: true, force: true })
     }
