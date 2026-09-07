@@ -11,6 +11,8 @@ on:
       - ".github/workflows/update-lockfiles.yml"
       - "package.json"
       - "**/package.json"
+      - "**/Gemfile"
+      - "**/Gemfile.lock"
 
 permissions:
   contents: write
@@ -41,18 +43,17 @@ jobs:
       - run: |
           bun install
 
-          cd apps/example
-          bundle install
-          bun pods
-          cd "$GITHUB_WORKSPACE"
+          for app in apps/example apps/benchmark; do
+            bun --cwd "$app" bundle-install
+            bun --cwd "$app" pods
+            git add "$app/Gemfile.lock" "$app/ios/Podfile.lock"
+          done
 
           cd docs
           bun install
           cd ..
 
           git add bun.lock
-          git add apps/example/ios/Podfile.lock
-          git add apps/example/Gemfile.lock
 
           git config --global user.name 'dependabot[bot]'
           git config --global user.email 'dependabot[bot]@users.noreply.github.com'
