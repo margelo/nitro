@@ -20,6 +20,7 @@ const report: PerformanceReport = JSON.parse(
 )
 const workflowRunUrl = `https://github.com/${report.repository}/actions/runs/${report.workflowRunId}`
 const builds = new Map<string, BuildMetadata>()
+const pairCounts = new Map<string, number>()
 for (const platform of ['android', 'ios'] as const) {
   const ids = report.artifacts[platform]
   const build: BuildMetadata = await Bun.file(
@@ -52,47 +53,67 @@ for (const platform of ['android', 'ios'] as const) {
       `${platform} measurement provenance does not match this report.`
     )
   }
+  // A retained measurement from before balanced repeats contains one pair.
+  // Explicit counts prevent an incomplete four-pair artifact passing as one.
+  const pairCount =
+    measurement.pairCount === undefined ? 1 : measurement.pairCount
+  if (pairCount !== 1 && pairCount !== 4) {
+    throw new Error(`${platform} measurement pair count is invalid.`)
+  }
+  pairCounts.set(platform, pairCount)
   builds.set(platform, build)
 }
 
-async function loadRawRun(
+async function loadRawRuns(
   platform: 'android' | 'ios',
   revision: 'base' | 'head',
   expectedSha: string
-): Promise<BenchmarkRunResult> {
+): Promise<BenchmarkRunResult[]> {
   const directory = path.join(artifactDirectory, 'raw', platform)
   const filePattern = new RegExp(`^${revision}-[0-9]+\\.json$`)
   const files = (await readdir(directory)).filter((file) =>
     filePattern.test(file)
   )
-  if (files.length !== 1 || files[0] !== `${revision}-1.json`) {
-    throw new Error(`Expected one ${platform} ${revision} run.`)
-  }
-  const run = validateBenchmarkRun(
-    JSON.parse(await readFile(path.join(directory, files[0]!), 'utf8'))
+  const pairCount = pairCounts.get(platform)!
+  const expectedFiles = Array.from(
+    { length: pairCount },
+    (_, index) => `${revision}-${index + 1}.json`
   )
   if (
-    run.configuration.runId !== `${platform}-${revision}-1` ||
-    run.configuration.reverse !== false ||
-    run.configuration.platform !== platform ||
-    run.configuration.architecture !== builds.get(platform)!.architecture ||
-    run.configuration.toolchain !== builds.get(platform)!.toolchain ||
-    run.configuration.benchmarkIndex !== undefined ||
-    run.metrics.length !== run.benchmarkCount ||
-    run.configuration.commitSha !== expectedSha ||
-    run.configuration.suiteHash !==
-      (revision === 'base' ? report.baseSuiteHash : report.headSuiteHash) ||
-    run.metrics.some((metric) => !METRIC_ID_PATTERN.test(metric.id))
+    files.length !== pairCount ||
+    expectedFiles.some((file) => !files.includes(file))
   ) {
-    throw new Error(`${platform} ${revision} run metadata is invalid.`)
+    throw new Error(`Expected ${pairCount} ${platform} ${revision} runs.`)
   }
-  return run
+  return Promise.all(
+    expectedFiles.map(async (file, index) => {
+      const run = validateBenchmarkRun(
+        JSON.parse(await readFile(path.join(directory, file), 'utf8'))
+      )
+      if (
+        run.configuration.runId !== `${platform}-${revision}-${index + 1}` ||
+        run.configuration.reverse !== false ||
+        run.configuration.platform !== platform ||
+        run.configuration.architecture !== builds.get(platform)!.architecture ||
+        run.configuration.toolchain !== builds.get(platform)!.toolchain ||
+        run.configuration.benchmarkIndex !== undefined ||
+        run.metrics.length !== run.benchmarkCount ||
+        run.configuration.commitSha !== expectedSha ||
+        run.configuration.suiteHash !==
+          (revision === 'base' ? report.baseSuiteHash : report.headSuiteHash) ||
+        run.metrics.some((metric) => !METRIC_ID_PATTERN.test(metric.id))
+      ) {
+        throw new Error(`${platform} ${revision} run metadata is invalid.`)
+      }
+      return run
+    })
+  )
 }
 
 const comparisons = await Promise.all(
   (['android', 'ios'] as const).map(async (platform) => {
-    const headRuns = [await loadRawRun(platform, 'head', report.headSha)]
-    const baseRuns = [await loadRawRun(platform, 'base', report.baseSha)]
+    const headRuns = await loadRawRuns(platform, 'head', report.headSha)
+    const baseRuns = await loadRawRuns(platform, 'base', report.baseSha)
     const comparison = compareRuns(baseRuns, headRuns)
     return { comparison, baseRuns, headRuns }
   })
