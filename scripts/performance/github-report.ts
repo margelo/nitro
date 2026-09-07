@@ -21,8 +21,12 @@ type GitHubRequest = (
 
 export async function postPerformanceComment(
   report: PullRequestReport,
-  request: GitHubRequest
+  request: GitHubRequest,
+  botLogin = 'github-actions[bot]'
 ): Promise<'created' | 'updated' | 'stale'> {
+  if (!/^[a-zA-Z0-9-]+\[bot\]$/.test(botLogin)) {
+    throw new Error('Performance comment author must be a GitHub bot login.')
+  }
   if (
     !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(report.repository) ||
     !Number.isSafeInteger(report.pullRequestNumber) ||
@@ -58,7 +62,7 @@ export async function postPerformanceComment(
     }[]
     const existing = comments.find(
       (comment) =>
-        comment.user.login === 'github-actions[bot]' &&
+        comment.user.login === botLogin &&
         comment.user.type === 'Bot' &&
         comment.body.startsWith(COMMENT_MARKER)
     )
@@ -112,7 +116,10 @@ if (import.meta.main) {
           throw new Error(`GitHub report request failed: ${response.status}.`)
         }
         return response.json()
-      }
+      },
+      process.env.GITHUB_APP_SLUG
+        ? `${process.env.GITHUB_APP_SLUG}[bot]`
+        : 'github-actions[bot]'
     )
     console.info(`Paired performance PR comment: ${status}.`)
   }
