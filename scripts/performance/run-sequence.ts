@@ -3,10 +3,7 @@ import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
 import { installApp, runDeviceCase } from './run-device'
 import { combineIsolatedCases } from './isolated-cases'
-import type {
-  BenchmarkRunResult,
-  BenchmarkWork,
-} from '../../apps/benchmark/src/benchmarks/types'
+import type { BenchmarkRunResult } from '../../apps/benchmark/src/benchmarks/types'
 import { calculateSuiteHash } from './suite-hash'
 import type { BuildMetadata } from './build-metadata'
 
@@ -89,21 +86,18 @@ if (comparable && !sameBinary) {
 
 async function runCase(
   revision: 'base' | 'head',
-  index: number,
-  work?: BenchmarkWork
+  index: number
 ): Promise<BenchmarkRunResult> {
   const isBase = revision === 'base'
-  const calibration = work == null
-  const name = calibration ? `calibration-${revision}` : `${revision}-1`
+  const name = `${revision}-1`
   return runDeviceCase(
     deviceId,
     isBase ? baseId : headId,
     {
       platform,
-      runId: `${platform}-${revision}-${calibration ? 0 : 1}`,
+      runId: `${platform}-${revision}-1`,
       reverse: false,
       benchmarkIndex: index,
-      ...(calibration ? { calibration: true as const } : { work }),
       commitSha: isBase ? baseSha : headSha,
       suiteHash: isBase ? baseSuiteHash : headSuiteHash,
       device,
@@ -120,24 +114,18 @@ if (!comparable) {
     '[NitroBenchmark] Benchmark definitions changed; measuring a new head baseline only.'
   )
 }
-const calibrationRevision = comparable ? 'base' : 'head'
-const calibrations: BenchmarkRunResult[] = []
 const baseRuns: BenchmarkRunResult[] = []
 const headRuns: BenchmarkRunResult[] = []
-// Discover the suite size from the first calibration. Every calibration process
-// exits before measuring base then head with the exact same operation counts.
+// Discover the suite size from the first measurement. Each launch is a fresh
+// process; finish base then head for this case before moving to the next one.
 let count = 1
 for (let index = 0; index < count; index++) {
-  const calibration = await runCase(calibrationRevision, index)
-  if (index === 0) count = calibration.benchmarkCount!
-  const { id, iterations, chunkIterations } = calibration.metrics[0]!
-  const work = { id, iterations, chunkIterations }
-  calibrations.push(calibration)
-  if (comparable) baseRuns.push(await runCase('base', index, work))
-  headRuns.push(await runCase('head', index, work))
+  if (comparable) baseRuns.push(await runCase('base', index))
+  const head = await runCase('head', index)
+  headRuns.push(head)
+  if (index === 0) count = head.benchmarkCount!
 }
 for (const [name, runs] of [
-  [`calibration-${calibrationRevision}`, calibrations],
   ['base-1', baseRuns],
   ['head-1', headRuns],
 ] as const) {

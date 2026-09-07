@@ -2,20 +2,32 @@
 
 `Nitro Performance` builds the dedicated `apps/benchmark` Release/Hermes app.
 Each platform installs base and head side by side on the same machine. For each
-benchmark it calibrates base in a discarded process, measures base, then measures
-head immediately, before moving to the next benchmark. There is one AB pair,
-with five warmup batches and twenty measured batches per process. Each case gets a fresh app process; installation,
-startup, transport and process restarts are outside timing. There is no automatic
-third pair. Manual reruns are retained as identifiable workflow attempts.
+benchmark it measures base, then head immediately, before moving to the next
+benchmark. There is one AB pair, with five warmup batches and twenty measured
+batches per process. Each case gets a fresh app process; installation, startup,
+transport and process restarts are outside timing. There is no automatic third
+pair. Manual reruns are retained as identifiable workflow attempts.
 
-A separate base calibration process chooses one per-case iteration and chunk
-plan. Both revisions then use that plan for five warmup batches and twenty ordered
-measurements in fresh processes. Incompatible counts fail rather than silently
-shortening head work. Calibration targets 150 ms of timed work; this target does not establish steady
-state or erase drift. Allocation-heavy cases sum bounded timed chunks with
-explicit cleanup outside timing. Raw `iterations`, `chunkIterations` and ordered
-`samplesNsPerOp` describe the work; timed sample milliseconds are
-`ns/op * iterations / 1e6`. Slow samples are retained.
+Each case uses checked-in operation counts from
+[`iterations.ts`](../apps/benchmark/src/benchmarks/iterations.ts), separately for
+Android and iOS. Both revisions execute identical counts and chunk sizes; the
+comparison rejects unequal work. The initial counts are rounded to two significant digits from the measured
+medians in [GitHub run 34125332141, attempt 1](https://github.com/margelo/nitro/actions/runs/34125332141/attempts/1),
+using `150,000,000 ns / median ns per operation`.
+CI does not calibrate or adjust counts from observed speed. A new case requires
+an explicit count, and changing counts changes the suite hash.
+
+Review counts when changing the case or testbed. Use the raw batch duration
+(`ns/op * iterations / 1e6`) to check whether batches remain long enough to
+measure and short enough to fit the job budget. Roughly 150 ms per batch is the
+initial sizing target, not a pass/fail bound or a claim of steady performance.
+Retune deliberately using representative runs; a slow head must execute all of
+the same work. Allocation-heavy cases sum bounded timed chunks with explicit
+cleanup outside timing. The eight primitive-only control, method and numeric
+property cases skip per-batch GC and native frame waits. iOS buffer copies keep
+bounded Hermes GC but skip frame waits: collecting their wrappers releases the
+owned native storage. Other allocating cases retain GC and native yields. Raw `iterations`, `chunkIterations` and ordered
+`samplesNsPerOp` describe the work. Slow samples are retained.
 
 ## Reading results
 
@@ -59,14 +71,14 @@ architecture and toolchain metadata. iOS apps are tar archives to preserve
 permissions and symlinks. Gradle's basic cache is the sole Android cache owner;
 Gradle still checks source/task inputs, while exact app reuse is by artifact ID.
 There is no new iOS compiler cache. App reuse avoids build work on manual reruns. With 46 cases, a comparable suite
-uses 138 fresh processes (46 calibration + 46 base + 46 head), down from 230.
+uses 92 fresh processes (46 base + 46 head).
 Closer comparisons reduce time separation, but fixed base-first order can still
 introduce bias; same-revision runs are needed to assess that on each testbed.
 
 ## Artifacts and publishing
 
 The canonical artifact is `performance-report-<attempt>`: raw JSON for every
-measured process and discarded calibration plan, plus `performance-report.json` with repository, revisions,
+measured process, plus `performance-report.json` with repository, revisions,
 workflow run and attempt provenance, original build metadata and measurement artifact IDs. Artifacts remain available for 30 days.
 The PR comment links its exact immutable artifact ID; downloads require GitHub
 access. An agent can inspect the JSON instead of scraping the rendered table.
@@ -84,13 +96,20 @@ bounds; its JSON adapter requires only `value`. PR publications seed both measur
 platform baselines at `baseline-<base SHA>` before recording the head at
 `pr-<number>`. Main runs record main history. Bencher receives history only: it does not post a second GitHub comment or create alert-driven checks. The trusted renderer owns the one PR comment. User comments are never edited.
 
-The raw-manifest publisher and producer land together in the first cleanup PR.
-Until that PR reaches the default branch, the previous trusted reporter cannot
-consume its new manifest. Merge the complete producer/publisher stack before relying on its new provenance contract;
-there is no permanent old-schema reporting path. Existing raw app results may
-contain extra summary fields, which the raw parser ignores.
+Raw app results use schema version 2: fixed work counts replace the calibration
+protocol and the runner no longer reports a duration target. The producer and
+trusted parser must be merged together before the default-branch reporter can
+publish these results. During review, CI still retains the raw artifacts; the
+old reporter rejects the new schema instead of misinterpreting it.
 
-## Android host requirements
+## CI runners
+
+Platform builds and measurements use Blacksmith: `blacksmith-4vcpu-ubuntu-2404`
+for Android and `blacksmith-6vcpu-macos-26` for iOS. Raw result device descriptions
+identify the requested runner tier. Preparation,
+collection and trusted publishing remain on GitHub-hosted runners. Changing
+runner hardware requires checking same-code variation again; absolute timings
+from different hosts are not evidence of a Nitro performance change.
 
 The API 36 x86_64 emulator requires KVM. CI checks `/dev/kvm`, verifies acceleration
 before boot and uses `-accel on`; it must not silently use software CPU emulation.

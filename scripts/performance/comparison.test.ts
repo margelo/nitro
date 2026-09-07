@@ -12,7 +12,7 @@ function run(
   suiteHash = 'c'.repeat(64)
 ): BenchmarkRunResult {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     suiteVersion: 1,
     benchmarkCount: 1,
     configuration: {
@@ -33,7 +33,6 @@ function run(
       nitroBuildType: 'release',
     },
     runner: {
-      targetBatchDurationMs: 150,
       warmupCount: 5,
       sampleCount: samples.length,
     },
@@ -57,6 +56,9 @@ function run(
 describe('performance comparison', () => {
   test('requires explicit bounded chunk counts and Release Hermes', () => {
     const result = run(BASE_SHA, [100, 100])
+    expect(() => validateBenchmarkRun({ ...result, schemaVersion: 1 })).toThrow(
+      'Unsupported benchmark schema'
+    )
     for (const chunk of [0, -1, 1.5, 10_001, undefined]) {
       expect(() =>
         validateBenchmarkRun({
@@ -100,18 +102,12 @@ describe('performance comparison', () => {
       ).suiteComparable
     ).toBe(false)
   })
-  test('rejects unequal work and calibration data even if timings look identical', () => {
+  test('rejects unequal work and missing samples even if timings look identical', () => {
     const base = run(BASE_SHA, [100, 100])
     const head = run(HEAD_SHA, [100, 100])
     head.metrics[0]!.iterations = 9_000
     expect(() => compareRuns([base], [head])).toThrow('unequal work')
     head.metrics[0]!.iterations = base.metrics[0]!.iterations
-    head.configuration.calibration = true
-    expect(() => compareRuns([base], [head])).toThrow('Calibration runs')
-    expect(() => validateBenchmarkRun(head)).toThrow(
-      'Calibration must not contain'
-    )
-    head.configuration.calibration = undefined
     head.metrics[0]!.samplesNsPerOp = []
     expect(() => validateBenchmarkRun(head)).toThrow('Sample count')
   })

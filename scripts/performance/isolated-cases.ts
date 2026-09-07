@@ -12,8 +12,7 @@ export function combineIsolatedCases(
   const ids = new Set<string>()
   for (let index = 0; index < count; index++) {
     const run = validateBenchmarkRun(runs[index])
-    const { work: _firstWork, ...sharedConfiguration } = first.configuration
-    validateExpectedRun(run, { ...sharedConfiguration, benchmarkIndex: index })
+    validateExpectedRun(run, { ...first.configuration, benchmarkIndex: index })
     if (
       run.benchmarkCount !== count ||
       run.metrics.length !== 1 ||
@@ -35,7 +34,6 @@ export function combineIsolatedCases(
   }
   const configuration = { ...first.configuration }
   delete configuration.benchmarkIndex
-  delete configuration.work
   return {
     ...first,
     configuration,

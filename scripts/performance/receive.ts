@@ -14,18 +14,6 @@ if (platform !== 'android' && platform !== 'ios') {
 }
 
 const configuration: BenchmarkRunConfiguration = {
-  ...(argumentsMap.has('calibration') ? { calibration: true as const } : {}),
-  ...(argumentsMap.has('work-id')
-    ? {
-        work: {
-          id: requiredArgument(argumentsMap, 'work-id'),
-          iterations: Number(requiredArgument(argumentsMap, 'iterations')),
-          chunkIterations: Number(
-            requiredArgument(argumentsMap, 'chunk-iterations')
-          ),
-        },
-      }
-    : {}),
   ...(argumentsMap.has('benchmark-index')
     ? {
         benchmarkIndex: Number(

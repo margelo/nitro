@@ -47,7 +47,7 @@ export async function runDeviceCase(
   configuration: BenchmarkRunConfiguration & { benchmarkIndex: number },
   output: string
 ) {
-  const { platform, benchmarkIndex: index, calibration, work } = configuration
+  const { platform, benchmarkIndex: index } = configuration
   await mkdir(path.dirname(output), { recursive: true })
   const receiverArguments = [
     path.join(import.meta.dir, 'receive.ts'),
@@ -74,17 +74,6 @@ export async function runDeviceCase(
     [
       'bun',
       ...receiverArguments,
-      ...(calibration ? ['--calibration', 'true'] : []),
-      ...(work == null
-        ? []
-        : [
-            '--work-id',
-            work.id,
-            '--iterations',
-            String(work.iterations),
-            '--chunk-iterations',
-            String(work.chunkIterations),
-          ]),
       '--output',
       output,
       '--benchmark-index',
@@ -171,7 +160,7 @@ export async function runDeviceCase(
     )
     const metric = result.metrics[0]!
     console.info(
-      `[NitroBenchmark] ${new Date().toISOString()} ${configuration.runId} ${calibration ? 'calibration' : 'measurement'} case ${index + 1}/${result.benchmarkCount}: ${metric.id}, ${metric.iterations} ops/sample`
+      `[NitroBenchmark] ${new Date().toISOString()} ${configuration.runId} measurement case ${index + 1}/${result.benchmarkCount}: ${metric.id}, ${metric.iterations} ops/sample`
     )
     return result
   } catch (error) {

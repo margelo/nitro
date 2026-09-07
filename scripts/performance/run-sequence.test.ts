@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test'
-import { chmod, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
+import { chmod, mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { calculateSuiteHash } from './suite-hash'
 
 // Exercise the real controller/receiver with a tiny process standing in for
-// simctl's app. Runner tests separately exercise timed work and slowdown bounds.
+// simctl's app. Runner tests separately exercise fixed work across different execution speeds.
 test.each([
   ['ios', 'paired', false],
   ['ios', 'paired', true],
@@ -32,18 +32,17 @@ test.each([
       if (process.env.CHANGED_SUITE === 'true' && configuration.commitSha.startsWith('a')) throw new Error('Old base must not receive the new protocol.')
       const index = configuration.reverse ? 1 - configuration.benchmarkIndex : configuration.benchmarkIndex
       const id = ['javascript/control/first', 'javascript/control/second'][index]
-      const work = configuration.work ?? { id, iterations: [1000, 500][index], chunkIterations: [250, 100][index] }
-      if (work.id !== id) throw new Error('Work was assigned to the wrong case.')
+      const work = { id, iterations: [1000, 500][index], chunkIterations: [250, 100][index] }
       const appId = process.argv[2]
       const expectedId = process.env.SAME_BINARY === 'true' || configuration.runId.includes('-head-') ? 'com.margelo.nitrobenchmark.head' : 'com.margelo.nitrobenchmark'
       if (appId !== expectedId) throw new Error('Launched the wrong app: ' + appId)
       await appendFile(process.env.SIMULATOR_LOG, JSON.stringify({ pid: process.pid, appId, configuration, work }) + '\\n')
-      const count = configuration.calibration ? 0 : 20
+      const count = 20
       const response = await fetch('http://127.0.0.1:8173/result', {
         method: 'POST', body: JSON.stringify({
-          schemaVersion: 1, suiteVersion: 1, benchmarkCount: 2, configuration,
+          schemaVersion: 2, suiteVersion: 1, benchmarkCount: 2, configuration,
           environment: { reactNativeVersion: '0.85.3', hermes: true, dev: false, nitroBuildType: 'release' },
-          runner: { targetBatchDurationMs: 150, warmupCount: count === 0 ? 0 : 5, sampleCount: count },
+          runner: { warmupCount: 5, sampleCount: count },
           startedAt: new Date().toISOString(), durationMs: 100,
           metrics: [{ ...work, version: 1, family: 'control', implementation: 'javascript', samplesNsPerOp: Array(process.env.INVALID_RESULT === 'true' && configuration.runId.includes('-head-') ? 1 : count).fill(100), checksum: 0 }],
         }),
@@ -171,7 +170,7 @@ test.each([
         .map((line) => JSON.parse(line))
       if (mode === 'invalid-result') {
         expect(exitCode).not.toBe(0)
-        expect(processes).toHaveLength(3)
+        expect(processes).toHaveLength(2)
         expect(
           processes.every((entry) => entry.configuration.benchmarkIndex === 0)
         ).toBe(true)
@@ -206,7 +205,7 @@ test.each([
             : `${entry.appId}/com.margelo.nitrobenchmark.MainActivity`
         )
       )
-      // Every app is stopped before starting the next case, including calibration.
+      // Every app is stopped before starting the next case.
       const lifecycle = commands.filter((args) =>
         ['launch', 'start', 'terminate', 'force-stop'].some((op) =>
           args.includes(op)
@@ -233,33 +232,30 @@ test.each([
         ).toEqual({ buildArtifactId: 456, runAttempt: 2 })
       }
       expect(new Set(processes.map((entry) => entry.pid)).size).toBe(
-        changedSuite ? 4 : 6
+        changedSuite ? 2 : 4
       )
       expect(
         processes.map((entry) => [
           entry.configuration.benchmarkIndex,
           entry.configuration.runId,
-          entry.configuration.calibration === true,
         ])
       ).toEqual(
         [0, 1].flatMap((index) =>
           changedSuite
-            ? [
-                [index, `${platform}-head-0`, true],
-                [index, `${platform}-head-1`, false],
-              ]
+            ? [[index, `${platform}-head-1`]]
             : [
-                [index, `${platform}-base-0`, true],
-                [index, `${platform}-base-1`, false],
-                [index, `${platform}-head-1`, false],
+                [index, `${platform}-base-1`],
+                [index, `${platform}-head-1`],
               ]
         )
       )
+      expect(
+        (await readdir(output)).some((name) => name.startsWith('calibration'))
+      ).toBe(false)
       for (const file of changedSuite ? ['head-1'] : ['base-1', 'head-1']) {
         const run = JSON.parse(
           await readFile(path.join(output, `${file}.json`), 'utf8')
         )
-        expect(run.configuration.calibration).toBeUndefined()
         const metrics = run.metrics.sort(
           (a: { id: string }, b: { id: string }) => a.id.localeCompare(b.id)
         )

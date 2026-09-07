@@ -51,9 +51,6 @@ export function compareRuns(
   if (baseRuns.length === 0 || baseRuns.length !== headRuns.length) {
     throw new Error('A matching base run is required for every head run.')
   }
-  if ([...baseRuns, ...headRuns].some((run) => run.configuration.calibration)) {
-    throw new Error('Calibration runs cannot be compared as measurements.')
-  }
   const { platform, commitSha: baseSha, suiteHash } = baseRuns[0]!.configuration
   const headSha = headRuns[0]!.configuration.commitSha
   for (const [runs, sha] of [

@@ -96,7 +96,7 @@ jobs:
   build-android:
     needs: prepare
     if: needs.prepare.outputs.relevant == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 40
     outputs:
       artifact_id: ${{ steps.upload.outputs.artifact-id }}
@@ -150,7 +150,7 @@ jobs:
 
   measure-android:
     needs: [prepare, build-android]
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 75
     outputs:
       artifact_id: ${{ steps.upload.outputs.artifact-id }}
@@ -213,7 +213,7 @@ jobs:
             --base-sha "$BASE_SHA" --head-sha "$HEAD_SHA"
             --output-directory performance-android
             --device-id "$(adb get-serialno)"
-            --device "Pixel 7 emulator / KVM" --os-version "Android 16 / API 36"
+            --device "Pixel 7 emulator / KVM / Blacksmith 4 vCPU" --os-version "Android 16 / API 36"
             --architecture x86_64 --toolchain "$(jq -r .toolchain apps/build.json)"
       - name: Upload Android results
         id: upload
@@ -228,7 +228,7 @@ jobs:
   build-ios:
     needs: prepare
     if: needs.prepare.outputs.relevant == 'true'
-    runs-on: macos-26
+    runs-on: blacksmith-6vcpu-macos-26
     timeout-minutes: 60
     outputs:
       artifact_id: ${{ steps.upload.outputs.artifact-id }}
@@ -281,7 +281,7 @@ jobs:
 
   measure-ios:
     needs: [prepare, build-ios]
-    runs-on: macos-26
+    runs-on: blacksmith-6vcpu-macos-26
     timeout-minutes: 90
     outputs:
       artifact_id: ${{ steps.upload.outputs.artifact-id }}
@@ -328,7 +328,7 @@ jobs:
             --build-metadata apps/build.json \
             --base-sha "$BASE_SHA" --head-sha "$HEAD_SHA" \
             --output-directory performance-ios --device-id "$DEVICE_ID" \
-            --device 'iPhone 17 Pro simulator' --os-version 'iOS 26.5' \
+            --device 'iPhone 17 Pro simulator / Blacksmith 6 vCPU' --os-version 'iOS 26.5' \
             --architecture arm64 --toolchain "$(jq -r .toolchain apps/build.json)"
       - name: Delete simulator
         if: always() && env.DEVICE_ID != ''

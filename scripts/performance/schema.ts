@@ -67,28 +67,7 @@ function validateConfiguration(value: unknown): BenchmarkRunConfiguration {
   if (!SUITE_HASH_PATTERN.test(suiteHash)) {
     throw new Error('configuration.suiteHash must be a SHA-256 digest.')
   }
-  const work = value.work
-  if (work !== undefined && !isObject(work))
-    throw new Error('configuration.work must be an object.')
-  if (value.calibration !== undefined && value.calibration !== true)
-    throw new Error('Invalid calibration flag.')
   return {
-    ...(value.calibration === true ? { calibration: true as const } : {}),
-    ...(work === undefined
-      ? {}
-      : {
-          work: {
-            id: stringValue(work.id, 'configuration.work.id'),
-            iterations: positiveInteger(
-              work.iterations,
-              'configuration.work.iterations'
-            ),
-            chunkIterations: positiveInteger(
-              work.chunkIterations,
-              'configuration.work.chunkIterations'
-            ),
-          },
-        }),
     ...(value.benchmarkIndex === undefined
       ? {}
       : {
@@ -211,7 +190,7 @@ function validateMetric(value: unknown, index: number): BenchmarkMetric {
 
 export function validateBenchmarkRun(value: unknown): BenchmarkRunResult {
   if (!isObject(value)) throw new Error('Benchmark result must be an object.')
-  if (value.schemaVersion !== 1 || value.suiteVersion !== 1) {
+  if (value.schemaVersion !== 2 || value.suiteVersion !== 1) {
     throw new Error('Unsupported benchmark schema or suite version.')
   }
   if (!isObject(value.runner)) throw new Error('runner must be an object.')
@@ -224,12 +203,6 @@ export function validateBenchmarkRun(value: unknown): BenchmarkRunResult {
     throw new Error('metrics must be a non-empty bounded array.')
   }
   const configuration = validateConfiguration(value.configuration)
-  if (
-    configuration.calibration &&
-    (value.runner.warmupCount !== 0 || value.runner.sampleCount !== 0)
-  ) {
-    throw new Error('Calibration must not contain warmup or measured samples.')
-  }
   const validatedMetrics = metrics.map(validateMetric)
   const benchmarkCount = positiveInteger(value.benchmarkCount, 'benchmarkCount')
   if (benchmarkCount > MAX_METRICS || benchmarkCount < metrics.length) {
@@ -253,24 +226,20 @@ export function validateBenchmarkRun(value: unknown): BenchmarkRunResult {
     throw new Error('startedAt must be an ISO timestamp.')
   }
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     suiteVersion: 1,
     benchmarkCount,
     configuration,
     environment: validateEnvironment(value.environment),
     runner: {
-      targetBatchDurationMs: finiteNumber(
-        value.runner.targetBatchDurationMs,
-        'runner.targetBatchDurationMs',
-        1,
-        10_000
+      warmupCount: positiveInteger(
+        value.runner.warmupCount,
+        'runner.warmupCount'
       ),
-      warmupCount: configuration.calibration
-        ? finiteNumber(value.runner.warmupCount, 'runner.warmupCount', 0, 100)
-        : positiveInteger(value.runner.warmupCount, 'runner.warmupCount'),
-      sampleCount: configuration.calibration
-        ? finiteNumber(value.runner.sampleCount, 'runner.sampleCount', 0, 100)
-        : positiveInteger(value.runner.sampleCount, 'runner.sampleCount'),
+      sampleCount: positiveInteger(
+        value.runner.sampleCount,
+        'runner.sampleCount'
+      ),
     },
     startedAt,
     durationMs: finiteNumber(value.durationMs, 'durationMs'),

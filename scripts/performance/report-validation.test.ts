@@ -20,7 +20,7 @@ function run(
     (_, index) => center - 1 + (index % 3)
   )
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     suiteVersion: 1,
     benchmarkCount: 1,
     configuration: {
@@ -41,7 +41,6 @@ function run(
       nitroBuildType: 'release',
     },
     runner: {
-      targetBatchDurationMs: 150,
       warmupCount: 5,
       sampleCount: 20,
     },
