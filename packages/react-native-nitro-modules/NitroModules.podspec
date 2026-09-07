@@ -45,6 +45,7 @@ Pod::Spec.new do |s|
     "cpp/jsi/JSIHelpers.hpp",
     "cpp/platform/NitroLogger.hpp",
     "cpp/threading/Dispatcher.hpp",
+    "cpp/threading/ThreadPool.hpp",
     "cpp/utils/JSCallback.hpp",
     "cpp/utils/FastVectorCopy.hpp",
     "cpp/utils/NitroHash.hpp",
