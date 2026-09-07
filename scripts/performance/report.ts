@@ -38,6 +38,11 @@ export interface ReportMetadata extends Pick<
   platforms: ('android' | 'ios')[]
 }
 
+/** Publishing order is supplied by the trusted workflow event, never HEAD code. */
+export interface ValidatedReportMetadata extends ReportMetadata {
+  workflowRunNumber: number
+}
+
 if (import.meta.main) {
   const args = parseArguments(Bun.argv.slice(2))
   const eventName = requiredArgument(args, 'event-name')
