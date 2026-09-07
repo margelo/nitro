@@ -204,8 +204,8 @@ jobs:
           # CPU acceleration is required, independently of software GPU rendering.
           disable-linux-hw-accel: false
           emulator-boot-timeout: 300
-          pre-emulator-launch-script: '"$ANDROID_HOME/emulator/emulator" -version; "$ANDROID_HOME/emulator/emulator" -accel-check'
-          emulator-options: -accel on -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim -camera-back none
+          pre-emulator-launch-script: '"$ANDROID_HOME/emulator/emulator" -accel-check'
+          emulator-options: -accel on -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim -no-metrics -camera-back none
           script: >-
             bun scripts/performance/run-sequence.ts
             --platform android --base-app apps/base.apk --head-app apps/head.apk
