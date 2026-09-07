@@ -74,6 +74,8 @@ The app artifact includes base/head SHAs, suite hashes, Release configuration,
 architecture and toolchain metadata. iOS apps are tar archives to preserve
 permissions and symlinks. Gradle's basic cache is the sole Android cache owner;
 Gradle still checks source/task inputs, while exact app reuse is by artifact ID.
+Ruby's setup action caches each checkout's benchmark gems using its own Gemfile.lock
+and Ruby version. Identical revisions skip base gem setup along with the base build.
 There is no new iOS compiler cache. App reuse avoids build work on manual reruns. With 46 cases in each revision, a run
 uses 92 fresh processes (46 base + 46 head).
 Closer comparisons reduce time separation, but fixed base-first order can still
