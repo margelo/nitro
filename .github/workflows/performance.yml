@@ -228,7 +228,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: margelo/nitro
-          ref: f5857e95af6c07a67a6604c44ecbfc6bc365e234
+          ref: a27931665204e9af801abc7f09a359da737d37d9
           persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
@@ -253,9 +253,18 @@ jobs:
             --expected-repository "$GITHUB_REPOSITORY" \
             --trusted-workflow-event trusted-workflow-event.json \
             --trusted-pull-request trusted-pull-request.json
+      - name: Create Nitro Modules Bot token
+        id: performance-bot-token
+        if: vars.NITRO_PERFORMANCE_APP_CLIENT_ID != ''
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ vars.NITRO_PERFORMANCE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NITRO_PERFORMANCE_APP_PRIVATE_KEY }}
+          permission-pull-requests: write
       - name: Post paired comparison to the PR
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.performance-bot-token.outputs.token || secrets.GITHUB_TOKEN }}
+          GITHUB_APP_SLUG: ${{ steps.performance-bot-token.outputs.app-slug }}
         run: bun scripts/performance/github-report.ts --directory validated-report
       - name: Install pinned Bencher CLI
         if: vars.NITRO_BENCHER_ENABLED == 'true'

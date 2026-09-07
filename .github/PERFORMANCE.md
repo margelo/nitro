@@ -78,6 +78,39 @@ a changed base SHA naturally selects a different start point.
 The Bencher action and downloaded CLI version are both pinned. Both publishers
 verify the reviewed Linux CLI SHA-256 before the step receiving the API key.
 
+## Nitro Modules Bot
+
+The paired PR comparison can post as a dedicated GitHub App named **Nitro Modules Bot**, using [`docs/static/img/nos.png`](../docs/static/img/nos.png)
+as its avatar. The app needs no hosted service or webhook receiver; Actions
+creates a short-lived installation token just before posting the comment.
+
+To configure it on `margelo/nitro`:
+
+1. Register a GitHub App named `Nitro Modules Bot` with homepage
+   `https://nitro.margelo.com`. Disable webhooks and grant only the repository
+   permission **Pull requests: Read & write** (Metadata read access is automatic).
+   Keep installation restricted to the owning account when the app belongs to
+   `margelo`.
+2. Upload the NOS image under the app's Display information and install the app
+   on only `margelo/nitro`.
+3. Generate an app private key and save its PEM contents in the repository's
+   Actions secret `NITRO_PERFORMANCE_APP_PRIVATE_KEY`. Keep the key out of git.
+4. Set the repository Actions variable `NITRO_PERFORMANCE_APP_CLIENT_ID` to the
+   app's Client ID. Set this last, after the key and installation are ready.
+
+Both publishing paths use the app's actual slug to recognize their own comments.
+They request only Pull requests write permission for the current repository, and
+the token action revokes the token at the end of the job. Build jobs and fork PR
+jobs never receive the app key. Bencher publishing retains its existing token.
+Update the same-repository publisher's reporting commit pin when changing the
+reporter. Fork reporting changes take effect after reaching the default branch.
+
+Without the Client ID variable, comments continue as `github-actions[bot]`.
+Removing that variable switches back to the default identity. Configured app
+authentication failures fail the posting job rather than silently switching authors.
+The first run after switching identities creates a new comment; subsequent runs
+update that bot's comment. Earlier comments keep their original author and avatar.
+
 ## Promoting performance verdicts to a gate
 
 This initial workflow always passes `--mode advisory`; merging it does **not**
