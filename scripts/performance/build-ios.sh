@@ -3,7 +3,7 @@ set -euo pipefail
 cd "${1:?Usage: build-ios.sh <checkout-root> [application-id]}"
 bun install --frozen-lockfile
 cd apps/benchmark
-bundle install
+bundle check || bundle install
 bun pods
 cd ios
 xcodebuild \
