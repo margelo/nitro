@@ -90,7 +90,14 @@ consume its new manifest. Merge the complete producer/publisher stack before rel
 there is no permanent old-schema reporting path. Existing raw app results may
 contain extra summary fields, which the raw parser ignores.
 
-## Android host requirements
+## CI runners
+
+Platform builds and measurements use Blacksmith: `blacksmith-4vcpu-ubuntu-2404`
+for Android and `blacksmith-6vcpu-macos-26` for iOS. Raw result device descriptions
+identify the requested runner tier. Preparation,
+collection and trusted publishing remain on GitHub-hosted runners. Changing
+runner hardware requires checking same-code variation again; absolute timings
+from different hosts are not evidence of a Nitro performance change.
 
 The API 36 x86_64 emulator requires KVM. CI checks `/dev/kvm`, verifies acceleration
 before boot and uses `-accel on`; it must not silently use software CPU emulation.
