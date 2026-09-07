@@ -28,7 +28,7 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   /**
    * Holds an instance of the `HybridTestObjectSwiftKotlinSpec` Swift protocol.
    */
-  private var __implementation: any HybridTestObjectSwiftKotlinSpec
+  private let __implementation: any HybridTestObjectSwiftKotlinSpec
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.

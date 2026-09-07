@@ -27,7 +27,7 @@ open class HybridRecyclableTestViewSpec_cxx {
   /**
    * Holds an instance of the `HybridRecyclableTestViewSpec` Swift protocol.
    */
-  private var __implementation: any HybridRecyclableTestViewSpec
+  private let __implementation: any HybridRecyclableTestViewSpec
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.

@@ -27,7 +27,7 @@ open class HybridSomeExternalObjectSpec_cxx {
   /**
    * Holds an instance of the `HybridSomeExternalObjectSpec` Swift protocol.
    */
-  private var __implementation: any HybridSomeExternalObjectSpec
+  private let __implementation: any HybridSomeExternalObjectSpec
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.

@@ -157,7 +157,7 @@ ${hasBase ? `open class ${name.HybridTSpecCxx} : ${baseClasses.join(', ')}` : `o
   /**
    * Holds an instance of the \`${name.HybridTSpec}\` Swift protocol.
    */
-  private var __implementation: any ${name.HybridTSpec}
+  private let __implementation: any ${name.HybridTSpec}
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.

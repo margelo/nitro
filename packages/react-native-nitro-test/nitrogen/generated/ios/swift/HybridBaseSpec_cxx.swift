@@ -27,7 +27,7 @@ open class HybridBaseSpec_cxx {
   /**
    * Holds an instance of the `HybridBaseSpec` Swift protocol.
    */
-  private var __implementation: any HybridBaseSpec
+  private let __implementation: any HybridBaseSpec
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.

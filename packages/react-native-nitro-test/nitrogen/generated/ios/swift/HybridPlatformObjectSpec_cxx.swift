@@ -27,7 +27,7 @@ open class HybridPlatformObjectSpec_cxx {
   /**
    * Holds an instance of the `HybridPlatformObjectSpec` Swift protocol.
    */
-  private var __implementation: any HybridPlatformObjectSpec
+  private let __implementation: any HybridPlatformObjectSpec
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.
