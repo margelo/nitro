@@ -43,6 +43,10 @@ jobs:
       - name: Run TypeScript (tsc)
         run: bun typecheck
 
+      - name: Test Nitro Modules runtime metadata
+        working-directory: packages/react-native-nitro-modules
+        run: bun test --runInBand
+
   lint:
     name: Lint TypeScript (eslint, prettier)
     runs-on: ubuntu-latest
