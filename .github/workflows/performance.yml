@@ -130,7 +130,7 @@ jobs:
             --platform android --base-root base --head-root head \
             --architecture x86_64 --toolchain "$(java -version 2>&1 | head -1) / NDK 29.0.14206865" \
             --output apps/build.json
-          bash head/scripts/performance/build-android.sh "$GITHUB_WORKSPACE/head"
+          bash head/scripts/performance/build-android.sh "$GITHUB_WORKSPACE/head" com.margelo.nitrobenchmark.head
           cp head/apps/benchmark/android/app/build/outputs/apk/release/app-release.apk apps/head.apk
           if [[ "$(jq -r .baseSha apps/build.json)" == "$(jq -r .headSha apps/build.json)" ]]; then
             cp apps/head.apk apps/base.apk
@@ -260,7 +260,7 @@ jobs:
             --platform ios --base-root base --head-root head \
             --architecture arm64 --toolchain "$(xcodebuild -version | tr '\n' ' ')" \
             --output apps/build.json
-          bash head/scripts/performance/build-ios.sh "$GITHUB_WORKSPACE/head"
+          bash head/scripts/performance/build-ios.sh "$GITHUB_WORKSPACE/head" com.margelo.nitrobenchmark.head
           # Tar preserves the executable bits and symlinks inside each .app.
           tar -czf apps/head.app.tar.gz -C head/apps/benchmark/ios/build-benchmark/Build/Products/Release-iphonesimulator NitroBenchmark.app
           if [[ "$(jq -r .baseSha apps/build.json)" == "$(jq -r .headSha apps/build.json)" ]]; then

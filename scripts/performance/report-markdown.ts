@@ -124,7 +124,7 @@ export function renderPerformanceReportMarkdown(
   const lines = [
     '## Performance Report',
     '',
-    '> **Report only:** Measurements do not fail this PR. Process pairs describe this run; they do not establish statistical confidence.',
+    '> **Report only:** Measurements do not fail this PR. Each benchmark has one base/head process pair. Samples describe within-process variation; they do not establish repeatability between launches or statistical confidence.',
   ]
   if (options.baseSha === options.headSha) {
     lines.push(
@@ -153,7 +153,7 @@ export function renderPerformanceReportMarkdown(
     lines.push(
       '',
       '<details>',
-      '<summary>All benchmarks and process variation</summary>',
+      '<summary>All benchmarks and sample variation</summary>',
       '',
       table(platform.comparisons, platform.platform),
       '',

@@ -1,16 +1,17 @@
 import type { BenchmarkRunResult } from '../../apps/benchmark/src/benchmarks/types'
 import { validateBenchmarkRun, validateExpectedRun } from './schema'
 
-/** Install once; the caller starts and terminates a fresh app process per case. */
-export async function runIsolatedCases(
-  runCase: (index: number) => Promise<BenchmarkRunResult>
-): Promise<BenchmarkRunResult> {
-  const first = validateBenchmarkRun(await runCase(0))
+/** Combine a complete suite without discarding any per-process raw samples. */
+export function combineIsolatedCases(
+  runs: readonly BenchmarkRunResult[]
+): BenchmarkRunResult {
+  const first = validateBenchmarkRun(runs[0])
   const count = first.benchmarkCount!
-  const runs: BenchmarkRunResult[] = []
+  if (runs.length !== count)
+    throw new Error('Incomplete isolated benchmark suite.')
   const ids = new Set<string>()
   for (let index = 0; index < count; index++) {
-    const run = index === 0 ? first : validateBenchmarkRun(await runCase(index))
+    const run = validateBenchmarkRun(runs[index])
     const { work: _firstWork, ...sharedConfiguration } = first.configuration
     validateExpectedRun(run, { ...sharedConfiguration, benchmarkIndex: index })
     if (
@@ -31,7 +32,6 @@ export async function runIsolatedCases(
       )
     }
     ids.add(run.metrics[0]!.id)
-    runs.push(run)
   }
   const configuration = { ...first.configuration }
   delete configuration.benchmarkIndex

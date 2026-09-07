@@ -83,7 +83,7 @@ android {
 
     namespace = "com.margelo.nitrobenchmark"
     defaultConfig {
-        applicationId "com.margelo.nitrobenchmark"
+        applicationId = providers.gradleProperty("nitroBenchmarkApplicationId").getOrElse("com.margelo.nitrobenchmark")
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

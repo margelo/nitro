@@ -14,8 +14,8 @@ Debug benchmark or publish anything to Bencher.
 From the repository root:
 
 ```sh
-bash scripts/performance/build-android.sh "$PWD"
-bash scripts/performance/build-ios.sh "$PWD"
+bash scripts/performance/build-android.sh "$PWD" com.margelo.nitrobenchmark.head
+bash scripts/performance/build-ios.sh "$PWD" com.margelo.nitrobenchmark.head
 ```
 
 Both platforms use the normal `Release` configuration, an embedded optimized
@@ -25,18 +25,20 @@ permits cleartext only to `127.0.0.1` and `localhost` for the host receiver.
 
 ## Run locally
 
-For an already booted Android API 36 emulator, after building the APK:
+For an already booted Android API 36 emulator, compare two fresh launches of the
+same built APK to check measurement variation:
 
 ```sh
-bun scripts/performance/run-device.ts \
+bun scripts/performance/run-sequence.ts \
   --platform android \
-  --app apps/benchmark/android/app/build/outputs/apk/release/app-release.apk \
-  --output /tmp/nitro-benchmark.json \
+  --base-app apps/benchmark/android/app/build/outputs/apk/release/app-release.apk \
+  --head-app apps/benchmark/android/app/build/outputs/apk/release/app-release.apk \
+  --base-root "$PWD" \
+  --head-root "$PWD" \
+  --output-directory /tmp/nitro-benchmark \
   --device-id "$(adb get-serialno)" \
-  --run-id android-local-1 \
-  --reverse false \
-  --commit-sha "$(git rev-parse HEAD)" \
-  --suite-hash "$(bun scripts/performance/suite-hash.ts .)" \
+  --base-sha "$(git rev-parse HEAD)" \
+  --head-sha "$(git rev-parse HEAD)" \
   --device 'Local emulator' \
   --os-version 'Android 16 / API 36' \
   --architecture x86_64 \
@@ -49,10 +51,15 @@ The host installs each binary once, then launches a fresh process for each case
 and assembles their results. This releases Nitro's runtime-scoped JSI reference
 bookkeeping between cases; GC alone cannot clear that cache. Each process posts
 one result only after its timing is complete. Per-case raw results are kept beside
-the combined output in a `*-cases/` directory. Reversing the suite reverses the
-case launch order too. Startup, transport, and process restarts are not timed.
+the combined output in `base-1-cases/`, `head-1-cases/`, and
+`calibration-base-cases/` directories. For each case, calibration exits before
+base and head run back to back. Identical SHAs reuse one installed binary. Startup, transport, and process restarts are not timed.
 For iOS, use `--platform ios`, a simulator UDID for `--device-id`, and the built
-`NitroBenchmark.app` for `--app`, with matching simulator/toolchain metadata.
+`NitroBenchmark.app` for `--base-app` and `--head-app`, with matching
+simulator/toolchain metadata.
+To compare different revisions, build base from its own checkout using the default
+app ID (omit the second build-script argument), and build head with the `.head`
+ID shown above. Pass the corresponding app paths, source roots, and commit SHAs.
 Local runs do not upload results.
 
 Each metric targets 150 ms of timed work per sample (roughly

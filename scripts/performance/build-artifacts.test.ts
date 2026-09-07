@@ -51,7 +51,7 @@ for (const platform of ['android', 'ios'] as const) {
           script,
           `#!/bin/bash
 set -eu
-echo "$(basename "$1")" >> "$GITHUB_WORKSPACE/builds"
+echo "$(basename "$1") \${2:-com.margelo.nitrobenchmark}" >> "$GITHUB_WORKSPACE/builds"
 if [[ '${platform}' == android ]]; then
   mkdir -p "$1/apps/benchmark/android/app/build/outputs/apk/release"
   echo "$(basename "$1")" > "$1/apps/benchmark/android/app/build/outputs/apk/release/app-release.apk"
@@ -93,7 +93,14 @@ fi
         })
         expect(
           (await Bun.file(path.join(root, 'builds')).text()).trim().split('\n')
-        ).toEqual(mode === 'paired' ? ['head', 'base'] : ['head'])
+        ).toEqual(
+          mode === 'paired'
+            ? [
+                'head com.margelo.nitrobenchmark.head',
+                'base com.margelo.nitrobenchmark',
+              ]
+            : ['head com.margelo.nitrobenchmark.head']
+        )
         const base = path.join(
           root,
           `apps/base.${platform === 'ios' ? 'app.tar.gz' : 'apk'}`

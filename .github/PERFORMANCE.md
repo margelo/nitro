@@ -1,8 +1,10 @@
 # Release performance CI
 
 `Nitro Performance` builds the dedicated `apps/benchmark` Release/Hermes app.
-Each platform runs base → head → head → base on the same machine, reversing case
-order for the second pair. Each case gets a fresh app process; installation,
+Each platform installs base and head side by side on the same machine. For each
+benchmark it calibrates base in a discarded process, measures base, then measures
+head immediately, before moving to the next benchmark. There is one AB pair,
+with five warmup batches and twenty measured batches per process. Each case gets a fresh app process; installation,
 startup, transport and process restarts are outside timing. There is no automatic
 third pair. Manual reruns are retained as identifiable workflow attempts.
 
@@ -22,14 +24,15 @@ tail latency. The report shows every observed change of at least 5%, including
 Promise cases. This is a presentation threshold, not a calibrated regression
 budget. Expand the report for all metrics, individual process medians, matched
 pair changes, and sample MAD relative to p50. Matching pooled medians do not prove
-equal performance. Two process pairs do not justify confidence intervals.
+equal performance. One pair cannot establish repeatability between launches or justify confidence
+intervals. Repeat measurement jobs or same-revision runs to investigate variation.
 
 Performance is currently report-only. Build, execution and malformed-result
 failures still fail CI. Turning observed differences into a regression gate needs
 empirical validation on unchanged commits and intentional slowdowns on each
 unchanged suite/testbed. No Promise case is permanently exempt. Scheduled/manual
 runs with the same base and head SHA measure baseline variation explicitly.
-Changed benchmark definitions run two head-only measurements as a new baseline,
+Changed benchmark definitions run one head-only measurement per case as a new baseline,
 without executing the old base app or publishing an invented paired baseline.
 This also handles the first rollout of a new runner protocol.
 
@@ -40,6 +43,9 @@ collection. Each measurement job downloads the immutable app artifact ID produce
 by its build job; base and head still run together on one machine. A changed suite
 builds only head. An identical base/head SHA reuses the same binary for both sides.
 Otherwise each revision is built from its own checkout with the same build script.
+Base uses `com.margelo.nitrobenchmark`; head uses `com.margelo.nitrobenchmark.head`.
+Android keeps its Java namespace and fully qualified activity name unchanged.
+For identical SHAs, both roles launch the single installed head binary.
 
 Use GitHub's **Re-run job and dependent jobs** on `measure-android` or
 `measure-ios` to repeat measurements without rebuilding successful ancestors.
@@ -52,8 +58,10 @@ The app artifact includes base/head SHAs, suite hashes, Release configuration,
 architecture and toolchain metadata. iOS apps are tar archives to preserve
 permissions and symlinks. Gradle's basic cache is the sole Android cache owner;
 Gradle still checks source/task inputs, while exact app reuse is by artifact ID.
-There is no new iOS compiler cache. First-run speed or CI stability improvements
-have not been measured; app reuse specifically avoids build work on manual reruns.
+There is no new iOS compiler cache. App reuse avoids build work on manual reruns. With 46 cases, a comparable suite
+uses 138 fresh processes (46 calibration + 46 base + 46 head), down from 230.
+Closer comparisons reduce time separation, but fixed base-first order can still
+introduce bias; same-revision runs are needed to assess that on each testbed.
 
 ## Artifacts and publishing
 

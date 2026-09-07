@@ -1,15 +1,21 @@
 import { mkdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
-import { validateBenchmarkRun } from './schema'
+import { installApp, runDeviceCase } from './run-device'
+import { combineIsolatedCases } from './isolated-cases'
+import type {
+  BenchmarkRunResult,
+  BenchmarkWork,
+} from '../../apps/benchmark/src/benchmarks/types'
 import { calculateSuiteHash } from './suite-hash'
 import type { BuildMetadata } from './build-metadata'
 
 const argumentsMap = parseArguments(Bun.argv.slice(2))
-const platform = requiredArgument(argumentsMap, 'platform')
-if (platform !== 'android' && platform !== 'ios') {
+const platformArgument = requiredArgument(argumentsMap, 'platform')
+if (platformArgument !== 'android' && platformArgument !== 'ios') {
   throw new Error('--platform must be android or ios.')
 }
+const platform = platformArgument
 const baseApp = path.resolve(requiredArgument(argumentsMap, 'base-app'))
 const headApp = path.resolve(requiredArgument(argumentsMap, 'head-app'))
 const baseSha = requiredArgument(argumentsMap, 'base-sha')
@@ -72,85 +78,73 @@ await Bun.write(
   `${JSON.stringify({ baseSuiteHash, headSuiteHash }, null, 2)}\n`
 )
 
-async function runOne(
+const comparable = baseSuiteHash === headSuiteHash
+const sameBinary = baseSha === headSha
+const headId = 'com.margelo.nitrobenchmark.head'
+const baseId = sameBinary ? headId : 'com.margelo.nitrobenchmark'
+await installApp(platform, deviceId, headApp, headId)
+if (comparable && !sameBinary) {
+  await installApp(platform, deviceId, baseApp, baseId)
+}
+
+async function runCase(
   revision: 'base' | 'head',
-  sequence: number,
-  reverse: boolean,
-  calibration = false
-): Promise<void> {
+  index: number,
+  work?: BenchmarkWork
+): Promise<BenchmarkRunResult> {
   const isBase = revision === 'base'
-  const output = path.join(
-    outputDirectory,
-    calibration
-      ? `calibration-${revision}.json`
-      : `${revision}-${sequence}.json`
-  )
-  const runId = `${platform}-${revision}-${sequence}`
-  const startedAt = performance.now()
-  console.info(
-    `[NitroBenchmark] ${new Date().toISOString()} ${runId}: starting (${reverse ? 'reverse' : 'forward'} order)`
-  )
-  const command = [
-    'bun',
-    path.join(import.meta.dir, 'run-device.ts'),
-    ...(calibration
-      ? ['--calibration', 'true']
-      : [
-          '--work-plan',
-          path.join(
-            outputDirectory,
-            `calibration-${isBase || baseSuiteHash === headSuiteHash ? 'base' : 'head'}.json`
-          ),
-        ]),
-    '--platform',
-    platform,
-    '--app',
-    isBase ? baseApp : headApp,
-    '--output',
-    output,
-    '--run-id',
-    runId,
-    '--reverse',
-    String(reverse),
-    '--commit-sha',
-    isBase ? baseSha : headSha,
-    '--suite-hash',
-    isBase ? baseSuiteHash : headSuiteHash,
-    '--device-id',
+  const calibration = work == null
+  const name = calibration ? `calibration-${revision}` : `${revision}-1`
+  return runDeviceCase(
     deviceId,
-    '--device',
-    device,
-    '--os-version',
-    osVersion,
-    '--architecture',
-    architecture,
-    '--toolchain',
-    toolchain,
-  ]
-  const child = Bun.spawn(command, { stdout: 'inherit', stderr: 'inherit' })
-  const exitCode = await child.exited
-  if (exitCode !== 0) throw new Error(`${revision} run ${sequence} failed.`)
-  const result = validateBenchmarkRun(
-    JSON.parse(await readFile(output, 'utf8'))
-  )
-  console.info(
-    `[NitroBenchmark] ${new Date().toISOString()} ${runId}: complete; ${result.metrics.length} metrics, suite ${(result.durationMs / 1_000).toFixed(1)}s, wall ${((performance.now() - startedAt) / 1_000).toFixed(1)}s`
+    isBase ? baseId : headId,
+    {
+      platform,
+      runId: `${platform}-${revision}-${calibration ? 0 : 1}`,
+      reverse: false,
+      benchmarkIndex: index,
+      ...(calibration ? { calibration: true as const } : { work }),
+      commitSha: isBase ? baseSha : headSha,
+      suiteHash: isBase ? baseSuiteHash : headSuiteHash,
+      device,
+      osVersion,
+      architecture,
+      toolchain,
+    },
+    path.join(outputDirectory, `${name}-cases`, `case-${index}.json`)
   )
 }
 
-// Derive one plan from base, then discard every calibration process. Changed
-// suites need separate plans and will be reported without a comparison.
-if (baseSuiteHash === headSuiteHash) {
-  await runOne('base', 0, false, true)
-  await runOne('base', 1, false)
-  await runOne('head', 1, false)
-  await runOne('head', 2, true)
-  await runOne('base', 2, true)
-} else {
+if (!comparable) {
   console.info(
     '[NitroBenchmark] Benchmark definitions changed; measuring a new head baseline only.'
   )
-  await runOne('head', 0, false, true)
-  await runOne('head', 1, false)
-  await runOne('head', 2, true)
+}
+const calibrationRevision = comparable ? 'base' : 'head'
+const calibrations: BenchmarkRunResult[] = []
+const baseRuns: BenchmarkRunResult[] = []
+const headRuns: BenchmarkRunResult[] = []
+// Discover the suite size from the first calibration. Every calibration process
+// exits before measuring base then head with the exact same operation counts.
+let count = 1
+for (let index = 0; index < count; index++) {
+  const calibration = await runCase(calibrationRevision, index)
+  if (index === 0) count = calibration.benchmarkCount!
+  const { id, iterations, chunkIterations } = calibration.metrics[0]!
+  const work = { id, iterations, chunkIterations }
+  calibrations.push(calibration)
+  if (comparable) baseRuns.push(await runCase('base', index, work))
+  headRuns.push(await runCase('head', index, work))
+}
+for (const [name, runs] of [
+  [`calibration-${calibrationRevision}`, calibrations],
+  ['base-1', baseRuns],
+  ['head-1', headRuns],
+] as const) {
+  if (runs.length === 0) continue
+  const result = combineIsolatedCases(runs)
+  await Bun.write(
+    path.join(outputDirectory, `${name}.json`),
+    `${JSON.stringify(result, null, 2)}\n`
+  )
 }

@@ -12,8 +12,7 @@ const SUITE_HASH = 'c'.repeat(64)
 
 function run(
   platform: 'android' | 'ios',
-  revision: 'base' | 'head',
-  sequence: number
+  revision: 'base' | 'head'
 ): BenchmarkRunResult {
   const center = revision === 'base' ? 100 : 120
   const samples = Array.from(
@@ -25,8 +24,8 @@ function run(
     suiteVersion: 1,
     benchmarkCount: 1,
     configuration: {
-      runId: `${platform}-${revision}-${sequence}`,
-      reverse: sequence === 2,
+      runId: `${platform}-${revision}-1`,
+      reverse: false,
       commitSha: revision === 'base' ? BASE_SHA : HEAD_SHA,
       suiteHash: SUITE_HASH,
       platform,
@@ -96,12 +95,10 @@ async function createFixture(root: string): Promise<{
       runAttempt: 1,
     })
     for (const revision of ['base', 'head'] as const) {
-      for (const sequence of [1, 2]) {
-        await writeJson(
-          path.join(directory, `${revision}-${sequence}.json`),
-          run(platform, revision, sequence)
-        )
-      }
+      await writeJson(
+        path.join(directory, `${revision}-1.json`),
+        run(platform, revision)
+      )
     }
   }
 
@@ -216,7 +213,7 @@ describe('trusted performance report validation', () => {
         '<strong>C++</strong> <code>addNumbers()</code>'
       )
       expect(markdown).toContain(
-        '<summary>All benchmarks and process variation</summary>'
+        '<summary>All benchmarks and sample variation</summary>'
       )
       expect(markdown).toContain(
         `Benchmarking Code Diff [\`${BASE_SHA.slice(0, 8)}\`...\`${HEAD_SHA.slice(0, 8)}\`](https://github.com/margelo/nitro/compare/${BASE_SHA}..${HEAD_SHA}) ([view CI run](https://github.com/margelo/nitro/actions/runs/123456789))`
@@ -300,17 +297,9 @@ describe('trusted performance report validation', () => {
     const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-performance-'))
     try {
       const fixture = await createFixture(root)
-      for (const platform of ['android', 'ios'])
-        for (const sequence of [1, 2]) {
-          await rm(
-            path.join(
-              fixture.artifact,
-              'raw',
-              platform,
-              `base-${sequence}.json`
-            )
-          )
-        }
+      for (const platform of ['android', 'ios']) {
+        await rm(path.join(fixture.artifact, 'raw', platform, 'base-1.json'))
+      }
       expect((await validate(fixture)).exitCode).not.toBe(0)
       const file = path.join(fixture.artifact, 'performance-report.json')
       const manifest = JSON.parse(await readFile(file, 'utf8'))
@@ -339,11 +328,13 @@ describe('trusted performance report validation', () => {
           path.join(fixture.output, 'bencher-base-ios.json')
         ).exists()
       ).toBe(false)
-      const headFile = path.join(fixture.artifact, 'raw/ios/head-2.json')
-      const head = await Bun.file(headFile).json()
-      head.metrics[0].iterations += 1
-      await writeJson(headFile, head)
-      expect((await validate(fixture)).error).toContain('unequal work')
+      await writeJson(
+        path.join(fixture.artifact, 'raw/ios/head-2.json'),
+        await Bun.file(
+          path.join(fixture.artifact, 'raw/ios/head-1.json')
+        ).json()
+      )
+      expect((await validate(fixture)).error).toContain('Expected one')
     } finally {
       await rm(root, { recursive: true, force: true })
     }
