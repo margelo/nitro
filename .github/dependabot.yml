@@ -15,6 +15,7 @@ updates:
       - "/packages/react-native-nitro-test-external/android/"
       - "/packages/template/android/"
       - "/apps/example/android/"
+      - "/apps/benchmark/android/"
     schedule:
       interval: "daily"
     labels:
@@ -25,6 +26,23 @@ updates:
       agp:
         patterns:
           - "com.android.tools.build:gradle"
+      shared-android-dependencies:
+        group-by: dependency-name
+        patterns:
+          - "*"
+
+  - package-ecosystem: "bundler"
+    directories:
+      - "/apps/example/"
+      - "/apps/benchmark/"
+    schedule:
+      interval: "daily"
+    labels:
+      - "dependencies"
+    groups:
+      cocoapods:
+        patterns:
+          - "*"
 
   - package-ecosystem: "bun"
     directories:
@@ -43,11 +61,13 @@ updates:
 
   - package-ecosystem: "bun"
     directories:
+      - "/"
       - "/packages/react-native-nitro-modules/"
       - "/packages/react-native-nitro-test/"
       - "/packages/react-native-nitro-test-external/"
       - "/packages/template/"
       - "/apps/example/"
+      - "/apps/benchmark/"
     schedule:
       interval: "daily"
     labels:
@@ -68,6 +88,10 @@ updates:
       react:
         patterns:
           - "react"
+      shared-dependencies:
+        group-by: dependency-name
+        patterns:
+          - "*"
 
   - package-ecosystem: "bun"
     directories:
