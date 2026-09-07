@@ -89,24 +89,59 @@ function directionalChange(deltaPercent: number): string {
   return '~0% observed change'
 }
 
-function table(
-  metrics: readonly MetricComparison[],
-  platform: PlatformComparison['platform']
+function difference(metric: MetricComparison): string {
+  if (metric.deltaPercent > 0)
+    return `🔴 ${directionalChange(metric.deltaPercent)}`
+  if (metric.deltaPercent < 0)
+    return `🟢 ${directionalChange(metric.deltaPercent)}`
+  return `⚪ ${directionalChange(metric.deltaPercent)}`
+}
+
+function measurement(
+  metric: MetricComparison,
+  revision: 'base' | 'head'
 ): string {
-  return [
-    '| Benchmark | Base p50 | Head p50 | Observed change |',
-    '| --- | ---: | ---: | --- |',
-    ...metrics.map((metric) => {
-      const pairMin = Math.min(...metric.pairChangesPercent)
-      const pairMax = Math.max(...metric.pairChangesPercent)
-      const quality =
-        pairMin <= -REPORTING_THRESHOLD_PERCENT &&
-        pairMax >= REPORTING_THRESHOLD_PERCENT
-          ? '; process pairs disagree'
-          : ''
-      return `| ${benchmarkName(metric.id, platform)} | ${formatNumber(metric.baseMedianNsPerOp)} | ${formatNumber(metric.headMedianNsPerOp)} | ${directionalChange(metric.deltaPercent)}${quality} |`
-    }),
-  ].join('\n')
+  const before = metric.baseMedianNsPerOp
+  const after = metric.headMedianNsPerOp
+  const value = revision === 'base' ? before : after
+  const isFaster = revision === 'base' ? before < after : after < before
+  const formatted = formatNumber(value)
+  return isFaster ? `<strong>${formatted}</strong>` : formatted
+}
+
+function renderMetricTable(
+  metrics: readonly MetricComparison[],
+  platform: PlatformComparison['platform'],
+  indentation = 0
+): string {
+  const indent = ' '.repeat(indentation)
+  const level1 = ' '.repeat(indentation + 2)
+  const level2 = ' '.repeat(indentation + 4)
+  const level3 = ' '.repeat(indentation + 6)
+  const lines = [
+    `${indent}<table>`,
+    `${level1}<thead>`,
+    `${level2}<tr>`,
+    `${level3}<th align="left">Benchmark</th>`,
+    `${level3}<th align="right">Before</th>`,
+    `${level3}<th align="right">After</th>`,
+    `${level3}<th align="left">Difference</th>`,
+    `${level2}</tr>`,
+    `${level1}</thead>`,
+    `${level1}<tbody>`,
+  ]
+  for (const metric of metrics) {
+    lines.push(
+      `${level2}<tr>`,
+      `${level3}<td>${benchmarkName(metric.id, platform)}</td>`,
+      `${level3}<td align="right">${measurement(metric, 'base')}</td>`,
+      `${level3}<td align="right">${measurement(metric, 'head')}</td>`,
+      `${level3}<td>${difference(metric)}</td>`,
+      `${level2}</tr>`
+    )
+  }
+  lines.push(`${level1}</tbody>`, `${indent}</table>`)
+  return lines.join('\n')
 }
 
 export function renderPerformanceReportMarkdown(
@@ -124,7 +159,7 @@ export function renderPerformanceReportMarkdown(
   const lines = [
     '## Performance Report',
     '',
-    '> **Report only:** Measurements do not fail this PR. Each benchmark has one base/head process pair. Samples describe within-process variation; they do not establish repeatability between launches or statistical confidence.',
+    '> ⚠️ **Advisory:** Results do not fail this PR.',
   ]
   if (options.baseSha === options.headSha) {
     lines.push(
@@ -138,43 +173,32 @@ export function renderPerformanceReportMarkdown(
     lines.push('', `### ${platformName(platform.platform)}`, '')
     if (!platform.suiteComparable) {
       lines.push(
-        'Benchmark definitions changed. Results require a new baseline and are not compared.'
+        '> Benchmark definitions changed in this PR. Results require a new baseline and are not compared.'
       )
       continue
     }
     const changed = platform.comparisons.filter(
       (metric) => Math.abs(metric.deltaPercent) >= REPORTING_THRESHOLD_PERCENT
     )
+    const other = platform.comparisons.filter(
+      (metric) => Math.abs(metric.deltaPercent) < REPORTING_THRESHOLD_PERCENT
+    )
     lines.push(
       changed.length === 0
-        ? `No observed change reached the ${REPORTING_THRESHOLD_PERCENT}% reporting threshold. This does not establish equal performance.`
-        : table(changed, platform.platform)
-    )
-    lines.push(
+        ? `No observed change reached the ${REPORTING_THRESHOLD_PERCENT}% reporting threshold.`
+        : renderMetricTable(changed, platform.platform),
       '',
       '<details>',
-      '<summary>All benchmarks and sample variation</summary>',
-      '',
-      table(platform.comparisons, platform.platform),
-      '',
-      '| Benchmark | Base process p50 | Head process p50 | Paired changes | Sample MAD / p50 (base, head) |',
-      '| --- | --- | --- | --- | --- |'
-    )
-    for (const metric of platform.comparisons) {
-      lines.push(
-        `| ${benchmarkName(metric.id, platform.platform)} | ${metric.baseProcessMedians.map(formatNumber).join(', ')} | ${metric.headProcessMedians.map(formatNumber).join(', ')} | ${metric.pairChangesPercent.map(directionalChange).join(', ')} | ${metric.baseMadPercent.toFixed(1)}%, ${metric.headMadPercent.toFixed(1)}% |`
-      )
-    }
-    lines.push(
-      '',
-      'p50 is the median of timed batch averages in ns/op, not individual-call latency. MAD describes sample spread; ordered raw samples retain within-process drift.',
-      '',
+      '  <summary>All Benchmarks</summary>',
+      other.length === 0
+        ? `  <p>Every benchmark reached the ${REPORTING_THRESHOLD_PERCENT}% reporting threshold.</p>`
+        : renderMetricTable(other, platform.platform, 2),
       '</details>'
     )
   }
   lines.push(
     '',
-    `Benchmarking Code Diff [\`${options.baseSha.slice(0, 8)}\`...\`${options.headSha.slice(0, 8)}\`](https://github.com/${options.repository}/compare/${options.baseSha}..${options.headSha})${options.workflowRunUrl == null ? '' : ` ([view CI run](${options.workflowRunUrl}))`}`,
+    `Benchmarking Code Diff [\`${options.baseSha.slice(0, 8)}\`...\`${options.headSha.slice(0, 8)}\`](https://github.com/${options.repository}/compare/${options.baseSha}..${options.headSha})${options.workflowRunUrl == null ? '' : ` ([view raw output](${options.workflowRunUrl}))`}`,
     ''
   )
   if (options.artifactId != null && options.workflowRunUrl != null) {

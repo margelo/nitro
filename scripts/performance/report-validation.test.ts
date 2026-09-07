@@ -212,11 +212,9 @@ describe('trusted performance report validation', () => {
       expect(markdown).toContain(
         '<strong>C++</strong> <code>addNumbers()</code>'
       )
+      expect(markdown).toContain('<summary>All Benchmarks</summary>')
       expect(markdown).toContain(
-        '<summary>All benchmarks and sample variation</summary>'
-      )
-      expect(markdown).toContain(
-        `Benchmarking Code Diff [\`${BASE_SHA.slice(0, 8)}\`...\`${HEAD_SHA.slice(0, 8)}\`](https://github.com/margelo/nitro/compare/${BASE_SHA}..${HEAD_SHA}) ([view CI run](https://github.com/margelo/nitro/actions/runs/123456789))`
+        `Benchmarking Code Diff [\`${BASE_SHA.slice(0, 8)}\`...\`${HEAD_SHA.slice(0, 8)}\`](https://github.com/margelo/nitro/compare/${BASE_SHA}..${HEAD_SHA}) ([view raw output](https://github.com/margelo/nitro/actions/runs/123456789))`
       )
       const bmf = JSON.parse(
         await readFile(path.join(fixture.output, 'bencher-ios.json'), 'utf8')
