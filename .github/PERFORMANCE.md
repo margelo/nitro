@@ -87,24 +87,37 @@ workflow run and attempt provenance, original build metadata and measurement art
 The PR comment links its exact immutable artifact ID; downloads require GitHub
 access. An agent can inspect the JSON instead of scraping the rendered table.
 
+The `nitro-performance` job checks out HEAD and generates the Markdown report and
+Bencher Metric Format (BMF) files using that revision's parser and renderer. It
+shows the report in the job summary and uploads `performance-publication-<attempt>`
+containing `performance-summary.md`, `metadata.json`, and `bencher-*.json`.
+The raw artifact is uploaded first so the rendered comment can link its exact ID.
+Renderer and raw-schema changes can therefore be reviewed in PR CI before merging.
+
 One default-branch `Publish Nitro Performance` workflow handles internal PRs,
-forks and main runs. It downloads the exact artifact from the triggering attempt,
-validates bounded JSON against GitHub's run and current PR metadata, and computes
-the comparison, Markdown and Bencher values from raw samples. It never installs
-or executes PR code or app artifacts. Docs-only and cancelled runs skip
-publication. Markdown/MDX-only edits also skip measurements inside package/app directories. Relevant failures remain failures. Stale PR results are skipped.
+forks and main runs. It selects the exact publication artifact for the triggering
+attempt, checks its repository, run, revisions and current PR against GitHub,
+and posts its Markdown unchanged. It reads no raw samples and never installs or
+executes PR code or artifact scripts. Comment content is produced by PR code;
+provenance checks establish its source, not the correctness of its measurements.
+Docs-only and cancelled runs skip publication. Markdown/MDX-only edits also skip
+measurements inside package/app directories. Relevant failures remain failures.
+Stale PR results are skipped. User comments are never edited.
 
-The trusted publisher uses `BENCHER_KEY` as an Actions secret. Its CLI version and
-binary digest are pinned. Bencher receives median latency values without invented
-bounds; its JSON adapter requires only `value`. PR publications seed both measured
-platform baselines at `baseline-<base SHA>` before recording the head at
-`pr-<number>`. Main runs record main history. Bencher receives history only: it does not post a second GitHub comment or create alert-driven checks. The trusted renderer owns the one PR comment. User comments are never edited.
+The publication envelope is independent of raw app schema versions. Keep its
+filenames and identity fields stable when changing benchmarks or report rendering.
+Changes to the trusted upload code itself still take effect after merge; ordinary
+report changes do not. Raw app results currently use schema version 2.
 
-Raw app results use schema version 2: fixed work counts replace the calibration
-protocol and the runner no longer reports a duration target. The producer and
-trusted parser must be merged together before the default-branch reporter can
-publish these results. During review, CI still retains the raw artifacts; the
-old reporter rejects the new schema instead of misinterpreting it.
+The trusted workflow also performs the final Bencher upload with `BENCHER_KEY`;
+that secret never reaches HEAD code. Its CLI version and binary digest are pinned.
+Bencher's JSON adapter validates the already-generated BMF files. The comment is
+posted first so an invalid BMF file cannot prevent the report from appearing.
+Bencher receives median latency values without invented bounds. PR publications
+seed both measured platform baselines at `baseline-<base SHA>` before recording
+the head at `pr-<number>`. Only main-branch runs record main history. Bencher
+receives history only: it does not post a second comment or create alert-driven
+checks.
 
 ## CI runners
 
@@ -148,7 +161,7 @@ To configure it on `margelo/nitro`:
 The trusted publisher uses the app's actual slug to recognize their own comments.
 They request only Pull requests write permission for the current repository, and
 the token action revokes the token at the end of the job. Build and measurement jobs never receive the app key. Bencher publishing retains its existing token.
-Reporting changes take effect after reaching the default branch.
+Bot authentication and upload changes take effect after reaching the default branch; report rendering runs from HEAD.
 
 Without the Client ID variable, comments continue as `github-actions[bot]`.
 Removing that variable switches back to the default identity. Configured app

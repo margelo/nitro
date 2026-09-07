@@ -45,7 +45,7 @@ test('Android performance CI requires KVM and cannot fall back to software emula
   expect(emulator?.['pre-emulator-launch-script']).toContain('-accel-check')
   expect(emulator?.['emulator-options']).toContain('-accel on')
   expect(emulator?.['emulator-options']).toContain('-no-snapshot')
-  expect(emulator?.['script']).toContain('/ KVM')
+  expect(emulator?.script).toContain('/ KVM')
 })
 
 test('one trusted publisher handles internal and fork reports without executing PR code', async () => {
@@ -72,6 +72,29 @@ test('one trusted publisher handles internal and fork reports without executing 
     /pull_request.head.sha|bun install|NITRO_BENCHER_ENABLED/
   )
   expect(source).toContain('secrets.BENCHER_KEY')
+  expect(source).not.toMatch(
+    /generate-report|report-markdown|comparison\.ts|trusted-artifacts|raw\//
+  )
+  const aggregate = entry.jobs['nitro-performance']
+  expect(
+    aggregate.steps.find((s: any) => s.name === 'Checkout report tooling').with
+      .ref
+  ).toBe('${{ needs.prepare.outputs.head_sha }}')
+  expect(JSON.stringify(aggregate)).not.toContain('secrets.')
+  const renderIndex = aggregate.steps.findIndex(
+    (s: any) => s.name === 'Render performance report from HEAD'
+  )
+  const rawUploadIndex = aggregate.steps.findIndex(
+    (s: any) => s.name === 'Upload aggregate report'
+  )
+  expect(renderIndex).toBeGreaterThan(rawUploadIndex)
+  expect(aggregate.steps[renderIndex].run).toContain('generate-report.ts')
+  expect(aggregate.steps[renderIndex].run).toContain(
+    '${{ steps.raw-report.outputs.artifact-id }}'
+  )
+  expect(aggregate.steps[renderIndex + 1].with.name).toBe(
+    'performance-publication-${{ github.run_attempt }}'
+  )
   const steps = publisher.jobs.publish.steps as any[]
   expect(
     steps.find((s) => s.name === 'Download performance report').with[

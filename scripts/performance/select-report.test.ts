@@ -23,10 +23,13 @@ test('a relevant build failure or missing results remains a failure', () => {
 test('selects the immutable artifact for the triggering attempt only', () => {
   const artifacts = [1, 2].map((id) => ({
     id,
-    name: `performance-report-${id}`,
+    name: `performance-publication-${id}`,
     expired: false,
   }))
-  expect(selectReportArtifact('success', 2, artifacts, [])).toBe(2)
+  const rawArtifact = { id: 99, name: 'performance-report-2', expired: false }
+  expect(
+    selectReportArtifact('success', 2, [...artifacts, rawArtifact], [])
+  ).toBe(2)
   expect(() => selectReportArtifact('success', 3, artifacts, [])).toThrow()
   expect(() =>
     selectReportArtifact('success', 2, [...artifacts, artifacts[1]!], [])

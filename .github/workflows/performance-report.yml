@@ -14,7 +14,7 @@ jobs:
   publish:
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout trusted reporting code
+      - name: Checkout trusted publishing code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
@@ -38,7 +38,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Validate untrusted report
+      - name: Validate publication provenance
         id: validate
         if: steps.download.outcome == 'success'
         env:
@@ -47,7 +47,7 @@ jobs:
           EVENT_NAME=$(jq -r '.workflow_run.event' "$GITHUB_EVENT_PATH")
           TRUSTED_PR_ARGUMENTS=()
           if [[ "$EVENT_NAME" == 'pull_request' ]]; then
-            PR_NUMBER=$(jq -r '.pullRequestNumber' untrusted-artifact/performance-report.json)
+            PR_NUMBER=$(jq -r '.pullRequestNumber' untrusted-artifact/metadata.json)
             if [[ ! "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
               echo 'Invalid pull request number in performance artifact.' >&2
               exit 1
@@ -60,8 +60,6 @@ jobs:
             --output-directory validated-report \
             --expected-repository "$GITHUB_REPOSITORY" \
             --trusted-workflow-event "$GITHUB_EVENT_PATH" \
-            --artifact-id "${{ steps.select.outputs.artifact_id }}" \
-            --trusted-artifacts trusted-artifacts.json \
             "${TRUSTED_PR_ARGUMENTS[@]}"
 
       - name: Create Nitro Modules Bot token
@@ -96,4 +94,4 @@ jobs:
         env:
           BENCHER_API_KEY: ${{ secrets.BENCHER_KEY }}
           BENCHER_PROJECT: nitro
-        run: bun scripts/performance/publish.ts --directory validated-report
+        run: bun scripts/performance/publish.ts --directory validated-report --data-directory untrusted-artifact

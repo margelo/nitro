@@ -398,9 +398,23 @@ jobs:
             --base-sha "${{ needs.prepare.outputs.base_sha }}" \
             --head-sha "${{ needs.prepare.outputs.head_sha }}"
       - name: Upload aggregate report
+        id: raw-report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: performance-report-${{ github.run_attempt }}
           path: performance-report
+          if-no-files-found: error
+          retention-days: 30
+      - name: Render performance report from HEAD
+        run: |
+          bun scripts/performance/generate-report.ts \
+            --artifact-directory performance-report \
+            --output-directory performance-publication \
+            --artifact-id "${{ steps.raw-report.outputs.artifact-id }}"
+      - name: Upload rendered publication
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: performance-publication-${{ github.run_attempt }}
+          path: performance-publication
           if-no-files-found: error
           retention-days: 30

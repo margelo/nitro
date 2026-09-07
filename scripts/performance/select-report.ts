@@ -21,7 +21,7 @@ export function selectReportArtifact(
     throw new Error(
       `Performance workflow ${conclusion}; no measurements published.`
     )
-  const name = `performance-report-${attempt}`
+  const name = `performance-publication-${attempt}`
   const matches = artifacts.filter(
     (artifact) => artifact.name === name && !artifact.expired
   )
@@ -69,10 +69,6 @@ if (import.meta.main) {
   ])
   if (artifactResponse.total_count > 100 || jobResponse.total_count > 100)
     throw new Error('Performance run exceeds the artifact/job lookup limit.')
-  await Bun.write(
-    'trusted-artifacts.json',
-    JSON.stringify(artifactResponse.artifacts)
-  )
   const id = selectReportArtifact(
     run.conclusion,
     run.run_attempt,

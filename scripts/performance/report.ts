@@ -2,7 +2,7 @@ import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { parseArguments, requiredArgument } from './args'
 
-/** The artifact contains raw runs plus provenance. Only trusted code derives a report. */
+/** Raw measurements and provenance, retained separately from the rendered publication. */
 export interface PerformanceReport {
   schemaVersion: 2
   eventName: 'pull_request' | 'push' | 'schedule' | 'workflow_dispatch'
@@ -24,9 +24,16 @@ export interface PlatformArtifacts {
   measurementAttempt: number
 }
 
-export interface ReportMetadata extends Omit<
+/** Stable publication envelope. It does not depend on the raw benchmark schema. */
+export interface ReportMetadata extends Pick<
   PerformanceReport,
-  'schemaVersion' | 'workflowRunId' | 'runAttempt' | 'artifacts'
+  | 'eventName'
+  | 'repository'
+  | 'pullRequestNumber'
+  | 'baseSha'
+  | 'headSha'
+  | 'workflowRunId'
+  | 'runAttempt'
 > {
   platforms: ('android' | 'ios')[]
 }

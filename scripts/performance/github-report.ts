@@ -2,7 +2,6 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
 import type { ReportMetadata } from './report'
-import { isSafeSha } from './schema'
 
 const COMMENT_MARKER = '<!-- nitro-performance-paired-comparison -->'
 
@@ -32,15 +31,15 @@ export async function postPerformanceComment(
     !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(report.repository) ||
     !Number.isSafeInteger(report.pullRequestNumber) ||
     report.pullRequestNumber < 1 ||
-    !isSafeSha(report.baseSha) ||
-    !isSafeSha(report.headSha) ||
+    !/^[0-9a-f]{40}$/.test(report.baseSha) ||
+    !/^[0-9a-f]{40}$/.test(report.headSha) ||
     report.markdown.length > 60_000
   ) {
     throw new Error('Invalid validated PR report metadata or size.')
   }
 
   const root = `/repos/${report.repository}`
-  // A PR may have advanced while validation or Bencher publishing was running.
+  // A PR may have advanced while publication was being prepared.
   const pullRequest = (await request(
     `${root}/pulls/${report.pullRequestNumber}`
   )) as { state: string; base: { sha: string }; head: { sha: string } }

@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, lstat } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
 import type { ReportMetadata } from './report'
@@ -88,11 +88,25 @@ if (import.meta.main) {
   const metadata: ReportMetadata = JSON.parse(
     await readFile(path.join(directory, 'metadata.json'), 'utf8')
   )
+  const dataDirectory = requiredArgument(argumentsMap, 'data-directory')
   for (const { platform, revision, command } of bencherPublications(
     metadata,
     directory,
     project
   )) {
+    // Read only fixed data filenames. The JSON adapter validates Bencher's format;
+    // this uploader has no dependency on the app's raw measurement schema.
+    const filename = `bencher-${revision === 'base' ? 'base-' : ''}${platform}.json`
+    const source = path.join(dataDirectory, filename)
+    const information = await lstat(source)
+    if (
+      !information.isFile() ||
+      information.size === 0 ||
+      information.size > 5 * 1024 * 1024
+    ) {
+      throw new Error(`Invalid Bencher data size for ${platform} ${revision}.`)
+    }
+    await Bun.write(path.join(directory, filename), await readFile(source))
     // The Bencher key is environment-only, never an argument or log message.
     const child = Bun.spawn(command, {
       env: { ...Bun.env, BENCHER_API_KEY: apiKey },
