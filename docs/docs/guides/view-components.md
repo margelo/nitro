@@ -379,10 +379,14 @@ see below.
 :::
 
 :::warning
-`overflow` is only applied on iOS, where React Native turns it into `clipsToBounds` on the
-component. On Android it is implemented by React Native's own `ReactViewGroup`, which a Nitro View
-is not - children of a Nitro View are never clipped there. Clip them in your own `ViewGroup` if you
-need it.
+A container View's native view fills the whole component, so React Native's layout for the children
+lands in the right place. An opaque native view therefore paints over the component's own
+`borderWidth` and `borderRadius` - add `overflow: 'hidden'` to clip it back to the rounded shape, or
+draw the border in your native view.
+
+`overflow` itself only reaches the native View on iOS, where React Native turns it into
+`clipsToBounds`. On Android it is implemented by React Native's own `ReactViewGroup`, which a Nitro
+View is not, so children are never clipped there - clip them in your own `ViewGroup` if you need it.
 :::
 
 ### Mounting children into a sub-view

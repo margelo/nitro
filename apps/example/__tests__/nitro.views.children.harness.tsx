@@ -392,15 +392,12 @@ describe('Nitro View children', () => {
     expect(margin.x).toBeCloseTo(15, 0)
     expect(margin.y).toBeCloseTo(15, 0)
 
-    // An absolutely positioned child is placed at its own offset.
     const absolute = await absoluteLayout.promise
     expect(absolute.x).toBeCloseTo(20, 0)
     expect(absolute.y).toBeCloseTo(30, 0)
 
-    // `overflow` only reaches the native View on iOS, where `RCTViewComponentView`
-    // turns it into `clipsToBounds`. On Android it is implemented by React
-    // Native's own `ReactViewGroup`, which a Nitro View is not - so children are
-    // never clipped there, just like for any other custom Android View.
+    // `overflow` only reaches the native View on iOS - on Android it belongs to
+    // React Native's own `ReactViewGroup`, so children are never clipped there.
     // Clipped, the 400x400 child covers (100-20)x(100-30) of the 200x200
     // wrapper - 14%. Unclipped it covers 76%.
     const redCoverage = await getRedCoverage('children-style-wrapper')
