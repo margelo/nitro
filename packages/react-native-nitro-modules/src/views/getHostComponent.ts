@@ -86,12 +86,8 @@ type WrapFunctionsInObjects<Props> = {
 }
 
 /**
- * Resolves the `children` prop of a Nitro View.
- *
- * A Nitro View only accepts React children if its spec opted in by declaring a
- * `children` prop of type `HybridViewChildren`. Views that didn't opt
- * in get `children?: never`, which turns passing children into a compile error
- * instead of a silently invisible view on iOS and a crash on Android.
+ * Resolves the `children` prop of a Nitro View - only a View that declared a
+ * `children` prop of type `HybridViewChildren` in its spec accepts children.
  */
 type ChildrenPropOf<Props> = 'children' extends keyof Props
   ? { children?: ReactNode }

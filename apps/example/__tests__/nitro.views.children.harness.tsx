@@ -109,10 +109,9 @@ async function expectNativeChildCount(
       `Expected ${expectedCount} native children${context}, but the native View has ${view.getNativeChildCount()}.`
     )
   }
-  expect(view.getNativeChildCount()).toBe(expectedCount)
 }
 
-/** A full-width, half-height colored box - `key` also picks its color. */
+/** A full-width, half-height box - `name` picks its color. */
 function ColorBox({ name }: { name: 'a' | 'b' | 'c' }): React.ReactElement {
   const backgroundColor = { a: 'red', b: 'lime', c: 'blue' }[name]
   return (

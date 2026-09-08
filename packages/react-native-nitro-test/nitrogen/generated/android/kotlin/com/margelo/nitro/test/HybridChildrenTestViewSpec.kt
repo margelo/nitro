@@ -29,8 +29,7 @@ import android.view.ViewGroup
 abstract class HybridChildrenTestViewSpec: HybridView() {
   // Properties
   /**
-   * The [ViewGroup] this HybridView is holding, and that React children
-   * are mounted into.
+   * The [ViewGroup] this HybridView is holding.
    *
    * React Native positions each child itself, so this should be a
    * [com.margelo.nitro.views.NitroViewGroup] (or another [ViewGroup] that

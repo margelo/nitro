@@ -25,8 +25,6 @@ using namespace facebook;
  * for direct transfer to JNI on Android.
  *
  * `SupportsChildren` mirrors whether the Nitro View declared a `children` prop.
- * A View that didn't rejects React children here, in the render phase - which is
- * the only place where the same actionable error can be raised on every platform.
  */
 template <typename TShadowNode, bool SupportsChildren = false>
 class ViewComponentDescriptor final : public react::ConcreteComponentDescriptor<TShadowNode> {
@@ -48,7 +46,8 @@ public:
   /**
    * Rejects React children for a Nitro View that didn't declare a `children` prop.
    *
-   * Without this, Android would crash inside React Native's mounting layer with
+   * This is the render phase, so it is the one place both platforms pass through:
+   * Android would otherwise crash inside React Native's mounting layer with
    * "Unable to add a view into a view that is not a ViewGroup", and iOS would
    * silently render the children behind the native View.
    */

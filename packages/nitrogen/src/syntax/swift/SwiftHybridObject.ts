@@ -20,8 +20,6 @@ export function createSwiftHybridObject(spec: HybridObjectSpec): SourceFile[] {
     ),
   ]
 
-  // A View that renders React children lets its implementation choose which
-  // `UIView` they are mounted into - it defaults to `view` itself.
   const childrenMembers = spec.supportsChildren
     ? `
 /**

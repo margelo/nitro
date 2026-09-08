@@ -38,23 +38,21 @@ export function createKotlinHybridViewManager(
   }
   const viewImplementation = implementation.implementationClassName
 
-  // React Native's mounting layer can only add children to a `ViewGroup`, and
-  // only through a `ViewGroupManager`. Views without children stay on the
-  // lighter `SimpleViewManager<View>`, which keeps them exactly as they were.
+  // React Native can only add children to a `ViewGroup`, and only through a
+  // `ViewGroupManager`. Views without children stay on `SimpleViewManager<View>`.
   const viewType = spec.supportsChildren ? 'ViewGroup' : 'View'
   const managerBase = spec.supportsChildren
     ? 'ViewGroupManager<ViewGroup>'
     : 'SimpleViewManager<View>'
-  const viewImport = spec.supportsChildren
-    ? 'android.view.View\nimport android.view.ViewGroup'
-    : 'android.view.View'
+  const viewGroupImport = spec.supportsChildren
+    ? 'import android.view.ViewGroup\n'
+    : ''
   const managerImport = spec.supportsChildren
     ? 'com.facebook.react.uimanager.ViewGroupManager'
     : 'com.facebook.react.uimanager.SimpleViewManager'
 
-  // React children go into the HybridView's `childrenContainer`, which defaults
-  // to the View itself - `ViewGroupManager`'s implementations would always use
-  // the View, so every child operation is routed through the container instead.
+  // `ViewGroupManager`'s implementations would always use the View itself, so
+  // route every child operation through the HybridView's `childrenContainer`.
   const childrenOverrides = spec.supportsChildren
     ? `  override fun addView(parent: ViewGroup, child: View, index: Int) {
     getChildrenContainer(parent).addView(child, index)
@@ -85,8 +83,8 @@ ${createFileMetadataString(`${manager}.kt`)}
 
 package ${javaSubNamespace}
 
-import ${viewImport}
-import com.facebook.react.uimanager.ReactStylesDiffMap
+import android.view.View
+${viewGroupImport}import com.facebook.react.uimanager.ReactStylesDiffMap
 import ${managerImport}
 import com.facebook.react.uimanager.StateWrapper
 import com.facebook.react.uimanager.ThemedReactContext
