@@ -49,8 +49,6 @@ test('restores the original table, emphasis, colors, disclosure, and footer', ()
   expect(text).toMatchInlineSnapshot(`
     "## Performance Report
 
-    > ⚠️ **Advisory:** Results do not fail this PR.
-
     ### iOS
 
     <table>
@@ -102,7 +100,12 @@ test('restores the original table, emphasis, colors, disclosure, and footer', ()
 
     Benchmarking Code Diff [\`aaaaaaaa\`...\`bbbbbbbb\`](https://github.com/margelo/nitro/compare/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) ([view raw output](https://github.com/margelo/nitro/actions/runs/123))
 
+    <details>
+      <summary>Raw measurements and artifacts</summary>
+
     Raw measurements: [performance-report-2 (JSON artifact)](https://github.com/margelo/nitro/actions/runs/123/artifacts/987). Run 123, attempt 2. Download requires GitHub access.
+
+    </details>
     "
   `)
 })
@@ -251,6 +254,11 @@ test('keeps exact run, raw JSON, and platform artifact provenance', () => {
       },
     },
   })
+  expect(text).not.toContain('Advisory')
+  const [visible, details] = text.split('<details>')
+  expect(visible).not.toMatch(/Raw measurements:|Android:|iOS:/)
+  expect(details).toContain('<summary>Raw measurements and artifacts</summary>')
+  expect(details!.trimEnd()).toEndWith('</details>')
   expect(text).toContain(`([view raw output](${options.workflowRunUrl}))`)
   expect(text).toContain(
     `Raw measurements: [performance-report-2 (JSON artifact)](${options.workflowRunUrl}/artifacts/987). Run 123, attempt 2. Download requires GitHub access.`
@@ -261,4 +269,14 @@ test('keeps exact run, raw JSON, and platform artifact provenance', () => {
   expect(text).toContain(
     `iOS: [measurements, attempt 2](${options.workflowRunUrl}/artifacts/765), [apps, attempt 1](${options.workflowRunUrl}/artifacts/432).`
   )
+})
+
+test('omits the artifact disclosure when no artifact links are available', () => {
+  const text = renderPerformanceReportMarkdown([], {
+    repository: options.repository,
+    baseSha: options.baseSha,
+    headSha: options.headSha,
+  })
+  expect(text).not.toContain('<details>')
+  expect(text).not.toContain('Advisory')
 })

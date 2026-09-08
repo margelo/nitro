@@ -99,7 +99,7 @@ async function createFixture(root: string): Promise<{
 
   await writeJson(path.join(artifact, 'performance-report.json'), {
     schemaVersion: 2,
-    eventName: 'pull_request',
+    eventName: 'issue_comment',
     repository: REPOSITORY,
     pullRequestNumber: 123,
     baseSha: BASE_SHA,

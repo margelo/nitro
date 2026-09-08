@@ -5,7 +5,12 @@ import { parseArguments, requiredArgument } from './args'
 /** Raw measurements and provenance, retained separately from the rendered publication. */
 export interface PerformanceReport {
   schemaVersion: 2
-  eventName: 'pull_request' | 'push' | 'schedule' | 'workflow_dispatch'
+  eventName:
+    | 'issue_comment'
+    | 'pull_request'
+    | 'push'
+    | 'schedule'
+    | 'workflow_dispatch'
   repository: string
   pullRequestNumber: number | null
   baseSha: string
@@ -42,6 +47,7 @@ if (import.meta.main) {
   const args = parseArguments(Bun.argv.slice(2))
   const eventName = requiredArgument(args, 'event-name')
   if (
+    eventName !== 'issue_comment' &&
     eventName !== 'pull_request' &&
     eventName !== 'push' &&
     eventName !== 'schedule' &&

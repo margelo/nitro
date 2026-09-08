@@ -3,11 +3,9 @@ import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
 import type { ReportMetadata } from './report'
 
-const COMMENT_MARKER = '<!-- nitro-performance-paired-comparison -->'
-
 interface PullRequestReport extends Pick<
   ReportMetadata,
-  'repository' | 'baseSha' | 'headSha'
+  'repository' | 'baseSha' | 'headSha' | 'workflowRunId'
 > {
   pullRequestNumber: number
   markdown: string
@@ -31,6 +29,8 @@ export async function postPerformanceComment(
     !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(report.repository) ||
     !Number.isSafeInteger(report.pullRequestNumber) ||
     report.pullRequestNumber < 1 ||
+    !Number.isSafeInteger(report.workflowRunId) ||
+    report.workflowRunId < 1 ||
     !/^[0-9a-f]{40}$/.test(report.baseSha) ||
     !/^[0-9a-f]{40}$/.test(report.headSha) ||
     report.markdown.length > 60_000
@@ -51,7 +51,8 @@ export async function postPerformanceComment(
     return 'stale'
   }
 
-  const body = { body: `${COMMENT_MARKER}\n${report.markdown}` }
+  const marker = `<!-- nitro-performance-paired-comparison:${report.workflowRunId} -->`
+  const body = { body: `${marker}\n${report.markdown}` }
   for (let page = 1; page <= 10; page++) {
     const comments = (await request(
       `${root}/issues/${report.pullRequestNumber}/comments?per_page=100&page=${page}`
@@ -64,7 +65,7 @@ export async function postPerformanceComment(
       (comment) =>
         comment.user.login === botLogin &&
         comment.user.type === 'Bot' &&
-        comment.body.startsWith(COMMENT_MARKER)
+        comment.body.startsWith(marker)
     )
     if (existing != null) {
       await request(`${root}/issues/comments/${existing.id}`, 'PATCH', body)

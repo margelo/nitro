@@ -1,91 +1,57 @@
 name: Nitro Performance
+run-name: 'Nitro Performance for PR #${{ github.event.issue.number }}'
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
-  push:
-    branches: [main]
-  schedule:
-    - cron: '17 3 * * 1'
-  workflow_dispatch:
-
-concurrency:
-  group: performance-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
 
 jobs:
   prepare:
+    if: >-
+      github.event.issue.pull_request &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+      (github.event.comment.body == '@nitro-modules-bot please test performance' ||
+       github.event.comment.body == '@nitro-modulesbot please test performance')
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       base_sha: ${{ steps.metadata.outputs.base_sha }}
       head_sha: ${{ steps.metadata.outputs.head_sha }}
+      head_repository: ${{ steps.metadata.outputs.head_repository }}
       pr_number: ${{ steps.metadata.outputs.pr_number }}
-      relevant: ${{ steps.metadata.outputs.relevant }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          fetch-depth: 0
-
       - id: metadata
-        name: Resolve revisions and relevant paths
+        name: Resolve pull request revisions
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PUSH_BASE_SHA: ${{ github.event.before }}
-          CURRENT_SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
         run: |
           set -euo pipefail
-          if [[ "$EVENT_NAME" == "pull_request" ]]; then
-            BASE_SHA="$PR_BASE_SHA"
-            HEAD_SHA="$PR_HEAD_SHA"
-            NUMBER="$PR_NUMBER"
-          elif [[ "$EVENT_NAME" == "push" && ! "$PUSH_BASE_SHA" =~ ^0+$ ]]; then
-            BASE_SHA="$PUSH_BASE_SHA"
-            HEAD_SHA="$CURRENT_SHA"
-            NUMBER="0"
-          else
-            BASE_SHA="$CURRENT_SHA"
-            HEAD_SHA="$CURRENT_SHA"
-            NUMBER="0"
-          fi
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > pull-request.json
+          jq -e --arg repository "$GITHUB_REPOSITORY" --argjson number "$PR_NUMBER" '
+            .number == $number and .state == "open" and .base.repo.full_name == $repository and
+            (.base.sha | test("^[0-9a-f]{40}$")) and (.head.sha | test("^[0-9a-f]{40}$")) and
+            (.head.repo.full_name | test("^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"))
+          ' pull-request.json > /dev/null
+          jq -r '"base_sha=\(.base.sha)", "head_sha=\(.head.sha)",
+            "head_repository=\(.head.repo.full_name)", "pr_number=\(.number)"' \
+            pull-request.json >> "$GITHUB_OUTPUT"
 
-          RELEVANT=true
-          if [[ "$BASE_SHA" != "$HEAD_SHA" ]] && git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- \
-            '.github/workflows/performance.yml' \
-            '.github/workflows/performance-report.yml' \
-            'bun.lock' \
-            'package.json' \
-            'scripts/performance' \
-            'apps/benchmark' \
-            'packages/react-native-nitro-modules' \
-            'packages/react-native-nitro-test' \
-            'packages/react-native-nitro-test-external' \
-            ':(glob,exclude)**/*.md' \
-            ':(glob,exclude)**/*.mdx'; then
-            RELEVANT=false
-          fi
-
-          {
-            echo "base_sha=$BASE_SHA"
-            echo "head_sha=$HEAD_SHA"
-            echo "pr_number=$NUMBER"
-            echo "relevant=$RELEVANT"
-          } >> "$GITHUB_OUTPUT"
-          if [[ "$RELEVANT" == 'false' ]]; then
-            echo 'No performance-sensitive files changed.' >> "$GITHUB_STEP_SUMMARY"
-          fi
-
+      - name: Checkout performance tooling
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ steps.metadata.outputs.head_repository }}
+          ref: ${{ steps.metadata.outputs.head_sha }}
+          persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
-        if: steps.metadata.outputs.relevant == 'true'
         with:
           bun-version: 1.3.14
       - name: Test performance tooling
-        if: steps.metadata.outputs.relevant == 'true'
         run: |
           bun install --frozen-lockfile
           bun run test:performance-tools
@@ -95,7 +61,6 @@ jobs:
 
   build-android:
     needs: prepare
-    if: needs.prepare.outputs.relevant == 'true'
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 40
     outputs:
@@ -106,12 +71,14 @@ jobs:
         with:
           ref: ${{ needs.prepare.outputs.base_sha }}
           path: base
+          persist-credentials: false
       - name: Checkout head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          repository: ${{ needs.prepare.outputs.head_repository }}
           ref: ${{ needs.prepare.outputs.head_sha }}
           path: head
+          persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.3.14
@@ -162,8 +129,9 @@ jobs:
       - name: Checkout measurement controller
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          repository: ${{ needs.prepare.outputs.head_repository }}
           ref: ${{ env.HEAD_SHA }}
+          persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.3.14
@@ -227,7 +195,6 @@ jobs:
 
   build-ios:
     needs: prepare
-    if: needs.prepare.outputs.relevant == 'true'
     runs-on: blacksmith-6vcpu-macos-26
     timeout-minutes: 60
     outputs:
@@ -238,12 +205,14 @@ jobs:
         with:
           ref: ${{ needs.prepare.outputs.base_sha }}
           path: base
+          persist-credentials: false
       - name: Checkout head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          repository: ${{ needs.prepare.outputs.head_repository }}
           ref: ${{ needs.prepare.outputs.head_sha }}
           path: head
+          persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.3.14
@@ -293,8 +262,9 @@ jobs:
       - name: Checkout measurement controller
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          repository: ${{ needs.prepare.outputs.head_repository }}
           ref: ${{ env.HEAD_SHA }}
+          persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.3.14
@@ -348,7 +318,7 @@ jobs:
   nitro-performance:
     name: nitro-performance
     needs: [prepare, measure-android, measure-ios]
-    if: always() && !cancelled() && needs.prepare.outputs.relevant == 'true'
+    if: always() && !cancelled() && needs.prepare.result == 'success'
     runs-on: ubuntu-24.04
     steps:
       - name: Require successful platform runs
@@ -364,8 +334,9 @@ jobs:
       - name: Checkout report tooling
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          repository: ${{ needs.prepare.outputs.head_repository }}
           ref: ${{ needs.prepare.outputs.head_sha }}
+          persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.3.14
