@@ -258,6 +258,15 @@ namespace margelo::nitro::test::bridge::swift {
     };
   }
   
+  // pragma MARK: std::function<int64_t(int64_t /* value */)>
+  Func_int64_t_int64_t create_Func_int64_t_int64_t(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroTest::Func_int64_t_int64_t::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](int64_t value) mutable -> int64_t {
+      auto __result = swiftClosure.call(value);
+      return __result;
+    };
+  }
+  
   // pragma MARK: std::shared_ptr<HybridTestViewSpec>
   std::shared_ptr<HybridTestViewSpec> create_std__shared_ptr_HybridTestViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     NitroTest::HybridTestViewSpec_cxx swiftPart = NitroTest::HybridTestViewSpec_cxx::fromUnsafe(swiftUnsafePointer);

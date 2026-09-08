@@ -139,7 +139,9 @@ class ${name}_java(private val function: ${lambdaSignature}): ${name} {
       return bridge.parseFromCppToKotlin(p.escapedName, 'c++', false)
     }),
   ]
-  const jniSignature = `${bridgedReturn.asJniReferenceType('local')}(${functionType.parameters
+  // `invoke` overrides `FunctionN.invoke`, so primitive returns need boxing.
+  // Its parameters can remain primitive, and `Unit` returns remain `void`.
+  const jniSignature = `${bridgedReturn.asJniReferenceType('local', true)}(${functionType.parameters
     .map((p) => {
       const bridge = new KotlinCxxBridgedType(p)
       return `${bridge.asJniReferenceType('alias')} /* ${p.escapedName} */`
@@ -164,7 +166,7 @@ return ${bridgedReturn.parseFromCppToKotlin('__result', 'c++')};
     jniCallBody = `
 static const auto method = javaClassStatic()->getMethod<${jniSignature}>("invoke");
 auto __result = method(${jniParamsForward.join(', ')});
-return ${bridgedReturn.parseFromKotlinToCpp('__result', 'c++', false)};
+return ${bridgedReturn.parseFromKotlinToCpp('__result', 'c++', true)};
     `.trim()
   }
 

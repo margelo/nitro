@@ -2924,6 +2924,42 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   }
   
   @inline(__always)
+  public final func getSyncNumberCallback() -> bridge.Result_std__function_double____ {
+    do {
+      let __result = try self.__implementation.getSyncNumberCallback()
+      let __resultCpp = { () -> bridge.Func_double in
+        let __closureWrapper = Func_double(__result)
+        return bridge.create_Func_double(__closureWrapper.toUnsafe())
+      }()
+      return bridge.create_Result_std__function_double____(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__function_double____(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func bounceSyncInt64Callback(callback: bridge.Func_int64_t_int64_t) -> bridge.Result_std__function_int64_t_int64_t____value______ {
+    do {
+      let __result = try self.__implementation.bounceSyncInt64Callback(callback: { () -> (Int64) -> Int64 in
+        let __wrappedFunction = bridge.wrap_Func_int64_t_int64_t(callback)
+        return { (__value: Int64) -> Int64 in
+          let __result = __wrappedFunction.call(__value)
+          return __result
+        }
+      }())
+      let __resultCpp = { () -> bridge.Func_int64_t_int64_t in
+        let __closureWrapper = Func_int64_t_int64_t(__result)
+        return bridge.create_Func_int64_t_int64_t(__closureWrapper.toUnsafe())
+      }()
+      return bridge.create_Result_std__function_int64_t_int64_t____value______(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__function_int64_t_int64_t____value______(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
   public final func getIsViewBlue(view: bridge.std__shared_ptr_HybridTestViewSpec_) -> bridge.Result_bool_ {
     do {
       let __result = try self.__implementation.getIsViewBlue(view: { () -> any HybridTestViewSpec in

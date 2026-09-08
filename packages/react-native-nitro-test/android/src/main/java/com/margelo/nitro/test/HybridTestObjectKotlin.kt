@@ -704,6 +704,14 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return value
   }
 
+  override fun getSyncNumberCallback(): () -> Double {
+    return { 55.0 }
+  }
+
+  override fun bounceSyncInt64Callback(callback: (Long) -> Long): (Long) -> Long {
+    return callback
+  }
+
   override fun bounceExternalHybrid(externalObject: HybridSomeExternalObjectSpec): HybridSomeExternalObjectSpec {
     return externalObject
   }

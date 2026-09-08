@@ -3,11 +3,11 @@ import { mkdtemp, rm, symlink } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 
-async function fixture() {
+async function fixture(eventName = 'pull_request') {
   const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-publication-'))
   const metadata = {
     repository: 'margelo/nitro',
-    eventName: 'pull_request',
+    eventName,
     pullRequestNumber: 123,
     baseSha: 'a'.repeat(40),
     headSha: 'b'.repeat(40),
@@ -21,9 +21,17 @@ async function fixture() {
       id: metadata.workflowRunId,
       run_attempt: metadata.runAttempt,
       event: metadata.eventName,
-      head_sha: metadata.headSha,
-      head_branch: 'feature',
-      head_repository: { full_name: 'contributor/nitro' },
+      // Comment events describe the default branch, not the benchmarked PR.
+      display_title: `Nitro Performance for PR #${metadata.pullRequestNumber}`,
+      head_sha:
+        eventName === 'issue_comment' ? 'd'.repeat(40) : metadata.headSha,
+      head_branch: eventName === 'issue_comment' ? 'main' : 'feature',
+      head_repository: {
+        full_name:
+          eventName === 'issue_comment'
+            ? metadata.repository
+            : 'contributor/nitro',
+      },
     },
   }
   const pr = {
@@ -186,4 +194,42 @@ test('rejects a symlink instead of posting a file outside the publication', asyn
   await Bun.write(outside, 'Must not be posted')
   await symlink(outside, report)
   expect((await f.validate()).exitCode).not.toBe(0)
+})
+
+test.each(['margelo/nitro', 'contributor/nitro'])(
+  'publishes a comment-triggered PR from %s even though the workflow SHA is main',
+  async (headRepository) => {
+    await using f = await fixture('issue_comment')
+    f.pr.head.repo.full_name = headRepository
+    expect((await f.validate()).exitCode).toBe(0)
+    expect(await Bun.file(path.join(f.output, 'metadata.json')).json()).toEqual(
+      f.metadata
+    )
+  }
+)
+
+test.each(['title', 'repository', 'pr', 'sha'])(
+  'rejects a comment-triggered publication with mismatched %s',
+  async (kind) => {
+    await using f = await fixture('issue_comment')
+    if (kind === 'title')
+      f.event.workflow_run.display_title = 'Nitro Performance for PR #999'
+    if (kind === 'repository')
+      f.event.workflow_run.head_repository.full_name = 'contributor/nitro'
+    if (kind === 'pr') f.metadata.pullRequestNumber = f.pr.number = 999
+    if (kind === 'sha') f.metadata.headSha = 'invalid'
+    expect((await f.validate()).exitCode).not.toBe(0)
+  }
+)
+
+test('skips comment-triggered results if the PR head advances', async () => {
+  await using f = await fixture('issue_comment')
+  f.pr.head.sha = 'c'.repeat(40)
+  expect((await f.validate()).exitCode).toBe(0)
+  expect(await Bun.file(path.join(f.root, 'outputs')).text()).toContain(
+    'stale=true'
+  )
+  expect(
+    await Bun.file(path.join(f.output, 'performance-summary.md')).exists()
+  ).toBe(false)
 })

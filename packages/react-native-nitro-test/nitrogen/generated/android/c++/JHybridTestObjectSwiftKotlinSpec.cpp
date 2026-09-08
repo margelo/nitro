@@ -113,6 +113,8 @@ namespace margelo::nitro::test { class HybridTestViewSpec; }
 #include "JVariant_HybridBaseSpec_OptionalWrapper.hpp"
 #include "JHybridBaseSpec.hpp"
 #include "JCoreTypesVariant.hpp"
+#include "JFunc_double.hpp"
+#include "JFunc_int64_t_int64_t.hpp"
 #include <NitroTestExternal/HybridSomeExternalObjectSpec.hpp>
 #include <NitroTestExternal/JHybridSomeExternalObjectSpec.hpp>
 #include "ExternalObjectStruct.hpp"
@@ -135,7 +137,6 @@ namespace margelo::nitro::test { class HybridTestViewSpec; }
 #include "HardwareBufferFormat.hpp"
 #include "JHardwareBufferFormat.hpp"
 #include "JVariant_Boolean_DoubleArray_Array_String__Double_String.hpp"
-#include "JFunc_double.hpp"
 #include "HybridTestViewSpec.hpp"
 #include "JHybridTestViewSpec.hpp"
 #include "JFunc_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_.hpp"
@@ -1560,6 +1561,32 @@ namespace margelo::nitro::test {
     static const auto method = _javaPart->javaClassStatic()->getMethod<double(jni::alias_ref<JFunc_double::javaobject> /* callback */)>("callbackSync_cxx");
     auto __result = method(_javaPart, JFunc_double_cxx::fromCpp(callback));
     return __result;
+  }
+  std::function<double()> JHybridTestObjectSwiftKotlinSpec::getSyncNumberCallback() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JFunc_double::javaobject>()>("getSyncNumberCallback_cxx");
+    auto __result = method(_javaPart);
+    return [&]() -> std::function<double()> {
+      if (__result->isInstanceOf(JFunc_double_cxx::javaClassStatic())) [[likely]] {
+        auto downcast = jni::static_ref_cast<JFunc_double_cxx::javaobject>(__result);
+        return downcast->cthis()->getFunction();
+      } else {
+        auto __resultRef = jni::make_global(__result);
+        return JNICallable<JFunc_double, double()>(std::move(__resultRef));
+      }
+    }();
+  }
+  std::function<int64_t(int64_t /* value */)> JHybridTestObjectSwiftKotlinSpec::bounceSyncInt64Callback(const std::function<int64_t(int64_t /* value */)>& callback) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JFunc_int64_t_int64_t::javaobject>(jni::alias_ref<JFunc_int64_t_int64_t::javaobject> /* callback */)>("bounceSyncInt64Callback_cxx");
+    auto __result = method(_javaPart, JFunc_int64_t_int64_t_cxx::fromCpp(callback));
+    return [&]() -> std::function<int64_t(int64_t /* value */)> {
+      if (__result->isInstanceOf(JFunc_int64_t_int64_t_cxx::javaClassStatic())) [[likely]] {
+        auto downcast = jni::static_ref_cast<JFunc_int64_t_int64_t_cxx::javaobject>(__result);
+        return downcast->cthis()->getFunction();
+      } else {
+        auto __resultRef = jni::make_global(__result);
+        return JNICallable<JFunc_int64_t_int64_t, int64_t(int64_t)>(std::move(__resultRef));
+      }
+    }();
   }
   bool JHybridTestObjectSwiftKotlinSpec::getIsViewBlue(const std::shared_ptr<HybridTestViewSpec>& view) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean(jni::alias_ref<JHybridTestViewSpec::JavaPart> /* view */)>("getIsViewBlue");

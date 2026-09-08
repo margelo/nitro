@@ -160,11 +160,7 @@ export function renderPerformanceReportMarkdown(
     artifacts?: PerformanceReport['artifacts']
   }
 ): string {
-  const lines = [
-    '## Performance Report',
-    '',
-    '> ⚠️ **Advisory:** Results do not fail this PR.',
-  ]
+  const lines = ['## Performance Report']
   if (options.baseSha === options.headSha) {
     lines.push(
       '',
@@ -203,6 +199,16 @@ export function renderPerformanceReportMarkdown(
     `Benchmarking Code Diff [\`${options.baseSha.slice(0, 8)}\`...\`${options.headSha.slice(0, 8)}\`](https://github.com/${options.repository}/compare/${options.baseSha}..${options.headSha})${options.workflowRunUrl == null ? '' : ` ([view raw output](${options.workflowRunUrl}))`}`,
     ''
   )
+  const hasArtifacts =
+    options.workflowRunUrl != null &&
+    (options.artifactId != null || options.artifacts != null)
+  if (hasArtifacts) {
+    lines.push(
+      '<details>',
+      '  <summary>Raw measurements and artifacts</summary>',
+      ''
+    )
+  }
   if (options.artifactId != null && options.workflowRunUrl != null) {
     lines.push(
       `Raw measurements: [performance-report-${options.runAttempt} (JSON artifact)](${options.workflowRunUrl}/artifacts/${options.artifactId}). Run ${options.workflowRunUrl.split('/').at(-1)}, attempt ${options.runAttempt}. Download requires GitHub access.`,
@@ -219,5 +225,6 @@ export function renderPerformanceReportMarkdown(
       ''
     )
   }
+  if (hasArtifacts) lines.push('</details>', '')
   return lines.join('\n')
 }

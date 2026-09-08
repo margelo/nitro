@@ -354,6 +354,10 @@ interface SharedTestObjectProps {
 
   // Sync funcs
   callbackSync(callback: Sync<() => number>): number
+  getSyncNumberCallback(): Sync<() => number>
+  bounceSyncInt64Callback(
+    callback: Sync<(value: Int64) => Int64>
+  ): Sync<(value: Int64) => Int64>
 
   // Views
   getIsViewBlue(view: TestView): boolean

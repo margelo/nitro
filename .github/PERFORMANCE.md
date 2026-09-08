@@ -1,12 +1,43 @@
 # Release performance CI
 
+Start a performance comparison by posting a new PR comment containing exactly:
+
+```text
+@nitro-modules-bot please test performance
+```
+
+The commenter must be a repository owner, member, or collaborator, and the PR
+must be open. Editing an existing comment does not start a run. Pushes, PR updates, schedules, and the
+Actions dispatch button do not start performance runs. Manual requests run
+regardless of which files changed, including docs-only PRs.
+
+Each request starts an independent workflow run and posts a new report comment,
+even when the commits have not changed. Re-running jobs within that workflow
+updates only that run's report, using its workflow run ID. Requests do not cancel
+one another. The artifact links and attempt details are collapsed under
+**Raw measurements and artifacts**.
+
+The comment trigger and trusted publisher take effect after merging into the
+default branch. A comment event points at the default branch, so preparation
+resolves the PR's current base/head SHAs and head repository through GitHub before
+checking out either revision. Forks are supported. Re-running all jobs resolves
+the current PR revisions again; measurement-only reruns reuse the saved apps.
+
 `Nitro Performance` builds the dedicated `apps/benchmark` Release/Hermes app.
 Each platform installs base and head side by side on the same machine. It
-alternates base and head in each app's suite order, then finishes any remaining
-cases in the longer suite. With the same case order, each function runs back to back. There is one AB pair, with five warmup batches and twenty measured
-batches per process. Each case gets a fresh app process; installation, startup,
-transport and process restarts are outside timing. There is no automatic third
-pair. Manual reruns are retained as identifiable workflow attempts.
+runs four pairs at each position in the apps' suite order: **AB, BA, BA, AB**
+(A = base, B = head), then moves to the next position. It finishes any remaining
+cases in the longer suite. With the same case order, each function runs back to
+back with each revision first twice. Each launch gets a fresh app process,
+five warmup batches and twenty measured batches: eighty measured batches per
+revision and case. Installation, startup, transport and process restarts are
+outside timing. Apps are built and installed once, then reused across all four
+pairs. Manual reruns are retained as identifiable workflow attempts.
+
+Startup waits for two animation frames, with no fixed one-second sleep. Keep
+the frame handoff and warmup: synchronous JS does not prevent native startup
+work or OS scheduling from competing for the CPU. The Android crash monitor's
+one-second polling interval runs concurrently and does not delay measurements.
 
 Each case uses checked-in operation counts from
 [`iterations.ts`](../apps/benchmark/src/benchmarks/iterations.ts), separately for
@@ -31,19 +62,22 @@ owned native storage. Other allocating cases retain GC and native yields. Raw `i
 
 ## Reading results
 
-The main score is the median (p50) of batch averages in ns/op, not individual-call
-tail latency. The report shows every observed change of at least 5%, including
-Promise cases. This is a presentation threshold, not a calibrated regression
+The main score is the median (p50) of all measured batch averages across the four
+processes in ns/op, not individual-call tail latency. The report shows every
+observed change of at least 5%, including Promise cases. This is a presentation
+threshold, not a calibrated regression
 budget. Expand the report for the remaining metrics; the raw JSON retains all
 samples. Matching pooled medians do not prove
-equal performance. One pair cannot establish repeatability between launches or justify confidence
-intervals. Repeat measurement jobs or same-revision runs to investigate variation.
+equal performance. Per-pair raw results preserve launch-to-launch variation;
+four pairs do not establish a calibrated regression budget or justify treating
+eighty batches as independent process runs. Repeat measurement jobs or
+same-revision runs to investigate variation.
 
 Performance is currently report-only. Build, execution and malformed-result
 failures still fail CI. Turning observed differences into a regression gate needs
 empirical validation on unchanged commits and intentional slowdowns on each
-unchanged suite/testbed. No Promise case is permanently exempt. Scheduled/manual
-runs with the same base and head SHA measure baseline variation explicitly.
+unchanged suite/testbed. No Promise case is permanently exempt. Local runs with
+the same base and head SHA can measure baseline variation explicitly.
 Reports match results by benchmark ID, regardless of suite hashes, case order,
 versions, iteration counts or runner settings. New cases show their head timing
 as **⭐️ New**; removed cases retain their base timing with **❌ Removed** after.
@@ -75,9 +109,9 @@ architecture and toolchain metadata. iOS apps are tar archives to preserve
 permissions and symlinks. Gradle's basic cache is the sole Android cache owner;
 Gradle still checks source/task inputs, while exact app reuse is by artifact ID.
 There is no new iOS compiler cache. App reuse avoids build work on manual reruns. With 46 cases in each revision, a run
-uses 92 fresh processes (46 base + 46 head).
-Closer comparisons reduce time separation, but fixed base-first order can still
-introduce bias; same-revision runs are needed to assess that on each testbed.
+uses 368 fresh processes (184 base + 184 head), while retaining one build and
+installation per revision. Balanced order reduces consistent first/second
+effects, but same-revision runs are still needed to assess noise on each testbed.
 
 ## Artifacts and publishing
 
@@ -94,15 +128,15 @@ containing `performance-summary.md`, `metadata.json`, and `bencher-*.json`.
 The raw artifact is uploaded first so the rendered comment can link its exact ID.
 Renderer and raw-schema changes can therefore be reviewed in PR CI before merging.
 
-One default-branch `Publish Nitro Performance` workflow handles internal PRs,
-forks and main runs. It selects the exact publication artifact for the triggering
+One default-branch `Publish Nitro Performance` workflow handles comment-triggered
+internal PRs and forks. It selects the exact publication artifact for the triggering
 attempt, checks its repository, run, revisions and current PR against GitHub,
-and posts its Markdown unchanged. It reads no raw samples and never installs or
-executes PR code or artifact scripts. Comment content is produced by PR code;
+and posts its Markdown unchanged. The trusted workflow run name identifies the
+triggering PR; the publisher does not choose a PR from artifact-provided data.
+It reads no raw samples and never installs or executes PR code or artifact scripts. Comment content is produced by PR code;
 provenance checks establish its source, not the correctness of its measurements.
-Docs-only and cancelled runs skip publication. Markdown/MDX-only edits also skip
-measurements inside package/app directories. Relevant failures remain failures.
-Stale PR results are skipped. User comments are never edited.
+Cancelled and skipped runs skip publication. Build and measurement failures remain
+failures. Stale PR results are skipped. User comments are never edited.
 
 The publication envelope is independent of raw app schema versions. Keep its
 filenames and identity fields stable when changing benchmarks or report rendering.
@@ -115,8 +149,8 @@ Bencher's JSON adapter validates the already-generated BMF files. The comment is
 posted first so an invalid BMF file cannot prevent the report from appearing.
 Bencher receives median latency values without invented bounds. PR publications
 seed both measured platform baselines at `baseline-<base SHA>` before recording
-the head at `pr-<number>`. Only main-branch runs record main history. Bencher
-receives history only: it does not post a second comment or create alert-driven
+the head at `pr-<number>`. Automatic main-branch history is no longer recorded.
+Bencher receives history only: it does not post a second comment or create alert-driven
 checks.
 
 ## CI runners
@@ -166,8 +200,9 @@ Bot authentication and upload changes take effect after reaching the default bra
 Without the Client ID variable, comments continue as `github-actions[bot]`.
 Removing that variable switches back to the default identity. Configured app
 authentication failures fail the posting job rather than silently switching authors.
-The first run after switching identities creates a new comment; subsequent runs
-update that bot's comment. Earlier comments keep their original author and avatar.
+Each workflow run creates its own comment under the configured identity. Reruns
+update only the matching run's comment from that bot. Switching identities creates
+a new comment; earlier comments keep their original author and avatar.
 
 ## Remaining upstream warnings
 

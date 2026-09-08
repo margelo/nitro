@@ -30,9 +30,9 @@ namespace margelo::nitro::test {
      * Invokes the function this `JFunc_double` instance holds through JNI.
      */
     double invoke() const {
-      static const auto method = javaClassStatic()->getMethod<double()>("invoke");
+      static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JDouble>()>("invoke");
       auto __result = method(self());
-      return __result;
+      return __result->value();
     }
   };
 

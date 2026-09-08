@@ -2445,6 +2445,39 @@ export function getTests(
         .didNotThrow()
         .equals(55)
     ),
+    createTest('getSyncNumberCallback()() returns a number', () =>
+      it(() => {
+        const callback = testObject.getSyncNumberCallback()
+        return callback()
+      })
+        .didNotThrow()
+        .equals(55)
+    ),
+    ...[-(2n ** 63n), -1n, 0n, 2n ** 63n - 1n].map((value) =>
+      createTest(`Int64 callback roundtrip preserves ${value}`, () =>
+        it(() => {
+          const callback = testObject.bounceSyncInt64Callback((input) => input)
+          return callback(value)
+        })
+          .didNotThrow()
+          .equals(value)
+      )
+    ),
+    createTest(
+      'native void callback invokes its wrapped JS callback',
+      async () =>
+        (
+          await it(
+            () =>
+              new Promise<number>((resolve) => {
+                const callback = testObject.createNativeCallback(resolve)
+                callback(55)
+              })
+          )
+        )
+          .didNotThrow()
+          .equals(55)
+    ),
     createTest('bounceExternalHybrid(...) works', () =>
       it(() => {
         return testObject.bounceExternalHybrid(HybridSomeExternalObject)

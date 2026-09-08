@@ -680,6 +680,24 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     return __result
   }
   
+  abstract fun getSyncNumberCallback(): () -> Double
+  
+  @DoNotStrip
+  @Keep
+  private fun getSyncNumberCallback_cxx(): Func_double {
+    val __result = getSyncNumberCallback()
+    return Func_double_java(__result)
+  }
+  
+  abstract fun bounceSyncInt64Callback(callback: (value: Long) -> Long): (value: Long) -> Long
+  
+  @DoNotStrip
+  @Keep
+  private fun bounceSyncInt64Callback_cxx(callback: Func_int64_t_int64_t): Func_int64_t_int64_t {
+    val __result = bounceSyncInt64Callback(callback)
+    return Func_int64_t_int64_t_java(__result)
+  }
+  
   @DoNotStrip
   @Keep
   abstract fun getIsViewBlue(view: HybridTestViewSpec): Boolean

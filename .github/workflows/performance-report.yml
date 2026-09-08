@@ -5,6 +5,11 @@ on:
     workflows: [Nitro Performance]
     types: [completed]
 
+# Serialize publication attempts for the same run without combining separate requests.
+concurrency:
+  group: performance-report-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
 permissions:
   actions: read
   contents: read
@@ -12,6 +17,7 @@ permissions:
 
 jobs:
   publish:
+    if: github.event.workflow_run.event == 'issue_comment'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout trusted publishing code
@@ -44,27 +50,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          EVENT_NAME=$(jq -r '.workflow_run.event' "$GITHUB_EVENT_PATH")
-          TRUSTED_PR_ARGUMENTS=()
-          if [[ "$EVENT_NAME" == 'pull_request' ]]; then
-            PR_NUMBER=$(jq -r '.pullRequestNumber' untrusted-artifact/metadata.json)
-            if [[ ! "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
-              echo 'Invalid pull request number in performance artifact.' >&2
-              exit 1
-            fi
-            gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > trusted-pull-request.json
-            TRUSTED_PR_ARGUMENTS=(--trusted-pull-request trusted-pull-request.json)
-          fi
+          set -euo pipefail
+          # The run name is set by the default-branch workflow using the triggering PR.
+          PR_NUMBER=$(jq -er '.workflow_run.display_title | capture("^Nitro Performance for PR #(?<number>[1-9][0-9]*)$").number' "$GITHUB_EVENT_PATH")
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > trusted-pull-request.json
           bun scripts/performance/validate-report.ts \
             --artifact-directory untrusted-artifact \
             --output-directory validated-report \
             --expected-repository "$GITHUB_REPOSITORY" \
             --trusted-workflow-event "$GITHUB_EVENT_PATH" \
-            "${TRUSTED_PR_ARGUMENTS[@]}"
+            --trusted-pull-request trusted-pull-request.json
 
       - name: Create Nitro Modules Bot token
         id: performance-bot-token
-        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true' && vars.NITRO_PERFORMANCE_APP_CLIENT_ID != '' && github.event.workflow_run.event == 'pull_request'
+        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true' && vars.NITRO_PERFORMANCE_APP_CLIENT_ID != ''
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
         with:
           client-id: ${{ vars.NITRO_PERFORMANCE_APP_CLIENT_ID }}

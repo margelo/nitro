@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test'
-import { readFile, mkdtemp, mkdir, rm } from 'node:fs/promises'
+import { readFile, mkdtemp, chmod, rm } from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
 
@@ -66,7 +66,15 @@ test('one trusted publisher handles internal and fork reports without executing 
   ) as any
   expect(entry.permissions).toEqual({ contents: 'read' })
   expect(entry.jobs['publish-pr']).toBeUndefined()
-  expect(publisher.jobs.publish.if).toBeUndefined()
+  expect(publisher.jobs.publish.if).toBe(
+    "github.event.workflow_run.event == 'issue_comment'"
+  )
+  expect(entry.on).toEqual({ issue_comment: { types: ['created'] } })
+  expect(entry.concurrency).toBeUndefined()
+  expect(publisher.concurrency).toEqual({
+    'group': 'performance-report-${{ github.event.workflow_run.id }}',
+    'cancel-in-progress': false,
+  })
   const source = JSON.stringify(publisher)
   expect(source).not.toMatch(
     /pull_request.head.sha|bun install|NITRO_BENCHER_ENABLED/
@@ -106,50 +114,11 @@ test('one trusted publisher handles internal and fork reports without executing 
   ).toBeLessThan(steps.findIndex((s) => s.name === 'Publish Bencher history'))
 })
 
-test.each([false, true])(
-  'package docs skip measurements unless native code also changed: %s',
-  async (nativeChange) => {
-    const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-relevance-'))
+test.each(['margelo/nitro', 'contributor/nitro'])(
+  'resolves manual PR revisions from %s without filtering changed paths',
+  async (headRepository) => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-request-'))
     try {
-      async function git(...args: string[]) {
-        const child = Bun.spawn(['git', ...args], {
-          cwd: root,
-          stdout: 'pipe',
-          stderr: 'pipe',
-        })
-        const output = await new Response(child.stdout).text()
-        if ((await child.exited) !== 0)
-          throw new Error(await new Response(child.stderr).text())
-        return output.trim()
-      }
-      await git('init', '-q')
-      await git(
-        '-c',
-        'user.name=Fixture',
-        '-c',
-        'user.email=fixture@example.com',
-        'commit',
-        '--allow-empty',
-        '-qm',
-        'base'
-      )
-      const base = await git('rev-parse', 'HEAD')
-      const directory = path.join(root, 'packages/react-native-nitro-modules')
-      await mkdir(directory, { recursive: true })
-      await Bun.write(path.join(directory, 'README.md'), 'documentation')
-      await Bun.write(path.join(directory, 'guide.mdx'), 'documentation')
-      if (nativeChange)
-        await Bun.write(path.join(directory, 'Runtime.cpp'), '// native change')
-      await git('add', '.')
-      await git(
-        '-c',
-        'user.name=Fixture',
-        '-c',
-        'user.email=fixture@example.com',
-        'commit',
-        '-qm',
-        'head'
-      )
       const workflow = Bun.YAML.parse(
         await readFile(
           new URL('../../.github/workflows/performance.yml', import.meta.url),
@@ -159,24 +128,48 @@ test.each([false, true])(
       const script = workflow.jobs.prepare.steps.find(
         (step: any) => step.id === 'metadata'
       ).run
-      const child = Bun.spawn(['bash', '-euo', 'pipefail', '-c', script], {
-        cwd: root,
-        env: {
-          ...process.env,
-          EVENT_NAME: 'pull_request',
-          PR_BASE_SHA: base,
-          PR_HEAD_SHA: await git('rev-parse', 'HEAD'),
-          PR_NUMBER: '1',
-          GITHUB_OUTPUT: path.join(root, 'outputs'),
-          GITHUB_STEP_SUMMARY: path.join(root, 'summary'),
-        },
-        stdout: 'pipe',
-        stderr: 'pipe',
-      })
-      expect(await child.exited).toBe(0)
-      expect(await Bun.file(path.join(root, 'outputs')).text()).toContain(
-        `relevant=${nativeChange}`
+      const pr = {
+        number: 123,
+        state: 'open',
+        base: { sha: 'a'.repeat(40), repo: { full_name: 'margelo/nitro' } },
+        head: { sha: 'b'.repeat(40), repo: { full_name: headRepository } },
+      }
+      // Only the pull lookup is available: no changed-file lookup or git diff.
+      const gh = path.join(root, 'gh')
+      await Bun.write(
+        gh,
+        '#!/bin/bash\n[[ "$*" == "api repos/margelo/nitro/pulls/123" ]] || exit 1\ncat "$PR_FIXTURE"\n'
       )
+      await chmod(gh, 0o755)
+      async function resolve() {
+        await Bun.write(path.join(root, 'pr.json'), JSON.stringify(pr))
+        await rm(path.join(root, 'outputs'), { force: true })
+        const child = Bun.spawn(['bash', '-euo', 'pipefail', '-c', script], {
+          cwd: root,
+          env: {
+            ...process.env,
+            PATH: `${root}:${process.env.PATH}`,
+            PR_FIXTURE: path.join(root, 'pr.json'),
+            PR_NUMBER: '123',
+            GITHUB_REPOSITORY: 'margelo/nitro',
+            GITHUB_OUTPUT: path.join(root, 'outputs'),
+          },
+          stdout: 'pipe',
+          stderr: 'pipe',
+        })
+        return child.exited
+      }
+      expect(await resolve()).toBe(0)
+      expect(await Bun.file(path.join(root, 'outputs')).text()).toBe(
+        `base_sha=${pr.base.sha}\nhead_sha=${pr.head.sha}\nhead_repository=${headRepository}\npr_number=123\n`
+      )
+      pr.state = 'closed'
+      expect(await resolve()).not.toBe(0)
+      expect(await Bun.file(path.join(root, 'outputs')).exists()).toBe(false)
+      pr.state = 'open'
+      pr.head.sha = 'invalid\nhead_sha=injected'
+      expect(await resolve()).not.toBe(0)
+      expect(await Bun.file(path.join(root, 'outputs')).exists()).toBe(false)
     } finally {
       await rm(root, { recursive: true, force: true })
     }

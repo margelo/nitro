@@ -78,7 +78,6 @@ env:
   DEVICE_MODEL: ${{ github.event.inputs.device_model || 'iPhone 17 Pro' }}
   IOS_VERSION: ${{ github.event.inputs.ios_version || '26.5' }}
   XCODE_VERSION: ${{ github.event.inputs.xcode_version || '26.5' }}
-  USE_CCACHE: 1
   DEVELOPER_DIR: /Applications/Xcode_${{ github.event.inputs.xcode_version || '26.5' }}.app/Contents/Developer
   HARNESS_DEBUG: 1
 
@@ -111,13 +110,14 @@ jobs:
         with:
           max-size: 1.5G
           key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.XCODE_VERSION }}-${{ matrix.sanitizer.name }}-ccache-example-ios
-          create-symlink: true
       - name: Setup ccache behavior
         run: |
-          echo "CCACHE_SLOPPINESS=clang_index_store,file_stat_matches,include_file_ctime,include_file_mtime,ivfsoverlay,pch_defines,modules,system_headers,time_macros" >> $GITHUB_ENV
-          echo "CCACHE_FILECLONE=true" >> $GITHUB_ENV
-          echo "CCACHE_DEPEND=true" >> $GITHUB_ENV
-          echo "CCACHE_INODECACHE=true" >> $GITHUB_ENV
+          {
+            echo "CCACHE_SLOPPINESS=clang_index_store,file_stat_matches,include_file_ctime,include_file_mtime,ivfsoverlay,pch_defines,modules,system_headers,time_macros"
+            echo "CCACHE_FILECLONE=true"
+            echo "CCACHE_DEPEND=true"
+            echo "CCACHE_INODECACHE=true"
+          } >> "$GITHUB_ENV"
 
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
@@ -152,11 +152,10 @@ jobs:
         working-directory: apps/example/ios
         run: |
           set -o pipefail
-          CLANG="$(xcrun -f clang)"
-          CLANGXX="$(xcrun -f clang++)"
           SANITIZER_FLAGS="${{ matrix.sanitizer.xcodebuild_flags }}"
           xcodebuild \
-            CC="${CLANG}" CPLUSPLUS="${CLANGXX}" LD="${CLANG}" LDPLUSPLUS="${CLANGXX}" \
+            C_COMPILER_LAUNCHER="$(command -v ccache)" \
+            CLANG_ENABLE_EXPLICIT_MODULES_WITH_COMPILER_LAUNCHER=YES \
             -derivedDataPath build -UseModernBuildSystem=YES \
             -workspace NitroExample.xcworkspace \
             -scheme NitroExample \

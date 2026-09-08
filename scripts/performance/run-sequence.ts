@@ -7,6 +7,14 @@ import type { BenchmarkRunResult } from '../../apps/benchmark/src/benchmarks/typ
 import { calculateSuiteHash } from './suite-hash'
 import type { BuildMetadata } from './build-metadata'
 
+// Keep all four pairs adjacent for each case, with each revision first twice.
+const pairOrders = [
+  ['base', 'head'],
+  ['head', 'base'],
+  ['head', 'base'],
+  ['base', 'head'],
+] as const
+
 const argumentsMap = parseArguments(Bun.argv.slice(2))
 const platformArgument = requiredArgument(argumentsMap, 'platform')
 if (platformArgument !== 'android' && platformArgument !== 'ios') {
@@ -66,7 +74,7 @@ if (build != null) {
   )
   await Bun.write(
     path.join(outputDirectory, 'measurement.json'),
-    `${JSON.stringify({ buildArtifactId: Number(process.env.BUILD_ARTIFACT_ID), runAttempt: Number(process.env.GITHUB_RUN_ATTEMPT) }, null, 2)}\n`
+    `${JSON.stringify({ buildArtifactId: Number(process.env.BUILD_ARTIFACT_ID), runAttempt: Number(process.env.GITHUB_RUN_ATTEMPT), pairCount: pairOrders.length }, null, 2)}\n`
   )
 }
 
@@ -85,16 +93,17 @@ if (!sameBinary) {
 
 async function runCase(
   revision: 'base' | 'head',
-  index: number
+  index: number,
+  pair: number
 ): Promise<BenchmarkRunResult> {
   const isBase = revision === 'base'
-  const name = `${revision}-1`
+  const name = `${revision}-${pair}`
   return runDeviceCase(
     deviceId,
     isBase ? baseId : headId,
     {
       platform,
-      runId: `${platform}-${revision}-1`,
+      runId: `${platform}-${name}`,
       reverse: false,
       benchmarkIndex: index,
       commitSha: isBase ? baseSha : headSha,
@@ -108,32 +117,29 @@ async function runCase(
   )
 }
 
-const baseRuns: BenchmarkRunResult[] = []
-const headRuns: BenchmarkRunResult[] = []
+const pairs = pairOrders.map(() => ({
+  base: [] as BenchmarkRunResult[],
+  head: [] as BenchmarkRunResult[],
+}))
 // Each revision reports its own suite size. Alternate fresh processes while
 // both have cases left; the report matches their results by ID, not position.
-let baseCount = 1
-let headCount = 1
-for (let index = 0; index < Math.max(baseCount, headCount); index++) {
-  if (index < baseCount) {
-    const base = await runCase('base', index)
-    baseRuns.push(base)
-    if (index === 0) baseCount = base.benchmarkCount!
-  }
-  if (index < headCount) {
-    const head = await runCase('head', index)
-    headRuns.push(head)
-    if (index === 0) headCount = head.benchmarkCount!
+const counts = { base: 1, head: 1 }
+for (let index = 0; index < Math.max(counts.base, counts.head); index++) {
+  for (const [pairIndex, order] of pairOrders.entries()) {
+    for (const revision of order) {
+      if (index >= counts[revision]) continue
+      const result = await runCase(revision, index, pairIndex + 1)
+      pairs[pairIndex]![revision].push(result)
+      if (index === 0) counts[revision] = result.benchmarkCount!
+    }
   }
 }
-for (const [name, runs] of [
-  ['base-1', baseRuns],
-  ['head-1', headRuns],
-] as const) {
-  if (runs.length === 0) continue
-  const result = combineIsolatedCases(runs)
-  await Bun.write(
-    path.join(outputDirectory, `${name}.json`),
-    `${JSON.stringify(result, null, 2)}\n`
-  )
+for (const [pairIndex, pair] of pairs.entries()) {
+  for (const revision of ['base', 'head'] as const) {
+    const result = combineIsolatedCases(pair[revision])
+    await Bun.write(
+      path.join(outputDirectory, `${revision}-${pairIndex + 1}.json`),
+      `${JSON.stringify(result, null, 2)}\n`
+    )
+  }
 }

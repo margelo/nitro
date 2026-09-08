@@ -670,6 +670,14 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return value
   }
 
+  func getSyncNumberCallback() throws -> () -> Double {
+    return { 55 }
+  }
+
+  func bounceSyncInt64Callback(callback: @escaping (Int64) -> Int64) throws -> (Int64) -> Int64 {
+    return callback
+  }
+
   func bounceExternalHybrid(externalObject: (any HybridSomeExternalObjectSpec)) throws -> (
     any HybridSomeExternalObjectSpec
   ) {

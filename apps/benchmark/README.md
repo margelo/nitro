@@ -25,8 +25,8 @@ permits cleartext only to `127.0.0.1` and `localhost` for the host receiver.
 
 ## Run locally
 
-For an already booted Android API 36 emulator, compare two fresh launches of the
-same built APK to check measurement variation:
+For an already booted Android API 36 emulator, compare four pairs of fresh
+launches of the same built APK to check measurement variation:
 
 ```sh
 bun scripts/performance/run-sequence.ts \
@@ -51,11 +51,14 @@ The host installs each binary once, then launches a fresh process for each case
 and assembles their results. This releases Nitro's runtime-scoped JSI reference
 bookkeeping between cases; GC alone cannot clear that cache. Each process posts
 one result only after its timing is complete. Per-case raw results are kept beside
-the combined output in `base-1-cases/` and `head-1-cases/` directories.
-Base and head launches alternate in each app's suite order; the report matches
+the combined `base-1.json` through `base-4.json` and matching head outputs, in
+`base-1-cases/` through `base-4-cases/` and matching head directories.
+At each position in the apps' suite order, launches run **AB, BA, BA, AB**
+(A = base, B = head) before advancing to the next position. The report matches
 results by ID even when cases move, appear or disappear. With the same case order,
 each function runs back to back. Identical SHAs reuse one installed binary.
-Startup, transport, and process restarts are not timed.
+Startup, transport, and process restarts are not timed. Startup waits for two
+animation frames, with no fixed one-second sleep.
 For iOS, use `--platform ios`, a simulator UDID for `--device-id`, and the built
 `NitroBenchmark.app` for `--base-app` and `--head-app`, with matching
 simulator/toolchain metadata.
@@ -68,7 +71,8 @@ Each metric has fixed Android/iOS counts in
 [`iterations.ts`](src/benchmarks/iterations.ts), seeded from the existing
 GitHub-runner results with roughly 150 ms of timed work per sample. There is no
 calibration process. Each measurement process performs five warmup batches and
-twenty samples. Each revision uses its own checked-in count and chunk size for
+twenty samples, for eighty measured samples across the four processes per
+revision and case. Each revision uses its own checked-in count and chunk size for
 each case. Slow samples are retained without shortening the work.
 
 Adding a case requires an explicit count. Revisit the counts when changing the
@@ -104,8 +108,9 @@ process variability, raw artifacts, trusted reporting, and Bencher publishing.
 CI retains exact app artifacts for measurement-only reruns. It builds both
 revisions even when definitions change, and reuses one binary for identical SHAs.
 New and removed cases stay visible in the table without a percentage comparison.
-Same-revision scheduled/manual runs show baseline variation. Performance remains
-report-only.
+Post `@nitro-modules-bot please test performance` on an open PR to start CI. Each
+request posts a new report; rerunning the same workflow updates its report. Local
+same-revision runs show baseline variation. Performance remains report-only.
 
 The example's former benchmark screen and TurboModule control have moved here.
 No public Nitro API changes are needed. App dependency versions initially match
