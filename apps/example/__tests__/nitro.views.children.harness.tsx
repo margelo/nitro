@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { PixelRatio, View, type LayoutRectangle } from 'react-native'
+import { PixelRatio, Platform, View, type LayoutRectangle } from 'react-native'
 import { describe, expect, it, render, waitUntil } from 'react-native-harness'
 import { screen } from '@react-native-harness/ui'
 import { callback } from 'react-native-nitro-modules'
@@ -336,6 +336,80 @@ describe('Nitro View children', () => {
       () => screen.queryByTestId('children-conditional') === null,
       { timeout: RENDER_TIMEOUT }
     )
+  })
+
+  it('honours margin, absolute positioning and clipping', async () => {
+    const viewRef = deferred<ChildrenTestViewRef>()
+    const marginLayout = deferred<LayoutRectangle>()
+    const absoluteLayout = deferred<LayoutRectangle>()
+
+    await render(
+      <View
+        testID="children-style-wrapper"
+        style={{ width: 200, height: 200, backgroundColor: 'white' }}
+      >
+        <ChildrenTestView
+          testID="children-style"
+          style={{ width: 100, height: 100, padding: 5, overflow: 'hidden' }}
+          isBlue={true}
+          hybridRef={callback((view) => viewRef.resolve(view))}
+        >
+          <View
+            // The background keeps React Native from flattening the View away.
+            style={{
+              margin: 10,
+              width: 20,
+              height: 20,
+              backgroundColor: 'lime',
+            }}
+            onLayout={({ nativeEvent }) =>
+              marginLayout.resolve(nativeEvent.layout)
+            }
+          />
+          <View
+            style={{
+              position: 'absolute',
+              left: 20,
+              top: 30,
+              width: 400,
+              height: 400,
+              backgroundColor: 'red',
+            }}
+            onLayout={({ nativeEvent }) =>
+              absoluteLayout.resolve(nativeEvent.layout)
+            }
+          />
+        </ChildrenTestView>
+      </View>,
+      { timeout: RENDER_TIMEOUT }
+    )
+
+    const view = await viewRef.promise
+    await expectNativeChildCount(view, 2)
+
+    // A child's margin stacks on top of the container's padding.
+    const margin = await marginLayout.promise
+    expect(margin.x).toBeCloseTo(15, 0)
+    expect(margin.y).toBeCloseTo(15, 0)
+
+    // An absolutely positioned child is placed at its own offset.
+    const absolute = await absoluteLayout.promise
+    expect(absolute.x).toBeCloseTo(20, 0)
+    expect(absolute.y).toBeCloseTo(30, 0)
+
+    // `overflow` only reaches the native View on iOS, where `RCTViewComponentView`
+    // turns it into `clipsToBounds`. On Android it is implemented by React
+    // Native's own `ReactViewGroup`, which a Nitro View is not - so children are
+    // never clipped there, just like for any other custom Android View.
+    // Clipped, the 400x400 child covers (100-20)x(100-30) of the 200x200
+    // wrapper - 14%. Unclipped it covers 76%.
+    const redCoverage = await getRedCoverage('children-style-wrapper')
+    if (Platform.OS === 'ios') {
+      expect(redCoverage).toBeGreaterThan(0.1)
+      expect(redCoverage).toBeLessThan(0.2)
+    } else {
+      expect(redCoverage).toBeGreaterThan(0.7)
+    }
   })
 
   it('nests Nitro Views inside each other', async () => {

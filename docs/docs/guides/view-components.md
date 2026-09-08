@@ -378,6 +378,13 @@ React Native addresses children by index. If that's awkward, give the children t
 see below.
 :::
 
+:::warning
+`overflow` is only applied on iOS, where React Native turns it into `clipsToBounds` on the
+component. On Android it is implemented by React Native's own `ReactViewGroup`, which a Nitro View
+is not - children of a Nitro View are never clipped there. Clip them in your own `ViewGroup` if you
+need it.
+:::
+
 ### Mounting children into a sub-view
 
 Sometimes the children can't live in `view` itself: a `UIVisualEffectView` requires its `contentView`,
