@@ -6,9 +6,8 @@ Start a performance comparison by posting a new PR comment containing exactly:
 @nitro-modules-bot please test performance
 ```
 
-`@nitro-modulesbot please test performance` is also accepted. The commenter must
-be a repository owner, member, or collaborator, and the PR must be open. Editing
-an existing comment does not start a run. Pushes, PR updates, schedules, and the
+The commenter must be a repository owner, member, or collaborator, and the PR
+must be open. Editing an existing comment does not start a run. Pushes, PR updates, schedules, and the
 Actions dispatch button do not start performance runs. Manual requests run
 regardless of which files changed, including docs-only PRs.
 

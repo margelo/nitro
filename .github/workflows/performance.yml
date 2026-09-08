@@ -13,8 +13,7 @@ jobs:
     if: >-
       github.event.issue.pull_request &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
-      (github.event.comment.body == '@nitro-modules-bot please test performance' ||
-       github.event.comment.body == '@nitro-modulesbot please test performance')
+      github.event.comment.body == '@nitro-modules-bot please test performance'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
