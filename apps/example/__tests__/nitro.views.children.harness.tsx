@@ -4,6 +4,8 @@ import { describe, expect, it, render, waitUntil } from 'react-native-harness'
 import { screen } from '@react-native-harness/ui'
 import { callback } from 'react-native-nitro-modules'
 import {
+  ChildrenContainerTestView,
+  type ChildrenContainerTestViewRef,
   ChildrenTestView,
   type ChildrenTestViewRef,
   TestView,
@@ -94,7 +96,7 @@ async function getRedCoverage(testID: string): Promise<number> {
 }
 
 async function expectNativeChildCount(
-  view: ChildrenTestViewRef,
+  view: { getNativeChildCount(): number },
   expectedCount: number,
   context = ''
 ): Promise<void> {
@@ -439,6 +441,48 @@ describe('Nitro View children', () => {
     // No stale, duplicated or leaked native children after all of that.
     await renderResult.rerender(renderChildren([1, 2, 3]))
     await expectNativeChildCount(view, 3)
+  })
+
+  it('mounts children into an overridden childrenContainer', async () => {
+    const viewRef = deferred<ChildrenContainerTestViewRef>()
+    const renderChildren = (children: React.ReactNode) => (
+      <ChildrenContainerTestView
+        testID="children-container"
+        style={CONTAINER_SIZE}
+        isBlue={true}
+        hybridRef={callback((view) => viewRef.resolve(view))}
+      >
+        {children}
+      </ChildrenContainerTestView>
+    )
+
+    const renderResult = await render(
+      renderChildren(<ColorBox key="a" name="a" />),
+      { timeout: RENDER_TIMEOUT }
+    )
+    const view = await viewRef.promise
+    await expectNativeChildCount(view, 1)
+    // The child landed in the container, not in `view` - which still holds
+    // exactly one child of its own, the container.
+    expect(view.getViewChildCount()).toBe(1)
+
+    // The container spans the View, so Yoga's frames still land correctly and
+    // the children are drawn on top of the native View.
+    expect(await captureHalves('children-container')).toEqual(['red', 'blue'])
+
+    await renderResult.rerender(
+      renderChildren([
+        <ColorBox key="a" name="a" />,
+        <ColorBox key="b" name="b" />,
+      ])
+    )
+    await expectNativeChildCount(view, 2)
+    expect(view.getViewChildCount()).toBe(1)
+    expect(await captureHalves('children-container')).toEqual(['red', 'green'])
+
+    await renderResult.rerender(renderChildren(null))
+    await expectNativeChildCount(view, 0)
+    expect(view.getViewChildCount()).toBe(1)
   })
 
   it('keeps a leaf Nitro View working exactly as before', async () => {

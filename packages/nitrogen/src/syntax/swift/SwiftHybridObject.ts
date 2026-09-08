@@ -20,6 +20,33 @@ export function createSwiftHybridObject(spec: HybridObjectSpec): SourceFile[] {
     ),
   ]
 
+  // A View that renders React children lets its implementation choose which
+  // `UIView` they are mounted into - it defaults to `view` itself.
+  const childrenMembers = spec.supportsChildren
+    ? `
+/**
+ * The \`\`UIView\`\` React children are mounted into.
+ *
+ * Defaults to \`\`view\`\`. Override this when the children have to live inside
+ * a sub-view - e.g. \`\`UIVisualEffectView/contentView\`\`, which is where a
+ * blur view expects its content. The sub-view has to cover the same area as
+ * \`\`view\`\`, otherwise React Native's layout lands in the wrong place.
+ *
+ * Like \`\`view\`\`, this value should not change during the lifetime of this
+ * \`\`HybridView\`\`.
+ */
+var childrenContainer: UIView { get }
+`.trim()
+    : undefined
+  const childrenDefaults = spec.supportsChildren
+    ? `
+/// Default implementation of \`\`childrenContainer\`\`
+var childrenContainer: UIView {
+  return self.view
+}
+`.trim()
+    : undefined
+
   const protocolBaseClasses = ['HybridObject']
   const classBaseClasses: string[] = []
   if (spec.baseTypes.length > 0) {
@@ -63,8 +90,23 @@ public ${hasBaseClass ? 'override func' : 'func'} getCxxWrapper() -> ${name.Hybr
 }`.trim()
   )
 
+  const extensionMembers = [
+    childrenDefaults,
+    `
+/// Default implementation of \`\`HybridObject.toString\`\`
+func toString() -> String {
+  return "[HybridObject ${name.T}]"
+}
+`.trim(),
+  ]
+    .filter((m) => m != null)
+    .join('\n\n')
+
   const requiredImports = extraImports.map((i) => `import ${i.name}`)
   requiredImports.push('import NitroModules')
+  if (spec.supportsChildren) {
+    requiredImports.push('import UIKit')
+  }
   const imports = requiredImports.filter(isNotDuplicate)
 
   const protocolCode = `
@@ -75,17 +117,14 @@ ${imports.join('\n')}
 /// See \`\`${protocolName}\`\`
 public protocol ${protocolName}_protocol: ${protocolBaseClasses.join(', ')} {
   // Properties
-  ${indent(properties, '  ')}
+  ${indent([childrenMembers, properties].filter((m) => m != null).join('\n'), '  ')}
 
   // Methods
   ${indent(methods, '  ')}
 }
 
 public extension ${protocolName}_protocol {
-  /// Default implementation of \`\`HybridObject.toString\`\`
-  func toString() -> String {
-    return "[HybridObject ${name.T}]"
-  }
+  ${indent(extensionMembers, '  ')}
 }
 
 /// See \`\`${protocolName}\`\`

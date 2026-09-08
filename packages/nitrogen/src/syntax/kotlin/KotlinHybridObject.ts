@@ -30,6 +30,17 @@ export function createKotlinHybridObject(spec: HybridObjectSpec): SourceFile[] {
  * This value should not change during the lifetime of this \`HybridView\`.
  */
 abstract override val view: ViewGroup
+
+/**
+ * The [ViewGroup] React children are mounted into.
+ *
+ * Defaults to [view]. Override this when the children have to live inside a
+ * sub-view - e.g. an overlay on top of a third-party [ViewGroup]. The sub-view
+ * has to cover the same area as [view], otherwise React Native's layout lands
+ * in the wrong place.
+ */
+open val childrenContainer: ViewGroup
+  get() = view
 `.trim()
     : undefined
   const properties = [

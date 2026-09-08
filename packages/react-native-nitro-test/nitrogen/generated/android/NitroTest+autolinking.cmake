@@ -35,6 +35,8 @@ target_sources(
   # Shared Nitrogen C++ sources
   ../nitrogen/generated/shared/c++/HybridBaseSpec.cpp
   ../nitrogen/generated/shared/c++/HybridChildSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridChildrenContainerTestViewSpec.cpp
+  ../nitrogen/generated/shared/c++/views/HybridChildrenContainerTestViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridChildrenTestViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridChildrenTestViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridPlatformObjectSpec.cpp
@@ -49,6 +51,8 @@ target_sources(
   ../nitrogen/generated/android/c++/JHybridChildSpec.cpp
   ../nitrogen/generated/android/c++/JNamedVariant.cpp
   ../nitrogen/generated/android/c++/JVariant_Double_String.cpp
+  ../nitrogen/generated/android/c++/JHybridChildrenContainerTestViewSpec.cpp
+  ../nitrogen/generated/android/c++/views/JHybridChildrenContainerTestViewStateUpdater.cpp
   ../nitrogen/generated/android/c++/JHybridChildrenTestViewSpec.cpp
   ../nitrogen/generated/android/c++/views/JHybridChildrenTestViewStateUpdater.cpp
   ../nitrogen/generated/android/c++/JHybridPlatformObjectSpec.cpp

@@ -46,11 +46,39 @@ export function createKotlinHybridViewManager(
     ? 'ViewGroupManager<ViewGroup>'
     : 'SimpleViewManager<View>'
   const viewImport = spec.supportsChildren
-    ? 'android.view.ViewGroup'
+    ? 'android.view.View\nimport android.view.ViewGroup'
     : 'android.view.View'
   const managerImport = spec.supportsChildren
     ? 'com.facebook.react.uimanager.ViewGroupManager'
     : 'com.facebook.react.uimanager.SimpleViewManager'
+
+  // React children go into the HybridView's `childrenContainer`, which defaults
+  // to the View itself - `ViewGroupManager`'s implementations would always use
+  // the View, so every child operation is routed through the container instead.
+  const childrenOverrides = spec.supportsChildren
+    ? `  override fun addView(parent: ViewGroup, child: View, index: Int) {
+    getChildrenContainer(parent).addView(child, index)
+  }
+
+  override fun getChildAt(parent: ViewGroup, index: Int): View? {
+    return getChildrenContainer(parent).getChildAt(index)
+  }
+
+  override fun getChildCount(parent: ViewGroup): Int {
+    return getChildrenContainer(parent).childCount
+  }
+
+  override fun removeViewAt(parent: ViewGroup, index: Int) {
+    getChildrenContainer(parent).removeViewAt(index)
+  }
+
+  private fun getChildrenContainer(parent: ViewGroup): ViewGroup {
+    val holder = getHybridViewHolder(parent) ?: return parent
+    return holder.hybridView.childrenContainer
+  }
+
+`
+    : ''
 
   const viewManagerCode = `
 ${createFileMetadataString(`${manager}.kt`)}
@@ -140,7 +168,7 @@ public class ${manager}: ${managerBase}() {
     }
   }
 
-  private fun getHybridViewHolder(view: ${viewType}): HybridViewHolder? {
+${childrenOverrides}  private fun getHybridViewHolder(view: ${viewType}): HybridViewHolder? {
     return view.getTag(associated_hybrid_view_tag) as? HybridViewHolder
   }
 }

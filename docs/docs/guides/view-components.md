@@ -370,14 +370,50 @@ mount children into a plain `View`, so a leaf `View` fails to compile instead of
 Use Nitro's `NitroViewGroup`: React Native positions every child itself, and a `ViewGroup` that lays
 out its own children (such as a `LinearLayout`) would fight Fabric and move them to the wrong place.
 
-On **iOS** any `UIView` works - children become its subviews. A `UIView` subclass that manages its own
-subviews (like `UIVisualEffectView`, which requires its `contentView`) should be nested inside a plain
-container `UIView` instead of being returned as `view` directly.
+On **iOS** any `UIView` works - children become its subviews.
 
 :::note
 Your native View may keep its own subviews, but add them before any React child is mounted -
-React Native addresses children by index.
+React Native addresses children by index. If that's awkward, give the children their own container -
+see below.
 :::
+
+### Mounting children into a sub-view
+
+Sometimes the children can't live in `view` itself: a `UIVisualEffectView` requires its `contentView`,
+a native map wants its markers in an overlay, and a third-party `ViewGroup` may lay out its own
+children. Override `childrenContainer` to point React at a different view - it defaults to `view`:
+
+<Tabs groupId="native-view-language">
+  <TabItem value="swift" label="Swift" default>
+    ```swift title="HybridBlurCard.swift"
+    class HybridBlurCard : HybridBlurCardSpec {
+      private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterial))
+
+      var view: UIView { blurView }
+      // highlight-next-line
+      var childrenContainer: UIView { blurView.contentView }
+    }
+    ```
+  </TabItem>
+  <TabItem value="kotlin" label="Kotlin">
+    ```kotlin title="HybridBlurCard.kt"
+    class HybridBlurCard(context: ThemedReactContext): HybridBlurCardSpec() {
+      private val overlay = NitroViewGroup(context)
+
+      override val view: ViewGroup = SomeThirdPartyView(context).apply { addView(overlay) }
+      // diff-add
+      override val childrenContainer: ViewGroup = overlay
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+The container has to cover the same area as `view`. React Native positions each child relative to
+`view`'s top-left corner, so a container that is offset or smaller moves every child with it - and on
+Android a `NitroViewGroup` parent won't lay the container out for you, so size it yourself (in
+`onSizeChanged`, for example). Like `view`, `childrenContainer` should not change over the lifetime of
+the Hybrid View.
 
 ## Methods
 

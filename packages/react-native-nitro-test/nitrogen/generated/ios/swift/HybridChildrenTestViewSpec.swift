@@ -6,10 +6,23 @@
 ///
 
 import NitroModules
+import UIKit
 
 /// See ``HybridChildrenTestViewSpec``
 public protocol HybridChildrenTestViewSpec_protocol: HybridObject, HybridView {
   // Properties
+  /**
+   * The ``UIView`` React children are mounted into.
+   *
+   * Defaults to ``view``. Override this when the children have to live inside
+   * a sub-view - e.g. ``UIVisualEffectView/contentView``, which is where a
+   * blur view expects its content. The sub-view has to cover the same area as
+   * ``view``, otherwise React Native's layout lands in the wrong place.
+   *
+   * Like ``view``, this value should not change during the lifetime of this
+   * ``HybridView``.
+   */
+  var childrenContainer: UIView { get }
   var isBlue: Bool { get set }
 
   // Methods
@@ -17,6 +30,11 @@ public protocol HybridChildrenTestViewSpec_protocol: HybridObject, HybridView {
 }
 
 public extension HybridChildrenTestViewSpec_protocol {
+  /// Default implementation of ``childrenContainer``
+  var childrenContainer: UIView {
+    return self.view
+  }
+  
   /// Default implementation of ``HybridObject.toString``
   func toString() -> String {
     return "[HybridObject ChildrenTestView]"
