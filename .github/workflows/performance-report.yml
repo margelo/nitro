@@ -5,6 +5,12 @@ on:
     workflows: [Nitro Performance]
     types: [completed]
 
+# Serialize comment reads/writes for each PR source, including fork branches.
+# Preserve queued reports; a late older completion must not cancel a newer one.
+concurrency:
+  group: nitro-performance-publisher-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+  queue: max
+
 permissions:
   actions: read
   contents: read
@@ -64,7 +70,7 @@ jobs:
 
       - name: Create Nitro Modules Bot token
         id: performance-bot-token
-        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true' && vars.NITRO_PERFORMANCE_APP_CLIENT_ID != '' && github.event.workflow_run.event == 'pull_request'
+        if: steps.download.outcome == 'success' && steps.validate.outputs.closed != 'true' && vars.NITRO_PERFORMANCE_APP_CLIENT_ID != '' && github.event.workflow_run.event == 'pull_request'
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
         with:
           client-id: ${{ vars.NITRO_PERFORMANCE_APP_CLIENT_ID }}
@@ -72,25 +78,27 @@ jobs:
           permission-pull-requests: write
 
       - name: Post paired comparison to the PR
-        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true'
+        id: comment
+        if: steps.download.outcome == 'success' && steps.validate.outputs.closed != 'true'
         env:
           GITHUB_TOKEN: ${{ steps.performance-bot-token.outputs.token || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_APP_SLUG: ${{ steps.performance-bot-token.outputs.app-slug }}
         run: bun scripts/performance/github-report.ts --directory validated-report
 
       - name: Install Bencher CLI
-        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true'
+        if: steps.download.outcome == 'success' && steps.validate.outputs.closed != 'true' && steps.validate.outputs.stale != 'true' && steps.comment.outputs.publish_history != 'false'
         uses: bencherdev/bencher@8d75325c3bc59403a2186a056b472c4f49d42838 # v0.6.12
         with:
           version: '0.6.12'
 
       - name: Verify pinned Bencher binary
-        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true'
+        if: steps.download.outcome == 'success' && steps.validate.outputs.closed != 'true' && steps.validate.outputs.stale != 'true' && steps.comment.outputs.publish_history != 'false'
         run: |
           printf '%s  %s\n' 'c2d3a6a7fae654246134e5ced1408bdb9ba4e198b0ac3b903af17a06574a7e08' "$(command -v bencher)" | sha256sum --check -
 
       - name: Publish Bencher history
-        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true'
+        if: steps.download.outcome == 'success' && steps.validate.outputs.closed != 'true' && steps.validate.outputs.stale != 'true' && steps.comment.outputs.publish_history != 'false'
         env:
           BENCHER_API_KEY: ${{ secrets.BENCHER_KEY }}
           BENCHER_PROJECT: nitro

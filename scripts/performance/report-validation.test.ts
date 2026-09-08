@@ -20,6 +20,7 @@ async function fixture() {
     workflow_run: {
       id: metadata.workflowRunId,
       run_attempt: metadata.runAttempt,
+      run_number: 50,
       event: metadata.eventName,
       head_sha: metadata.headSha,
       head_branch: 'feature',
@@ -30,7 +31,11 @@ async function fixture() {
     number: metadata.pullRequestNumber,
     state: 'open',
     base: { sha: metadata.baseSha, repo: { full_name: metadata.repository } },
-    head: { sha: metadata.headSha, repo: { full_name: 'contributor/nitro' } },
+    head: {
+      sha: metadata.headSha,
+      ref: 'feature',
+      repo: { full_name: 'contributor/nitro' },
+    },
   }
   const artifact = path.join(root, 'artifact')
   const output = path.join(root, 'output')
@@ -102,9 +107,10 @@ test('forwards HEAD Markdown unchanged without reading the raw schema or recompu
   expect(
     await Bun.file(path.join(f.output, 'performance-summary.md')).text()
   ).toBe(f.markdown)
-  expect(await Bun.file(path.join(f.output, 'metadata.json')).json()).toEqual(
-    f.metadata
-  )
+  expect(await Bun.file(path.join(f.output, 'metadata.json')).json()).toEqual({
+    ...f.metadata,
+    workflowRunNumber: 50,
+  })
 })
 
 test.each([
@@ -116,6 +122,7 @@ test.each([
   'pr',
   'fork',
   'base-repository',
+  'branch',
   'platform',
   'duplicate-platform',
 ])('rejects a publication with mismatched %s', async (kind) => {
@@ -128,29 +135,49 @@ test.each([
   if (kind === 'pr') f.metadata.pullRequestNumber++
   if (kind === 'fork') f.pr.head.repo.full_name = 'another/nitro'
   if (kind === 'base-repository') f.pr.base.repo.full_name = 'other/repo'
+  if (kind === 'branch') f.pr.head.ref = 'another-feature'
   if (kind === 'platform') f.metadata.platforms = ['../../injected']
   if (kind === 'duplicate-platform') f.metadata.platforms = ['ios', 'ios']
   expect((await f.validate()).exitCode).not.toBe(0)
 })
 
-test.each(['head', 'base', 'closed'])(
-  'skips stale PR results: %s',
+test.each(['head', 'base'])(
+  'allows completed comments after PR %s advances while preserving Bencher policy',
   async (change) => {
     await using f = await fixture()
     if (change === 'head') f.pr.head.sha = 'c'.repeat(40)
     if (change === 'base') f.pr.base.sha = 'c'.repeat(40)
-    if (change === 'closed') f.pr.state = 'closed'
-    const result = await f.validate()
-    expect(result.exitCode).toBe(0)
-    expect(result.text).toContain('Skipping stale')
+    expect((await f.validate()).exitCode).toBe(0)
     expect(await Bun.file(path.join(f.root, 'outputs')).text()).toContain(
       'stale=true'
     )
     expect(
-      await Bun.file(path.join(f.output, 'performance-summary.md')).exists()
-    ).toBe(false)
+      await Bun.file(path.join(f.output, 'performance-summary.md')).text()
+    ).toBe(f.markdown)
   }
 )
+
+test('skips a closed PR without producing a publishable report', async () => {
+  await using f = await fixture()
+  f.pr.state = 'closed'
+  expect((await f.validate()).exitCode).toBe(0)
+  expect(await Bun.file(path.join(f.root, 'outputs')).text()).toContain(
+    'closed=true'
+  )
+  expect(
+    await Bun.file(path.join(f.output, 'performance-summary.md')).exists()
+  ).toBe(false)
+})
+
+test('takes publication order from GitHub, ignoring an artifact-supplied sequence', async () => {
+  await using f = await fixture()
+  Object.assign(f.metadata, { workflowRunNumber: 999999 })
+  expect((await f.validate()).exitCode).toBe(0)
+  expect(
+    (await Bun.file(path.join(f.output, 'metadata.json')).json())
+      .workflowRunNumber
+  ).toBe(50)
+})
 
 test.each(['', 'x'.repeat(60_001)])(
   'rejects empty or oversized comments',

@@ -182,3 +182,30 @@ test.each([false, true])(
     }
   }
 )
+
+test('serializes publication by trusted source branch without dropping queued reports', async () => {
+  const publisher = Bun.YAML.parse(
+    await Bun.file(
+      new URL('../../.github/workflows/performance-report.yml', import.meta.url)
+    ).text()
+  ) as any
+  expect(publisher.concurrency).toEqual({
+    group:
+      'nitro-performance-publisher-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}',
+    queue: 'max',
+  })
+  const steps = publisher.jobs.publish.steps as any[]
+  const comment = steps.find((step) => step.id === 'comment')
+  expect(comment.if).toContain("steps.validate.outputs.closed != 'true'")
+  expect(comment.if).not.toContain('stale')
+  expect(comment.env.GH_TOKEN).toBe('${{ secrets.GITHUB_TOKEN }}')
+  for (const step of steps.filter((candidate) =>
+    /Bencher/.test(candidate.name ?? '')
+  )) {
+    expect(step.if).toContain("steps.validate.outputs.stale != 'true'")
+    expect(step.if).toContain("steps.validate.outputs.closed != 'true'")
+    expect(step.if).toContain(
+      "steps.comment.outputs.publish_history != 'false'"
+    )
+  }
+})

@@ -107,13 +107,31 @@ Renderer and raw-schema changes can therefore be reviewed in PR CI before mergin
 
 One default-branch `Publish Nitro Performance` workflow handles internal PRs,
 forks and main runs. It selects the exact publication artifact for the triggering
-attempt, checks its repository, run, revisions and current PR against GitHub,
-and posts its Markdown unchanged. It reads no raw samples and never installs or
-executes PR code or artifact scripts. Comment content is produced by PR code;
+attempt, checks its repository, run, measured head SHA and PR source branch
+against GitHub, and posts its Markdown with a trusted measured-commit/run label.
+It reads no raw samples and never installs or executes PR code or artifact scripts. Comment content is produced by PR code;
 provenance checks establish its source, not the correctness of its measurements.
 Docs-only and cancelled runs skip publication. Markdown/MDX-only edits also skip
 measurements inside package/app directories. Relevant failures remain failures.
-Stale PR results are skipped. User comments are never edited.
+Completed reports remain useful when an open PR's head or base has advanced.
+They identify the measured commits and say when the PR has changed. A newer run
+that is still building does not hide the last completed result. Closed PRs are
+skipped, and user comments are never edited.
+
+A hidden marker on the bot comment identifies its source run and attempt. The
+publisher resolves that attempt through GitHub and checks that it completed
+successfully on the same source repository and branch. Higher run numbers win;
+within one run, higher attempts win. A late completion or rerun of an older run
+cannot replace a newer report. Retrying the same publication updates the same
+comment. Legacy comments use their existing run/attempt footer for the same lookup.
+Unrecognized or mismatched source claims cannot freeze future comments; lookup
+failures stop publication rather than risk replacing a newer result.
+
+Publishing is serialized per source repository and branch, including forks, so
+checking the marker and updating the comment cannot race with another publisher.
+`queue: max` retains up to 100 waiting publications instead of canceling the
+previous pending job. This ordering policy takes effect after the trusted
+publisher reaches `main`; HEAD run summaries are already available during review.
 
 The publication envelope is independent of raw app schema versions. Keep its
 filenames and identity fields stable when changing benchmarks or report rendering.
@@ -124,6 +142,8 @@ The trusted workflow also performs the final Bencher upload with `BENCHER_KEY`;
 that secret never reaches HEAD code. Its CLI version and binary digest are pinned.
 Bencher's JSON adapter validates the already-generated BMF files. The comment is
 posted first so an invalid BMF file cannot prevent the report from appearing.
+Bencher keeps its current-revision policy: advanced PR results can appear in the
+comment without being uploaded to history, and superseded reports skip history.
 Bencher receives median latency values without invented bounds. PR publications
 seed both measured platform baselines at `baseline-<base SHA>` before recording
 the head at `pr-<number>`. Only main-branch runs record main history. Bencher
