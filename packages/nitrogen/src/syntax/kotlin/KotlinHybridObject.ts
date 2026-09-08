@@ -13,9 +13,29 @@ import { KotlinCxxBridgedType } from './KotlinCxxBridgedType.js'
 
 export function createKotlinHybridObject(spec: HybridObjectSpec): SourceFile[] {
   const name = getHybridObjectName(spec.name)
-  const properties = spec.properties
-    .map((p) => getPropertyForwardImplementation(p))
-    .join('\n\n')
+  // A `children` prop means React children are mounted into this View. React
+  // Native's mounting layer requires the mounted View to be a `ViewGroup`, so
+  // narrow `view`'s type here - a leaf `View` then fails to compile instead of
+  // crashing at runtime.
+  const childrenMembers = spec.supportsChildren
+    ? `
+/**
+ * The [ViewGroup] this HybridView is holding, and that React children
+ * are mounted into.
+ *
+ * React Native positions each child itself, so this should be a
+ * [com.margelo.nitro.views.NitroViewGroup] (or another [ViewGroup] that
+ * doesn't lay out its own children).
+ *
+ * This value should not change during the lifetime of this \`HybridView\`.
+ */
+abstract override val view: ViewGroup
+`.trim()
+    : undefined
+  const properties = [
+    ...(childrenMembers != null ? [childrenMembers] : []),
+    ...spec.properties.map((p) => getPropertyForwardImplementation(p)),
+  ].join('\n\n')
   const methods = spec.methods
     .map((m) => getMethodForwardImplementation(m))
     .join('\n\n')
@@ -35,6 +55,13 @@ export function createKotlinHybridObject(spec: HybridObjectSpec): SourceFile[] {
   if (spec.isHybridView) {
     extraImports.push({
       name: 'com.margelo.nitro.views.HybridView',
+      space: 'system',
+      language: 'kotlin',
+    })
+  }
+  if (spec.supportsChildren) {
+    extraImports.push({
+      name: 'android.view.ViewGroup',
       space: 'system',
       language: 'kotlin',
     })

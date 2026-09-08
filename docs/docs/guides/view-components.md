@@ -305,6 +305,80 @@ class HybridImageView: HybridImageViewSpec, RecyclableView {
 }
 ```
 
+## Children
+
+By default a Nitro View is a leaf - passing React children to it is a compile error.
+
+To render children inside your View, declare a `children` prop of type `HybridViewChildren` in its spec:
+
+```ts title="Card.nitro.ts"
+import type { HybridView, HybridViewProps, HybridViewChildren } from 'react-native-nitro-modules'
+
+export interface CardProps extends HybridViewProps {
+  // highlight-next-line
+  children?: HybridViewChildren
+  isElevated: boolean
+}
+export type Card = HybridView<CardProps>
+```
+
+`children` is only a marker - it is not a Nitro prop, and never crosses the JS ↔ native prop bridge.
+React's renderer mounts and unmounts the child views directly, and React Native's layout engine
+(Yoga) positions them - exactly like it does for a regular `<View>`.
+
+Now the View can render children:
+
+```jsx
+function App() {
+  return (
+    <Card isElevated={true} style={{ padding: 20 }}>
+      <Text>Hello</Text>
+    </Card>
+  )
+}
+```
+
+### Implementing a container View
+
+Children are mounted **into** your native View, so it has to be able to hold them.
+
+<Tabs groupId="native-view-language">
+  <TabItem value="swift" label="Swift" default>
+    ```swift title="HybridCard.swift"
+    class HybridCard : HybridCardSpec {
+      // Children are added as subviews of this UIView
+      var view: UIView = UIView()
+      var isElevated: Bool = false
+    }
+    ```
+  </TabItem>
+  <TabItem value="kotlin" label="Kotlin">
+    ```kotlin title="HybridCard.kt"
+    import com.margelo.nitro.views.NitroViewGroup
+
+    class HybridCard(context: ThemedReactContext): HybridCardSpec() {
+      // Children are added to this ViewGroup
+      override val view: ViewGroup = NitroViewGroup(context)
+      override var isElevated: Boolean = false
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+On **Android**, the generated `HybridCardSpec` narrows `view` to a `ViewGroup` - React Native cannot
+mount children into a plain `View`, so a leaf `View` fails to compile instead of crashing at runtime.
+Use Nitro's `NitroViewGroup`: React Native positions every child itself, and a `ViewGroup` that lays
+out its own children (such as a `LinearLayout`) would fight Fabric and move them to the wrong place.
+
+On **iOS** any `UIView` works - children become its subviews. A `UIView` subclass that manages its own
+subviews (like `UIVisualEffectView`, which requires its `contentView`) should be nested inside a plain
+container `UIView` instead of being returned as `view` directly.
+
+:::note
+Your native View may keep its own subviews, but add them before any React child is mounted -
+React Native addresses children by index.
+:::
+
 ## Methods
 
 Since every `HybridView` is also a `HybridObject`, methods can be directly called on the object.

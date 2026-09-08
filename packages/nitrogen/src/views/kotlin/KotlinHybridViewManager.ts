@@ -38,14 +38,28 @@ export function createKotlinHybridViewManager(
   }
   const viewImplementation = implementation.implementationClassName
 
+  // React Native's mounting layer can only add children to a `ViewGroup`, and
+  // only through a `ViewGroupManager`. Views without children stay on the
+  // lighter `SimpleViewManager<View>`, which keeps them exactly as they were.
+  const viewType = spec.supportsChildren ? 'ViewGroup' : 'View'
+  const managerBase = spec.supportsChildren
+    ? 'ViewGroupManager<ViewGroup>'
+    : 'SimpleViewManager<View>'
+  const viewImport = spec.supportsChildren
+    ? 'android.view.ViewGroup'
+    : 'android.view.View'
+  const managerImport = spec.supportsChildren
+    ? 'com.facebook.react.uimanager.ViewGroupManager'
+    : 'com.facebook.react.uimanager.SimpleViewManager'
+
   const viewManagerCode = `
 ${createFileMetadataString(`${manager}.kt`)}
 
 package ${javaSubNamespace}
 
-import android.view.View
+import ${viewImport}
 import com.facebook.react.uimanager.ReactStylesDiffMap
-import com.facebook.react.uimanager.SimpleViewManager
+import ${managerImport}
 import com.facebook.react.uimanager.StateWrapper
 import com.facebook.react.uimanager.ThemedReactContext
 import com.margelo.nitro.R.id.associated_hybrid_view_tag
@@ -55,7 +69,7 @@ import ${javaNamespace}.*
 /**
  * Represents the React Native \`ViewManager\` for the "${spec.name}" Nitro HybridView.
  */
-public class ${manager}: SimpleViewManager<View>() {
+public class ${manager}: ${managerBase}() {
   /**
    * Represents the View and its last state snapshot (mutable)
    */
@@ -75,14 +89,14 @@ public class ${manager}: SimpleViewManager<View>() {
     return "${spec.name}"
   }
 
-  override fun createViewInstance(reactContext: ThemedReactContext): View {
+  override fun createViewInstance(reactContext: ThemedReactContext): ${viewType} {
     val hybridView = ${viewImplementation}(reactContext)
     val view = hybridView.view
     view.setTag(associated_hybrid_view_tag, HybridViewHolder(hybridView))
     return view
   }
 
-  override fun updateState(view: View, props: ReactStylesDiffMap, stateWrapper: StateWrapper): Any? {
+  override fun updateState(view: ${viewType}, props: ReactStylesDiffMap, stateWrapper: StateWrapper): Any? {
     val holder = getHybridViewHolder(view)
       ?: throw Error("Couldn't find view $view in local views table!")
     val hybridView = holder.hybridView
@@ -99,14 +113,14 @@ public class ${manager}: SimpleViewManager<View>() {
     return super.updateState(view, props, newState)
   }
 
-  override fun onDropViewInstance(view: View) {
+  override fun onDropViewInstance(view: ${viewType}) {
     val holder = getHybridViewHolder(view)
     holder?.lastState = null
     holder?.hybridView?.onDropView()
     return super.onDropViewInstance(view)
   }
 
-  protected override fun prepareToRecycleView(reactContext: ThemedReactContext, view: View): View? {
+  protected override fun prepareToRecycleView(reactContext: ThemedReactContext, view: ${viewType}): ${viewType}? {
     val preparedView = super.prepareToRecycleView(reactContext, view)
       ?: return null
     val holder = getHybridViewHolder(preparedView)
@@ -126,7 +140,7 @@ public class ${manager}: SimpleViewManager<View>() {
     }
   }
 
-  private fun getHybridViewHolder(view: View): HybridViewHolder? {
+  private fun getHybridViewHolder(view: ${viewType}): HybridViewHolder? {
     return view.getTag(associated_hybrid_view_tag) as? HybridViewHolder
   }
 }

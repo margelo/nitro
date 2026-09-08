@@ -65,6 +65,16 @@
         "implementationClassName": "HybridTestView"
       }
     },
+    "ChildrenTestView": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridChildrenTestView"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridChildrenTestView"
+      }
+    },
     "RecyclableTestView": {
       "ios": {
         "language": "swift",

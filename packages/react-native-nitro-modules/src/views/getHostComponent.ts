@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Platform, type HostComponent, type ViewProps } from 'react-native'
 // TODO: Migrate to the official export of `NativeComponentRegistry` from `react-native` once react-native 0.83.0 becomes more established as this is deprecated
 // eslint-disable-next-line @react-native/no-deep-imports
@@ -85,21 +86,46 @@ type WrapFunctionsInObjects<Props> = {
 }
 
 /**
+ * Resolves the `children` prop of a Nitro View.
+ *
+ * A Nitro View only accepts React children if its spec opted in by declaring a
+ * `children` prop of type `HybridViewChildren`. Views that didn't opt
+ * in get `children?: never`, which turns passing children into a compile error
+ * instead of a silently invisible view on iOS and a crash on Android.
+ */
+type ChildrenPropOf<Props> = 'children' extends keyof Props
+  ? { children?: ReactNode }
+  : {
+      /**
+       * This Nitro View cannot render React children.
+       *
+       * To render children inside it, declare a `children` prop of type
+       * `HybridViewChildren` in its Nitro spec.
+       */
+      children?: never
+    }
+
+/**
  * Represents a React Native view, implemented as a Nitro View, with the given props and methods.
  *
  * @note Every React Native view has a {@linkcode DefaultHybridViewProps.hybridRef hybridRef} which can be used to gain access
  *       to the underlying Nitro {@linkcode HybridView}.
  * @note Every function/callback is wrapped as a `{ f: … }` object. Use {@linkcode callback | callback(...)} for this.
  * @note Every method can be called on the Ref. Including setting properties directly.
+ * @note `children` is only accepted if the Nitro View declared a `children` prop of type `HybridViewChildren`.
  */
 export type ReactNativeView<
   Props extends HybridViewProps,
   Methods extends HybridViewMethods,
 > = HostComponent<
+  // `children` is a React concept, never a Nitro prop - it is neither wrapped as
+  // a callback object nor a member of the underlying Hybrid Object.
   WrapFunctionsInObjects<
-    DefaultHybridViewProps<HybridView<Props, Methods>> & Props
+    DefaultHybridViewProps<Omit<HybridView<Props, Methods>, 'children'>> &
+      Omit<Props, 'children'>
   > &
-    ViewProps
+    Omit<ViewProps, 'children'> &
+    ChildrenPropOf<Props>
 >
 
 type ValidAttributes<Props> = ViewConfig<Props>['validAttributes']

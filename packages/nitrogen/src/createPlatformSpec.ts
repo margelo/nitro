@@ -21,6 +21,52 @@ import { getBaseTypes, getHybridObjectNitroModuleConfig } from './utils.js'
 import { NitroConfig } from './config/NitroConfig.js'
 import { isMemberOverridingFromBase } from './syntax/isMemberOverridingFromBase.js'
 
+/**
+ * The name of the marker prop that opts a Hybrid View into rendering React children.
+ *
+ * It never becomes a native prop - React's renderer mounts and unmounts the
+ * child views directly, so it doesn't cross the JS <-> native prop bridge.
+ */
+const CHILDREN_PROP_NAME = 'children'
+/**
+ * The type {@linkcode CHILDREN_PROP_NAME} has to be declared as.
+ */
+const CHILDREN_PROP_TYPE = 'HybridViewChildren'
+
+/**
+ * Whether the given Hybrid View props type declares a `children` marker prop.
+ *
+ * Nitrogen cannot map an arbitrary type to a native prop here (the prop only
+ * exists in TypeScript), so anything but `HybridViewChildren` is rejected right
+ * away instead of failing later with a confusing "unsupported type" error.
+ */
+function supportsChildren(viewName: string, props: Type): boolean {
+  const children = props.getProperty(CHILDREN_PROP_NAME)
+  if (children == null) {
+    return false
+  }
+  const declaration = children.getDeclarations()[0]
+  if (declaration == null) {
+    throw new Error(
+      `${viewName}: Property "${CHILDREN_PROP_NAME}" does not have a type declaration!`
+    )
+  }
+  // `children?: HybridViewChildren` is a union with `undefined`, so check each type in it.
+  const type = children.getTypeAtLocation(declaration)
+  const types = type.isUnion() ? type.getUnionTypes() : [type]
+  const isMarker = types.some(
+    (t) => t.getSymbol()?.getName() === CHILDREN_PROP_TYPE
+  )
+  if (!isMarker) {
+    throw new Error(
+      `${viewName}: The "${CHILDREN_PROP_NAME}" prop is reserved - it marks a Nitro View as ` +
+        `rendering React children, so it has to be declared as ` +
+        `\`${CHILDREN_PROP_NAME}?: ${CHILDREN_PROP_TYPE}\` (got \`${type.getText()}\`).`
+    )
+  }
+  return true
+}
+
 export function generatePlatformFiles(
   interfaceType: Type,
   language: Language
@@ -44,7 +90,11 @@ export function generatePlatformFiles(
   }
 }
 
-function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
+function getHybridObjectSpec(
+  type: Type,
+  language: Language,
+  stripChildrenProp = false
+): HybridObjectSpec {
   const config = getHybridObjectNitroModuleConfig(type) ?? NitroConfig.current
 
   if (isHybridView(type)) {
@@ -59,13 +109,15 @@ function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
       throw new Error(
         `Props cannot be null! ${name}<...> (HybridView) requires type arguments.`
       )
-    const propsSpec = getHybridObjectSpec(props, language)
+    const hasChildren = supportsChildren(name, props)
+    const propsSpec = getHybridObjectSpec(props, language, hasChildren)
     const methodsSpec =
       methods != null ? getHybridObjectSpec(methods, language) : undefined
 
     return {
       baseTypes: [],
       isHybridView: true,
+      supportsChildren: hasChildren,
       language: language,
       methods: methodsSpec?.methods ?? [],
       properties: propsSpec.properties,
@@ -80,6 +132,12 @@ function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
   const properties: Property[] = []
   const methods: Method[] = []
   for (const prop of type.getProperties()) {
+    if (stripChildrenProp && prop.getName() === CHILDREN_PROP_NAME) {
+      // `children` only marks the View as rendering React children - skip it
+      // before `createType(..)` ever sees it, it has no native representation.
+      continue
+    }
+
     const declarations = prop.getDeclarations()
     if (declarations.length > 1) {
       throw new Error(
@@ -155,6 +213,7 @@ function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
     methods: methods,
     baseTypes: bases,
     isHybridView: isHybridView(type),
+    supportsChildren: false,
     config: config,
   }
 
