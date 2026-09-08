@@ -12,27 +12,17 @@
 
 namespace margelo::nitro {
 
-template <typename T>
-inline void destroyReferences(const std::vector<WeakReference<T>>& references) {
-  for (auto& func : references) {
-    BorrowingReference<T> reference = func.lock();
-    if (reference) {
-      // Destroy all functions that we might still have in cache, some callbacks and Promises may now become invalid.
-      reference.destroy();
-    }
-  }
-}
-
 JSICache::~JSICache() {
   Logger::log(LogLevel::Info, TAG, "Destroying JSICache...");
   std::unique_lock lock(_mutex);
 
-  destroyReferences(_valueCache);
-  destroyReferences(_objectCache);
-  destroyReferences(_functionCache);
-  destroyReferences(_weakObjectCache);
-  destroyReferences(_propNameIDCache);
-  destroyReferences(_arrayBufferCache);
+  // Some callbacks and Promises may now become invalid.
+  _valueCache.destroyAll();
+  _objectCache.destroyAll();
+  _functionCache.destroyAll();
+  _weakObjectCache.destroyAll();
+  _propNameIDCache.destroyAll();
+  _arrayBufferCache.destroyAll();
 }
 
 JSICacheReference JSICache::getOrCreateCache(jsi::Runtime& runtime) {
