@@ -108,8 +108,9 @@ process variability, raw artifacts, trusted reporting, and Bencher publishing.
 CI retains exact app artifacts for measurement-only reruns. It builds both
 revisions even when definitions change, and reuses one binary for identical SHAs.
 New and removed cases stay visible in the table without a percentage comparison.
-Same-revision scheduled/manual runs show baseline variation. Performance remains
-report-only.
+Post `@nitro-modules-bot please test performance` on an open PR to start CI. Each
+request posts a new report; rerunning the same workflow updates its report. Local
+same-revision runs show baseline variation. Performance remains report-only.
 
 The example's former benchmark screen and TurboModule control have moved here.
 No public Nitro API changes are needed. App dependency versions initially match

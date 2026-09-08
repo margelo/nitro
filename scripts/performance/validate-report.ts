@@ -36,7 +36,9 @@ if (
   metadata.eventName !== run.event ||
   metadata.workflowRunId !== run.id ||
   metadata.runAttempt !== run.run_attempt ||
-  metadata.headSha !== run.head_sha ||
+  (run.event !== 'issue_comment' && metadata.headSha !== run.head_sha) ||
+  typeof metadata.headSha !== 'string' ||
+  !/^[0-9a-f]{40}$/.test(metadata.headSha) ||
   typeof metadata.baseSha !== 'string' ||
   !/^[0-9a-f]{40}$/.test(metadata.baseSha) ||
   !Array.isArray(metadata.platforms) ||
@@ -52,7 +54,7 @@ if (
   )
 }
 
-if (run.event === 'pull_request') {
+if (run.event === 'issue_comment' || run.event === 'pull_request') {
   const pr = JSON.parse(
     await readFile(requiredArgument(args, 'trusted-pull-request'), 'utf8')
   )
@@ -62,7 +64,10 @@ if (run.event === 'pull_request') {
     metadata.pullRequestNumber < 1 ||
     metadata.pullRequestNumber !== pr.number ||
     pr.base.repo.full_name !== repository ||
-    pr.head.repo.full_name !== run.head_repository.full_name
+    (run.event === 'issue_comment'
+      ? run.head_repository.full_name !== repository ||
+        run.display_title !== `Nitro Performance for PR #${pr.number}`
+      : pr.head.repo.full_name !== run.head_repository.full_name)
   ) {
     throw new Error(
       'Publication metadata does not match the trusted pull request.'
