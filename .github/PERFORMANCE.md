@@ -2,11 +2,19 @@
 
 `Nitro Performance` builds the dedicated `apps/benchmark` Release/Hermes app.
 Each platform installs base and head side by side on the same machine. It
-alternates base and head in each app's suite order, then finishes any remaining
-cases in the longer suite. With the same case order, each function runs back to back. There is one AB pair, with five warmup batches and twenty measured
-batches per process. Each case gets a fresh app process; installation, startup,
-transport and process restarts are outside timing. There is no automatic third
-pair. Manual reruns are retained as identifiable workflow attempts.
+runs four pairs at each position in the apps' suite order: **AB, BA, BA, AB**
+(A = base, B = head), then moves to the next position. It finishes any remaining
+cases in the longer suite. With the same case order, each function runs back to
+back with each revision first twice. Each launch gets a fresh app process,
+five warmup batches and twenty measured batches: eighty measured batches per
+revision and case. Installation, startup, transport and process restarts are
+outside timing. Apps are built and installed once, then reused across all four
+pairs. Manual reruns are retained as identifiable workflow attempts.
+
+Startup waits for two animation frames, with no fixed one-second sleep. Keep
+the frame handoff and warmup: synchronous JS does not prevent native startup
+work or OS scheduling from competing for the CPU. The Android crash monitor's
+one-second polling interval runs concurrently and does not delay measurements.
 
 Each case uses checked-in operation counts from
 [`iterations.ts`](../apps/benchmark/src/benchmarks/iterations.ts), separately for
@@ -31,13 +39,16 @@ owned native storage. Other allocating cases retain GC and native yields. Raw `i
 
 ## Reading results
 
-The main score is the median (p50) of batch averages in ns/op, not individual-call
-tail latency. The report shows every observed change of at least 5%, including
-Promise cases. This is a presentation threshold, not a calibrated regression
+The main score is the median (p50) of all measured batch averages across the four
+processes in ns/op, not individual-call tail latency. The report shows every
+observed change of at least 5%, including Promise cases. This is a presentation
+threshold, not a calibrated regression
 budget. Expand the report for the remaining metrics; the raw JSON retains all
 samples. Matching pooled medians do not prove
-equal performance. One pair cannot establish repeatability between launches or justify confidence
-intervals. Repeat measurement jobs or same-revision runs to investigate variation.
+equal performance. Per-pair raw results preserve launch-to-launch variation;
+four pairs do not establish a calibrated regression budget or justify treating
+eighty batches as independent process runs. Repeat measurement jobs or
+same-revision runs to investigate variation.
 
 Performance is currently report-only. Build, execution and malformed-result
 failures still fail CI. Turning observed differences into a regression gate needs
@@ -75,9 +86,9 @@ architecture and toolchain metadata. iOS apps are tar archives to preserve
 permissions and symlinks. Gradle's basic cache is the sole Android cache owner;
 Gradle still checks source/task inputs, while exact app reuse is by artifact ID.
 There is no new iOS compiler cache. App reuse avoids build work on manual reruns. With 46 cases in each revision, a run
-uses 92 fresh processes (46 base + 46 head).
-Closer comparisons reduce time separation, but fixed base-first order can still
-introduce bias; same-revision runs are needed to assess that on each testbed.
+uses 368 fresh processes (184 base + 184 head), while retaining one build and
+installation per revision. Balanced order reduces consistent first/second
+effects, but same-revision runs are still needed to assess noise on each testbed.
 
 ## Artifacts and publishing
 

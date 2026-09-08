@@ -247,10 +247,10 @@ test.each([
         ).toBe(1)
         expect(
           await Bun.file(path.join(output, 'measurement.json')).json()
-        ).toEqual({ buildArtifactId: 456, runAttempt: 2 })
+        ).toEqual({ buildArtifactId: 456, runAttempt: 2, pairCount: 4 })
       }
       expect(new Set(processes.map((entry) => entry.pid)).size).toBe(
-        baseIds.length + headIds.length
+        4 * (baseIds.length + headIds.length)
       )
       expect(
         processes.map((entry) => [
@@ -258,39 +258,61 @@ test.each([
           entry.configuration.runId,
         ])
       ).toEqual(
-        mode === 'added-case'
-          ? [
-              [0, `${platform}-base-1`],
-              [0, `${platform}-head-1`],
-              [1, `${platform}-base-1`],
-              [1, `${platform}-head-1`],
-              [2, `${platform}-head-1`],
+        Array.from(
+          { length: Math.max(baseIds.length, headIds.length) },
+          (_, index) =>
+            [
+              'base-1',
+              'head-1',
+              'head-2',
+              'base-2',
+              'head-3',
+              'base-3',
+              'base-4',
+              'head-4',
             ]
-          : mode === 'removed-case'
-            ? [
-                [0, `${platform}-base-1`],
-                [0, `${platform}-head-1`],
-                [1, `${platform}-base-1`],
-              ]
-            : [
-                [0, `${platform}-base-1`],
-                [0, `${platform}-head-1`],
-                [1, `${platform}-base-1`],
-                [1, `${platform}-head-1`],
-              ]
+              .filter(
+                (name) =>
+                  index <
+                  (name.startsWith('base') ? baseIds.length : headIds.length)
+              )
+              .map((name) => [index, `${platform}-${name}`])
+        ).flat()
       )
       expect(
         (await readdir(output)).some((name) => name.startsWith('calibration'))
       ).toBe(false)
-      const base = await Bun.file(path.join(output, 'base-1.json')).json()
-      const head = await Bun.file(path.join(output, 'head-1.json')).json()
-      expect(base.metrics.map((metric: { id: string }) => metric.id)).toEqual(
-        baseIds
-      )
-      expect(head.metrics.map((metric: { id: string }) => metric.id)).toEqual(
-        headIds
-      )
-      const comparisons = compareRuns([base], [head]).comparisons
+      const baseRuns = []
+      const headRuns = []
+      for (let pair = 1; pair <= 4; pair++) {
+        const base = await Bun.file(
+          path.join(output, `base-${pair}.json`)
+        ).json()
+        const head = await Bun.file(
+          path.join(output, `head-${pair}.json`)
+        ).json()
+        expect(base.metrics.map((metric: { id: string }) => metric.id)).toEqual(
+          baseIds
+        )
+        expect(head.metrics.map((metric: { id: string }) => metric.id)).toEqual(
+          headIds
+        )
+        expect(base.configuration.runId).toBe(`${platform}-base-${pair}`)
+        expect(head.configuration.runId).toBe(`${platform}-head-${pair}`)
+        expect(
+          await readdir(path.join(output, `base-${pair}-cases`))
+        ).toHaveLength(baseIds.length)
+        expect(
+          await readdir(path.join(output, `head-${pair}-cases`))
+        ).toHaveLength(headIds.length)
+        baseRuns.push(base)
+        headRuns.push(head)
+      }
+      const comparisons = compareRuns(baseRuns, headRuns).comparisons
+      expect(
+        comparisons.find((metric) => metric.id === baseIds[1])
+          ?.pairChangesPercent
+      ).toEqual([0, 0, 0, 0])
       expect(
         comparisons.find((metric) => metric.id === baseIds[1])?.deltaPercent
       ).toBe(0)
