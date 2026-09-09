@@ -20,7 +20,7 @@ export function findPrototypeWhere<T extends object>(
 }
 
 const HybridObjectPrototype = findPrototypeWhere(
-  NitroModules,
+  Object.getPrototypeOf(NitroModules),
   (obj) =>
     Object.hasOwn(obj, 'toString') &&
     Object.hasOwn(obj, 'equals') &&
@@ -30,13 +30,12 @@ if (HybridObjectPrototype == null) {
   throw new Error(`Failed to find HybridObject root prototype!`)
 }
 function isHybridObjectSubclass(obj: object): boolean {
-  if (!(obj.toString instanceof Function)) {
-    // it doesn't haven have .toString
-    return false
-  }
-  // If its .toString function is the same as the HybridObject prototype's
-  // .toString function, it means it is inheriting from HybridObject.
-  return obj.toString === HybridObjectPrototype?.toString
+  // Bound instances have their own functions. Identify the shared prototype
+  // by ancestry so we also recognize prototype objects without invoking getters.
+  return (
+    obj === HybridObjectPrototype ||
+    Object.prototype.isPrototypeOf.call(HybridObjectPrototype, obj)
+  )
 }
 
 export function stringify(value: unknown): string {
