@@ -111,6 +111,17 @@ When adding a reproduction, follow the rules in [CONTRIBUTING.md](https://github
 
 Submit a PR that demonstrates this runtime error or crash in the Nitro `apps/example/` app — ideally with a new assertion in [`apps/example/src/getTests.ts`](https://github.com/margelo/nitro/blob/main/apps/example/src/getTests.ts) so the regression is caught by the Harness CI workflows (iOS and Android). A PR that only adds the failing assertion and makes Harness go red is enough on its own; you don't have to land the fix.
 
+## Performance tests
+
+Performance CI is opt-in. A maintainer with write, maintain, or admin repository
+access can post `@nitro-modules-bot please test performance` on an open PR.
+The bot acknowledges it with 👍, adds a status to the PR's checks, and posts the
+results or a failure link. Contributors without write access can ask a maintainer
+to run it, including for PRs from forks.
+
+See [Performance tests in CONTRIBUTING.md](https://github.com/margelo/nitro/blob/main/CONTRIBUTING.md#performance-tests)
+for repeat runs and measurement-only retries.
+
 ## Run Nitro Docs
 
 The Nitro docs ([nitro.margelo.com](https://nitro.margelo.com)) are built with [Docusaurus](https://docusaurus.io).

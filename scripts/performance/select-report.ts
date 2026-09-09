@@ -40,6 +40,31 @@ export function selectReportArtifact(
   return id
 }
 
+// Measurement-only reruns retain the original request artifact.
+export function selectRequestArtifact(
+  attempt: number,
+  artifacts: readonly Artifact[]
+): number | undefined {
+  const requests = artifacts
+    .flatMap((artifact) => {
+      const match = /^performance-request-([1-9][0-9]*)$/.exec(artifact.name)
+      if (match == null || artifact.expired || Number(match[1]) > attempt)
+        return []
+      return [{ ...artifact, attempt: Number(match[1]) }]
+    })
+    .sort((a, b) => b.attempt - a.attempt)
+  const latest = requests[0]
+  if (latest == null) return undefined
+  if (
+    !Number.isSafeInteger(latest.id) ||
+    latest.id < 1 ||
+    requests[1]?.attempt === latest.attempt
+  ) {
+    throw new Error('Invalid or ambiguous performance request artifact.')
+  }
+  return latest.id
+}
+
 if (import.meta.main) {
   const event = JSON.parse(
     await readFile(process.env.GITHUB_EVENT_PATH!, 'utf8')
@@ -69,6 +94,18 @@ if (import.meta.main) {
   ])
   if (artifactResponse.total_count > 100 || jobResponse.total_count > 100)
     throw new Error('Performance run exceeds the artifact/job lookup limit.')
+  const requestId = selectRequestArtifact(
+    run.run_attempt,
+    artifactResponse.artifacts
+  )
+  await appendFile(
+    process.env.GITHUB_OUTPUT!,
+    `request_artifact_id=${requestId ?? ''}\n`
+  )
+  if (event.action !== 'completed' || requestId == null) {
+    await appendFile(process.env.GITHUB_OUTPUT!, 'artifact_id=\n')
+    process.exit(0)
+  }
   const id = selectReportArtifact(
     run.conclusion,
     run.run_attempt,

@@ -6,15 +6,32 @@ Start a performance comparison by posting a new PR comment containing exactly:
 @nitro-modules-bot please test performance
 ```
 
-The commenter must be a repository owner, member, or collaborator, and the PR
-must be open. Editing an existing comment does not start a run. Pushes, PR updates, schedules, and the
-Actions dispatch button do not start performance runs. Manual requests run
+The PR must be open, and GitHub must report **write**, **maintain**, or **admin**
+access for the commenter in this repository. Read/triage access, org membership
+alone, and access to a fork do not grant permission to start these runs. Other
+users can post the command, but it will not run benchmarks or receive a reaction.
+Editing an existing comment does not start a run. Pushes, PR updates, schedules,
+and the Actions dispatch button do not start performance runs. Manual requests run
 regardless of which files changed, including docs-only PRs.
+
+An accepted request gets a 👍 reaction from the bot. The PR's checks area shows
+`Nitro Performance / <run ID>`, with a yellow pending status while it runs,
+green on success, or red for failures/cancellation. The status links to the run
+logs; publishing failures link to the publishing workflow. Each status belongs
+to the tested head commit, even if the PR advances while measurements run.
+
+Failures also produce a PR comment with direct links to the benchmark attempt
+and publishing logs. Re-running the failed workflow updates the same comment.
+If report publishing fails after measurements succeeded, available results stay
+in that comment. A failed run leaves earlier successful reports visible.
 
 Each request starts an independent workflow run and posts a new report comment,
 even when the commits have not changed. Re-running jobs within that workflow
 updates only that run's report, using its workflow run ID. Requests do not cancel
-one another. The artifact links and attempt details are collapsed under
+one another. After publishing a report, the bot minimizes its older performance
+comments as **Outdated**, including legacy reports. It leaves other authors and
+unrelated comments alone; rerunning an older run never hides a newer report.
+The artifact links and attempt details are collapsed under
 **Raw measurements and artifacts**.
 
 The comment trigger and trusted publisher take effect after merging into the
@@ -128,6 +145,13 @@ containing `performance-summary.md`, `metadata.json`, and `bencher-*.json`.
 The raw artifact is uploaded first so the rendered comment can link its exact ID.
 Renderer and raw-schema changes can therefore be reviewed in PR CI before merging.
 
+The isolated request job saves `performance-request-<attempt>` before any PR code
+runs. It contains the requested head SHA and workflow identity. The publisher
+checks this against the initial commit status written by `github-actions[bot]`
+before trusting it. Measurement-only reruns reuse this request; late events from
+older attempts cannot overwrite a newer status. PR code never receives the bot
+key or a token with status/comment write permissions.
+
 One default-branch `Publish Nitro Performance` workflow handles comment-triggered
 internal PRs and forks. It selects the exact publication artifact for the triggering
 attempt, checks its repository, run, revisions and current PR against GitHub,
@@ -176,13 +200,17 @@ for local build and run commands.
 
 The paired PR comparison can post as a dedicated GitHub App named **Nitro Modules Bot**, using [`docs/static/img/nos.png`](../docs/static/img/nos.png)
 as its avatar. The app needs no hosted service or webhook receiver; Actions
-creates a short-lived installation token just before posting the comment.
+creates short-lived installation tokens for the request acknowledgment and report
+publication in separate jobs that never execute PR code.
 
 To configure it on `margelo/nitro`:
 
 1. Register a GitHub App named `Nitro Modules Bot` with homepage
    `https://nitro.margelo.com`. Disable webhooks and grant only the repository
-   permission **Pull requests: Read & write** (Metadata read access is automatic).
+   permissions **Pull requests: Read & write** and **Issues: Read & write**
+   (Metadata read access is automatic). Issues write access is needed for the 👍
+   reaction on a conversation comment. Existing installations must accept this
+   additional permission before using the acknowledgment workflow.
    Keep installation restricted to the owning account when the app belongs to
    `margelo`.
 2. Upload the NOS image under the app's Display information and install the app
@@ -192,12 +220,13 @@ To configure it on `margelo/nitro`:
 4. Set the repository Actions variable `NITRO_PERFORMANCE_APP_CLIENT_ID` to the
    app's Client ID. Set this last, after the key and installation are ready.
 
-The trusted publisher uses the app's actual slug to recognize their own comments.
-They request only Pull requests write permission for the current repository, and
-the token action revokes the token at the end of the job. Build and measurement jobs never receive the app key. Bencher publishing retains its existing token.
+The trusted publisher uses the app's actual slug to recognize its own comments.
+The acknowledgment job requests Issues write permission, and the publisher
+requests Pull requests write permission, each only for the current repository.
+The token action revokes each token at the end of its job. Build and measurement jobs never receive the app key. Bencher publishing retains its existing token.
 Bot authentication and upload changes take effect after reaching the default branch; report rendering runs from HEAD.
 
-Without the Client ID variable, comments continue as `github-actions[bot]`.
+Without the Client ID variable, comments and reactions use `github-actions[bot]`.
 Removing that variable switches back to the default identity. Configured app
 authentication failures fail the posting job rather than silently switching authors.
 Each workflow run creates its own comment under the configured identity. Reruns
