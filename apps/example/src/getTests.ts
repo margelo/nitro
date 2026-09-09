@@ -2659,6 +2659,8 @@ export function getTests(
             NitroModules.updateMemorySize(testObject)
 
             testObject.stringValue = 'x'.repeat(EXTERNAL_MEMORY_TEST_SIZE)
+            // Exclude unrelated, unreachable allocations from the global counter delta.
+            gc()
             const externalBytesBefore = getHermesExternalMemorySize()
             NitroModules.updateMemorySize(testObject)
             const externalBytesAfter = getHermesExternalMemorySize()
@@ -2689,6 +2691,8 @@ export function getTests(
       () =>
         it(() => {
           const size = EXTERNAL_MEMORY_TEST_SIZE
+          // Allocation can trigger GC, so collect earlier tests' buffers before taking the baseline.
+          gc()
           const externalBytesBefore = getHermesExternalMemorySize()
           const buffer = NitroModules.createNativeArrayBuffer(size)
           const externalBytesAfter = getHermesExternalMemorySize()
