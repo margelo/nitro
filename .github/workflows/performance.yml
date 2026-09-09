@@ -9,23 +9,40 @@ permissions:
   contents: read
 
 jobs:
-  prepare:
+  request:
     if: >-
       github.event.issue.pull_request &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
       github.event.comment.body == '@nitro-modules-bot please test performance'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       pull-requests: read
+      issues: write
+      statuses: write
     outputs:
+      allowed: ${{ steps.permission.outputs.allowed }}
       base_sha: ${{ steps.metadata.outputs.base_sha }}
       head_sha: ${{ steps.metadata.outputs.head_sha }}
       head_repository: ${{ steps.metadata.outputs.head_repository }}
       pr_number: ${{ steps.metadata.outputs.pr_number }}
     steps:
+      - id: permission
+        name: Require repository write access
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+        run: |
+          set -euo pipefail
+          ALLOWED=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$COMMENT_AUTHOR/permission" \
+            --jq '.permission == "write" or .permission == "maintain" or .permission == "admin"')
+          echo "allowed=$ALLOWED" >> "$GITHUB_OUTPUT"
+          if [[ "$ALLOWED" != true ]]; then
+            echo 'Performance requests require write, maintain, or admin repository access.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - id: metadata
         name: Resolve pull request revisions
+        if: steps.permission.outputs.allowed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.issue.number }}
@@ -41,11 +58,63 @@ jobs:
             "head_repository=\(.head.repo.full_name)", "pr_number=\(.number)"' \
             pull-request.json >> "$GITHUB_OUTPUT"
 
+      - name: Show pending performance status on the PR
+        if: steps.permission.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ steps.metadata.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" \
+            -f state=pending -f context="Nitro Performance / $GITHUB_RUN_ID" \
+            -f target_url="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            -f description='Performance tests are running'
+          jq --arg repository "$GITHUB_REPOSITORY" --argjson run "$GITHUB_RUN_ID" \
+            --argjson attempt "$GITHUB_RUN_ATTEMPT" \
+            '{repository: $repository, workflowRunId: $run, requestAttempt: $attempt,
+              pullRequestNumber: .number, headSha: .head.sha}' pull-request.json > request.json
+
+      - name: Save performance request
+        if: steps.permission.outputs.allowed == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: performance-request-${{ github.run_attempt }}
+          path: request.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Create Nitro Modules Bot token
+        id: performance-bot-token
+        if: steps.permission.outputs.allowed == 'true' && vars.NITRO_PERFORMANCE_APP_CLIENT_ID != ''
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ vars.NITRO_PERFORMANCE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NITRO_PERFORMANCE_APP_PRIVATE_KEY }}
+          permission-issues: write
+
+      - name: Acknowledge performance request
+        if: steps.permission.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.performance-bot-token.outputs.token || secrets.GITHUB_TOKEN }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content='+1'
+
+  prepare:
+    needs: request
+    if: needs.request.outputs.allowed == 'true'
+    runs-on: ubuntu-24.04
+    outputs:
+      base_sha: ${{ needs.request.outputs.base_sha }}
+      head_sha: ${{ needs.request.outputs.head_sha }}
+      head_repository: ${{ needs.request.outputs.head_repository }}
+      pr_number: ${{ needs.request.outputs.pr_number }}
+    steps:
       - name: Checkout performance tooling
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ steps.metadata.outputs.head_repository }}
-          ref: ${{ steps.metadata.outputs.head_sha }}
+          repository: ${{ needs.request.outputs.head_repository }}
+          ref: ${{ needs.request.outputs.head_sha }}
           persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:

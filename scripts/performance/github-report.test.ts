@@ -1,5 +1,9 @@
-import { describe, expect, test } from 'bun:test'
-import { postPerformanceComment } from './github-report'
+import { describe, expect, test, spyOn } from 'bun:test'
+import {
+  postPerformanceComment,
+  upsertPerformanceComment,
+  createGitHubRequest,
+} from './github-report'
 
 const report = {
   repository: 'margelo/nitro',
@@ -82,6 +86,7 @@ describe('paired performance PR comment', () => {
     const comments = [
       {
         id: 1,
+        node_id: 'legacy',
         body: '<!-- nitro-performance-paired-comparison -->\nlegacy report',
         user: { login: 'github-actions[bot]', type: 'Bot' },
       },
@@ -89,20 +94,22 @@ describe('paired performance PR comment', () => {
     const request = async (
       endpoint: string,
       method = 'GET',
-      body?: { body: string }
+      body?: Record<string, unknown>
     ) => {
+      if (endpoint === '/graphql') return {}
       if (endpoint.includes('/pulls/')) return pullRequest
       if (method === 'POST') {
         comments.push({
           id: comments.length + 1,
-          body: body!.body,
+          node_id: `comment-${comments.length + 1}`,
+          body: String(body!.body),
           user: { login: 'github-actions[bot]', type: 'Bot' },
         })
         return {}
       }
       if (method === 'PATCH') {
         comments.find((comment) => endpoint.endsWith(`/${comment.id}`))!.body =
-          body!.body
+          String(body!.body)
         return {}
       }
       return comments
@@ -151,7 +158,7 @@ describe('paired performance PR comment', () => {
         if (endpoint.endsWith('page=1')) {
           return Array.from({ length: 100 }, (_, id) => ({
             id,
-            body: '<!-- nitro-performance-paired-comparison:123 -->\nOther run',
+            body: 'Unrelated comment',
             user: { login: 'github-actions[bot]', type: 'Bot' },
           }))
         }
@@ -246,5 +253,165 @@ describe('paired performance PR comment', () => {
     })
     expect(status).toBe('stale')
     expect(requests).toBe(1)
+  })
+})
+
+describe('outdated performance comments', () => {
+  function fixture() {
+    const comments = [
+      {
+        id: 1,
+        node_id: 'legacy',
+        body: '<!-- nitro-performance-paired-comparison -->\nLegacy',
+        user: { login: 'nitro-modules-bot[bot]', type: 'Bot' },
+      },
+      {
+        id: 2,
+        node_id: 'prior-run',
+        body: '<!-- nitro-performance-paired-comparison:100 -->\nPrior run',
+        user: { login: 'nitro-modules-bot[bot]', type: 'Bot' },
+      },
+      {
+        id: 3,
+        node_id: 'human',
+        body: marker,
+        user: { login: 'mrousavy', type: 'User' },
+      },
+      {
+        id: 4,
+        node_id: 'other-bot',
+        body: marker,
+        user: { login: 'another-app[bot]', type: 'Bot' },
+      },
+      {
+        id: 5,
+        node_id: 'unrelated',
+        body: 'An unrelated bot comment',
+        user: { login: 'nitro-modules-bot[bot]', type: 'Bot' },
+      },
+    ]
+    const writes: {
+      endpoint: string
+      method: string
+      body?: Record<string, unknown>
+    }[] = []
+    const request = async (
+      endpoint: string,
+      method = 'GET',
+      body?: Record<string, unknown>
+    ) => {
+      if (endpoint.includes('/pulls/')) return pullRequest
+      if (method === 'GET') return comments
+      writes.push({ endpoint, method, body })
+      return {}
+    }
+    return { comments, writes, request }
+  }
+
+  test('posts first, then hides only earlier reports by the same bot as OUTDATED', async () => {
+    const f = fixture()
+    expect(
+      await postPerformanceComment(report, f.request, 'nitro-modules-bot[bot]')
+    ).toBe('created')
+    expect(f.writes[0]).toEqual({
+      endpoint: '/repos/margelo/nitro/issues/123/comments',
+      method: 'POST',
+      body: { body: `${marker}\n${report.markdown}` },
+    })
+    expect(f.writes.slice(1).map((write) => write.body?.variables)).toEqual([
+      { id: 'legacy' },
+      { id: 'prior-run' },
+    ])
+    for (const write of f.writes.slice(1)) {
+      expect(write.endpoint).toBe('/graphql')
+      expect(write.body?.query).toContain('classifier: OUTDATED')
+    }
+  })
+
+  test('rerunning an older workflow never hides the newer report', async () => {
+    const f = fixture()
+    f.comments.push({
+      id: 6,
+      node_id: 'newer-run',
+      body: marker,
+      user: { login: 'nitro-modules-bot[bot]', type: 'Bot' },
+    })
+    expect(
+      await postPerformanceComment(
+        { ...report, workflowRunId: 100 },
+        f.request,
+        'nitro-modules-bot[bot]'
+      )
+    ).toBe('updated')
+    expect(f.writes[0]?.endpoint).toBe('/repos/margelo/nitro/issues/comments/2')
+    expect(f.writes.slice(1).map((write) => write.body?.variables)).toEqual([
+      { id: 'legacy' },
+    ])
+  })
+
+  test('failed publication does not hide any previous comments', async () => {
+    const f = fixture()
+    await expect(
+      postPerformanceComment(
+        report,
+        async (endpoint, method, body) => {
+          if (method === 'POST' && endpoint !== '/graphql')
+            throw new Error('Posting failed')
+          return f.request(endpoint, method, body)
+        },
+        'nitro-modules-bot[bot]'
+      )
+    ).rejects.toThrow('Posting failed')
+    expect(f.writes).toHaveLength(0)
+  })
+
+  test('failure notifications leave the previous successful reports visible', async () => {
+    const f = fixture()
+    await upsertPerformanceComment(
+      { ...report, markdown: 'Performance tests failed' },
+      f.request,
+      'nitro-modules-bot[bot]'
+    )
+    expect(f.writes).toHaveLength(1)
+    expect(f.writes[0]?.method).toBe('POST')
+  })
+
+  test('a successful retry replaces its failure comment and hides older reports', async () => {
+    const f = fixture()
+    f.comments.push({
+      id: 6,
+      node_id: 'retry',
+      body: `${marker}\nPerformance tests failed`,
+      user: { login: 'nitro-modules-bot[bot]', type: 'Bot' },
+    })
+    expect(
+      await postPerformanceComment(report, f.request, 'nitro-modules-bot[bot]')
+    ).toBe('updated')
+    expect(f.writes[0]).toEqual({
+      endpoint: '/repos/margelo/nitro/issues/comments/6',
+      method: 'PATCH',
+      body: { body: `${marker}\n${report.markdown}` },
+    })
+    expect(f.writes.slice(1).map((write) => write.body?.variables)).toEqual([
+      { id: 'legacy' },
+      { id: 'prior-run' },
+    ])
+  })
+
+  test('surfaces GraphQL errors returned with HTTP 200', async () => {
+    const fetchMock = spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ errors: [{ message: 'Not permitted' }] }), {
+        status: 200,
+      })
+    )
+    try {
+      await expect(
+        createGitHubRequest('test-token')('/graphql', 'POST', {
+          query: 'mutation {}',
+        })
+      ).rejects.toThrow('GitHub GraphQL report request failed.')
+    } finally {
+      fetchMock.mockRestore()
+    }
   })
 })
