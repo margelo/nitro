@@ -20,7 +20,7 @@ jobs:
       queue: max
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: write
       statuses: write
     outputs:
@@ -95,6 +95,7 @@ jobs:
           client-id: ${{ vars.NITRO_PERFORMANCE_APP_CLIENT_ID }}
           private-key: ${{ secrets.NITRO_PERFORMANCE_APP_PRIVATE_KEY }}
           permission-issues: write
+          permission-pull-requests: write
 
       - name: Acknowledge performance request
         if: steps.permission.outputs.allowed == 'true'

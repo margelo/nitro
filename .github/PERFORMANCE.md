@@ -224,8 +224,9 @@ To configure it on `margelo/nitro`:
    app's Client ID. Set this last, after the key and installation are ready.
 
 The trusted publisher uses the app's actual slug to recognize its own comments.
-The acknowledgment job requests Issues write permission, and the publisher
-requests Pull requests write permission, each only for the current repository.
+The acknowledgment job requests both Issues and Pull requests write permissions
+so it can react to PR conversation comments. The publisher requests Pull requests
+write permission. Both tokens are restricted to the current repository.
 The token action revokes each token at the end of its job. Build and measurement jobs never receive the app key. Bencher publishing retains its existing token.
 Bot authentication and upload changes take effect after reaching the default branch; report rendering runs from HEAD.
 

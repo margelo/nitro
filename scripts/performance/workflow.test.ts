@@ -195,6 +195,7 @@ test('bot credentials and write permissions remain isolated from PR code', async
   ) as any
   const request = entry.jobs.request
   expect(request.permissions.issues).toBe('write')
+  expect(request.permissions['pull-requests']).toBe('write')
   expect(JSON.stringify(request)).not.toMatch(/actions\/checkout|bun install/)
   expect(entry.jobs.prepare.needs).toBe('request')
   expect(entry.jobs.prepare.permissions).toBeUndefined()
@@ -202,6 +203,7 @@ test('bot credentials and write permissions remain isolated from PR code', async
     (step: any) => step.id === 'performance-bot-token'
   )
   expect(token.with['permission-issues']).toBe('write')
+  expect(token.with['permission-pull-requests']).toBe('write')
   for (const [name, job] of Object.entries(entry.jobs)) {
     if (name !== 'request') {
       expect(JSON.stringify(job)).not.toMatch(/secrets\.|performance-bot-token/)
