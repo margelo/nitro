@@ -72,9 +72,19 @@ test('one trusted publisher handles internal and fork reports without executing 
   expect(entry.on).toEqual({ issue_comment: { types: ['created'] } })
   expect(entry.concurrency).toBeUndefined()
   expect(publisher.concurrency).toEqual({
-    'group': 'performance-report-${{ github.event.workflow_run.id }}',
-    'cancel-in-progress': false,
+    group: 'performance-status-${{ github.event.workflow_run.display_title }}',
+    queue: 'max',
   })
+  expect(entry.jobs.request.concurrency).toEqual({
+    group:
+      'performance-status-Nitro Performance for PR #${{ github.event.issue.number }}',
+    queue: 'max',
+  })
+  expect(
+    entry.jobs.request.steps.find(
+      (s: any) => s.name === 'Show pending performance status on the PR'
+    ).run
+  ).toContain("-f context='Nitro Performance'")
   const source = JSON.stringify(publisher)
   expect(source).not.toMatch(
     /pull_request.head.sha|bun install|NITRO_BENCHER_ENABLED/
@@ -185,6 +195,7 @@ test('bot credentials and write permissions remain isolated from PR code', async
   ) as any
   const request = entry.jobs.request
   expect(request.permissions.issues).toBe('write')
+  expect(request.permissions['pull-requests']).toBe('write')
   expect(JSON.stringify(request)).not.toMatch(/actions\/checkout|bun install/)
   expect(entry.jobs.prepare.needs).toBe('request')
   expect(entry.jobs.prepare.permissions).toBeUndefined()
@@ -192,6 +203,7 @@ test('bot credentials and write permissions remain isolated from PR code', async
     (step: any) => step.id === 'performance-bot-token'
   )
   expect(token.with['permission-issues']).toBe('write')
+  expect(token.with['permission-pull-requests']).toBe('write')
   for (const [name, job] of Object.entries(entry.jobs)) {
     if (name !== 'request') {
       expect(JSON.stringify(job)).not.toMatch(/secrets\.|performance-bot-token/)

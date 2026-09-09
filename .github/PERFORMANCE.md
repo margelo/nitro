@@ -15,9 +15,10 @@ and the Actions dispatch button do not start performance runs. Manual requests r
 regardless of which files changed, including docs-only PRs.
 
 An accepted request gets a 👍 reaction from the bot. The PR's checks area shows
-`Nitro Performance / <run ID>`, with a yellow pending status while it runs,
+one `Nitro Performance` entry, with a yellow pending status while it runs,
 green on success, or red for failures/cancellation. The status links to the run
-logs; publishing failures link to the publishing workflow. Each status belongs
+logs; publishing failures link to the publishing workflow. New requests replace
+this entry, and older runs finishing later cannot overwrite it. Each status belongs
 to the tested head commit, even if the PR advances while measurements run.
 
 Failures also produce a PR comment with direct links to the benchmark attempt
@@ -149,7 +150,9 @@ The isolated request job saves `performance-request-<attempt>` before any PR cod
 runs. It contains the requested head SHA and workflow identity. The publisher
 checks this against the initial commit status written by `github-actions[bot]`
 before trusting it. Measurement-only reruns reuse this request; late events from
-older attempts cannot overwrite a newer status. PR code never receives the bot
+older attempts cannot overwrite a newer status. Request and publishing jobs share
+a concurrency queue per PR to serialize status writes; builds and measurements
+remain independent. PR code never receives the bot
 key or a token with status/comment write permissions.
 
 One default-branch `Publish Nitro Performance` workflow handles comment-triggered
@@ -221,8 +224,9 @@ To configure it on `margelo/nitro`:
    app's Client ID. Set this last, after the key and installation are ready.
 
 The trusted publisher uses the app's actual slug to recognize its own comments.
-The acknowledgment job requests Issues write permission, and the publisher
-requests Pull requests write permission, each only for the current repository.
+The acknowledgment job requests both Issues and Pull requests write permissions
+so it can react to PR conversation comments. The publisher requests Pull requests
+write permission. Both tokens are restricted to the current repository.
 The token action revokes each token at the end of its job. Build and measurement jobs never receive the app key. Bencher publishing retains its existing token.
 Bot authentication and upload changes take effect after reaching the default branch; report rendering runs from HEAD.
 
