@@ -309,6 +309,44 @@ export function getTests(
         .equals(true)
     ),
 
+    // Bound HybridObject performance experiment
+    createTest('HybridObject methods are bound to their native receiver', () =>
+      it(() => {
+        const { equals } = testObject
+        const other = testObject.newTestObject()
+        return equals(testObject) && !equals.call(other, other)
+      })
+        .didNotThrow()
+        .equals(true)
+    ),
+    createTest(
+      'HybridObject accessors are bound to their native receiver',
+      () =>
+        it(() => {
+          const other = testObject.newTestObject()
+          other.numberValue = 100
+          const descriptor = Object.getOwnPropertyDescriptor(
+            testObject,
+            'numberValue'
+          )!
+          descriptor.set!.call(other, 42)
+          return descriptor.get!.call(other) === 42 && other.numberValue === 100
+        })
+          .didNotThrow()
+          .equals(true)
+    ),
+    createTest('HybridObject methods have per-instance identity', () =>
+      it(() => {
+        const other = testObject.newTestObject()
+        return (
+          Object.prototype.hasOwnProperty.call(testObject, 'simpleFunc') &&
+          testObject.simpleFunc !== other.simpleFunc
+        )
+      })
+        .didNotThrow()
+        .equals(true)
+    ),
+
     // Test Primitives (getters & setters)
     createTest('set numberValue to 13', () =>
       it(() => (testObject.numberValue = 13)).didNotThrow()
