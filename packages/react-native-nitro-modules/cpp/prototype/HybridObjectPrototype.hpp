@@ -47,6 +47,12 @@ private:
 
 protected:
   /**
+   * Performance experiment: install own functions/accessors that retain their native receiver.
+   * The shared prototype remains available, but calls through the instance bypass NativeState lookup.
+   */
+  void bindHybridFunctions(jsi::Runtime& runtime, const jsi::Object& object, const std::shared_ptr<jsi::NativeState>& instance);
+
+  /**
    * Loads all Hybrid Methods that will be initialized in this Prototype.
    * This will only be called once for the first time the Prototype will be created,
    * so don't conditionally register methods.
