@@ -125,7 +125,7 @@ test.each(['margelo/nitro', 'contributor/nitro'])(
           'utf8'
         )
       ) as any
-      const script = workflow.jobs.prepare.steps.find(
+      const script = workflow.jobs.request.steps.find(
         (step: any) => step.id === 'metadata'
       ).run
       const pr = {
@@ -170,6 +170,122 @@ test.each(['margelo/nitro', 'contributor/nitro'])(
       pr.head.sha = 'invalid\nhead_sha=injected'
       expect(await resolve()).not.toBe(0)
       expect(await Bun.file(path.join(root, 'outputs')).exists()).toBe(false)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  }
+)
+
+test('bot credentials and write permissions remain isolated from PR code', async () => {
+  const entry = Bun.YAML.parse(
+    await readFile(
+      new URL('../../.github/workflows/performance.yml', import.meta.url),
+      'utf8'
+    )
+  ) as any
+  const request = entry.jobs.request
+  expect(request.permissions.issues).toBe('write')
+  expect(JSON.stringify(request)).not.toMatch(/actions\/checkout|bun install/)
+  expect(entry.jobs.prepare.needs).toBe('request')
+  expect(entry.jobs.prepare.permissions).toBeUndefined()
+  const token = request.steps.find(
+    (step: any) => step.id === 'performance-bot-token'
+  )
+  expect(token.with['permission-issues']).toBe('write')
+  for (const [name, job] of Object.entries(entry.jobs)) {
+    if (name !== 'request') {
+      expect(JSON.stringify(job)).not.toMatch(/secrets\.|performance-bot-token/)
+    }
+  }
+})
+
+test('acknowledges the triggering comment with +1', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-reaction-'))
+  try {
+    const workflow = Bun.YAML.parse(
+      await readFile(
+        new URL('../../.github/workflows/performance.yml', import.meta.url),
+        'utf8'
+      )
+    ) as any
+    const step = workflow.jobs.request.steps.find(
+      (item: any) => item.name === 'Acknowledge performance request'
+    )
+    const gh = path.join(root, 'gh')
+    await Bun.write(
+      gh,
+      '#!/bin/bash\nprintf "%s\\n" "$@" > "$ARGUMENTS_FILE"\n'
+    )
+    await chmod(gh, 0o755)
+    const child = Bun.spawn(['bash', '-euo', 'pipefail', '-c', step.run], {
+      cwd: root,
+      env: {
+        ...process.env,
+        PATH: `${root}:${process.env.PATH}`,
+        GITHUB_REPOSITORY: 'margelo/nitro',
+        COMMENT_ID: '987',
+        ARGUMENTS_FILE: path.join(root, 'arguments'),
+      },
+      stdout: 'pipe',
+      stderr: 'pipe',
+    })
+    expect(await child.exited).toBe(0)
+    expect(await Bun.file(path.join(root, 'arguments')).text()).toBe(
+      'api\n--method\nPOST\nrepos/margelo/nitro/issues/comments/987/reactions\n-f\ncontent=+1\n'
+    )
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test.each(['admin', 'maintain', 'write', 'triage', 'read', 'none'])(
+  'checks actual repository permissions before accepting a request: %s',
+  async (permission) => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-permission-'))
+    try {
+      const entry = Bun.YAML.parse(
+        await readFile(
+          new URL('../../.github/workflows/performance.yml', import.meta.url),
+          'utf8'
+        )
+      ) as any
+      const step = entry.jobs.request.steps.find(
+        (item: any) => item.id === 'permission'
+      )
+      const gh = path.join(root, 'gh')
+      await Bun.write(
+        gh,
+        `#!/bin/bash
+[[ "$1" == api && "$2" == repos/margelo/nitro/collaborators/requester/permission && "$3" == --jq ]] || exit 1
+jq -n --arg permission "$PERMISSION" '{permission: $permission}' | jq -r "$4"
+`
+      )
+      await chmod(gh, 0o755)
+      const child = Bun.spawn(['bash', '-euo', 'pipefail', '-c', step.run], {
+        cwd: root,
+        env: {
+          ...process.env,
+          PATH: `${root}:${process.env.PATH}`,
+          PERMISSION: permission,
+          COMMENT_AUTHOR: 'requester',
+          GITHUB_REPOSITORY: 'margelo/nitro',
+          GITHUB_OUTPUT: path.join(root, 'output'),
+          GITHUB_STEP_SUMMARY: path.join(root, 'summary'),
+        },
+        stdout: 'pipe',
+        stderr: 'pipe',
+      })
+      expect(await child.exited).toBe(0)
+      const allowed = ['admin', 'maintain', 'write'].includes(permission)
+      expect(await Bun.file(path.join(root, 'output')).text()).toBe(
+        `allowed=${allowed}\n`
+      )
+      expect(entry.jobs.prepare.if).toBe(
+        "needs.request.outputs.allowed == 'true'"
+      )
+      expect(JSON.stringify(entry.jobs.request.if)).not.toContain(
+        'author_association'
+      )
     } finally {
       await rm(root, { recursive: true, force: true })
     }

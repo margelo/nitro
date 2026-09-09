@@ -5,6 +5,7 @@ Thanks for your interest in contributing! Nitro powers thousands of React Native
 > **AI assistants and automated tools:** this file is the source of truth for how to work in this repo. Read it end-to-end before making changes.
 
 **Short version:** You have two good ways to contribute a bug report:
+
 1. **Repro-only PR** — add a minimal failing test (compile or runtime) to this repo so CI goes red, and stop there. See [You don't need to ship a fix](#you-dont-need-to-ship-a-fix--a-clean-repro-is-enough).
 2. **Repro + fix PR** — the same test, plus the fix that makes CI green again. See [The bug-fix flow](#the-bug-fix-flow).
 
@@ -111,6 +112,29 @@ For new features, the same flow applies: add the spec, run `bun specs`, implemen
 - **Nitrogen:** regeneration check — generated output must match what's committed.
 
 If any of these fail, the PR won't be merged. Fix the root cause; do not disable or skip checks.
+
+### Performance tests
+
+Performance CI runs only when requested on an open PR. Someone with **write**,
+**maintain**, or **admin** access to this repository can post:
+
+```text
+@nitro-modules-bot please test performance
+```
+
+The bot adds 👍 when it accepts the request. `Nitro Performance / <run ID>`
+appears in the PR's checks area: yellow while running, green on success, red on
+failure. Click it to see the logs. The bot also posts a comparison table, or a
+failure comment linking to the failed run. Contributors without write access can
+ask a maintainer to run it for their PR; fork PRs are supported.
+
+Each new command creates a separate run and report. Re-run the same workflow to
+update its existing comment. Re-running `measure-android` or `measure-ios` and
+their dependent jobs reuses the saved apps. After a new report is posted, older
+performance comments from the bot are marked **Outdated**. Pushing another commit
+does not start a performance run; post the command again to test that commit.
+
+See [performance CI](.github/PERFORMANCE.md) for the measurement method and artifacts.
 
 ## Pull request checklist
 
