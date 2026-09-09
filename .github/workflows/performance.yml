@@ -14,6 +14,10 @@ jobs:
       github.event.issue.pull_request &&
       github.event.comment.body == '@nitro-modules-bot please test performance'
     runs-on: ubuntu-24.04
+    # Serialize status writes with the publisher, without cancelling requests.
+    concurrency:
+      group: 'performance-status-Nitro Performance for PR #${{ github.event.issue.number }}'
+      queue: max
     permissions:
       contents: read
       pull-requests: read
@@ -66,7 +70,7 @@ jobs:
         run: |
           set -euo pipefail
           gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" \
-            -f state=pending -f context="Nitro Performance / $GITHUB_RUN_ID" \
+            -f state=pending -f context='Nitro Performance' \
             -f target_url="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
             -f description='Performance tests are running'
           jq --arg repository "$GITHUB_REPOSITORY" --argjson run "$GITHUB_RUN_ID" \

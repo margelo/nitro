@@ -72,9 +72,19 @@ test('one trusted publisher handles internal and fork reports without executing 
   expect(entry.on).toEqual({ issue_comment: { types: ['created'] } })
   expect(entry.concurrency).toBeUndefined()
   expect(publisher.concurrency).toEqual({
-    'group': 'performance-report-${{ github.event.workflow_run.id }}',
-    'cancel-in-progress': false,
+    group: 'performance-status-${{ github.event.workflow_run.display_title }}',
+    queue: 'max',
   })
+  expect(entry.jobs.request.concurrency).toEqual({
+    group:
+      'performance-status-Nitro Performance for PR #${{ github.event.issue.number }}',
+    queue: 'max',
+  })
+  expect(
+    entry.jobs.request.steps.find(
+      (s: any) => s.name === 'Show pending performance status on the PR'
+    ).run
+  ).toContain("-f context='Nitro Performance'")
   const source = JSON.stringify(publisher)
   expect(source).not.toMatch(
     /pull_request.head.sha|bun install|NITRO_BENCHER_ENABLED/

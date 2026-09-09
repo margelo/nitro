@@ -5,10 +5,10 @@ on:
     workflows: [Nitro Performance]
     types: [in_progress, completed]
 
-# Serialize publication attempts for the same run without combining separate requests.
+# Share the request job's lock so an older publisher cannot overwrite a new request.
 concurrency:
-  group: performance-report-${{ github.event.workflow_run.id }}
-  cancel-in-progress: false
+  group: performance-status-${{ github.event.workflow_run.display_title }}
+  queue: max
 
 permissions:
   actions: read
