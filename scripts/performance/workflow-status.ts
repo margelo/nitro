@@ -28,7 +28,7 @@ export async function validatePerformanceRequest(
   event: WorkflowEvent,
   repository: string,
   request: GitHubRequest
-): Promise<void> {
+): Promise<{ context: string; latestRequestUrl?: string }> {
   const run = event.workflow_run
   if (
     !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(repository) ||
@@ -52,25 +52,35 @@ export async function validatePerformanceRequest(
   }
   // Artifacts are untrusted. The initial status, written by the isolated request
   // job, proves this workflow was authorized to test this exact commit.
+  let latestRequestUrl: string | undefined
   for (let page = 1; page <= 10; page++) {
     const statuses = (await request(
       `/repos/${repository}/commits/${metadata.headSha}/statuses?per_page=100&page=${page}`
     )) as {
       context: string
+      state: string
       target_url: string
       creator: { login: string; type: string }
     }[]
-    if (
-      statuses.some(
-        (status) =>
-          status.context === `Nitro Performance / ${run.id}` &&
-          status.target_url ===
-            `https://github.com/${repository}/actions/runs/${run.id}` &&
-          status.creator.login === 'github-actions[bot]' &&
-          status.creator.type === 'Bot'
+    // GitHub returns newest first. Only pending statuses identify requests:
+    // a publishing failure can change the final status URL to the publisher.
+    for (const status of statuses) {
+      if (
+        status.creator.login !== 'github-actions[bot]' ||
+        status.creator.type !== 'Bot' ||
+        status.state !== 'pending'
       )
-    )
-      return
+        continue
+      if (status.context === 'Nitro Performance')
+        latestRequestUrl ??= status.target_url
+      if (
+        (status.context === 'Nitro Performance' ||
+          status.context === `Nitro Performance / ${run.id}`) &&
+        status.target_url ===
+          `https://github.com/${repository}/actions/runs/${run.id}`
+      )
+        return { context: status.context, latestRequestUrl }
+    }
     if (statuses.length < 100) break
   }
   throw new Error('Performance request has no matching trusted commit status.')
@@ -82,7 +92,21 @@ export async function updatePerformanceStatus(
   publication: { status: string; runId: number },
   request: GitHubRequest
 ): Promise<void> {
+  const { context, latestRequestUrl } = await validatePerformanceRequest(
+    metadata,
+    event,
+    metadata.repository,
+    request
+  )
   const run = event.workflow_run
+  // Request and publication jobs share a concurrency group, so a new request
+  // cannot replace this owner between the lookup and the status write.
+  if (
+    context === 'Nitro Performance' &&
+    latestRequestUrl !==
+      `https://github.com/${metadata.repository}/actions/runs/${run.id}`
+  )
+    return
   const root = `/repos/${metadata.repository}`
   const latest = (await request(`${root}/actions/runs/${run.id}`)) as {
     run_attempt: number
@@ -113,7 +137,7 @@ export async function updatePerformanceStatus(
           : 'Performance tests or report publishing failed'
   await request(`${root}/statuses/${metadata.headSha}`, 'POST', {
     state,
-    context: `Nitro Performance / ${run.id}`,
+    context,
     target_url: `https://github.com/${metadata.repository}/actions/runs/${run.conclusion === 'success' && publication.status === 'failure' ? publication.runId : run.id}`,
     description,
   })
@@ -133,12 +157,6 @@ if (import.meta.main) {
     await readFile(process.env.GITHUB_EVENT_PATH!, 'utf8')
   ) as WorkflowEvent
   const request = createGitHubRequest(token)
-  await validatePerformanceRequest(
-    metadata,
-    event,
-    process.env.GITHUB_REPOSITORY!,
-    request
-  )
   if (requiredArgument(args, 'mode') === 'update') {
     await updatePerformanceStatus(
       metadata,
@@ -147,6 +165,13 @@ if (import.meta.main) {
         status: process.env.PUBLICATION_STATUS!,
         runId: Number(process.env.GITHUB_RUN_ID),
       },
+      request
+    )
+  } else {
+    await validatePerformanceRequest(
+      metadata,
+      event,
+      process.env.GITHUB_REPOSITORY!,
       request
     )
   }

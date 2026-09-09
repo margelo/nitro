@@ -122,9 +122,10 @@ Performance CI runs only when requested on an open PR. Someone with **write**,
 @nitro-modules-bot please test performance
 ```
 
-The bot adds 👍 when it accepts the request. `Nitro Performance / <run ID>`
+The bot adds 👍 when it accepts the request. `Nitro Performance`
 appears in the PR's checks area: yellow while running, green on success, red on
-failure. Click it to see the logs. The bot also posts a comparison table, or a
+failure. New requests replace this entry; older runs finishing later cannot
+overwrite it. Click it to see the logs. The bot also posts a comparison table, or a
 failure comment linking to the failed run. Contributors without write access can
 ask a maintainer to run it for their PR; fork PRs are supported.
 

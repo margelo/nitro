@@ -115,7 +115,7 @@ Submit a PR that demonstrates this runtime error or crash in the Nitro `apps/exa
 
 Performance CI is opt-in. A maintainer with write, maintain, or admin repository
 access can post `@nitro-modules-bot please test performance` on an open PR.
-The bot acknowledges it with 👍, adds a status to the PR's checks, and posts the
+The bot acknowledges it with 👍, updates the PR's `Nitro Performance` status, and posts the
 results or a failure link. Contributors without write access can ask a maintainer
 to run it, including for PRs from forks.
 
