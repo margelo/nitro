@@ -5,5 +5,5 @@ cd "${1:?Usage: build-android.sh <checkout-root> [application-id]}"
 grep -Fq 'ndkVersion = "29.0.14206865"' apps/benchmark/android/build.gradle
 bun install --frozen-lockfile
 cd apps/benchmark/android
-./gradlew :app:assembleRelease --no-daemon --build-cache -PreactNativeArchitectures=x86_64 \
+./gradlew :app:assembleRelease --build-cache -PreactNativeArchitectures=x86_64 \
   "-PnitroBenchmarkApplicationId=${2:-com.margelo.nitrobenchmark}"
