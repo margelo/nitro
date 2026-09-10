@@ -56,6 +56,15 @@ public:
     }
   }
 
+  /**
+   * Whether the underlying `jsi::Function` is still alive and can be called.
+   * It is force-deleted when its owning Runtime's `JSICache` is destroyed (Runtime teardown).
+   */
+  [[nodiscard]]
+  inline bool isAlive() const {
+    return _function != nullptr;
+  }
+
 public:
   inline R operator()(Args... args) const {
     return call(args...);
@@ -110,6 +119,16 @@ public:
       return;
     }
     dispatcher->runAsync([callback = _callback, ... args = std::forward<Args>(args)]() mutable {
+      if (!callback.isAlive()) [[unlikely]] {
+        // The underlying `jsi::Function` was force-deleted (Runtime/JSICache teardown)
+        // between scheduling and execution. This is a fire-and-forget call whose result
+        // is ignored anyway - throwing here would escalate to an uncaught fatal in the
+        // target Runtime's scheduler, so log and skip instead.
+        std::string typeName = TypeInfo::getFriendlyTypename<AsyncJSCallback<R(Args...)>>(true);
+        Logger::log(LogLevel::Warning, "AsyncJSCallback", "Skipping call to %s - the underlying `jsi::Function` has already been deleted.",
+                    typeName.c_str());
+        return;
+      }
       // Call actual JS callback, synchronously now.
       return callback.call(std::forward<Args>(args)...);
     });

@@ -15,6 +15,15 @@ namespace margelo::nitro {
 
 std::unordered_map<jsi::Runtime*, HybridObjectPrototype::PrototypeCache> HybridObjectPrototype::_prototypeCache;
 
+// Guards the OUTER `_prototypeCache` map only - `operator[]` inserts, and concurrent
+// insertion/rehash from different Runtimes' Threads (HybridObjects are materialized on
+// parallel Runtimes - see the `ensureInitialized` mutex below) is UB. The inner
+// per-Runtime `PrototypeCache` is only ever accessed from that Runtime's own Thread,
+// and `unordered_map` value references stay valid across rehash, so the reference can
+// be used lock-free after acquisition (also keeps the recursive `createPrototype`
+// call below deadlock-free).
+static std::mutex g_prototypeCacheMutex;
+
 jsi::Value HybridObjectPrototype::createPrototype(jsi::Runtime& runtime, const std::shared_ptr<Prototype>& prototype) {
   // 0. Check if we're at the highest level of our prototype chain
   if (prototype == nullptr) {
@@ -24,7 +33,12 @@ jsi::Value HybridObjectPrototype::createPrototype(jsi::Runtime& runtime, const s
 
   // 1. Try looking for the given prototype in cache.
   //    If we find it in cache, we can create instances faster and skip creating the prototype from scratch!
-  auto& prototypeCache = _prototypeCache[&runtime];
+  PrototypeCache* prototypeCachePtr;
+  {
+    std::unique_lock lock(g_prototypeCacheMutex);
+    prototypeCachePtr = &_prototypeCache[&runtime];
+  }
+  auto& prototypeCache = *prototypeCachePtr;
   auto cachedPrototype = prototypeCache.find(prototype->getNativeInstanceId());
   if (cachedPrototype != prototypeCache.end()) {
     const BorrowingReference<jsi::Object>& cachedObject = cachedPrototype->second;
