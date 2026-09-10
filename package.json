@@ -16,7 +16,6 @@
     "docs"
   ],
   "scripts": {
-    "postinstall": "bun run build",
     "build": "bun nitro build && bun nitrogen build && bun nitro-test-external build && bun nitro-test build",
     "bootstrap": "bun i && bun run build && cd apps/example && bundle install && bun pods",
     "typecheck": "bun --filter=\"**\" typecheck",

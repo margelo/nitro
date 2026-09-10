@@ -33,7 +33,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
     "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions --max-warnings 0",
     "build": "tsc",
-    "specs": "tsc && nitrogen --logLevel=\"debug\""
+    "specs": "tsc && bun x nitrogen --logLevel=\"debug\""
   },
   "keywords": [
     "react-native",

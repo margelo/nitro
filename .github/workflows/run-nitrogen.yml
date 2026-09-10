@@ -40,18 +40,18 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile --ignore-scripts
 
       - name: Build all packages
         run: bun run build
 
       - name: Run nitrogen in packages/react-native-nitro-test-external
         working-directory: packages/react-native-nitro-test-external
-        run: bun i && bun specs
+        run: bun specs
 
       - name: Run nitrogen in packages/react-native-nitro-test
         working-directory: packages/react-native-nitro-test
-        run: bun i && bun specs
+        run: bun specs
 
       - name: Verify no files have changed after nitrogen
         run: git diff --exit-code HEAD -- . ':(exclude)bun.lock'
