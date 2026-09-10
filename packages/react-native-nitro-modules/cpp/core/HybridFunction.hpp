@@ -168,15 +168,24 @@ private:
                                       /* JS Runtime */ jsi::Runtime& runtime,
                                       /* JS Arguments */ const jsi::Value* NON_NULL args,
                                       /* JS Arguments count */ size_t argsSize, std::index_sequence<Is...>) {
-    static const jsi::Value defaultValue;
+    auto invoke = [&]() -> ReturnType {
+      if constexpr (trailing_optionals_count_v<Args...> == 0) {
+        // The argument count was already validated. Avoid the default value's static initialization guard
+        // for signatures where no arguments can be omitted (including zero-argument methods).
+        return (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
+      } else {
+        static const jsi::Value defaultValue;
+        return (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, Is < argsSize ? args[Is] : defaultValue)...);
+      }
+    };
 
     if constexpr (std::is_void_v<ReturnType>) {
       // It's a void method.
-      (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, Is < argsSize ? args[Is] : defaultValue)...);
+      invoke();
       return jsi::Value::undefined();
     } else {
       // It's returning some C++ type, we need to convert that to a JSI value now.
-      ReturnType result = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, Is < argsSize ? args[Is] : defaultValue)...);
+      ReturnType result = invoke();
       return JSIConverter<ReturnType>::toJSI(runtime, std::forward<ReturnType>(result));
     }
   }
