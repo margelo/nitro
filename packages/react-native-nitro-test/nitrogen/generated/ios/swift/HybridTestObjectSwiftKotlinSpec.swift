@@ -131,6 +131,7 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   func getVariantWeirdNumbersEnum(variant: Variant_WeirdNumbersEnum_Bool) throws -> Variant_WeirdNumbersEnum_Bool
   func getVariantObjects(variant: Variant_Person_Car) throws -> Variant_Person_Car
   func passNamedVariant(variant: NamedVariant) throws -> NamedVariant
+  func bounceVehicle(vehicle: Vehicle) throws -> Vehicle
   func passAllEmptyObjectVariant(variant: Variant__any_HybridBaseSpec__OptionalWrapper) throws -> Variant__any_HybridBaseSpec__OptionalWrapper
   func bounceComplexVariant(variant: CoreTypesVariant) throws -> CoreTypesVariant
   func createChild() throws -> (any HybridChildSpec)

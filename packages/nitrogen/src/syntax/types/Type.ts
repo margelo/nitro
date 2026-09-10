@@ -8,6 +8,7 @@ export type TypeKind =
   | 'uint64'
   | 'boolean'
   | 'custom-type'
+  | 'discriminated-union'
   | 'enum'
   | 'error'
   | 'function'

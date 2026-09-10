@@ -132,6 +132,9 @@ function getTypeLooselyness(type: Type): number {
     case 'variant':
       // Pretty loose
       return 2
+    case 'discriminated-union':
+      // Pretty loose — same as variant
+      return 2
     case 'result-wrapper':
       // Not loose at all
       return 0

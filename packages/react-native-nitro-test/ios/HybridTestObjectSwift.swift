@@ -423,6 +423,9 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
   func passNamedVariant(variant: NamedVariant) throws -> NamedVariant {
     return variant
   }
+  func bounceVehicle(vehicle: Vehicle) throws -> Vehicle {
+    return vehicle
+  }
 
   func calculateFibonacciSync(value: Double) throws -> Int64 {
     let n = Int64(value)

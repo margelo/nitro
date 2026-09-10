@@ -17,6 +17,10 @@ import { OptionalType } from './types/OptionalType.js'
 import { NamedWrappingType } from './types/NamedWrappingType.js'
 import { getInterfaceProperties } from './getInterfaceProperties.js'
 import { VariantType } from './types/VariantType.js'
+import {
+  DiscriminatedUnionType,
+  type DiscriminatedVariant,
+} from './types/DiscriminatedUnionType.js'
 import { MapType } from './types/MapType.js'
 import { TupleType } from './types/TupleType.js'
 import {
@@ -228,6 +232,49 @@ export function addKnownType(
 }
 
 /**
+ * Checks if a union of object types is a discriminated union.
+ * Returns the discriminant key if every member has a unique string literal
+ * for the same property, otherwise returns null.
+ */
+function findDiscriminantKey(types: TSMorphType[]): string | null {
+  // Collect all property names from the first member
+  const firstProps = types[0]?.getProperties() ?? []
+  for (const prop of firstProps) {
+    const key = prop.getName()
+    const literalValues: string[] = []
+    let valid = true
+    for (const t of types) {
+      const p = t.getProperty(key)
+      if (p == null) {
+        valid = false
+        break
+      }
+      const decl = p.getDeclarations()[0] ?? p.getValueDeclaration()
+      if (decl == null) {
+        valid = false
+        break
+      }
+      const propType = p.getTypeAtLocation(decl)
+      if (!propType.isStringLiteral()) {
+        valid = false
+        break
+      }
+      const lit = propType.getLiteralValue()
+      if (typeof lit !== 'string') {
+        valid = false
+        break
+      }
+      literalValues.push(lit)
+    }
+    // Valid discriminant: all members have the key, all values are unique string literals
+    if (valid && new Set(literalValues).size === types.length) {
+      return key
+    }
+  }
+  return null
+}
+
+/**
  * Create a new type (or return it from cache if it is already known)
  */
 export function createType(
@@ -372,6 +419,45 @@ export function createType(
         const typename = symbol.getEscapedName()
         return new EnumType(typename, type)
       } else {
+        // It consists of different types - check if it's a discriminated union first
+        const allAreObjects = nonNullTypes.every(
+          (t) => t.isInterface() || t.isObject()
+        )
+        if (allAreObjects && nonNullTypes.length >= 2) {
+          const discriminantKey = findDiscriminantKey(nonNullTypes)
+          if (discriminantKey != null) {
+            const name =
+              type.getAliasSymbol()?.getName() ?? 'UnknownDiscriminatedUnion'
+            const discriminatedVariants: DiscriminatedVariant[] =
+              nonNullTypes.map((t) => {
+                const prop = t.getProperty(discriminantKey)!
+                const propDecl =
+                  prop.getDeclarations()[0] ?? prop.getValueDeclaration()!
+                const discriminantValue = prop
+                  .getTypeAtLocation(propDecl)
+                  .getLiteralValueOrThrow() as string
+                const structName = (t.getAliasSymbol() ??
+                  t.getSymbol())!.getName()
+                // Strip the discriminant property from the struct — the JSIConverter
+                // for the union handles dispatch; the struct itself doesn't need it.
+                const filteredProps = getInterfaceProperties(
+                  language,
+                  t,
+                  new Set([discriminantKey])
+                )
+                return {
+                  discriminantValue,
+                  type: new StructType(structName, filteredProps),
+                }
+              })
+            return new DiscriminatedUnionType(
+              name,
+              discriminantKey,
+              discriminatedVariants
+            )
+          }
+        }
+
         // It consists of different types - that means it's a variant!
         const unionConstituents = getUnionConstituents(type, typeNode)
         let variants = unionConstituents

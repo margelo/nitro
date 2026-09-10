@@ -10,6 +10,8 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `ArrayBufferHolder` to properly resolve imports.
 namespace NitroModules { class ArrayBufferHolder; }
+// Forward declaration of `Boat` to properly resolve imports.
+namespace margelo::nitro::test { struct Boat; }
 // Forward declaration of `Car` to properly resolve imports.
 namespace margelo::nitro::test { struct Car; }
 // Forward declaration of `ExternalObjectStruct` to properly resolve imports.
@@ -46,6 +48,10 @@ namespace margelo::nitro::test { struct Person; }
 namespace margelo::nitro::test { enum class Powertrain; }
 // Forward declaration of `TruckPowertrain` to properly resolve imports.
 namespace margelo::nitro::test { enum class TruckPowertrain; }
+// Forward declaration of `Truck` to properly resolve imports.
+namespace margelo::nitro::test { struct Truck; }
+// Forward declaration of `Vehicle` to properly resolve imports.
+namespace margelo::nitro::test { struct Vehicle; }
 // Forward declaration of `WeirdNumbersEnum` to properly resolve imports.
 namespace margelo::nitro::test { enum class WeirdNumbersEnum; }
 // Forward declaration of `WrappedJsStruct` to properly resolve imports.
@@ -68,6 +74,7 @@ namespace NitroTest { class HybridTestObjectSwiftKotlinSpec_cxx; }
 namespace NitroTest { class HybridTestViewSpec_cxx; }
 
 // Include C++ defined types
+#include "Boat.hpp"
 #include "Car.hpp"
 #include "ExternalObjectStruct.hpp"
 #include "HybridBaseSpec.hpp"
@@ -84,7 +91,9 @@ namespace NitroTest { class HybridTestViewSpec_cxx; }
 #include "PartialPerson.hpp"
 #include "Person.hpp"
 #include "Powertrain.hpp"
+#include "Truck.hpp"
 #include "TruckPowertrain.hpp"
+#include "Vehicle.hpp"
 #include "WeirdNumbersEnum.hpp"
 #include "WrappedJsStruct.hpp"
 #include <NitroModules/AnyMap.hpp>
@@ -1637,6 +1646,35 @@ namespace margelo::nitro::test::bridge::swift {
     return std__variant_Person__Car_(value);
   }
   
+  // pragma MARK: std::variant<Truck, Boat>
+  /**
+   * Wrapper struct for `std::variant<Truck, Boat>`.
+   * std::variant cannot be used in Swift because of a Swift bug.
+   * Not even specializing it works. So we create a wrapper struct.
+   */
+  struct std__variant_Truck__Boat_ final {
+    std::variant<Truck, Boat> variant;
+    std__variant_Truck__Boat_(std::variant<Truck, Boat> variant): variant(variant) { }
+    operator std::variant<Truck, Boat>() const noexcept {
+      return variant;
+    }
+    inline size_t index() const noexcept {
+      return variant.index();
+    }
+    inline Truck get_0() const noexcept {
+      return std::get<0>(variant);
+    }
+    inline Boat get_1() const noexcept {
+      return std::get<1>(variant);
+    }
+  };
+  inline std__variant_Truck__Boat_ create_std__variant_Truck__Boat_(const Truck& value) noexcept {
+    return std__variant_Truck__Boat_(value);
+  }
+  inline std__variant_Truck__Boat_ create_std__variant_Truck__Boat_(const Boat& value) noexcept {
+    return std__variant_Truck__Boat_(value);
+  }
+  
   // pragma MARK: std::variant<std::shared_ptr<HybridBaseSpec>, OptionalWrapper>
   /**
    * Wrapper struct for `std::variant<std::shared_ptr<HybridBaseSpec>, OptionalWrapper>`.
@@ -2289,6 +2327,15 @@ namespace margelo::nitro::test::bridge::swift {
   }
   inline Result_std__variant_Person__Car__ create_Result_std__variant_Person__Car__(const std::exception_ptr& error) noexcept {
     return Result<std::variant<Person, Car>>::withError(error);
+  }
+  
+  // pragma MARK: Result<std::variant<Truck, Boat>>
+  using Result_std__variant_Truck__Boat__ = Result<std::variant<Truck, Boat>>;
+  inline Result_std__variant_Truck__Boat__ create_Result_std__variant_Truck__Boat__(const std::variant<Truck, Boat>& value) noexcept {
+    return Result<std::variant<Truck, Boat>>::withValue(value);
+  }
+  inline Result_std__variant_Truck__Boat__ create_Result_std__variant_Truck__Boat__(const std::exception_ptr& error) noexcept {
+    return Result<std::variant<Truck, Boat>>::withError(error);
   }
   
   // pragma MARK: Result<std::variant<std::shared_ptr<HybridBaseSpec>, OptionalWrapper>>

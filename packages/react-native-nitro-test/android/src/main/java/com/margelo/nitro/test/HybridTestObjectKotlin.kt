@@ -623,6 +623,10 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return variant
   }
 
+  override fun bounceVehicle(vehicle: Vehicle): Vehicle {
+    return vehicle
+  }
+
   override fun getVariantHybrid(variant: Variant_HybridTestObjectSwiftKotlinSpec_Person): Variant_HybridTestObjectSwiftKotlinSpec_Person {
     return variant
   }

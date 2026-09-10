@@ -8,6 +8,8 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `Boat` to properly resolve imports.
+namespace margelo::nitro::test { struct Boat; }
 // Forward declaration of `Car` to properly resolve imports.
 namespace margelo::nitro::test { struct Car; }
 // Forward declaration of `ColorScheme` to properly resolve imports.
@@ -52,12 +54,17 @@ namespace margelo::nitro::test { enum class Powertrain; }
 namespace margelo::nitro::test { struct SecondMapWrapper; }
 // Forward declaration of `TruckPowertrain` to properly resolve imports.
 namespace margelo::nitro::test { enum class TruckPowertrain; }
+// Forward declaration of `Truck` to properly resolve imports.
+namespace margelo::nitro::test { struct Truck; }
+// Forward declaration of `Vehicle` to properly resolve imports.
+namespace margelo::nitro::test { struct Vehicle; }
 // Forward declaration of `WeirdNumbersEnum` to properly resolve imports.
 namespace margelo::nitro::test { enum class WeirdNumbersEnum; }
 // Forward declaration of `WrappedJsStruct` to properly resolve imports.
 namespace margelo::nitro::test { struct WrappedJsStruct; }
 
 // Include C++ defined types
+#include "Boat.hpp"
 #include "Car.hpp"
 #include "ColorScheme.hpp"
 #include "ExternalObjectStruct.hpp"
@@ -78,7 +85,9 @@ namespace margelo::nitro::test { struct WrappedJsStruct; }
 #include "Person.hpp"
 #include "Powertrain.hpp"
 #include "SecondMapWrapper.hpp"
+#include "Truck.hpp"
 #include "TruckPowertrain.hpp"
+#include "Vehicle.hpp"
 #include "WeirdNumbersEnum.hpp"
 #include "WrappedJsStruct.hpp"
 #include <NitroModules/AnyMap.hpp>

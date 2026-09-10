@@ -48,6 +48,12 @@ namespace margelo::nitro::test { struct OptionalEnumWrapper; }
 namespace margelo::nitro::test { enum class HardwareBufferFormat; }
 // Forward declaration of `WeirdNumbersEnum` to properly resolve imports.
 namespace margelo::nitro::test { enum class WeirdNumbersEnum; }
+// Forward declaration of `Truck` to properly resolve imports.
+namespace margelo::nitro::test { struct Truck; }
+// Forward declaration of `Boat` to properly resolve imports.
+namespace margelo::nitro::test { struct Boat; }
+// Forward declaration of `Vehicle` to properly resolve imports.
+namespace margelo::nitro::test { struct Vehicle; }
 // Forward declaration of `HybridBaseSpec` to properly resolve imports.
 namespace margelo::nitro::test { class HybridBaseSpec; }
 // Forward declaration of `HybridTestViewSpec` to properly resolve imports.
@@ -88,6 +94,9 @@ namespace margelo::nitro::test { struct ExternalObjectStruct; }
 #include "OptionalEnumWrapper.hpp"
 #include "HardwareBufferFormat.hpp"
 #include "WeirdNumbersEnum.hpp"
+#include "Truck.hpp"
+#include "Boat.hpp"
+#include "Vehicle.hpp"
 #include "HybridBaseSpec.hpp"
 #include "HybridTestViewSpec.hpp"
 #include <NitroTestExternal/HybridSomeExternalObjectSpec.hpp>
@@ -1015,6 +1024,14 @@ namespace margelo::nitro::test {
     }
     inline std::variant<std::string, Car> passNamedVariant(const std::variant<std::string, Car>& variant) override {
       auto __result = _swiftPart.passNamedVariant(variant);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::variant<Truck, Boat> bounceVehicle(const std::variant<Truck, Boat>& vehicle) override {
+      auto __result = _swiftPart.bounceVehicle(vehicle);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
