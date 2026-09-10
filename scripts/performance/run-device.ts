@@ -210,15 +210,19 @@ export async function installApp(
   platform: 'android' | 'ios',
   deviceId: string,
   app: string,
-  appId: string
+  appId: string,
+  options: { freshIosSimulator?: boolean } = {}
 ): Promise<void> {
   if (platform === 'android') {
     await command('adb', ['-s', deviceId, 'uninstall', appId], true)
     await command('adb', ['-s', deviceId, 'install', '-r', app])
     await command('adb', ['-s', deviceId, 'reverse', 'tcp:8173', 'tcp:8173'])
   } else {
-    await command('xcrun', ['simctl', 'terminate', deviceId, appId], true)
-    await command('xcrun', ['simctl', 'uninstall', deviceId, appId], true)
+    // Only a newly created simulator is known to have no previous app state.
+    if (!options.freshIosSimulator) {
+      await command('xcrun', ['simctl', 'terminate', deviceId, appId], true)
+      await command('xcrun', ['simctl', 'uninstall', deviceId, appId], true)
+    }
     await command('xcrun', ['simctl', 'install', deviceId, app])
   }
 }

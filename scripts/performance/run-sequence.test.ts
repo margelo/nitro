@@ -8,21 +8,23 @@ import { compareRuns } from './comparison'
 // Exercise the real controller/receiver with a tiny process standing in for
 // simctl's app. Runner tests separately exercise fixed work across different execution speeds.
 test.each([
-  ['ios', 'paired', false],
-  ['ios', 'paired', true],
-  ['ios', 'changed-suite', true],
-  ['ios', 'added-case', true],
-  ['ios', 'removed-case', true],
-  ['ios', 'same-sha', true],
-  ['android', 'paired', true],
-  ['android', 'same-sha', true],
-  ['android', 'changed-suite', true],
-  ['android', 'added-case', true],
-  ['android', 'removed-case', true],
-  ['ios', 'invalid-result', true],
+  ['ios', 'paired', false, false],
+  ['ios', 'paired', true, false],
+  ['ios', 'changed-suite', true, false],
+  ['ios', 'added-case', true, false],
+  ['ios', 'removed-case', true, false],
+  ['ios', 'same-sha', true, false],
+  ['android', 'paired', true, false],
+  ['android', 'same-sha', true, false],
+  ['android', 'changed-suite', true, false],
+  ['android', 'added-case', true, false],
+  ['android', 'removed-case', true, false],
+  ['ios', 'invalid-result', true, false],
+  ['ios', 'paired', true, true],
+  ['ios', 'same-sha', true, true],
 ] as const)(
-  '%s per-case comparisons: %s, saved apps = %s',
-  async (platform, mode, savedApps) => {
+  '%s per-case comparisons: %s, saved apps = %s, fresh simulator = %s',
+  async (platform, mode, savedApps, freshIosSimulator) => {
     const changedSuite = [
       'changed-suite',
       'added-case',
@@ -126,6 +128,7 @@ test.each([
           path.join(import.meta.dir, 'run-sequence.ts'),
           '--platform',
           platform,
+          ...(freshIosSimulator ? ['--fresh-ios-simulator', 'true'] : []),
           '--base-app',
           path.join(directory, 'base.app'),
           '--head-app',
@@ -213,6 +216,28 @@ test.each([
           ? [path.join(directory, 'head.app')]
           : [path.join(directory, 'head.app'), path.join(directory, 'base.app')]
       )
+      if (platform === 'ios') {
+        const preinstallCleanup = commands
+          .slice(
+            0,
+            commands.findIndex((args) => args.includes('launch'))
+          )
+          .filter((args) => ['terminate', 'uninstall'].includes(args[1]!))
+        expect(preinstallCleanup).toEqual(
+          freshIosSimulator
+            ? []
+            : (sameBinary
+                ? ['com.margelo.nitrobenchmark.head']
+                : [
+                    'com.margelo.nitrobenchmark.head',
+                    'com.margelo.nitrobenchmark',
+                  ]
+              ).flatMap((appId) => [
+                ['simctl', 'terminate', 'fixture', appId],
+                ['simctl', 'uninstall', 'fixture', appId],
+              ])
+        )
+      }
       const launches = commands.filter(
         (args) => args.includes('launch') || args.includes('start')
       )
@@ -337,4 +362,29 @@ test.each([
     }
   },
   20_000
+)
+
+test.each([
+  ['ios', 'yes'],
+  ['android', 'true'],
+])(
+  'reject an invalid fresh simulator assertion: %s, %s',
+  async (platform, fresh) => {
+    const child = Bun.spawn(
+      [
+        'bun',
+        path.join(import.meta.dir, 'run-sequence.ts'),
+        '--platform',
+        platform!,
+        '--fresh-ios-simulator',
+        fresh!,
+      ],
+      { stdout: 'pipe', stderr: 'pipe' }
+    )
+    const stderr = await new Response(child.stderr).text()
+    expect(await child.exited).not.toBe(0)
+    expect(stderr).toContain(
+      '--fresh-ios-simulator must be true or false, and requires iOS when true.'
+    )
+  }
 )

@@ -21,6 +21,17 @@ if (platformArgument !== 'android' && platformArgument !== 'ios') {
   throw new Error('--platform must be android or ios.')
 }
 const platform = platformArgument
+const freshIosSimulator =
+  argumentsMap.get('fresh-ios-simulator')?.[0] ?? 'false'
+if (
+  !['true', 'false'].includes(freshIosSimulator) ||
+  (freshIosSimulator === 'true' && platform !== 'ios')
+) {
+  throw new Error(
+    '--fresh-ios-simulator must be true or false, and requires iOS when true.'
+  )
+}
+const installOptions = { freshIosSimulator: freshIosSimulator === 'true' }
 const baseApp = path.resolve(requiredArgument(argumentsMap, 'base-app'))
 const headApp = path.resolve(requiredArgument(argumentsMap, 'head-app'))
 const baseSha = requiredArgument(argumentsMap, 'base-sha')
@@ -86,9 +97,9 @@ await Bun.write(
 const sameBinary = baseSha === headSha
 const headId = 'com.margelo.nitrobenchmark.head'
 const baseId = sameBinary ? headId : 'com.margelo.nitrobenchmark'
-await installApp(platform, deviceId, headApp, headId)
+await installApp(platform, deviceId, headApp, headId, installOptions)
 if (!sameBinary) {
-  await installApp(platform, deviceId, baseApp, baseId)
+  await installApp(platform, deviceId, baseApp, baseId, installOptions)
 }
 
 async function runCase(
