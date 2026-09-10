@@ -25,6 +25,7 @@
 #include "JFunc_void.hpp"
 #include "JFunc_double.hpp"
 #include "JFunc_int64_t_int64_t.hpp"
+#include "JFunc_uint64_t_uint64_t.hpp"
 #include "JFunc_void_std__vector_Powertrain_.hpp"
 #include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_void____.hpp"
 #include "JFunc_void_std__optional_double_.hpp"
@@ -112,6 +113,7 @@ void registerAllNatives() {
   margelo::nitro::test::JFunc_void_cxx::registerNatives();
   margelo::nitro::test::JFunc_double_cxx::registerNatives();
   margelo::nitro::test::JFunc_int64_t_int64_t_cxx::registerNatives();
+  margelo::nitro::test::JFunc_uint64_t_uint64_t_cxx::registerNatives();
   margelo::nitro::test::JFunc_void_std__vector_Powertrain__cxx::registerNatives();
   margelo::nitro::test::JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_void_____cxx::registerNatives();
   margelo::nitro::test::JFunc_void_std__optional_double__cxx::registerNatives();

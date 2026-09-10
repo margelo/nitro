@@ -358,6 +358,9 @@ interface SharedTestObjectProps {
   bounceSyncInt64Callback(
     callback: Sync<(value: Int64) => Int64>
   ): Sync<(value: Int64) => Int64>
+  bounceSyncUInt64Callback(
+    callback: Sync<(value: UInt64) => UInt64>
+  ): Sync<(value: UInt64) => UInt64>
 
   // Views
   getIsViewBlue(view: TestView): boolean

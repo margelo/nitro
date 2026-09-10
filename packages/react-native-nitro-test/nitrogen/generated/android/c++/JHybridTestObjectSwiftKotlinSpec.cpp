@@ -115,6 +115,7 @@ namespace margelo::nitro::test { class HybridTestViewSpec; }
 #include "JCoreTypesVariant.hpp"
 #include "JFunc_double.hpp"
 #include "JFunc_int64_t_int64_t.hpp"
+#include "JFunc_uint64_t_uint64_t.hpp"
 #include <NitroTestExternal/HybridSomeExternalObjectSpec.hpp>
 #include <NitroTestExternal/JHybridSomeExternalObjectSpec.hpp>
 #include "ExternalObjectStruct.hpp"
@@ -1585,6 +1586,19 @@ namespace margelo::nitro::test {
       } else {
         auto __resultRef = jni::make_global(__result);
         return JNICallable<JFunc_int64_t_int64_t, int64_t(int64_t)>(std::move(__resultRef));
+      }
+    }();
+  }
+  std::function<uint64_t(uint64_t /* value */)> JHybridTestObjectSwiftKotlinSpec::bounceSyncUInt64Callback(const std::function<uint64_t(uint64_t /* value */)>& callback) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JFunc_uint64_t_uint64_t::javaobject>(jni::alias_ref<JFunc_uint64_t_uint64_t::javaobject> /* callback */)>("bounceSyncUInt64Callback_cxx");
+    auto __result = method(_javaPart, JFunc_uint64_t_uint64_t_cxx::fromCpp(callback));
+    return [&]() -> std::function<uint64_t(uint64_t /* value */)> {
+      if (__result->isInstanceOf(JFunc_uint64_t_uint64_t_cxx::javaClassStatic())) [[likely]] {
+        auto downcast = jni::static_ref_cast<JFunc_uint64_t_uint64_t_cxx::javaobject>(__result);
+        return downcast->cthis()->getFunction();
+      } else {
+        auto __resultRef = jni::make_global(__result);
+        return JNICallable<JFunc_uint64_t_uint64_t, uint64_t(uint64_t)>(std::move(__resultRef));
       }
     }();
   }

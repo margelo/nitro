@@ -250,6 +250,7 @@ public:
   double callbackSync(const std::function<double()>& callback) override;
   std::function<double()> getSyncNumberCallback() override;
   std::function<int64_t(int64_t)> bounceSyncInt64Callback(const std::function<int64_t(int64_t)>& callback) override;
+  std::function<uint64_t(uint64_t)> bounceSyncUInt64Callback(const std::function<uint64_t(uint64_t)>& callback) override;
 
   std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>
   bounceExternalHybrid(const std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>& externalObject) override;

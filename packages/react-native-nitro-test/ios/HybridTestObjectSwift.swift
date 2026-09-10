@@ -678,6 +678,11 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return callback
   }
 
+  func bounceSyncUInt64Callback(callback: @escaping (UInt64) -> UInt64) throws -> (UInt64) -> UInt64
+  {
+    return callback
+  }
+
   func bounceExternalHybrid(externalObject: (any HybridSomeExternalObjectSpec)) throws -> (
     any HybridSomeExternalObjectSpec
   ) {

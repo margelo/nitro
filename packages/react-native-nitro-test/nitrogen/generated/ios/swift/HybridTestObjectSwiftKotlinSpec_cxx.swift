@@ -2960,6 +2960,27 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   }
   
   @inline(__always)
+  public final func bounceSyncUInt64Callback(callback: bridge.Func_uint64_t_uint64_t) -> bridge.Result_std__function_uint64_t_uint64_t____value______ {
+    do {
+      let __result = try self.__implementation.bounceSyncUInt64Callback(callback: { () -> (UInt64) -> UInt64 in
+        let __wrappedFunction = bridge.wrap_Func_uint64_t_uint64_t(callback)
+        return { (__value: UInt64) -> UInt64 in
+          let __result = __wrappedFunction.call(__value)
+          return __result
+        }
+      }())
+      let __resultCpp = { () -> bridge.Func_uint64_t_uint64_t in
+        let __closureWrapper = Func_uint64_t_uint64_t(__result)
+        return bridge.create_Func_uint64_t_uint64_t(__closureWrapper.toUnsafe())
+      }()
+      return bridge.create_Result_std__function_uint64_t_uint64_t____value______(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__function_uint64_t_uint64_t____value______(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
   public final func getIsViewBlue(view: bridge.std__shared_ptr_HybridTestViewSpec_) -> bridge.Result_bool_ {
     do {
       let __result = try self.__implementation.getIsViewBlue(view: { () -> any HybridTestViewSpec in
