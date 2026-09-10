@@ -14,6 +14,12 @@ tasks.configureEach { task ->
 
 afterEvaluate {
   def abis = reactNativeArchitectures()
+  def prepareHeadersTask = tasks.named("prepareHeaders")
+
+  prepareHeadersTask.configure {
+    mustRunAfter(tasks.named("clean"))
+  }
+
   rootProject.allprojects.each { proj ->
     if (proj === rootProject) return
 
@@ -26,6 +32,12 @@ afterEvaluate {
 
     if (!proj.plugins.hasPlugin('com.android.application') && !proj.plugins.hasPlugin('com.android.library')) {
       return
+    }
+
+    if (proj != project) {
+      proj.tasks.matching { it.name.startsWith("externalNativeBuildClean") }.configureEach { cleanTask ->
+        cleanTask.dependsOn(prepareHeadersTask)
+      }
     }
 
     def variants = proj.android.hasProperty('applicationVariants') ? proj.android.applicationVariants : proj.android.libraryVariants
