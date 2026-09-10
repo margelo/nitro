@@ -22,6 +22,7 @@
     "typecheck": "bun --filter=\"**\" typecheck",
     "lint": "bun nitro lint && bun nitrogen lint && bun nitro-test lint && bun example lint",
     "lint-cpp": "./scripts/clang-format.sh",
+    "clang-tidy": "./scripts/clang-tidy.sh",
     "lint-swift": "./scripts/swift-format.sh",
     "lint-kotlin": "./scripts/kotlin-format.sh",
     "lint-all": "bun lint-cpp && bun lint-swift && bun lint-kotlin && bun lint",
