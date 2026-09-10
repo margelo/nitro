@@ -59,10 +59,10 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "write-native-version": "version=$(node -p \"require('./package.json').version\") && sed -i '' \"s/#define NITRO_VERSION \\\".*\\\"/#define NITRO_VERSION \\\"$version\\\"/\" ./cpp/utils/NitroDefines.hpp",
+    "write-native-version": "version=$(node -p \"require('./package.json').version\") && sed -i '' \"s/#define NITRO_VERSION \\\".*\\\"/#define NITRO_VERSION \\\"$version\\\"/\" ./cpp/utils/NitroDefines.hpp && sed -i '' \"s/const jsVersion = '.*'/const jsVersion = '$version'/\" ./src/turbomodule/NativeNitroModules.ts",
     "postversion": "bun run write-native-version",
     "build": "rm -rf lib && bun typecheck && bob build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p tests/tsconfig.json",
     "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
     "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions --max-warnings 0",
     "test": "jest",

@@ -12,7 +12,7 @@ interface Spec extends TurboModule {
   install(): string | undefined
 }
 
-const jsVersion = require('react-native-nitro-modules/package.json').version
+const jsVersion = '0.37.1'
 
 function getInstalledNitro(): NitroModulesProxy | undefined {
   // @ts-expect-error
