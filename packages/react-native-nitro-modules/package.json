@@ -74,7 +74,7 @@
     "@types/react": "^19.2.15",
     "jest": "*",
     "@react-native/jest-preset": "0.85.3",
-    "react": "19.2.3",
+    "react": "19.2.8",
     "react-native": "0.85.3",
     "react-native-builder-bob": "^0.41.0",
     "react-native-worklets": "^0.9.1"
