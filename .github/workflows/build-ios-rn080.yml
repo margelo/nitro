@@ -1,0 +1,73 @@
+name: Build iOS (React Native 0.80)
+
+# Builds the NitroModules pod inside a bare React Native 0.80 app with static
+# libraries (the CocoaPods default). React Native <= 0.83 builds glog from
+# source with a modulemap that cannot be compiled as a clang module, so any
+# NitroModules public header that (transitively) includes <glog/logging.h>
+# breaks every `import NitroModules` from Swift. The example app cannot cover
+# this: its React Native ships glog with a textual-headers modulemap (RN 0.84+).
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build-ios-rn080.yml'
+      - 'packages/react-native-nitro-modules/cpp/**'
+      - 'packages/react-native-nitro-modules/ios/**'
+      - 'packages/react-native-nitro-modules/*.podspec'
+      - 'packages/react-native-nitro-modules/nitro_pod_utils.rb'
+  pull_request:
+    paths:
+      - '.github/workflows/build-ios-rn080.yml'
+      - 'packages/react-native-nitro-modules/cpp/**'
+      - 'packages/react-native-nitro-modules/ios/**'
+      - 'packages/react-native-nitro-modules/*.podspec'
+      - 'packages/react-native-nitro-modules/nitro_pod_utils.rb'
+
+env:
+  XCODE_VERSION: '26.5'
+  RN_VERSION: '0.80.3'
+
+jobs:
+  build:
+    name: Build NitroModules pod (RN 0.80, static libraries)
+    runs-on: macOS-26
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer"
+
+      - name: Create a bare React Native ${{ env.RN_VERSION }} app
+        working-directory: ${{ runner.temp }}
+        run: npx -y @react-native-community/cli@latest init TestApp --version ${{ env.RN_VERSION }} --skip-git-init --install-pods false
+
+      - name: Add NitroModules to the Podfile
+        working-directory: ${{ runner.temp }}/TestApp/ios
+        env:
+          NITRO_PATH: ${{ github.workspace }}/packages/react-native-nitro-modules
+        run: |
+          ruby - <<'RUBY'
+          podfile = File.read('Podfile')
+          pod_line = "  pod 'NitroModules', :path => '#{ENV['NITRO_PATH']}'\n"
+          raise 'use_native_modules! not found in template Podfile' unless podfile.sub!(/^(\s*config = use_native_modules!\n)/) { "#{$1}#{pod_line}" }
+          File.write('Podfile', podfile)
+          RUBY
+
+      - name: Install Pods
+        working-directory: ${{ runner.temp }}/TestApp/ios
+        run: pod install
+
+      - name: Build NitroModules pod
+        working-directory: ${{ runner.temp }}/TestApp/ios
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project Pods/Pods.xcodeproj \
+            -target NitroModules \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            build | xcbeautify --renderer github-actions
