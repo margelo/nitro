@@ -141,7 +141,7 @@
         "@types/jest": "*",
         "@types/react": "^19.2.15",
         "jest": "*",
-        "react": "19.2.3",
+        "react": "19.2.8",
         "react-native": "0.85.3",
         "react-native-builder-bob": "^0.41.0",
         "react-native-worklets": "^0.9.1",
@@ -157,10 +157,10 @@
       "devDependencies": {
         "@react-native/jest-preset": "0.85.3",
         "@types/jest": "*",
-        "@types/react": "^19.2.15",
+        "@types/react": "^19.2.18",
         "jest": "*",
         "nitrogen": "*",
-        "react": "19.2.3",
+        "react": "19.2.8",
         "react-native": "0.85.3",
         "react-native-nitro-modules": "*",
         "react-native-nitro-test-external": "*",
@@ -181,13 +181,13 @@
       "devDependencies": {
         "@react-native/eslint-config": "0.85.3",
         "@types/jest": "^29.5.12",
-        "@types/react": "^19.2.15",
+        "@types/react": "^19.2.18",
         "eslint": "^9.39.4",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.5",
         "nitrogen": "*",
         "prettier": "^3.8.3",
-        "react": "19.2.3",
+        "react": "19.2.8",
         "react-native": "0.85.3",
         "react-native-nitro-modules": "*",
         "typescript": "^6.0.3",
@@ -5312,6 +5312,18 @@
     "react-native-nitro-example/@react-native-community/cli-platform-android": ["@react-native-community/cli-platform-android@20.2.0", "", { "dependencies": { "@react-native-community/cli-config-android": "20.2.0", "@react-native-community/cli-tools": "20.2.0", "execa": "^5.0.0", "logkitty": "^0.7.1", "picocolors": "^1.1.1" } }, "sha512-fRglzcf/Yq5lnIkqdA8uf1GvlG18x3Dm48Yvo+l7KiWgh/SVtfVhfvalrtX5rmx+KeJkDA534bGoPvi5+ruWjw=="],
 
     "react-native-nitro-example/@react-native-community/cli-platform-ios": ["@react-native-community/cli-platform-ios@20.2.0", "", { "dependencies": { "@react-native-community/cli-platform-apple": "20.2.0" } }, "sha512-bCKlBt2HoD7WTl/HX60+4HFhR1lKY64Y9MPWu7yWQwOCEqYRMi6MkRxLimiONj9M2/lNf0z9BPHDzdDe5HM2ag=="],
+
+    "react-native-nitro-modules/@types/react": ["@types/react@19.3.0", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg=="],
+
+    "react-native-nitro-modules/react": ["react@19.2.8", "", {}, "sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw=="],
+
+    "react-native-nitro-test/@types/react": ["@types/react@19.3.0", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg=="],
+
+    "react-native-nitro-test/react": ["react@19.2.8", "", {}, "sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw=="],
+
+    "react-native-nitro-test-external/@types/react": ["@types/react@19.3.0", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg=="],
+
+    "react-native-nitro-test-external/react": ["react@19.2.8", "", {}, "sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw=="],
 
     "react-native-worklets/@babel/plugin-transform-arrow-functions": ["@babel/plugin-transform-arrow-functions@7.27.1", "", { "dependencies": { "@babel/helper-plugin-utils": "^7.27.1" }, "peerDependencies": { "@babel/core": "^7.0.0-0" } }, "sha512-8Z4TGic6xW70FKThA5HYEKKyBpOOsucTOD1DjU3fZxDg+K3zBJcXMFnt/4yQiZnf5+MiOMSXQ9PaEK/Ilh1DeA=="],
 
