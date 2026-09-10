@@ -1589,12 +1589,22 @@ export function getTests(
     createTest('twoPromises can run in parallel', async () =>
       (
         await it(async () => {
-          const start = performance.now()
-          // 0.5s + 0.5s = ~1s in serial, ~0.5s in parallel
-          await Promise.all([testObject.wait(0.5), testObject.wait(0.5)])
-          const end = performance.now()
-          const didRunInParallel = end - start < 1000
-          return didRunInParallel
+          let started = 0
+          let release = () => {}
+          const bothStarted = new Promise<void>((resolve) => {
+            release = resolve
+          })
+          const onStarted = () => {
+            started++
+            if (started === 2) release()
+            return bothStarted
+          }
+          // Each native operation waits until both have invoked their callback.
+          await Promise.all([
+            testObject.callCallbackThatReturnsPromiseVoid(onStarted),
+            testObject.callCallbackThatReturnsPromiseVoid(onStarted),
+          ])
+          return started === 2
         })
       )
         .didNotThrow()
