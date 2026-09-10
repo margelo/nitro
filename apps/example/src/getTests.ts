@@ -49,6 +49,8 @@ export interface TestRunner {
 const MEMORY_LEAK_TEST_ALLOCATION_COUNT = 55_000
 const EXTERNAL_MEMORY_TEST_SIZE = 1024 * 1024
 const PARALLEL_HYBRID_OBJECT_TEST_TIMEOUT = 120_000
+const INVALID_NATIVE_ARRAY_BUFFER_SIZE_ERROR =
+  'ArrayBuffer size must be finite, non-negative, and within the platform size limit.'
 
 type HermesInternal = {
   getInstrumentedStats?: () => { js_externalBytes: number }
@@ -2634,6 +2636,32 @@ export function getTests(
         .didNotThrow()
         .didReturn('number')
         .equals(13)
+    ),
+    createTest('NitroModules.createNativeArrayBuffer(...) rejects NaN', () =>
+      it(() => NitroModules.createNativeArrayBuffer(Number.NaN)).didThrow(
+        INVALID_NATIVE_ARRAY_BUFFER_SIZE_ERROR
+      )
+    ),
+    createTest(
+      'NitroModules.createNativeArrayBuffer(...) rejects negative sizes',
+      () =>
+        it(() => NitroModules.createNativeArrayBuffer(-1)).didThrow(
+          INVALID_NATIVE_ARRAY_BUFFER_SIZE_ERROR
+        )
+    ),
+    createTest(
+      'NitroModules.createNativeArrayBuffer(...) rejects Infinity',
+      () =>
+        it(() =>
+          NitroModules.createNativeArrayBuffer(Number.POSITIVE_INFINITY)
+        ).didThrow(INVALID_NATIVE_ARRAY_BUFFER_SIZE_ERROR)
+    ),
+    createTest(
+      'NitroModules.createNativeArrayBuffer(...) rejects values beyond the platform size limit',
+      () =>
+        it(() =>
+          NitroModules.createNativeArrayBuffer(Number.MAX_VALUE)
+        ).didThrow(INVALID_NATIVE_ARRAY_BUFFER_SIZE_ERROR)
     ),
     createTest(
       'NitroModules.createNativeArrayBuffer(...) reports external memory pressure',
