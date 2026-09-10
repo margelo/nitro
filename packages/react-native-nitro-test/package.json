@@ -57,11 +57,11 @@
   },
   "devDependencies": {
     "@types/jest": "*",
-    "@types/react": "^19.2.15",
+    "@types/react": "^19.2.18",
     "jest": "*",
     "nitrogen": "*",
     "@react-native/jest-preset": "0.85.3",
-    "react": "19.2.3",
+    "react": "19.2.8",
     "react-native": "0.85.3",
     "react-native-nitro-modules": "*",
     "react-native-nitro-test-external": "*"
