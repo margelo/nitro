@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "HybridRecyclableTestViewSpec.hpp"
+#include <NitroTest/HybridRecyclableTestViewSpec.hpp>
 
 // Forward declaration of `HybridRecyclableTestViewSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridRecyclableTestViewSpec_cxx; }

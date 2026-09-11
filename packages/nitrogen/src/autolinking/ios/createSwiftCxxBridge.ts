@@ -1,5 +1,9 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
-import { includeHeader } from '../../syntax/c++/includeNitroHeader.js'
+import {
+  includeHeader,
+  includeModuleHeader,
+  sortSourceImports,
+} from '../../syntax/c++/includeNitroHeader.js'
 import { getAllKnownTypes } from '../../syntax/createType.js'
 import {
   createFileMetadataString,
@@ -15,6 +19,7 @@ import { getForwardDeclaration } from '../../syntax/c++/getForwardDeclaration.js
 import { getHybridObjectName } from '../../syntax/getHybridObjectName.js'
 
 export function createSwiftCxxBridge(): SourceFile[] {
+  const moduleName = NitroConfig.current.getIosModuleName()
   const bridgeName = NitroConfig.current.getSwiftBridgeHeaderName()
   const bridgeNamespace = NitroConfig.current.getSwiftBridgeNamespace('c++')
 
@@ -47,8 +52,8 @@ export function createSwiftCxxBridge(): SourceFile[] {
   const requiredImportsHeader = bridges.flatMap(
     (b) => b.cxxHeader.requiredIncludes
   )
-  const includesHeader = requiredImportsHeader
-    .map((i) => includeHeader(i, true))
+  const includesHeader = sortSourceImports(requiredImportsHeader)
+    .map((i) => includeModuleHeader(i, moduleName, true))
     .filter(isNotDuplicate)
   const forwardDeclarationsHeader = requiredImportsHeader
     .map((i) => i.forwardDeclaration)
@@ -90,7 +95,7 @@ ${forwardDeclarationsHeader.sort().join('\n')}
 ${forwardDeclaredSwiftTypes.sort().join('\n')}
 
 // Include C++ defined types
-${includesHeader.sort().join('\n')}
+${includesHeader.join('\n')}
 
 /**
  * Contains specialized versions of C++ templated types so they can be accessed from Swift,

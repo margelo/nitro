@@ -68,25 +68,25 @@ namespace NitroTest { class HybridTestObjectSwiftKotlinSpec_cxx; }
 namespace NitroTest { class HybridTestViewSpec_cxx; }
 
 // Include C++ defined types
-#include "Car.hpp"
-#include "ExternalObjectStruct.hpp"
-#include "HybridBaseSpec.hpp"
-#include "HybridChildSpec.hpp"
-#include "HybridPlatformObjectSpec.hpp"
-#include "HybridRecyclableTestViewSpec.hpp"
-#include "HybridTestObjectSwiftKotlinSpec.hpp"
-#include "HybridTestViewSpec.hpp"
-#include "JsStyleStruct.hpp"
-#include "OldEnum.hpp"
-#include "OptionalCallback.hpp"
-#include "OptionalEnumWrapper.hpp"
-#include "OptionalWrapper.hpp"
-#include "PartialPerson.hpp"
-#include "Person.hpp"
-#include "Powertrain.hpp"
-#include "TruckPowertrain.hpp"
-#include "WeirdNumbersEnum.hpp"
-#include "WrappedJsStruct.hpp"
+#include <NitroTest/Car.hpp>
+#include <NitroTest/ExternalObjectStruct.hpp>
+#include <NitroTest/HybridBaseSpec.hpp>
+#include <NitroTest/HybridChildSpec.hpp>
+#include <NitroTest/HybridPlatformObjectSpec.hpp>
+#include <NitroTest/HybridRecyclableTestViewSpec.hpp>
+#include <NitroTest/HybridTestObjectSwiftKotlinSpec.hpp>
+#include <NitroTest/HybridTestViewSpec.hpp>
+#include <NitroTest/JsStyleStruct.hpp>
+#include <NitroTest/OldEnum.hpp>
+#include <NitroTest/OptionalCallback.hpp>
+#include <NitroTest/OptionalEnumWrapper.hpp>
+#include <NitroTest/OptionalWrapper.hpp>
+#include <NitroTest/PartialPerson.hpp>
+#include <NitroTest/Person.hpp>
+#include <NitroTest/Powertrain.hpp>
+#include <NitroTest/TruckPowertrain.hpp>
+#include <NitroTest/WeirdNumbersEnum.hpp>
+#include <NitroTest/WrappedJsStruct.hpp>
 #include <NitroModules/AnyMap.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>

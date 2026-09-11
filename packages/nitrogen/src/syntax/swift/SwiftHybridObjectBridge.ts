@@ -8,11 +8,14 @@ import {
   escapeCppName,
   isNotDuplicate,
 } from '../helpers.js'
-import type { SourceFile } from '../SourceFile.js'
+import type { SourceFile, SourceImport } from '../SourceFile.js'
 import { getHybridObjectName } from '../getHybridObjectName.js'
 import { getForwardDeclaration } from '../c++/getForwardDeclaration.js'
 import { NitroConfig } from '../../config/NitroConfig.js'
-import { includeHeader } from '../c++/includeNitroHeader.js'
+import {
+  includeHeader,
+  includeModuleHeader,
+} from '../c++/includeNitroHeader.js'
 import { getUmbrellaHeaderName } from '../../autolinking/ios/createSwiftUmbrellaHeader.js'
 import { HybridObjectType } from '../types/HybridObjectType.js'
 import { addKnownType } from '../createType.js'
@@ -342,9 +345,10 @@ if (__result.hasError()) [[unlikely]] {
   ]
   const cxxNamespace = spec.config.getCxxNamespace('c++')
   const iosModuleName = spec.config.getIosModuleName()
-  const extraImports = allBridgedTypes.flatMap((b) =>
+  const typeImports = allBridgedTypes.flatMap((b) =>
     b.getRequiredImports('c++')
   )
+  const baseImports: SourceImport[] = []
 
   const cppBaseClasses = [`public virtual ${name.HybridTSpec}`]
   const cppBaseCtorCalls = [`HybridObject(${name.HybridTSpec}::TAG)`]
@@ -352,7 +356,7 @@ if (__result.hasError()) [[unlikely]] {
     const baseName = getHybridObjectName(base.name)
     cppBaseClasses.push(`public virtual ${baseName.HybridTSpecSwift}`)
     cppBaseCtorCalls.push(`${baseName.HybridTSpecSwift}(swiftPart)`)
-    extraImports.push({
+    baseImports.push({
       language: 'c++',
       name: `${baseName.HybridTSpecSwift}.hpp`,
       space: 'user',
@@ -364,13 +368,22 @@ if (__result.hasError()) [[unlikely]] {
     })
   }
 
-  const extraForwardDeclarations = extraImports
+  const extraForwardDeclarations = [...typeImports, ...baseImports]
     .map((i) => i.forwardDeclaration)
     .filter((v) => v != null)
     .filter(isNotDuplicate)
-  const extraIncludes = extraImports
-    .map((i) => includeHeader(i))
-    .filter(isNotDuplicate)
+  const extraIncludes = [
+    ...typeImports.map((i) => includeModuleHeader(i, iosModuleName)),
+    ...baseImports.map((i) => includeHeader(i)),
+  ].filter(isNotDuplicate)
+  const hybridSpecInclude = includeModuleHeader(
+    {
+      language: 'c++',
+      name: `${name.HybridTSpec}.hpp`,
+      space: 'user',
+    },
+    iosModuleName
+  )
 
   // TODO: Remove forward declaration once Swift fixes the wrong order in generated -Swift.h headers!
   const cppHybridObjectCode = `
@@ -378,7 +391,7 @@ ${createFileMetadataString(`${name.HybridTSpecSwift}.hpp`)}
 
 #pragma once
 
-#include "${name.HybridTSpec}.hpp"
+${hybridSpecInclude}
 
 ${getForwardDeclaration('class', name.HybridTSpecCxx, iosModuleName)}
 
