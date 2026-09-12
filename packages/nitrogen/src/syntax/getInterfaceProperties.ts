@@ -12,10 +12,19 @@ export function getInterfaceProperties(
     throw new Error(
       `Interface "${interfaceType.getText()}" does not have a Symbol!`
     )
-  return interfaceType.getProperties().map((prop) => {
+  return interfaceType.getProperties().flatMap((prop) => {
     const propDeclaration = prop
       .getDeclarations()
       .find((declaration) => Node.isPropertySignature(declaration))
+    // `property?: never` is a type-only marker for exclusive unions.
+    // TypeScript resolves the property itself to `undefined`, so inspect its node.
+    if (
+      prop.isOptional() &&
+      propDeclaration?.getTypeNode()?.getType().isNever()
+    ) {
+      return []
+    }
+
     let propType = prop.getDeclaredType()
     if (propType.isAny() || propType.isUnknown()) {
       // the interface is aliased/merged - we need to look into the actual declaration
@@ -35,6 +44,6 @@ export function getInterfaceProperties(
       prop.isOptional() || propType.isNullable(),
       propDeclaration?.getTypeNode()
     )
-    return refType
+    return [refType]
   })
 }
