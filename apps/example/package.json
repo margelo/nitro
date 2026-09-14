@@ -42,14 +42,14 @@
     "@react-native/eslint-config": "0.85.3",
     "@react-native/metro-config": "0.85.3",
     "@react-native/typescript-config": "0.85.3",
-    "@react-native-harness/platform-android": "1.4.1",
-    "@react-native-harness/platform-apple": "1.4.1",
-    "@react-native-harness/ui": "1.4.1",
+    "@react-native-harness/platform-android": "1.5.0",
+    "@react-native-harness/platform-apple": "1.5.0",
+    "@react-native-harness/ui": "1.5.0",
     "@types/deep-equal": "^1.0.4",
     "@types/upng-js": "2.1.5",
     "babel-plugin-module-resolver": "^5.0.3",
     "nitrogen": "*",
-    "react-native-harness": "1.4.1",
+    "react-native-harness": "1.5.0",
     "upng-js": "2.1.0"
   },
   "engines": {
