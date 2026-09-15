@@ -6,6 +6,7 @@
 //
 
 #include "Promise.hpp"
+#include <utility>
 
 namespace margelo::nitro {
 

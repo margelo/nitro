@@ -8,6 +8,7 @@
 #include "ThreadPool.hpp"
 #include "NitroLogger.hpp"
 #include "ThreadUtils.hpp"
+#include <utility>
 
 namespace margelo::nitro {
 

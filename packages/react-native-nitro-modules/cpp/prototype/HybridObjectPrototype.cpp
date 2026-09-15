@@ -10,6 +10,7 @@
 #include "NitroDefines.hpp"
 #include "NitroLogger.hpp"
 #include "NitroTypeInfo.hpp"
+#include <utility>
 
 namespace margelo::nitro {
 

@@ -9,6 +9,7 @@ export type Language = Required<PlatformSpec>[keyof PlatformSpec]
 const platformLanguages: { [K in Platform]: Language[] } = {
   ios: ['swift', 'c++'],
   android: ['kotlin', 'c++'],
+  windows: ['c++'],
 }
 const allPlatforms = Object.keys(platformLanguages) as Platform[]
 const allLanguages = Object.values(platformLanguages).flatMap((l) => l)

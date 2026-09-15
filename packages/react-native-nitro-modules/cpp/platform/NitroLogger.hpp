@@ -8,6 +8,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -44,8 +45,13 @@ public:
 private:
   template <typename... Args>
   static std::string formatString(const char* NON_NULL format, Args... args) {
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-security"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+#endif
     int size = snprintf(nullptr, 0, format, args...) + 1; // Extra space for '\0'
     if (size <= 0) {
       return "Error during formatting.";
@@ -53,7 +59,11 @@ private:
     std::unique_ptr<char[]> buf(new char[size]);
     snprintf(buf.get(), size, format, args...);
     return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
   }
 
   // Overloaded functions to convert std::string to C-style string

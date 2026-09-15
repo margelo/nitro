@@ -12,7 +12,8 @@
 #define NITRO_VERSION "0.37.1"
 
 // Sets whether to use debug or optimized production build flags
-#ifdef DEBUG
+// (`_DEBUG` is what MSVC defines for debug configurations)
+#if defined(DEBUG) || defined(_DEBUG)
 #define NITRO_DEBUG
 #endif
 #ifdef NDEBUG

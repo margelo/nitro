@@ -21,6 +21,7 @@ struct JSIConverter;
 #include "PropNameIDCache.hpp"
 #include <jsi/jsi.h>
 #include <memory>
+#include <utility>
 
 namespace margelo::nitro {
 

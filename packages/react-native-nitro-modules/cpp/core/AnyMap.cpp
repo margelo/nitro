@@ -3,6 +3,8 @@
 //
 
 #include "AnyMap.hpp"
+#include <cstdint>
+#include <stdexcept>
 
 namespace margelo::nitro {
 

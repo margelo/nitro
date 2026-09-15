@@ -15,10 +15,12 @@ struct JSIConverter;
 #include "BorrowingReference.hpp"
 #include "JSIConverter.hpp"
 #include "NitroDefines.hpp"
+#include "NitroLogger.hpp"
 #include "NitroTypeInfo.hpp"
 #include "Promise.hpp"
 #include <functional>
 #include <jsi/jsi.h>
+#include <utility>
 
 namespace margelo::nitro {
 

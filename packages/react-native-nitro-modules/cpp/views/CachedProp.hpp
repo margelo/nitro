@@ -8,6 +8,7 @@
 #include "JSIConverter.hpp"
 #include "NitroDefines.hpp"
 #include <jsi/jsi.h>
+#include <utility>
 
 namespace margelo::nitro {
 

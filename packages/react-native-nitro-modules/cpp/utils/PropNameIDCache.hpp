@@ -10,6 +10,8 @@
 #include "BorrowingReference.hpp"
 #include <jsi/jsi.h>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace margelo::nitro {
 

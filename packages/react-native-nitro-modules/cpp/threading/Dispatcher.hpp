@@ -10,6 +10,7 @@
 #include <jsi/jsi.h>
 #include <queue>
 #include <unordered_map>
+#include <utility>
 
 namespace margelo::nitro {
 

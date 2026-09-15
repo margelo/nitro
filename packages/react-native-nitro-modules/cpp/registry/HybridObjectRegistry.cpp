@@ -9,6 +9,7 @@
 #include "NitroDefines.hpp"
 #include "NitroLogger.hpp"
 #include <numeric>
+#include <utility>
 
 namespace margelo::nitro {
 

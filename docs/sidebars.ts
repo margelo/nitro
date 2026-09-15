@@ -43,6 +43,7 @@ const sidebars: SidebarsConfig = {
         'guides/entry-point',
         'guides/sync-vs-async',
         'guides/view-components',
+        'guides/windows',
         'guides/troubleshooting',
         'guides/running-example-app',
       ]
