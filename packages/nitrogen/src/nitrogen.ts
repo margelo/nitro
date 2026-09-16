@@ -85,7 +85,7 @@ export async function runNitrogen({
         `To create a Nitro Module, create a TypeScript file with the "${chalk.underline('.nitro.ts')}" suffix ` +
         'and export an interface that extends HybridObject<T>.'
     )
-    process.exit()
+    process.exit(1)
   }
 
   const usedPlatforms: Platform[] = []
@@ -189,6 +189,7 @@ export async function runNitrogen({
           `    ❌  No specs found in ${sourceFile.getBaseName()}!`
         )
       )
+      process.exitCode = 1
     }
   }
 
