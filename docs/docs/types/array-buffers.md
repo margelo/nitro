@@ -198,11 +198,16 @@ ArrayBuffers also provide helper and conversion methods for the language-native 
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
-    C++ often uses [`std::vector<uint8_t>`](https://en.cppreference.com/w/cpp/container/vector) to represent Data.
+    C++ often uses [`std::vector<uint8_t>`](https://en.cppreference.com/w/cpp/container/vector) to represent Data. Use `copy()` to duplicate the bytes into a new owning `ArrayBuffer`. 
     ```cpp
     std::vector<uint8_t> data;
     auto buffer = ArrayBuffer::copy(data);
     /* convert back to vector would be a copy. */
+    ```
+    Use `move()` to transfer a vector's storage without an extra copy.
+    ```cpp
+    std::vector<uint8_t> data;
+    auto buffer = ArrayBuffer::move(std::move(data));
     ```
   </TabItem>
 </Tabs>
