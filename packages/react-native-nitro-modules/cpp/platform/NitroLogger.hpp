@@ -16,6 +16,16 @@ namespace margelo::nitro {
 
 enum class LogLevel { Debug, Info, Warning, Error };
 
+constexpr LogLevel kMinLogLevel = [] {
+#ifdef NITRO_MIN_LOG_LEVEL
+    constexpr int v = NITRO_MIN_LOG_LEVEL; // passed via -DNITRO_MIN_LOG_LEVEL=0..3
+    static_assert(v >= 0 && v <= 3, "NITRO_MIN_LOG_LEVEL is out of range!");
+    return static_cast<LogLevel>(v);
+#else
+    return LogLevel::Warning; // default is just warning
+#endif
+}();
+
 class Logger final {
 private:
   Logger() = delete;
@@ -31,10 +41,13 @@ public:
     static_assert(all_are_trivially_copyable<Args...>(), "All arguments passed to Logger::log(..) must be trivially copyable! "
                                                          "Did you try to pass a complex type, like std::string?");
 
-    // 2. Format all arguments in the message
+    // 2. Make sure we want to enable those kinds of logs - if not, return
+    if (static_cast<int>(level) < static_cast<int>(kMinLogLevel)) return;
+
+    // 3. Format all arguments in the message
     std::string message = formatString(format, args...);
 
-    // 3. Call the platform specific log function
+    // 4. Call the platform specific log function
     nativeLog(level, tag, message);
 #endif
   }
