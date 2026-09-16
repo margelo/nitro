@@ -507,11 +507,25 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
       }
       case 'array': {
         const array = getTypeAs(this.type, ArrayType)
+        const bridge = this.getBridgeOrThrow()
         const wrapping = new SwiftCxxBridgedType(array.itemType, true)
+        const swiftArrayType = array.getCode('swift')
+        const getFunc = `bridge.get_${bridge.specializationName}`
         switch (language) {
           case 'swift':
-            // We have to iterate the element one by one to create a resulting Array (mapped)
-            return `${cppParameterName}.map({ __item in ${wrapping.parseFromCppToSwift('__item', 'swift')} })`.trim()
+            // Use index-based loop with bridge helper instead of .map() or for-in to work around
+            // Swift compiler bug where C++ vector types lose Sequence/.map conformance (https://github.com/swiftlang/swift/issues/76949)
+            return `
+            { () -> ${swiftArrayType} in
+              var __array = ${swiftArrayType}()
+              let __count = ${cppParameterName}.size()
+              __array.reserveCapacity(Int(__count))
+              for __i in 0..<__count {
+                let __item = ${getFunc}(${cppParameterName}, __i)
+                __array.append(${wrapping.parseFromCppToSwift('__item', 'swift')})
+              }
+              return __array
+            }()`.trim()
           default:
             return cppParameterName
         }
