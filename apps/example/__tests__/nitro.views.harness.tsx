@@ -506,6 +506,45 @@ describe('TestView', () => {
   })
 })
 
+describe('base React Native view props', () => {
+  const DIMMED_OPACITY = 0.1
+  const MAX_DIMMED_PIXEL_COVERAGE = 0.05
+
+  it('applies opacity to the native view', async () => {
+    await render(
+      <TestView
+        testID="test-view-dimmed"
+        style={{ ...INITIAL_SIZE, opacity: DIMMED_OPACITY }}
+        isBlue={true}
+        hasBeenCalled={false}
+        colorScheme="dark"
+        someCallback={callback(fn())}
+      />,
+      { timeout: RENDER_TIMEOUT }
+    )
+
+    const capture = await captureView('test-view-dimmed')
+    expectRenderedSize(capture.size, INITIAL_SIZE)
+    expect(capture.pixelCoverage.blue).toBeLessThan(MAX_DIMMED_PIXEL_COVERAGE)
+  })
+
+  it('paints solid when no opacity is given', async () => {
+    await render(
+      <TestView
+        testID="test-view-solid"
+        style={INITIAL_SIZE}
+        isBlue={true}
+        hasBeenCalled={false}
+        colorScheme="dark"
+        someCallback={callback(fn())}
+      />,
+      { timeout: RENDER_TIMEOUT }
+    )
+
+    expectBlue((await captureView('test-view-solid')).pixelCoverage)
+  })
+})
+
 describe('multiple RecyclableTestViews', () => {
   it('keeps instances isolated while one is updated and recycled', async () => {
     const firstRef = deferred<RecyclableTestViewRef>()

@@ -14,6 +14,9 @@ import com.facebook.react.internal.featureflags.ReactNativeFeatureFlagsProvider
 
 private val stableFlagsWithNitroViewRecycling: ReactNativeFeatureFlagsProvider =
   object : ReactNativeFeatureFlagsProvider by ReactNativeFeatureFlagsOverrides_RNOSS_Stable_Android() {
+    // Unconditional from RN 0.86; on by default here so the view harness covers that path.
+    override fun enableExclusivePropsUpdateAndroid(): Boolean = true
+
     override fun enablePreparedTextLayout(): Boolean = false
 
     override fun enableViewRecycling(): Boolean = true
