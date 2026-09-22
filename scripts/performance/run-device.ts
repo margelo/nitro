@@ -79,7 +79,9 @@ export async function runDeviceCase(
       '--benchmark-index',
       String(index),
       '--timeout-ms',
-      '120000',
+      // This experiment creates hundreds of HostFunctions per HybridObject. Keep
+      // the identical fixed workloads and all samples, but allow slow cases to finish.
+      String(20 * 60 * 1000),
     ],
     {
       stdout: 'inherit',

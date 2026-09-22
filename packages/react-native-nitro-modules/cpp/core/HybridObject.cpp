@@ -86,7 +86,13 @@ jsi::Value HybridObject::toObject(jsi::Runtime& runtime) {
   jsi::Object object = CommonGlobals::Object::create(runtime, prototype);
 
   // 4. Assign NativeState to the object so the prototype can resolve the native methods
-  object.setNativeState(runtime, shared());
+  auto instance = shared();
+  object.setNativeState(runtime, instance);
+
+  // Performance experiment: shadow every prototype member with a HostFunction bound to this instance.
+  // Remove this call to compare against the shared-prototype/NativeState dispatch baseline.
+  // Bound functions retain the native object even after dispose() clears its NativeState.
+  bindHybridFunctions(runtime, object, instance);
 
   // 5. Set memory size so Hermes GC knows about actual memory
   object.setExternalMemoryPressure(runtime, getExternalMemorySize());

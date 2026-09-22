@@ -10,6 +10,7 @@
 #include "NitroDefines.hpp"
 #include "NitroLogger.hpp"
 #include "NitroTypeInfo.hpp"
+#include <unordered_set>
 
 namespace margelo::nitro {
 
@@ -125,6 +126,52 @@ jsi::Value HybridObjectPrototype::getPrototype(jsi::Runtime& runtime) {
   ensureInitialized();
 
   return createPrototype(runtime, _prototypeChain.getPrototype());
+}
+
+void HybridObjectPrototype::bindHybridFunctions(jsi::Runtime& runtime, const jsi::Object& object,
+                                                const std::shared_ptr<jsi::NativeState>& instance) {
+  ensureInitialized();
+  auto descriptors = CommonGlobals::Object::create(runtime, jsi::Value::null());
+  std::unordered_set<std::string> installedNames;
+
+  // Visit derived prototypes first so their own descriptors shadow the entire base property.
+  for (auto prototype = _prototypeChain.getPrototype(); prototype != nullptr; prototype = prototype->getBase()) {
+    for (const auto& [name, method] : prototype->getMethods()) {
+      if (!installedNames.insert(name).second) {
+        continue;
+      }
+      auto descriptor = CommonGlobals::Object::create(runtime, jsi::Value::null());
+      descriptor.setProperty(runtime, "enumerable", true);
+      descriptor.setProperty(runtime, "value", method.toBoundJSFunction(runtime, instance));
+      descriptors.setProperty(runtime, name.c_str(), std::move(descriptor));
+    }
+
+    auto addProperty = [&](const std::string& name) {
+      if (!installedNames.insert(name).second) {
+        return;
+      }
+      auto descriptor = CommonGlobals::Object::create(runtime, jsi::Value::null());
+      descriptor.setProperty(runtime, "enumerable", true);
+      auto getter = prototype->getGetters().find(name);
+      if (getter != prototype->getGetters().end()) {
+        descriptor.setProperty(runtime, "get", getter->second.toBoundJSFunction(runtime, instance));
+      }
+      auto setter = prototype->getSetters().find(name);
+      if (setter != prototype->getSetters().end()) {
+        descriptor.setProperty(runtime, "set", setter->second.toBoundJSFunction(runtime, instance));
+      }
+      descriptors.setProperty(runtime, name.c_str(), std::move(descriptor));
+    };
+    for (const auto& [name, getter] : prototype->getGetters()) {
+      addProperty(name);
+    }
+    for (const auto& [name, setter] : prototype->getSetters()) {
+      addProperty(name);
+    }
+  }
+
+  auto defineProperties = runtime.global().getPropertyAsObject(runtime, "Object").getPropertyAsFunction(runtime, "defineProperties");
+  defineProperties.call(runtime, object, std::move(descriptors));
 }
 
 } // namespace margelo::nitro

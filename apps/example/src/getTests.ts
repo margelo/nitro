@@ -47,6 +47,7 @@ export interface TestRunner {
 // 1) It's a lot of allocations and any VM (JS, JVM) will likely trigger GC
 // 2) In JVM, 51_200 is the limit for `jni::global_ref`s, then the app crashes - this intentionally exhausts that
 const MEMORY_LEAK_TEST_ALLOCATION_COUNT = 55_000
+const MEMORY_LEAK_TEST_TIMEOUT = 120_000
 const EXTERNAL_MEMORY_TEST_SIZE = 1024 * 1024
 const PARALLEL_HYBRID_OBJECT_TEST_TIMEOUT = 120_000
 
@@ -304,6 +305,44 @@ export function getTests(
         const objA = testObject.newTestObject()
         const objB = testObject.newTestObject()
         return Object.getPrototypeOf(objA) === Object.getPrototypeOf(objB)
+      })
+        .didNotThrow()
+        .equals(true)
+    ),
+
+    // Bound HybridObject performance experiment
+    createTest('HybridObject methods are bound to their native receiver', () =>
+      it(() => {
+        const { equals } = testObject
+        const other = testObject.newTestObject()
+        return equals(testObject) && !equals.call(other, other)
+      })
+        .didNotThrow()
+        .equals(true)
+    ),
+    createTest(
+      'HybridObject accessors are bound to their native receiver',
+      () =>
+        it(() => {
+          const other = testObject.newTestObject()
+          other.numberValue = 100
+          const descriptor = Object.getOwnPropertyDescriptor(
+            testObject,
+            'numberValue'
+          )!
+          descriptor.set!.call(other, 42)
+          return descriptor.get!.call(other) === 42 && other.numberValue === 100
+        })
+          .didNotThrow()
+          .equals(true)
+    ),
+    createTest('HybridObject methods have per-instance identity', () =>
+      it(() => {
+        const other = testObject.newTestObject()
+        return (
+          Object.prototype.hasOwnProperty.call(testObject, 'simpleFunc') &&
+          testObject.simpleFunc !== other.simpleFunc
+        )
       })
         .didNotThrow()
         .equals(true)
@@ -1697,67 +1736,77 @@ export function getTests(
     ),
     createTest(
       'HybridObjects do not leak memory when automatically reclaimed by JS GC',
-      () =>
-        it(() => {
-          const baselineAllocations =
-            NitroModules.debug_getTotalAllocatedHybridObjects()
-          const BATCH_SIZE = 1000
+      async () =>
+        (
+          await it(async () => {
+            const baselineAllocations =
+              NitroModules.debug_getTotalAllocatedHybridObjects()
+            const BATCH_SIZE = 1000
 
-          const objects: Array<TestObjectCpp | TestObjectSwiftKotlin> = []
-          for (let i = 0; i < MEMORY_LEAK_TEST_ALLOCATION_COUNT; i++) {
-            const object = testObject.newTestObject()
-            object.numberValue = i
-            objects.push(object)
+            const objects: Array<TestObjectCpp | TestObjectSwiftKotlin> = []
+            for (let i = 0; i < MEMORY_LEAK_TEST_ALLOCATION_COUNT; i++) {
+              const object = testObject.newTestObject()
+              object.numberValue = i
+              objects.push(object)
 
-            if (objects.length >= BATCH_SIZE) {
-              objects.length = 0
-              gc()
+              if (objects.length >= BATCH_SIZE) {
+                objects.length = 0
+                gc()
+                // Binding allocates functions per object; yield so Harness can send heartbeats.
+                await new Promise<void>((resolve) => setTimeout(resolve, 0))
+              }
             }
-          }
 
-          objects.length = 0
-          gc()
-          gc()
-          gc()
+            objects.length = 0
+            gc()
+            gc()
+            gc()
 
-          const currentAllocations =
-            NitroModules.debug_getTotalAllocatedHybridObjects()
-          const remainingAllocations = currentAllocations - baselineAllocations
-          // make sure that less than 10% of the total allocations are remaining, indicating GC ran for most of it.
-          const didDeleteMostObjects =
-            remainingAllocations < MEMORY_LEAK_TEST_ALLOCATION_COUNT * 0.1
-          const result: {
-            baselineAllocations: number
-            currentAllocations: number
-            isEqual?: boolean
-          } = {
-            baselineAllocations: baselineAllocations,
-            currentAllocations: currentAllocations,
-            isEqual: didDeleteMostObjects,
-          }
-          if (!didDeleteMostObjects) {
-            delete result.isEqual
-          }
-          return result
-        })
+            const currentAllocations =
+              NitroModules.debug_getTotalAllocatedHybridObjects()
+            const remainingAllocations =
+              currentAllocations - baselineAllocations
+            // make sure that less than 10% of the total allocations are remaining, indicating GC ran for most of it.
+            const didDeleteMostObjects =
+              remainingAllocations < MEMORY_LEAK_TEST_ALLOCATION_COUNT * 0.1
+            const result: {
+              baselineAllocations: number
+              currentAllocations: number
+              isEqual?: boolean
+            } = {
+              baselineAllocations: baselineAllocations,
+              currentAllocations: currentAllocations,
+              isEqual: didDeleteMostObjects,
+            }
+            if (!didDeleteMostObjects) {
+              delete result.isEqual
+            }
+            return result
+          }, MEMORY_LEAK_TEST_TIMEOUT)
+        )
           .didNotThrow()
           .toContain('isEqual')
     ),
-    createTest('HybridObjects dont leak memory with manual dispose()', () =>
-      it(() => {
-        const BATCH_SIZE = 1000
+    createTest(
+      'HybridObjects dont leak memory with manual dispose()',
+      async () =>
+        (
+          await it(async () => {
+            const BATCH_SIZE = 1000
 
-        for (let i = 0; i < MEMORY_LEAK_TEST_ALLOCATION_COUNT; i++) {
-          const object = testObject.newTestObject()
-          object.dispose()
+            for (let i = 0; i < MEMORY_LEAK_TEST_ALLOCATION_COUNT; i++) {
+              const object = testObject.newTestObject()
+              object.dispose()
 
-          if ((i + 1) % BATCH_SIZE === 0) {
+              if ((i + 1) % BATCH_SIZE === 0) {
+                gc()
+                await new Promise<void>((resolve) => setTimeout(resolve, 0))
+              }
+            }
+
             gc()
-          }
-        }
-
-        gc()
-      }).didNotThrow()
+          }, MEMORY_LEAK_TEST_TIMEOUT)
+        ).didNotThrow()
     ),
     createTest('callWithOptional(undefined)', async () =>
       (
@@ -2610,6 +2659,8 @@ export function getTests(
             NitroModules.updateMemorySize(testObject)
 
             testObject.stringValue = 'x'.repeat(EXTERNAL_MEMORY_TEST_SIZE)
+            // Exclude unrelated, unreachable allocations from the global counter delta.
+            gc()
             const externalBytesBefore = getHermesExternalMemorySize()
             NitroModules.updateMemorySize(testObject)
             const externalBytesAfter = getHermesExternalMemorySize()
@@ -2640,6 +2691,8 @@ export function getTests(
       () =>
         it(() => {
           const size = EXTERNAL_MEMORY_TEST_SIZE
+          // Allocation can trigger GC, so collect earlier tests' buffers before taking the baseline.
+          gc()
           const externalBytesBefore = getHermesExternalMemorySize()
           const buffer = NitroModules.createNativeArrayBuffer(size)
           const externalBytesAfter = getHermesExternalMemorySize()
