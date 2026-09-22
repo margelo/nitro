@@ -1,6 +1,9 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
 import { getForwardDeclaration } from '../../syntax/c++/getForwardDeclaration.js'
-import { includeHeader } from '../../syntax/c++/includeNitroHeader.js'
+import {
+  includeModuleHeader,
+  sortSourceImports,
+} from '../../syntax/c++/includeNitroHeader.js'
 import { getAllKnownTypes } from '../../syntax/createType.js'
 import { getHybridObjectName } from '../../syntax/getHybridObjectName.js'
 import {
@@ -42,7 +45,9 @@ export function createSwiftUmbrellaHeader(): SourceFile {
     .map((i) => i.forwardDeclaration)
     .filter((f) => f != null)
     .filter(isNotDuplicate)
-  const includes = imports.map((i) => includeHeader(i)).filter(isNotDuplicate)
+  const includes = sortSourceImports(imports)
+    .map((i) => includeModuleHeader(i, moduleName))
+    .filter(isNotDuplicate)
 
   const code = `
 ${createFileMetadataString(filename, '///')}
@@ -53,7 +58,7 @@ ${createFileMetadataString(filename, '///')}
 ${forwardDeclarations.sort().join('\n')}
 
 // Include C++ defined types
-${includes.sort().join('\n')}
+${includes.join('\n')}
 
 // C++ helpers for Swift
 #include "${moduleName}-Swift-Cxx-Bridge.hpp"

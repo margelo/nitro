@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "HybridTestObjectSwiftKotlinSpec.hpp"
+#include <NitroTest/HybridTestObjectSwiftKotlinSpec.hpp>
 
 // Forward declaration of `HybridTestObjectSwiftKotlinSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridTestObjectSwiftKotlinSpec_cxx; }
@@ -58,40 +58,40 @@ namespace margelo::nitro::test::external { class HybridSomeExternalObjectSpec; }
 namespace margelo::nitro::test { struct ExternalObjectStruct; }
 
 #include <memory>
-#include "HybridTestObjectSwiftKotlinSpec.hpp"
+#include <NitroTest/HybridTestObjectSwiftKotlinSpec.hpp>
 #include <optional>
 #include <string>
 #include <NitroModules/Null.hpp>
 #include <variant>
 #include <vector>
-#include "Powertrain.hpp"
-#include "OldEnum.hpp"
-#include "TruckPowertrain.hpp"
+#include <NitroTest/Powertrain.hpp>
+#include <NitroTest/OldEnum.hpp>
+#include <NitroTest/TruckPowertrain.hpp>
 #include <functional>
 #include <NitroModules/Promise.hpp>
-#include "Person.hpp"
-#include "PartialPerson.hpp"
-#include "Car.hpp"
-#include "HybridChildSpec.hpp"
+#include <NitroTest/Person.hpp>
+#include <NitroTest/PartialPerson.hpp>
+#include <NitroTest/Car.hpp>
+#include <NitroTest/HybridChildSpec.hpp>
 #include <NitroModules/AnyMap.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
 #include <unordered_map>
-#include "MapWrapper.hpp"
-#include "SecondMapWrapper.hpp"
+#include <NitroTest/MapWrapper.hpp>
+#include <NitroTest/SecondMapWrapper.hpp>
 #include <exception>
 #include <chrono>
-#include "JsStyleStruct.hpp"
-#include "WrappedJsStruct.hpp"
-#include "OptionalWrapper.hpp"
-#include "OptionalCallback.hpp"
-#include "OptionalEnumWrapper.hpp"
-#include "HardwareBufferFormat.hpp"
-#include "WeirdNumbersEnum.hpp"
-#include "HybridBaseSpec.hpp"
-#include "HybridTestViewSpec.hpp"
+#include <NitroTest/JsStyleStruct.hpp>
+#include <NitroTest/WrappedJsStruct.hpp>
+#include <NitroTest/OptionalWrapper.hpp>
+#include <NitroTest/OptionalCallback.hpp>
+#include <NitroTest/OptionalEnumWrapper.hpp>
+#include <NitroTest/HardwareBufferFormat.hpp>
+#include <NitroTest/WeirdNumbersEnum.hpp>
+#include <NitroTest/HybridBaseSpec.hpp>
+#include <NitroTest/HybridTestViewSpec.hpp>
 #include <NitroTestExternal/HybridSomeExternalObjectSpec.hpp>
-#include "ExternalObjectStruct.hpp"
+#include <NitroTest/ExternalObjectStruct.hpp>
 
 #include "NitroTest-Swift-Cxx-Umbrella.hpp"
 
