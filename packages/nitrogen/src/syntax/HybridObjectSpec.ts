@@ -10,5 +10,11 @@ export interface HybridObjectSpec {
   methods: Method[]
   baseTypes: HybridObjectSpec[]
   isHybridView: boolean
+  /**
+   * Whether this Hybrid View opted into rendering React children by declaring a
+   * `children` prop of type `HybridViewChildren` in its Nitro spec.
+   * Always `false` for Hybrid Objects that aren't Views.
+   */
+  supportsChildren: boolean
   config: NitroConfig
 }

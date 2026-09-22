@@ -76,6 +76,15 @@ public final func onDropView() {
 }
 `.trim()
     )
+    if (spec.supportsChildren) {
+      methodsBridge.push(
+        `
+public final func getChildrenContainer() -> UnsafeMutableRawPointer {
+  return Unmanaged.passRetained(__implementation.childrenContainer).toOpaque()
+}
+`.trim()
+      )
+    }
   }
 
   const hybridObject = new HybridObjectType(spec)

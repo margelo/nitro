@@ -21,6 +21,32 @@ import { getBaseTypes, getHybridObjectNitroModuleConfig } from './utils.js'
 import { NitroConfig } from './config/NitroConfig.js'
 import { isMemberOverridingFromBase } from './syntax/isMemberOverridingFromBase.js'
 
+/**
+ * Whether the given Hybrid View props type declares a `children` marker prop.
+ *
+ * `children` has no native representation - it only marks the View as rendering
+ * React children - so anything but `HybridViewChildren` is rejected here,
+ * instead of failing later with a confusing "unsupported type" error.
+ */
+function supportsChildren(viewName: string, props: Type): boolean {
+  const children = props.getProperty('children')
+  if (children == null) {
+    return false
+  }
+  // `children?: HybridViewChildren` is a union with `undefined` - unwrap it.
+  const type = children
+    .getTypeAtLocation(children.getValueDeclarationOrThrow())
+    .getNonNullableType()
+  if (type.getSymbol()?.getName() !== 'HybridViewChildren') {
+    throw new Error(
+      `${viewName}: The "children" prop is reserved - it marks a Nitro View as rendering ` +
+        `React children, so it has to be declared as \`children?: HybridViewChildren\` ` +
+        `(got \`${type.getText()}\`).`
+    )
+  }
+  return true
+}
+
 export function generatePlatformFiles(
   interfaceType: Type,
   language: Language
@@ -44,7 +70,11 @@ export function generatePlatformFiles(
   }
 }
 
-function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
+function getHybridObjectSpec(
+  type: Type,
+  language: Language,
+  stripChildrenProp = false
+): HybridObjectSpec {
   const config = getHybridObjectNitroModuleConfig(type) ?? NitroConfig.current
 
   if (isHybridView(type)) {
@@ -59,13 +89,15 @@ function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
       throw new Error(
         `Props cannot be null! ${name}<...> (HybridView) requires type arguments.`
       )
-    const propsSpec = getHybridObjectSpec(props, language)
+    const hasChildren = supportsChildren(name, props)
+    const propsSpec = getHybridObjectSpec(props, language, hasChildren)
     const methodsSpec =
       methods != null ? getHybridObjectSpec(methods, language) : undefined
 
     return {
       baseTypes: [],
       isHybridView: true,
+      supportsChildren: hasChildren,
       language: language,
       methods: methodsSpec?.methods ?? [],
       properties: propsSpec.properties,
@@ -80,6 +112,12 @@ function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
   const properties: Property[] = []
   const methods: Method[] = []
   for (const prop of type.getProperties()) {
+    if (stripChildrenProp && prop.getName() === 'children') {
+      // The `children` marker has no native representation - skip it before
+      // `createType(..)` ever sees it.
+      continue
+    }
+
     const declarations = prop.getDeclarations()
     if (declarations.length > 1) {
       throw new Error(
@@ -155,6 +193,7 @@ function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
     methods: methods,
     baseTypes: bases,
     isHybridView: isHybridView(type),
+    supportsChildren: false,
     config: config,
   }
 

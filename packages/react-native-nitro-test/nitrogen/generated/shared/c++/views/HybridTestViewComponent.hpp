@@ -90,7 +90,8 @@ namespace margelo::nitro::test::views {
   /**
    * The Component Descriptor for the "TestView" View.
    */
-  using HybridTestViewComponentDescriptor = nitro::ViewComponentDescriptor<HybridTestViewShadowNode>;
+  using HybridTestViewComponentDescriptor = nitro::ViewComponentDescriptor<HybridTestViewShadowNode,
+                                                                           false /* supportsChildren */>;
 
   /* The actual view for "TestView" needs to be implemented in platform-specific code. */
 
