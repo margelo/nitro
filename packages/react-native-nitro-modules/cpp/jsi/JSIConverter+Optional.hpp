@@ -25,9 +25,14 @@ struct JSIConverter<std::optional<TInner>> final {
   static inline std::optional<TInner> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
     if (arg.isUndefined()) {
       return std::nullopt;
-    } else {
-      return JSIConverter<TInner>::fromJSI(runtime, arg);
     }
+    if (arg.isNull()) {
+      if (JSIConverter<TInner>::canConvert(runtime, arg)) {
+        return JSIConverter<TInner>::fromJSI(runtime, arg);
+      }
+      return std::nullopt;
+    }
+    return JSIConverter<TInner>::fromJSI(runtime, arg);
   }
   static inline jsi::Value toJSI(jsi::Runtime& runtime, const std::optional<TInner>& arg) {
     if (arg == std::nullopt) {
@@ -37,7 +42,7 @@ struct JSIConverter<std::optional<TInner>> final {
     }
   }
   static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
-    if (value.isUndefined()) {
+    if (value.isUndefined() || value.isNull()) {
       return true;
     }
     if (JSIConverter<TInner>::canConvert(runtime, value)) {
