@@ -13,7 +13,7 @@ export async function initNewNitroModule(
   ref: string = 'main'
 ): Promise<void> {
   Logger.info(
-    `⚙️  Creating new Nitro Module "${chalk.bold(moduleName)}" in ${chalk.underline(prettifyDirectory(baseDirectory))}...`
+    `⚙️ Creating new Nitro Module "${chalk.bold(moduleName)}" in ${chalk.underline(prettifyDirectory(baseDirectory))}...`
   )
 
   const directory = path.join(baseDirectory, moduleName)
@@ -33,7 +33,7 @@ export async function initNewNitroModule(
     'packages/template',
     directory
   )
-  Logger.info(`🏗️  Constructing template...`)
+  Logger.info(`🏗️ Constructing template...`)
 
   const cleanLibraryName = moduleName.replace('react-native-', '')
   const cxxNamespace = cleanLibraryName.replaceAll('-', '')
@@ -118,7 +118,7 @@ async function downloadGitHubFolder(
     process.chdir(initialDir)
 
     Logger.debug(
-      `🗑️  Removing temporary folder ${chalk.underline(prettifyDirectory(tempDir))}...`
+      `🗑️ Removing temporary folder ${chalk.underline(prettifyDirectory(tempDir))}...`
     )
     await fs.rm(tempDir, { recursive: true, force: true })
   }
