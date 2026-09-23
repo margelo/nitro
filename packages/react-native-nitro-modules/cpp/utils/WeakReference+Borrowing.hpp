@@ -26,6 +26,11 @@ BorrowingReference<T> WeakReference<T>::lock() const {
     // return nullptr
     return BorrowingReference<T>();
   }
+  if (!_state->tryIncrementStrongRefCount()) {
+    // the last strong reference is mid-release - the value is about to be destroyed, it just hasn't
+    // flagged `isDeleted` yet.
+    return BorrowingReference<T>();
+  }
 
   return BorrowingReference(*this);
 }
