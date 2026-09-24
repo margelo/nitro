@@ -21,6 +21,18 @@ export type TestTuple = [number, string, boolean]
 // Variants can have aliases/names
 export type NamedVariant = string | Car
 
+// Discriminated union: each member has a unique string literal on a shared key.
+// The 'kind' property is the discriminator.
+export interface Truck {
+  kind: 'truck'
+  payload: number
+}
+export interface Boat {
+  kind: 'boat'
+  lengthMeters: number
+}
+export type Vehicle = Truck | Boat
+
 // A discriminating string union becomes an `enum` in C++.
 // This one is string-backed.
 export type Powertrain = 'electric' | 'gas' | 'hybrid'
@@ -338,6 +350,8 @@ interface SharedTestObjectProps {
   ): WeirdNumbersEnum | boolean
   getVariantObjects(variant: Person | Car): Person | Car
   passNamedVariant(variant: NamedVariant): NamedVariant
+  // Discriminated union - uses 'kind' string literal to distinguish Truck from Boat
+  bounceVehicle(vehicle: Vehicle): Vehicle
   passAllEmptyObjectVariant(
     variant: OptionalWrapper | Base
   ): OptionalWrapper | Base

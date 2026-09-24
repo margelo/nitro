@@ -1343,6 +1343,16 @@ export function getTests(
         .didNotThrow()
         .equals('Hello world!')
     ),
+    createTest('bounceVehicle(truck) works', () =>
+      it(() => testObject.bounceVehicle({ kind: 'truck', payload: 1000 }))
+        .didNotThrow()
+        .equals({ kind: 'truck', payload: 1000 })
+    ),
+    createTest('bounceVehicle(boat) works', () =>
+      it(() => testObject.bounceVehicle({ kind: 'boat', lengthMeters: 12.5 }))
+        .didNotThrow()
+        .equals({ kind: 'boat', lengthMeters: 12.5 })
+    ),
 
     // More complex variants...
     ...('getVariantTuple' in testObject

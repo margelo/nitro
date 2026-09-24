@@ -1,4 +1,5 @@
 import { ArrayType } from './types/ArrayType.js'
+import { DiscriminatedUnionType } from './types/DiscriminatedUnionType.js'
 import { FunctionType } from './types/FunctionType.js'
 import { getTypeAs } from './types/getTypeAs.js'
 import { OptionalType } from './types/OptionalType.js'
@@ -50,6 +51,10 @@ export function getReferencedTypes(type: Type): Type[] {
     case 'variant':
       const variant = getTypeAs(type, VariantType)
       return [type, ...variant.variants.flatMap((t) => getReferencedTypes(t))]
+
+    case 'discriminated-union':
+      const du = getTypeAs(type, DiscriminatedUnionType)
+      return [type, ...du.variants.flatMap((v) => getReferencedTypes(v.type))]
 
     default:
       return [type]

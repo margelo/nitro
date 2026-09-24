@@ -45,6 +45,12 @@ namespace margelo::nitro::test { struct OptionalEnumWrapper; }
 namespace margelo::nitro::test { enum class HardwareBufferFormat; }
 // Forward declaration of `WeirdNumbersEnum` to properly resolve imports.
 namespace margelo::nitro::test { enum class WeirdNumbersEnum; }
+// Forward declaration of `Truck` to properly resolve imports.
+namespace margelo::nitro::test { struct Truck; }
+// Forward declaration of `Boat` to properly resolve imports.
+namespace margelo::nitro::test { struct Boat; }
+// Forward declaration of `Vehicle` to properly resolve imports.
+namespace margelo::nitro::test { struct Vehicle; }
 // Forward declaration of `HybridBaseSpec` to properly resolve imports.
 namespace margelo::nitro::test { class HybridBaseSpec; }
 // Forward declaration of `HybridTestViewSpec` to properly resolve imports.
@@ -83,6 +89,9 @@ namespace margelo::nitro::test { struct ExternalObjectStruct; }
 #include "OptionalEnumWrapper.hpp"
 #include "HardwareBufferFormat.hpp"
 #include "WeirdNumbersEnum.hpp"
+#include "Truck.hpp"
+#include "Boat.hpp"
+#include "Vehicle.hpp"
 #include "HybridBaseSpec.hpp"
 #include "HybridTestViewSpec.hpp"
 #include <NitroTestExternal/HybridSomeExternalObjectSpec.hpp>
@@ -256,6 +265,7 @@ namespace margelo::nitro::test {
       virtual std::variant<WeirdNumbersEnum, bool> getVariantWeirdNumbersEnum(const std::variant<WeirdNumbersEnum, bool>& variant) = 0;
       virtual std::variant<Person, Car> getVariantObjects(const std::variant<Person, Car>& variant) = 0;
       virtual std::variant<std::string, Car> passNamedVariant(const std::variant<std::string, Car>& variant) = 0;
+      virtual std::variant<Truck, Boat> bounceVehicle(const std::variant<Truck, Boat>& vehicle) = 0;
       virtual std::variant<std::shared_ptr<HybridBaseSpec>, OptionalWrapper> passAllEmptyObjectVariant(const std::variant<std::shared_ptr<HybridBaseSpec>, OptionalWrapper>& variant) = 0;
       virtual std::variant<std::shared_ptr<ArrayBuffer>, std::function<void(double /* value */)>, WrappedJsStruct, std::shared_ptr<Promise<double>>, std::chrono::system_clock::time_point, std::shared_ptr<AnyMap>> bounceComplexVariant(const std::variant<std::shared_ptr<ArrayBuffer>, std::function<void(double /* value */)>, WrappedJsStruct, std::shared_ptr<Promise<double>>, std::chrono::system_clock::time_point, std::shared_ptr<AnyMap>>& variant) = 0;
       virtual std::shared_ptr<HybridChildSpec> createChild() = 0;

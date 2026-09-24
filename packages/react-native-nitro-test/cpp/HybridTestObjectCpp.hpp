@@ -84,6 +84,7 @@ public:
   std::variant<double, std::string> getSomeVariant() override;
   void setSomeVariant(const std::variant<double, std::string>& variant) override;
   std::variant<std::string, Car> passNamedVariant(const std::variant<std::string, Car>& variant) override;
+  std::variant<Truck, Boat> bounceVehicle(const std::variant<Truck, Boat>& vehicle) override;
   std::variant<std::shared_ptr<HybridBaseSpec>, OptionalWrapper>
   passAllEmptyObjectVariant(const std::variant<std::shared_ptr<HybridBaseSpec>, OptionalWrapper>& variant) override;
   ComplexVariant bounceComplexVariant(const ComplexVariant& variant) override;

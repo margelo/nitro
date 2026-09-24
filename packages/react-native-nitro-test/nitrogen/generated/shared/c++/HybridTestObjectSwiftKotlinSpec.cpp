@@ -152,6 +152,7 @@ namespace margelo::nitro::test {
       prototype.registerHybridMethod("getVariantWeirdNumbersEnum", &HybridTestObjectSwiftKotlinSpec::getVariantWeirdNumbersEnum);
       prototype.registerHybridMethod("getVariantObjects", &HybridTestObjectSwiftKotlinSpec::getVariantObjects);
       prototype.registerHybridMethod("passNamedVariant", &HybridTestObjectSwiftKotlinSpec::passNamedVariant);
+      prototype.registerHybridMethod("bounceVehicle", &HybridTestObjectSwiftKotlinSpec::bounceVehicle);
       prototype.registerHybridMethod("passAllEmptyObjectVariant", &HybridTestObjectSwiftKotlinSpec::passAllEmptyObjectVariant);
       prototype.registerHybridMethod("bounceComplexVariant", &HybridTestObjectSwiftKotlinSpec::bounceComplexVariant);
       prototype.registerHybridMethod("createChild", &HybridTestObjectSwiftKotlinSpec::createChild);

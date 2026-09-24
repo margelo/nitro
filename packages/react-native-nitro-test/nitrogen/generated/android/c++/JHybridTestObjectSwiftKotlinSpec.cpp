@@ -35,6 +35,12 @@ namespace margelo::nitro::test { struct OptionalCallback; }
 namespace margelo::nitro::test { struct OptionalEnumWrapper; }
 // Forward declaration of `WeirdNumbersEnum` to properly resolve imports.
 namespace margelo::nitro::test { enum class WeirdNumbersEnum; }
+// Forward declaration of `Truck` to properly resolve imports.
+namespace margelo::nitro::test { struct Truck; }
+// Forward declaration of `Boat` to properly resolve imports.
+namespace margelo::nitro::test { struct Boat; }
+// Forward declaration of `Vehicle` to properly resolve imports.
+namespace margelo::nitro::test { struct Vehicle; }
 // Forward declaration of `HybridBaseSpec` to properly resolve imports.
 namespace margelo::nitro::test { class HybridBaseSpec; }
 // Forward declaration of `HybridSomeExternalObjectSpec` to properly resolve imports.
@@ -109,6 +115,12 @@ namespace margelo::nitro::test { class HybridTestViewSpec; }
 #include "JWeirdNumbersEnum.hpp"
 #include "JVariant_Person_Car.hpp"
 #include "JNamedVariant.hpp"
+#include "Truck.hpp"
+#include "Boat.hpp"
+#include "Vehicle.hpp"
+#include "JVehicle.hpp"
+#include "JTruck.hpp"
+#include "JBoat.hpp"
 #include "HybridBaseSpec.hpp"
 #include "JVariant_HybridBaseSpec_OptionalWrapper.hpp"
 #include "JHybridBaseSpec.hpp"
@@ -1510,6 +1522,11 @@ namespace margelo::nitro::test {
   std::variant<std::string, Car> JHybridTestObjectSwiftKotlinSpec::passNamedVariant(const std::variant<std::string, Car>& variant) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JNamedVariant>(jni::alias_ref<JNamedVariant> /* variant */)>("passNamedVariant");
     auto __result = method(_javaPart, JNamedVariant::fromCpp(variant));
+    return __result->toCpp();
+  }
+  std::variant<Truck, Boat> JHybridTestObjectSwiftKotlinSpec::bounceVehicle(const std::variant<Truck, Boat>& vehicle) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JVehicle>(jni::alias_ref<JVehicle> /* vehicle */)>("bounceVehicle");
+    auto __result = method(_javaPart, JVehicle::fromCpp(vehicle));
     return __result->toCpp();
   }
   std::variant<std::shared_ptr<HybridBaseSpec>, OptionalWrapper> JHybridTestObjectSwiftKotlinSpec::passAllEmptyObjectVariant(const std::variant<std::shared_ptr<HybridBaseSpec>, OptionalWrapper>& variant) {

@@ -15,11 +15,13 @@ import { RecordType } from '../types/RecordType.js'
 import { StructType } from '../types/StructType.js'
 import type { Type } from '../types/Type.js'
 import { VariantType } from '../types/VariantType.js'
+import { DiscriminatedUnionType } from '../types/DiscriminatedUnionType.js'
 import { getKotlinBoxedPrimitiveType } from './KotlinBoxedPrimitive.js'
 import { createKotlinEnum } from './KotlinEnum.js'
 import { createKotlinFunction } from './KotlinFunction.js'
 import { createKotlinStruct } from './KotlinStruct.js'
 import { createKotlinVariant } from './KotlinVariant.js'
+import { createKotlinDiscriminatedUnion } from './KotlinDiscriminatedUnion.js'
 
 export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
   readonly type: Type
@@ -160,6 +162,15 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
             space: 'user',
           })
           break
+        case 'discriminated-union': {
+          const du = getTypeAs(this.type, DiscriminatedUnionType)
+          imports.push({
+            language: 'c++',
+            name: `J${du.unionName}.hpp`,
+            space: 'user',
+          })
+          break
+        }
         case 'hybrid-object': {
           const hybridObjectType = getTypeAs(this.type, HybridObjectType)
           const name = getHybridObjectName(hybridObjectType.hybridObjectName)
@@ -213,6 +224,11 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
         const variantType = getTypeAs(this.type, VariantType)
         const variantFiles = createKotlinVariant(variantType)
         files.push(...variantFiles)
+        break
+      case 'discriminated-union':
+        const duType = getTypeAs(this.type, DiscriminatedUnionType)
+        const duFiles = createKotlinDiscriminatedUnion(duType)
+        files.push(...duFiles)
         break
       case 'function':
         const functionType = getTypeAs(this.type, FunctionType)
@@ -404,6 +420,17 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
             return this.type.getCode(language)
         }
       }
+      case 'discriminated-union': {
+        const du = getTypeAs(this.type, DiscriminatedUnionType)
+        switch (language) {
+          case 'c++':
+            return `J${du.unionName}`
+          case 'kotlin':
+            return du.unionName
+          default:
+            return this.type.getCode(language)
+        }
+      }
       case 'promise':
         switch (language) {
           case 'c++':
@@ -544,6 +571,15 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
             const variant = getTypeAs(this.type, VariantType)
             const name = variant.getAliasName('kotlin')
             return `J${name}::fromCpp(${parameterName})`
+          default:
+            return parameterName
+        }
+      }
+      case 'discriminated-union': {
+        switch (language) {
+          case 'c++':
+            const du = getTypeAs(this.type, DiscriminatedUnionType)
+            return `J${du.unionName}::fromCpp(${parameterName})`
           default:
             return parameterName
         }
@@ -838,6 +874,14 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
         }
       }
       case 'variant': {
+        switch (language) {
+          case 'c++':
+            return `${parameterName}->toCpp()`
+          default:
+            return parameterName
+        }
+      }
+      case 'discriminated-union': {
         switch (language) {
           case 'c++':
             return `${parameterName}->toCpp()`
