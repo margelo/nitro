@@ -14,8 +14,9 @@ import com.facebook.react.internal.featureflags.ReactNativeFeatureFlagsProvider
 
 private val stableFlagsWithNitroViewRecycling: ReactNativeFeatureFlagsProvider =
   object : ReactNativeFeatureFlagsProvider by ReactNativeFeatureFlagsOverrides_RNOSS_Stable_Android() {
-    // Unconditional from RN 0.86; on by default here so the view harness covers that path.
-    override fun enableExclusivePropsUpdateAndroid(): Boolean = true
+    // Set this to `true` to reproduce https://github.com/margelo/nitro/issues/1656 on RN < 0.87:
+    // it makes `Props::Props` skip filling `Props::rawProps`, which RN 0.87+ never does.
+    override fun enableExclusivePropsUpdateAndroid(): Boolean = false
 
     override fun enablePreparedTextLayout(): Boolean = false
 

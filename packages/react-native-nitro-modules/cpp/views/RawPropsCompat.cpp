@@ -9,8 +9,13 @@
 #endif
 
 #include <cxxreact/ReactNativeVersion.h>
+#include <react/renderer/core/Props.h>
 #include <react/renderer/core/RawProps.h>
 #include <react/renderer/core/RawPropsParser.h>
+
+#if defined(RN_SERIALIZABLE_STATE) && REACT_NATIVE_VERSION_MAJOR == 0 && REACT_NATIVE_VERSION_MINOR >= 84 && REACT_NATIVE_VERSION_MINOR < 87
+#include <react/featureflags/ReactNativeFeatureFlags.h>
+#endif
 
 namespace margelo::nitro::RawPropsCompat {
 
@@ -29,6 +34,24 @@ facebook::react::RawPropsParser makePropsParser() {
   return facebook::react::RawPropsParser();
 #else
   return facebook::react::RawPropsParser(true);
+#endif
+}
+
+void initializeDynamicProps([[maybe_unused]] facebook::react::Props& props, [[maybe_unused]] const facebook::react::Props& sourceProps,
+                            [[maybe_unused]] const facebook::react::RawProps& rawProps,
+                            [[maybe_unused]] const std::function<bool(const std::string&)>& filterObjectKeys) {
+#ifdef RN_SERIALIZABLE_STATE
+#if REACT_NATIVE_VERSION_MAJOR > 0 || REACT_NATIVE_VERSION_MINOR >= 87
+  // Since React Native 0.87, `Props::Props` no longer fills `rawProps` - only
+  // `ConcreteComponentDescriptor::cloneProps` does, which Nitro overrides.
+  props.initializeDynamicProps(sourceProps, rawProps, filterObjectKeys);
+#elif REACT_NATIVE_VERSION_MINOR >= 84
+  // React Native 0.84 - 0.86 only skip it in `Props::Props` when `enableExclusivePropsUpdateAndroid` is on.
+  if (facebook::react::ReactNativeFeatureFlags::enableExclusivePropsUpdateAndroid()) {
+    props.initializeDynamicProps(sourceProps, rawProps, filterObjectKeys);
+  }
+#endif
+  // Below React Native 0.84, `Props::Props` always fills `rawProps` itself.
 #endif
 }
 

@@ -56,6 +56,10 @@ find_library(LOG_LIB log)
 find_package(fbjni REQUIRED NitroConfig)
 find_package(ReactAndroid REQUIRED NitroConfig)
 
+# React Native compiles its own Android code with RN_SERIALIZABLE_STATE, which adds members like
+# `Props::rawProps` - see RawPropsCompat::initializeDynamicProps.
+target_compile_definitions(NitroModules PRIVATE RN_SERIALIZABLE_STATE)
+
 # Link all libraries together
 target_link_libraries(
         NitroModules

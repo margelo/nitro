@@ -185,6 +185,7 @@ ${createFileMetadataString(`${component}.cpp`)}
 #include "${component}.hpp"
 
 #include <NitroModules/NitroHash.hpp>
+#include <NitroModules/RawPropsCompat.hpp>
 #include <NitroModules/ReactProp.hpp>
 
 namespace ${namespace} {
@@ -196,7 +197,10 @@ namespace ${namespace} {
   ${propsClassName}::${propsClassName}(const react::PropsParserContext& context,
   ${ctorIndent}   const ${propsClassName}& sourceProps,
   ${ctorIndent}   const react::RawProps& rawProps):
-    ${indent(propInitializers.join(',\n'), '    ')} { }
+    ${indent(propInitializers.join(',\n'), '    ')} {
+    // Fill \`Props::rawProps\` with the base ViewProps (Android) - newer React Native versions no longer do it in \`Props::Props\`.
+    nitro::RawPropsCompat::initializeDynamicProps(*this, sourceProps, rawProps, filterObjectKeys);
+  }
 
   bool ${propsClassName}::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {

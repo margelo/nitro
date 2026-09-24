@@ -47,13 +47,7 @@ public:
     // 1. Prepare raw props parser
     rawProps.parse(this->rawPropsParser_);
     // 2. Copy props with Nitro's cached copy constructor
-    auto newProps = TShadowNode::Props(context, /* & */ rawProps, props);
-#ifdef RN_SERIALIZABLE_STATE
-    // 3. Fill `Props::rawProps` - on Android it is serialized to Java and applied by `ViewManager.updateProperties`.
-    //    React Native >= 0.86 no longer does this in `Props::Props`, so an overridden `cloneProps` has to do it here.
-    TShadowNode::initializeDynamicProps(newProps, rawProps, props);
-#endif
-    return newProps;
+    return TShadowNode::Props(context, /* & */ rawProps, props);
   }
 
 #ifdef ANDROID

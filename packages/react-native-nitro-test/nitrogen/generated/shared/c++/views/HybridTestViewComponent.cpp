@@ -8,6 +8,7 @@
 #include "HybridTestViewComponent.hpp"
 
 #include <NitroModules/NitroHash.hpp>
+#include <NitroModules/RawPropsCompat.hpp>
 #include <NitroModules/ReactProp.hpp>
 
 namespace margelo::nitro::test::views {
@@ -25,7 +26,10 @@ namespace margelo::nitro::test::views {
     colorScheme(nitro::ReactProp<ColorScheme>::fromRawValue("TestView", "colorScheme", rawProps, sourceProps.colorScheme)),
     someCallback(nitro::ReactProp<std::function<void()>>::fromRawValue("TestView", "someCallback", rawProps, sourceProps.someCallback)),
     nativeDefaultValue(nitro::ReactProp<std::optional<double>>::fromRawValue("TestView", "nativeDefaultValue", rawProps, sourceProps.nativeDefaultValue)),
-    hybridRef(nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridTestViewSpec>& /* ref */)>>>::fromRawValue("TestView", "hybridRef", rawProps, sourceProps.hybridRef)) { }
+    hybridRef(nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridTestViewSpec>& /* ref */)>>>::fromRawValue("TestView", "hybridRef", rawProps, sourceProps.hybridRef)) {
+    // Fill `Props::rawProps` with the base ViewProps (Android) - newer React Native versions no longer do it in `Props::Props`.
+    nitro::RawPropsCompat::initializeDynamicProps(*this, sourceProps, rawProps, filterObjectKeys);
+  }
 
   bool HybridTestViewProps::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {
