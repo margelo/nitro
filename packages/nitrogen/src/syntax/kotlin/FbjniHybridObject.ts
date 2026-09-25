@@ -246,7 +246,29 @@ function getFbjniMethodForwardImplementation(
   jniMethodName: string
 ): string {
   const name = getHybridObjectName(spec.name)
+  const body = getFbjniMethodCallBody(method, jniMethodName, '_javaPart')
+  const code = method.getCode(
+    'c++',
+    {
+      classDefinitionName: name.JHybridTSpec,
+    },
+    body
+  )
+  return code
+}
 
+/**
+ * The C++ that calls a method's Kotlin implementation over JNI on `receiver`
+ * (an expression of the spec's `JavaPart` reference type), converting each
+ * argument. `args` are the C++ expressions to pass, the parameter names by
+ * default; each is bound to a local first, so it is evaluated once.
+ */
+export function getFbjniMethodCallBody(
+  method: Method,
+  jniMethodName: string,
+  receiver: string,
+  args?: string[]
+): string {
   const returnJNI = new KotlinCxxBridgedType(method.returnType)
   const requiresBridge =
     returnJNI.needsSpecialHandling ||
@@ -265,35 +287,35 @@ function getFbjniMethodForwardImplementation(
     .join(', ')
   const cxxSignature = `${returnType}(${paramsTypes})`
 
-  const paramsForward = method.parameters.map((p) => {
+  const argBindings: string[] = []
+  const paramsForward = method.parameters.map((p, i) => {
     const bridged = new KotlinCxxBridgedType(p.type)
-    return bridged.parse(p.name, 'c++', 'kotlin', 'c++')
+    let value = p.name
+    if (args != null) {
+      value = `__arg${i}`
+      argBindings.push(`const auto& ${value} = ${args[i]};`)
+    }
+    return bridged.parse(value, 'c++', 'kotlin', 'c++')
   })
-  paramsForward.unshift('_javaPart') // <-- first param is always Java `this`
+  paramsForward.unshift(receiver) // <-- first param is always Java `this`
 
-  let body: string
+  const lookup = `static const auto method = ${receiver}->javaClassStatic()->getMethod<${cxxSignature}>("${methodName}");`
   if (returnJNI.hasType) {
     // return something - we need to parse it
-    body = `
-static const auto method = _javaPart->javaClassStatic()->getMethod<${cxxSignature}>("${methodName}");
-auto __result = method(${paramsForward.join(', ')});
-return ${returnJNI.parse('__result', 'kotlin', 'c++', 'c++')};
-    `
+    return [
+      ...argBindings,
+      lookup,
+      `auto __result = method(${paramsForward.join(', ')});`,
+      `return ${returnJNI.parse('__result', 'kotlin', 'c++', 'c++')};`,
+    ].join('\n')
   } else {
     // void method. no return
-    body = `
-static const auto method = _javaPart->javaClassStatic()->getMethod<${cxxSignature}>("${methodName}");
-method(${paramsForward.join(', ')});
-   `
+    return [
+      ...argBindings,
+      lookup,
+      `method(${paramsForward.join(', ')});`,
+    ].join('\n')
   }
-  const code = method.getCode(
-    'c++',
-    {
-      classDefinitionName: name.JHybridTSpec,
-    },
-    body.trim()
-  )
-  return code
 }
 
 function getFbjniPropertyForwardImplementation(

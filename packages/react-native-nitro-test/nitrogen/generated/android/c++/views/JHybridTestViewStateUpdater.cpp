@@ -10,6 +10,16 @@
 #include <NitroModules/NitroDefines.hpp>
 #include <react/fabric/StateWrapperImpl.h>
 
+// Forward declaration of `ColorScheme` to properly resolve imports.
+namespace margelo::nitro::test { enum class ColorScheme; }
+
+#include "ColorScheme.hpp"
+#include "JColorScheme.hpp"
+#include <functional>
+#include "JFunc_void.hpp"
+#include <NitroModules/JNICallable.hpp>
+#include <optional>
+
 namespace margelo::nitro::test::views {
 
 using namespace facebook;
@@ -45,7 +55,6 @@ void JHybridTestViewStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /*
                                            jni::alias_ref<JHybridTestViewSpec::JavaPart> javaView,
                                            jni::alias_ref<JStateWrapper::javaobject> newState,
                                            jni::alias_ref<JStateWrapper::javaobject> oldState) {
-  std::shared_ptr<JHybridTestViewSpec> hybridView = javaView->getJHybridTestViewSpec();
   std::shared_ptr<const HybridTestViewProps> newProps = getPropsFromStateWrapper(newState);
   std::shared_ptr<const HybridTestViewProps> oldProps = getPropsFromStateWrapper(oldState);
   if (newProps == nullptr) [[unlikely]] {
@@ -56,27 +65,37 @@ void JHybridTestViewStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /*
   if (oldProps == nullptr
         ? newProps->isBlue.isProvided()
         : !newProps->isBlue.hasSameValue(oldProps->isBlue)) {
-    hybridView->setIsBlue(newProps->isBlue.get());
+    const auto& __arg0 = newProps->isBlue.get();
+    static const auto method = javaView->javaClassStatic()->getMethod<void(jboolean /* isBlue */)>("setBlue");
+    method(javaView, __arg0);
   }
   if (oldProps == nullptr
         ? newProps->hasBeenCalled.isProvided()
         : !newProps->hasBeenCalled.hasSameValue(oldProps->hasBeenCalled)) {
-    hybridView->setHasBeenCalled(newProps->hasBeenCalled.get());
+    const auto& __arg0 = newProps->hasBeenCalled.get();
+    static const auto method = javaView->javaClassStatic()->getMethod<void(jboolean /* hasBeenCalled */)>("setHasBeenCalled");
+    method(javaView, __arg0);
   }
   if (oldProps == nullptr
         ? newProps->colorScheme.isProvided()
         : !newProps->colorScheme.hasSameValue(oldProps->colorScheme)) {
-    hybridView->setColorScheme(newProps->colorScheme.get());
+    const auto& __arg0 = newProps->colorScheme.get();
+    static const auto method = javaView->javaClassStatic()->getMethod<void(jni::alias_ref<JColorScheme> /* colorScheme */)>("setColorScheme");
+    method(javaView, JColorScheme::fromCpp(__arg0));
   }
   if (oldProps == nullptr
         ? newProps->someCallback.isProvided()
         : !newProps->someCallback.hasSameValue(oldProps->someCallback)) {
-    hybridView->setSomeCallback(newProps->someCallback.get());
+    const auto& __arg0 = newProps->someCallback.get();
+    static const auto method = javaView->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void::javaobject> /* someCallback */)>("setSomeCallback_cxx");
+    method(javaView, JFunc_void_cxx::fromCpp(__arg0));
   }
   if (oldProps == nullptr
         ? newProps->nativeDefaultValue.isProvided()
         : !newProps->nativeDefaultValue.hasSameValue(oldProps->nativeDefaultValue)) {
-    hybridView->setNativeDefaultValue(newProps->nativeDefaultValue.get());
+    const auto& __arg0 = newProps->nativeDefaultValue.get();
+    static const auto method = javaView->javaClassStatic()->getMethod<void(jni::alias_ref<jni::JDouble> /* nativeDefaultValue */)>("setNativeDefaultValue");
+    method(javaView, __arg0.has_value() ? jni::JDouble::valueOf(__arg0.value()) : nullptr);
   }
 
   // Update hybridRef if it changed
@@ -86,6 +105,7 @@ void JHybridTestViewStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /*
     // hybridRef changed - call it with new this
     const auto& maybeFunc = newProps->hybridRef.get();
     if (maybeFunc.has_value()) {
+      std::shared_ptr<JHybridTestViewSpec> hybridView = javaView->getJHybridTestViewSpec();
       maybeFunc.value()(hybridView);
     }
   }

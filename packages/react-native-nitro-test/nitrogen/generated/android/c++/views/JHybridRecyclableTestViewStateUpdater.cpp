@@ -10,6 +10,10 @@
 #include <NitroModules/NitroDefines.hpp>
 #include <react/fabric/StateWrapperImpl.h>
 
+
+
+#include <optional>
+
 namespace margelo::nitro::test::views {
 
 using namespace facebook;
@@ -45,7 +49,6 @@ void JHybridRecyclableTestViewStateUpdater::updateViewProps(jni::alias_ref<jni::
                                            jni::alias_ref<JHybridRecyclableTestViewSpec::JavaPart> javaView,
                                            jni::alias_ref<JStateWrapper::javaobject> newState,
                                            jni::alias_ref<JStateWrapper::javaobject> oldState) {
-  std::shared_ptr<JHybridRecyclableTestViewSpec> hybridView = javaView->getJHybridRecyclableTestViewSpec();
   std::shared_ptr<const HybridRecyclableTestViewProps> newProps = getPropsFromStateWrapper(newState);
   std::shared_ptr<const HybridRecyclableTestViewProps> oldProps = getPropsFromStateWrapper(oldState);
   if (newProps == nullptr) [[unlikely]] {
@@ -56,12 +59,16 @@ void JHybridRecyclableTestViewStateUpdater::updateViewProps(jni::alias_ref<jni::
   if (oldProps == nullptr
         ? newProps->isBlue.isProvided()
         : !newProps->isBlue.hasSameValue(oldProps->isBlue)) {
-    hybridView->setIsBlue(newProps->isBlue.get());
+    const auto& __arg0 = newProps->isBlue.get();
+    static const auto method = javaView->javaClassStatic()->getMethod<void(jboolean /* isBlue */)>("setBlue");
+    method(javaView, __arg0);
   }
   if (oldProps == nullptr
         ? newProps->nativeDefaultValue.isProvided()
         : !newProps->nativeDefaultValue.hasSameValue(oldProps->nativeDefaultValue)) {
-    hybridView->setNativeDefaultValue(newProps->nativeDefaultValue.get());
+    const auto& __arg0 = newProps->nativeDefaultValue.get();
+    static const auto method = javaView->javaClassStatic()->getMethod<void(jni::alias_ref<jni::JDouble> /* nativeDefaultValue */)>("setNativeDefaultValue");
+    method(javaView, __arg0.has_value() ? jni::JDouble::valueOf(__arg0.value()) : nullptr);
   }
 
   // Update hybridRef if it changed
@@ -71,6 +78,7 @@ void JHybridRecyclableTestViewStateUpdater::updateViewProps(jni::alias_ref<jni::
     // hybridRef changed - call it with new this
     const auto& maybeFunc = newProps->hybridRef.get();
     if (maybeFunc.has_value()) {
+      std::shared_ptr<JHybridRecyclableTestViewSpec> hybridView = javaView->getJHybridRecyclableTestViewSpec();
       maybeFunc.value()(hybridView);
     }
   }
