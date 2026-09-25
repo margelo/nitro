@@ -31,7 +31,7 @@ public:
 
   /**
    * Get a `jsi::PropNameID` for the given `std::string` value.
-   * - The `std::string` must be an ASCII string.
+   * - The `std::string` must contain valid UTF-8.
    * - The `jsi::PropNameID` is only valid within the callee's current
    *   synchronous scope, and must be non-escaping.
    */
