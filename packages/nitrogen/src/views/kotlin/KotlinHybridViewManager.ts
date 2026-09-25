@@ -7,9 +7,13 @@ import {
 import {
   createFileMetadataString,
   escapeCppName,
+  isNotDuplicate,
 } from '../../syntax/helpers.js'
+import { includeHeader } from '../../syntax/c++/includeNitroHeader.js'
+import { KotlinCxxBridgedType } from '../../syntax/kotlin/KotlinCxxBridgedType.js'
 import { getHybridObjectName } from '../../syntax/getHybridObjectName.js'
 import { addJNINativeRegistration } from '../../syntax/kotlin/JNINativeRegistrations.js'
+import { getFbjniMethodCallBody } from '../../syntax/kotlin/FbjniHybridObject.js'
 import { indent } from '../../utils.js'
 
 export function createKotlinHybridViewManager(
@@ -210,17 +214,43 @@ public:
 } // namespace ${cxxNamespace}
   `.trim()
 
+  // Each changed prop goes to its Kotlin setter directly on the Java view, as
+  // the C++ setter would forward it: resolving the C++ HybridObject for every
+  // update would create (and destroy) it each time, because it is only
+  // cached weakly while nothing else holds it.
   const propsUpdaterCalls = spec.properties.map((p) => {
     const name = escapeCppName(p.name)
-    const setter = p.getSetterName('other')
+    if (p.cppSetter == null) {
+      throw new Error(
+        `HybridView prop "${p.name}" of ${spec.name} has no setter!`
+      )
+    }
+    const call = getFbjniMethodCallBody(
+      p.cppSetter,
+      p.getSetterName('jvm'),
+      'javaView',
+      [`newProps->${name}.get()`]
+    )
     return `
 if (oldProps == nullptr
       ? newProps->${name}.isProvided()
       : !newProps->${name}.hasSameValue(oldProps->${name})) {
-  hybridView->${setter}(newProps->${name}.get());
+  ${indent(call, '  ')}
 }
     `.trim()
   })
+  // The JNI conversions the direct setter calls use (enums, callbacks, structs...).
+  const propJniImports = spec.properties
+    .map((p) => new KotlinCxxBridgedType(p.type))
+    .flatMap((t) => t.getRequiredImports('c++'))
+    .filter((i) => i != null)
+  const propJniIncludes = propJniImports
+    .map((i) => includeHeader(i))
+    .filter(isNotDuplicate)
+  const propJniForwardDeclarations = propJniImports
+    .map((i) => i.forwardDeclaration)
+    .filter((d) => d != null)
+    .filter(isNotDuplicate)
   const updaterJniCppCode = `
 ${createFileMetadataString(`J${stateUpdaterName}.cpp`)}
 
@@ -228,6 +258,10 @@ ${createFileMetadataString(`J${stateUpdaterName}.cpp`)}
 #include "views/${component}.hpp"
 #include <NitroModules/NitroDefines.hpp>
 #include <react/fabric/StateWrapperImpl.h>
+
+${propJniForwardDeclarations.join('\n')}
+
+${propJniIncludes.join('\n')}
 
 namespace ${cxxNamespace} {
 
@@ -264,7 +298,6 @@ void J${stateUpdaterName}::updateViewProps(jni::alias_ref<jni::JClass> /* class 
                                            jni::alias_ref<${JHybridTSpec}::JavaPart> javaView,
                                            jni::alias_ref<JStateWrapper::javaobject> newState,
                                            jni::alias_ref<JStateWrapper::javaobject> oldState) {
-  std::shared_ptr<${JHybridTSpec}> hybridView = javaView->get${JHybridTSpec}();
   std::shared_ptr<const ${propsClassName}> newProps = getPropsFromStateWrapper(newState);
   std::shared_ptr<const ${propsClassName}> oldProps = getPropsFromStateWrapper(oldState);
   if (newProps == nullptr) [[unlikely]] {
@@ -281,6 +314,7 @@ void J${stateUpdaterName}::updateViewProps(jni::alias_ref<jni::JClass> /* class 
     // hybridRef changed - call it with new this
     const auto& maybeFunc = newProps->hybridRef.get();
     if (maybeFunc.has_value()) {
+      std::shared_ptr<${JHybridTSpec}> hybridView = javaView->get${JHybridTSpec}();
       maybeFunc.value()(hybridView);
     }
   }
