@@ -139,6 +139,13 @@ const TEST_MAP_3: Record<string, number> = {
   first: 14,
   second: 8247,
 }
+const TEST_UTF8_MAP: Record<string, number> = {
+  'cafe': 1,
+  'café': 2,
+  '咖啡': 3,
+  '🚀': 4,
+  'prefix-咖啡-🚀': 5,
+}
 
 const TEST_MAP_4: Record<
   string,
@@ -1470,6 +1477,30 @@ export function getTests(
         .didNotThrow()
         .didReturn('object')
         .equals(TEST_MAP_3)
+    ),
+    createTest('Record keys preserve UTF-8 through repeated roundtrips', () => {
+      return it(() => {
+        for (let i = 0; i < 3; i++) {
+          const result = testObject.bounceSimpleMap(TEST_UTF8_MAP)
+          if (
+            Object.keys(result).sort().join(',') !==
+              Object.keys(TEST_UTF8_MAP).sort().join(',') ||
+            Object.keys(TEST_UTF8_MAP).some(
+              (key) => result[key] !== TEST_UTF8_MAP[key]
+            )
+          ) {
+            return false
+          }
+        }
+        return true
+      })
+        .didNotThrow()
+        .equals(true)
+    }),
+    createTest('AnyMap keys preserve UTF-8 through a native roundtrip', () =>
+      it(() => testObject.copyAnyMap(TEST_UTF8_MAP))
+        .didNotThrow()
+        .equals(TEST_UTF8_MAP)
     ),
     createTest('bounceOptionalMap(map) keeps undefined values', () =>
       it(() => testObject.bounceOptionalMap({ a: 'b', c: undefined }))
