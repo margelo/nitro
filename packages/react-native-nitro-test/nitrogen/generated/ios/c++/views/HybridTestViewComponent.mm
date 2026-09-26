@@ -110,6 +110,12 @@ using namespace margelo::nitro::test::views;
           : !newViewProps.hasBeenCalled.hasSameValue(oldViewProps->hasBeenCalled)) {
       swiftPart.setHasBeenCalled(newViewProps.hasBeenCalled.get());
     }
+    // int64Value: int64
+    if (oldViewProps == nullptr
+          ? newViewProps.int64Value.isProvided()
+          : !newViewProps.int64Value.hasSameValue(oldViewProps->int64Value)) {
+      swiftPart.setInt64Value(newViewProps.int64Value.get());
+    }
     // colorScheme: enum
     if (oldViewProps == nullptr
           ? newViewProps.colorScheme.isProvided()
