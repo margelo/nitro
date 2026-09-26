@@ -27,7 +27,6 @@ class HybridTestView(
       view.setBackgroundColor(color)
     }
   override var hasBeenCalled: Boolean = false
-  override var int64Value: Long = 0L
   override var colorScheme: ColorScheme = ColorScheme.LIGHT
   override var someCallback: () -> Unit = {}
   override var nativeDefaultValue: Double? = 42.0

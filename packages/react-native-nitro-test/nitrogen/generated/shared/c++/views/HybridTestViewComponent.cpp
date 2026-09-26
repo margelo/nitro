@@ -23,7 +23,6 @@ namespace margelo::nitro::test::views {
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
     isBlue(nitro::ReactProp<bool>::fromRawValue("TestView", "isBlue", rawProps, sourceProps.isBlue)),
     hasBeenCalled(nitro::ReactProp<bool>::fromRawValue("TestView", "hasBeenCalled", rawProps, sourceProps.hasBeenCalled)),
-    int64Value(nitro::ReactProp<int64_t>::fromRawValue("TestView", "int64Value", rawProps, sourceProps.int64Value)),
     colorScheme(nitro::ReactProp<ColorScheme>::fromRawValue("TestView", "colorScheme", rawProps, sourceProps.colorScheme)),
     someCallback(nitro::ReactProp<std::function<void()>>::fromRawValue("TestView", "someCallback", rawProps, sourceProps.someCallback)),
     nativeDefaultValue(nitro::ReactProp<std::optional<double>>::fromRawValue("TestView", "nativeDefaultValue", rawProps, sourceProps.nativeDefaultValue)),
@@ -37,7 +36,6 @@ namespace margelo::nitro::test::views {
     switch (hashString(propName)) {
       case hashString("isBlue"): return true;
       case hashString("hasBeenCalled"): return true;
-      case hashString("int64Value"): return true;
       case hashString("colorScheme"): return true;
       case hashString("someCallback"): return true;
       case hashString("nativeDefaultValue"): return true;

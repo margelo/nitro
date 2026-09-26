@@ -18,8 +18,6 @@ namespace margelo::nitro::test {
       prototype.registerHybridSetter("isBlue", &HybridTestViewSpec::setIsBlue);
       prototype.registerHybridGetter("hasBeenCalled", &HybridTestViewSpec::getHasBeenCalled);
       prototype.registerHybridSetter("hasBeenCalled", &HybridTestViewSpec::setHasBeenCalled);
-      prototype.registerHybridGetter("int64Value", &HybridTestViewSpec::getInt64Value);
-      prototype.registerHybridSetter("int64Value", &HybridTestViewSpec::setInt64Value);
       prototype.registerHybridGetter("colorScheme", &HybridTestViewSpec::getColorScheme);
       prototype.registerHybridSetter("colorScheme", &HybridTestViewSpec::setColorScheme);
       prototype.registerHybridGetter("someCallback", &HybridTestViewSpec::getSomeCallback);

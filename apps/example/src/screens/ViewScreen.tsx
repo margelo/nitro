@@ -38,7 +38,6 @@ export function ViewScreenImpl() {
               someCallback={callback(() => console.log(`Callback called!`))}
               colorScheme="dark"
               hasBeenCalled={false}
-              int64Value={0n}
               onTouchEnd={() => {
                 console.log(`Touched View #${i}!`)
               }}

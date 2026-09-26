@@ -45,7 +45,6 @@ namespace margelo::nitro::test::views {
   public:
     nitro::ReactProp<bool> isBlue;
     nitro::ReactProp<bool> hasBeenCalled;
-    nitro::ReactProp<int64_t> int64Value;
     nitro::ReactProp<ColorScheme> colorScheme;
     nitro::ReactProp<std::function<void()>> someCallback;
     nitro::ReactProp<std::optional<double>> nativeDefaultValue;
@@ -55,7 +54,6 @@ namespace margelo::nitro::test::views {
     bool hasSameProps(const HybridTestViewProps& other) const noexcept {
       return isBlue.hasSameValue(other.isBlue) &&
              hasBeenCalled.hasSameValue(other.hasBeenCalled) &&
-             int64Value.hasSameValue(other.int64Value) &&
              colorScheme.hasSameValue(other.colorScheme) &&
              someCallback.hasSameValue(other.someCallback) &&
              nativeDefaultValue.hasSameValue(other.nativeDefaultValue) &&
@@ -66,7 +64,6 @@ namespace margelo::nitro::test::views {
     bool hasAnyProvidedProps() const noexcept {
       return isBlue.isProvided() ||
              hasBeenCalled.isProvided() ||
-             int64Value.isProvided() ||
              colorScheme.isProvided() ||
              someCallback.isProvided() ||
              nativeDefaultValue.isProvided() ||

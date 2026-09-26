@@ -65,15 +65,6 @@ namespace margelo::nitro::test {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jboolean /* hasBeenCalled */)>("setHasBeenCalled");
     method(_javaPart, hasBeenCalled);
   }
-  int64_t JHybridTestViewSpec::getInt64Value() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<int64_t()>("getInt64Value");
-    auto __result = method(_javaPart);
-    return __result;
-  }
-  void JHybridTestViewSpec::setInt64Value(int64_t int64Value) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(int64_t /* int64Value */)>("setInt64Value");
-    method(_javaPart, int64Value);
-  }
   ColorScheme JHybridTestViewSpec::getColorScheme() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JColorScheme>()>("getColorScheme");
     auto __result = method(_javaPart);

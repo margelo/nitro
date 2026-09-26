@@ -43,12 +43,6 @@ abstract class HybridTestViewSpec: HybridView() {
   @get:Keep
   @set:DoNotStrip
   @set:Keep
-  abstract var int64Value: Long
-  
-  @get:DoNotStrip
-  @get:Keep
-  @set:DoNotStrip
-  @set:Keep
   abstract var colorScheme: ColorScheme
   
   abstract var someCallback: () -> Unit

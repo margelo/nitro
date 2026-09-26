@@ -51,8 +51,6 @@ namespace margelo::nitro::test {
       virtual void setIsBlue(bool isBlue) = 0;
       virtual bool getHasBeenCalled() = 0;
       virtual void setHasBeenCalled(bool hasBeenCalled) = 0;
-      virtual int64_t getInt64Value() = 0;
-      virtual void setInt64Value(int64_t int64Value) = 0;
       virtual ColorScheme getColorScheme() = 0;
       virtual void setColorScheme(ColorScheme colorScheme) = 0;
       virtual std::function<void()> getSomeCallback() = 0;

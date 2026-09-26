@@ -12,7 +12,6 @@ public protocol HybridTestViewSpec_protocol: HybridObject, HybridView {
   // Properties
   var isBlue: Bool { get set }
   var hasBeenCalled: Bool { get set }
-  var int64Value: Int64 { get set }
   var colorScheme: ColorScheme { get set }
   var someCallback: () -> Void { get set }
   var nativeDefaultValue: Double? { get set }

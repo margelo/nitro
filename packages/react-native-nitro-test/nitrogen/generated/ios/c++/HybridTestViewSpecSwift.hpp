@@ -77,12 +77,6 @@ namespace margelo::nitro::test {
     inline void setHasBeenCalled(bool hasBeenCalled) noexcept override {
       _swiftPart.setHasBeenCalled(std::forward<decltype(hasBeenCalled)>(hasBeenCalled));
     }
-    inline int64_t getInt64Value() noexcept override {
-      return _swiftPart.getInt64Value();
-    }
-    inline void setInt64Value(int64_t int64Value) noexcept override {
-      _swiftPart.setInt64Value(std::forward<decltype(int64Value)>(int64Value));
-    }
     inline ColorScheme getColorScheme() noexcept override {
       auto __result = _swiftPart.getColorScheme();
       return static_cast<ColorScheme>(__result);

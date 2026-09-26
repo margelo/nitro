@@ -2,7 +2,6 @@ import type {
   HybridView as HybridViewAlias,
   HybridViewMethods,
   HybridViewProps,
-  Int64,
 } from 'react-native-nitro-modules'
 
 export type ColorScheme = 'light' | 'dark'
@@ -10,7 +9,6 @@ export type ColorScheme = 'light' | 'dark'
 export interface TestViewProps extends HybridViewProps {
   isBlue: boolean
   hasBeenCalled: boolean
-  int64Value: Int64
   colorScheme: ColorScheme
   someCallback: () => void
   nativeDefaultValue?: number
