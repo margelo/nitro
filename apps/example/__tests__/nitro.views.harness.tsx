@@ -187,6 +187,12 @@ describe('TestView', () => {
       callbackSawUpdatedState = mountedView?.hasBeenCalled === true
       callbackFinished.resolve(undefined)
     })
+    const wrappedCallback = callback(onSomeCallback)
+    const callbackWithMetadata = {
+      ...wrappedCallback,
+      // Nitro-only values must bypass folly conversion, which rejects BigInts.
+      metadata: 123n,
+    }
 
     await render(
       <TestView
@@ -196,7 +202,7 @@ describe('TestView', () => {
         isBlue={true}
         hasBeenCalled={false}
         colorScheme="dark"
-        someCallback={callback(onSomeCallback)}
+        someCallback={callbackWithMetadata}
         onLayout={({ nativeEvent }) => layout.resolve(nativeEvent.layout)}
       />,
       { timeout: RENDER_TIMEOUT }
