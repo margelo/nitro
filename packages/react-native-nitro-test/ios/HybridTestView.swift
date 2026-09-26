@@ -24,6 +24,7 @@ class HybridTestView: HybridTestViewSpec {
     }
   }
   var hasBeenCalled: Bool = false
+  var int64Value: Int64 = 0
   var colorScheme: ColorScheme = .light
   var someCallback: () -> Void = {}
   var nativeDefaultValue: Double? = 42 {
