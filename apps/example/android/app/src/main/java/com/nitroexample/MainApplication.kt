@@ -40,7 +40,7 @@ class MainApplication : Application(), ReactApplication {
   override fun onCreate() {
     super.onCreate()
     loadReactNative(this)
-    // RN 0.85 installs its Stable provider above. Replace it before reactHost is
+    // RN 0.87 installs its Stable provider above. Replace it before reactHost is
     // accessed, and re-audit these internal flags whenever RN or releaseLevel changes.
     val previouslyAccessedFlags =
       ReactNativeFeatureFlags.dangerouslyForceOverride(
