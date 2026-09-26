@@ -18,6 +18,9 @@ add_library(NitroModules SHARED
             ${android_files}
 )
 
+include("${REACT_NATIVE_DIR}/ReactCommon/cmake-utils/react-native-flags.cmake")
+target_compile_reactnative_options(NitroModules PRIVATE)
+
 set(NITRO_SANITIZER "" CACHE STRING "Native sanitizer")
 if(NITRO_SANITIZER STREQUAL "address")
   target_compile_options(NitroModules PUBLIC -fsanitize=address -fno-omit-frame-pointer)
