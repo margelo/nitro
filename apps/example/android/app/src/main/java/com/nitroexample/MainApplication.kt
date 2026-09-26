@@ -14,6 +14,9 @@ import com.facebook.react.internal.featureflags.ReactNativeFeatureFlagsProvider
 
 private val stableFlagsWithNitroViewRecycling: ReactNativeFeatureFlagsProvider =
   object : ReactNativeFeatureFlagsProvider by ReactNativeFeatureFlagsOverrides_RNOSS_Stable_Android() {
+    // TODO: this can be removed once we upgraded to RN 0.87. Added for being able to reproduce #1656
+    override fun enableExclusivePropsUpdateAndroid(): Boolean = true
+
     override fun enablePreparedTextLayout(): Boolean = false
 
     override fun enableViewRecycling(): Boolean = true

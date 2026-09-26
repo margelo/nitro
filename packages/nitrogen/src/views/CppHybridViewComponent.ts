@@ -185,6 +185,7 @@ ${createFileMetadataString(`${component}.cpp`)}
 #include "${component}.hpp"
 
 #include <NitroModules/NitroHash.hpp>
+#include <NitroModules/RawPropsCompat.hpp>
 #include <NitroModules/ReactProp.hpp>
 
 namespace ${namespace} {
@@ -196,7 +197,11 @@ namespace ${namespace} {
   ${propsClassName}::${propsClassName}(const react::PropsParserContext& context,
   ${ctorIndent}   const ${propsClassName}& sourceProps,
   ${ctorIndent}   const react::RawProps& rawProps):
-    ${indent(propInitializers.join(',\n'), '    ')} { }
+    ${indent(propInitializers.join(',\n'), '    ')} {
+#ifdef ANDROID
+    nitro::RawPropsCompat::initializeDynamicProps(*this, sourceProps, rawProps, filterObjectKeys);
+#endif
+  }
 
   bool ${propsClassName}::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {
