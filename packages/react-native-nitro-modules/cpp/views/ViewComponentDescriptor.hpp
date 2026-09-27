@@ -47,7 +47,14 @@ public:
     // 1. Prepare raw props parser
     rawProps.parse(this->rawPropsParser_);
     // 2. Copy props with Nitro's cached copy constructor
-    return TShadowNode::Props(context, /* & */ rawProps, props);
+    auto shadowNodeProps = TShadowNode::Props(context, /* & */ rawProps, props);
+    // 3. Accumulate `Props::rawProps` (only exists with `RN_SERIALIZABLE_STATE`, e.g. on Android), which are sent to the
+    //    Java `ViewManager` - base View props like `testID` depend on it. Since react-native 0.87, `Props` no longer does
+    //    this in its constructor, only `react::ConcreteComponentDescriptor::cloneProps` does - so we do the same here.
+    if constexpr (requires { TShadowNode::initializeDynamicProps(shadowNodeProps, rawProps, props); }) {
+      TShadowNode::initializeDynamicProps(shadowNodeProps, rawProps, props);
+    }
+    return shadowNodeProps;
   }
 
 #ifdef ANDROID

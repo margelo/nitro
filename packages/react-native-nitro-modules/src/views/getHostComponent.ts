@@ -1,12 +1,22 @@
-import { Platform, type HostComponent, type ViewProps } from 'react-native'
+import {
+  Platform,
+  type HostComponent,
+  type NativeComponentRegistry as PublicNativeComponentRegistry,
+  type ViewProps,
+} from 'react-native'
+
 // TODO: Migrate to the official export of `NativeComponentRegistry` from `react-native` once react-native 0.83.0 becomes more established as this is deprecated
+// @ts-expect-error: Since react-native 0.87 (Strict TypeScript API). Hack for now
 // eslint-disable-next-line @react-native/no-deep-imports
-import * as NativeComponentRegistry from 'react-native/Libraries/NativeComponent/NativeComponentRegistry'
+import * as UntypedNativeComponentRegistry from 'react-native/Libraries/NativeComponent/NativeComponentRegistry'
 import type {
   HybridView,
   HybridViewMethods,
   HybridViewProps,
 } from './HybridView'
+
+const NativeComponentRegistry: typeof PublicNativeComponentRegistry =
+  UntypedNativeComponentRegistry
 
 type AttributeValue<T, V = T> =
   | boolean
