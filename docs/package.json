@@ -29,7 +29,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "satori": "^0.33.3",
-    "sharp": "^0.35.4"
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.10.2",
