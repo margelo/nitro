@@ -53,7 +53,8 @@ public:
    *       each time. It is not safe to call this multiple times if you use enable_shared_from_this.
    *       Instead, use HybridObject::shared().
    */
-  template <typename T, typename std::enable_if<is_base_template_of<T, jni::HybridClass>::value, int>::type = 0>
+  template <typename T>
+    requires is_base_template_of<T, jni::HybridClass>::value
   static std::shared_ptr<T> make_shared_from_jni(const jni::global_ref<typename T::javaobject>& ref) {
 #ifdef NITRO_DEBUG
     if (ref == nullptr || ref->cthis() == nullptr) [[unlikely]] {

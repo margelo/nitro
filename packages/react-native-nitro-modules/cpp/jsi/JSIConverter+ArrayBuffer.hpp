@@ -21,7 +21,6 @@ struct JSIConverter;
 #include "NitroDefines.hpp"
 #include <jsi/jsi.h>
 #include <memory>
-#include <type_traits>
 
 namespace margelo::nitro {
 
@@ -35,7 +34,8 @@ public:
 
 // MutableBuffer <> ArrayBuffer
 template <typename T>
-struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_v<T, jsi::MutableBuffer>>> final {
+  requires SharedPtrTo<T, jsi::MutableBuffer>
+struct JSIConverter<T> final {
   static inline std::shared_ptr<ArrayBuffer> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
 #ifdef NITRO_DEBUG
     if (!arg.isObject()) [[unlikely]] {
