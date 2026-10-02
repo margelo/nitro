@@ -7,6 +7,7 @@
 
 #include "PropNameIDCache.hpp"
 #include "JSICache.hpp"
+#include <utility>
 
 namespace margelo::nitro {
 

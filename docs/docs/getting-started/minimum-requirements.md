@@ -1,5 +1,5 @@
 ---
-description: Check the React Native, iOS, Android, Swift, Kotlin, Gradle, and C++ requirements needed to use Nitro Modules.
+description: Check the React Native, iOS, Android, Windows, Swift, Kotlin, Gradle, and C++ requirements needed to use Nitro Modules.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -20,5 +20,10 @@ To use Nitro, make sure your app meets the minimum requirements:
     - react-native 0.75 or higher
     - `compileSdkVersion` 34 or higher
     - `ndkVersion` 27 or higher
+  </TabItem>
+  <TabItem value="windows" label="Windows">
+    - react-native-windows 0.78 or higher (`ReactContext::CallInvoker()` was added in 0.78)
+    - Visual Studio 2022 with the "Desktop development with C++" workload (toolset v143)
+    - Hybrid Objects must be implemented in C++ - see [Windows](../guides/windows.md)
   </TabItem>
 </Tabs>

@@ -14,6 +14,7 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace margelo::nitro {

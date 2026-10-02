@@ -1,0 +1,79 @@
+name: Build Windows
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build-windows.yml'
+      - 'packages/react-native-nitro-modules/cpp/**'
+      - 'packages/react-native-nitro-modules/windows/**'
+      - '**/react-native.config.js'
+  pull_request:
+    paths:
+      - '.github/workflows/build-windows.yml'
+      - 'packages/react-native-nitro-modules/cpp/**'
+      - 'packages/react-native-nitro-modules/windows/**'
+      - '**/react-native.config.js'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build NitroModules.vcxproj
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Set up a react-native-windows consumer
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path consumer | Out-Null
+          Set-Location consumer
+          npm init -y | Out-Null
+          npm install --no-audit --no-fund `
+            react-native@${{ env.RN_VERSION }} `
+            react-native-windows@${{ env.RNW_VERSION }}
+        env:
+          RN_VERSION: 0.84.1
+          RNW_VERSION: 0.84.0
+
+      - name: Restore NuGet packages
+        shell: pwsh
+        run: |
+          msbuild packages/react-native-nitro-modules/windows/NitroModules/NitroModules.vcxproj `
+            /t:Restore `
+            /p:Configuration=Debug `
+            /p:Platform=x64 `
+            /p:RnwNewArch=true `
+            /p:ReactNativeWindowsDir=$(Resolve-Path consumer/node_modules/react-native-windows)\
+
+      - name: Build (Debug|x64)
+        shell: pwsh
+        run: |
+          msbuild packages/react-native-nitro-modules/windows/NitroModules/NitroModules.vcxproj `
+            /p:Configuration=Debug `
+            /p:Platform=x64 `
+            /p:RnwNewArch=true `
+            /p:ReactNativeWindowsDir=$(Resolve-Path consumer/node_modules/react-native-windows)\ `
+            /verbosity:minimal `
+            /warnaserror:C4715,C4700
+
+      - name: Build (Release|x64)
+        shell: pwsh
+        run: |
+          msbuild packages/react-native-nitro-modules/windows/NitroModules/NitroModules.vcxproj `
+            /p:Configuration=Release `
+            /p:Platform=x64 `
+            /p:RnwNewArch=true `
+            /p:ReactNativeWindowsDir=$(Resolve-Path consumer/node_modules/react-native-windows)\ `
+            /verbosity:minimal

@@ -8,10 +8,13 @@
 #pragma once
 
 #include "NitroDefines.hpp"
+#include "NitroTypeInfo.hpp"
 #include "ReferenceState.hpp"
 #include <atomic>
 #include <cstddef>
 #include <mutex>
+#include <stdexcept>
+#include <string>
 
 namespace margelo::nitro {
 

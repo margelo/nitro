@@ -18,6 +18,7 @@ struct JSIConverter;
 #include "PromiseType.hpp"
 #include "PropNameIDCache.hpp"
 #include <jsi/jsi.h>
+#include <utility>
 
 namespace margelo::nitro {
 

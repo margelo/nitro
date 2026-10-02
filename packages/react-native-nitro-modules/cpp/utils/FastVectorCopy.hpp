@@ -8,6 +8,9 @@
 #pragma once
 
 #include "NitroDefines.hpp"
+#include <cassert>
+#include <cstddef>
+#include <cstring>
 #include <span>
 #include <type_traits>
 #include <vector>
