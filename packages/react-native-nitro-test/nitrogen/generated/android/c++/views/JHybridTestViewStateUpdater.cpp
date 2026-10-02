@@ -74,6 +74,11 @@ void JHybridTestViewStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /*
     hybridView->setSomeCallback(newProps->someCallback.get());
   }
   if (oldProps == nullptr
+        ? newProps->someOptionalCallback.isProvided()
+        : !newProps->someOptionalCallback.hasSameValue(oldProps->someOptionalCallback)) {
+    hybridView->setSomeOptionalCallback(newProps->someOptionalCallback.get());
+  }
+  if (oldProps == nullptr
         ? newProps->nativeDefaultValue.isProvided()
         : !newProps->nativeDefaultValue.hasSameValue(oldProps->nativeDefaultValue)) {
     hybridView->setNativeDefaultValue(newProps->nativeDefaultValue.get());
