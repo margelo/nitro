@@ -47,6 +47,7 @@ export interface Car {
   year: number
   make: string
   model: string
+  purelyTypeLevel?: never
   power: number
   powertrain: Powertrain
   driver?: Person
