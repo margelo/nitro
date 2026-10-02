@@ -26,6 +26,7 @@ class HybridTestView: HybridTestViewSpec {
   var hasBeenCalled: Bool = false
   var colorScheme: ColorScheme = .light
   var someCallback: () -> Void = {}
+  var someOptionalCallback: (() -> Void)? = nil
   var nativeDefaultValue: Double? = 42 {
     didSet {
       nativeDefaultValueSetterCallCount += 1
@@ -43,6 +44,10 @@ class HybridTestView: HybridTestViewSpec {
 
   func getNativeDefaultValueSetterCallCount() throws -> Double {
     return nativeDefaultValueSetterCallCount
+  }
+
+  func hasSomeOptionalCallback() throws -> Bool {
+    return someOptionalCallback != nil
   }
 
   func someMethod() throws {

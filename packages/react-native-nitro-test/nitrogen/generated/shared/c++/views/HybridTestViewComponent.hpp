@@ -47,6 +47,7 @@ namespace margelo::nitro::test::views {
     nitro::ReactProp<bool> hasBeenCalled;
     nitro::ReactProp<ColorScheme> colorScheme;
     nitro::ReactProp<std::function<void()>> someCallback;
+    nitro::ReactProp<std::optional<std::function<void()>>> someOptionalCallback;
     nitro::ReactProp<std::optional<double>> nativeDefaultValue;
     nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridTestViewSpec>& /* ref */)>>> hybridRef;
 
@@ -56,6 +57,7 @@ namespace margelo::nitro::test::views {
              hasBeenCalled.hasSameValue(other.hasBeenCalled) &&
              colorScheme.hasSameValue(other.colorScheme) &&
              someCallback.hasSameValue(other.someCallback) &&
+             someOptionalCallback.hasSameValue(other.someOptionalCallback) &&
              nativeDefaultValue.hasSameValue(other.nativeDefaultValue) &&
              hybridRef.hasSameValue(other.hybridRef);
     }
@@ -66,6 +68,7 @@ namespace margelo::nitro::test::views {
              hasBeenCalled.isProvided() ||
              colorScheme.isProvided() ||
              someCallback.isProvided() ||
+             someOptionalCallback.isProvided() ||
              nativeDefaultValue.isProvided() ||
              hybridRef.isProvided();
     }
