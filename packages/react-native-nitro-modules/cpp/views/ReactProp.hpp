@@ -102,7 +102,12 @@ public:
         // React Native cannot transport functions as regular props. Nitrogen
         // wraps them as `{ f: function }`, so we unwrap `f` before converting
         // and caching the JSI value.
-        value = value.asObject(*runtime).getProperty(*runtime, PropNameIDCache::get(*runtime, "f"));
+        // A function prop that was set on a previous render and is omitted on this one arrives
+        // as `null` (React diffs the removed prop as null), so only unwrap when there is an object;
+        // null/undefined fall through to the std::optional converter as "no value".
+        if (value.isObject()) {
+          value = value.asObject(*runtime).getProperty(*runtime, PropNameIDCache::get(*runtime, "f"));
+        }
       }
 
       if (previousProp.equals(*runtime, value)) {
