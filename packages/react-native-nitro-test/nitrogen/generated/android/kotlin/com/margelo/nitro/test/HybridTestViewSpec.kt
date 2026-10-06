@@ -65,6 +65,20 @@ abstract class HybridTestViewSpec: HybridView() {
       someCallback = value
     }
   
+  abstract var someOptionalCallback: (() -> Unit)?
+  
+  private var someOptionalCallback_cxx: Func_void?
+    @Keep
+    @DoNotStrip
+    get() {
+      return someOptionalCallback?.let { Func_void_java(it) }
+    }
+    @Keep
+    @DoNotStrip
+    set(value) {
+      someOptionalCallback = value?.let { it }
+    }
+  
   @get:DoNotStrip
   @get:Keep
   @set:DoNotStrip
@@ -87,6 +101,10 @@ abstract class HybridTestViewSpec: HybridView() {
   @DoNotStrip
   @Keep
   abstract fun someMethod(): Unit
+  
+  @DoNotStrip
+  @Keep
+  abstract fun hasSomeOptionalCallback(): Boolean
 
   // Default implementation of `HybridObject.toString()`
   override fun toString(): String {

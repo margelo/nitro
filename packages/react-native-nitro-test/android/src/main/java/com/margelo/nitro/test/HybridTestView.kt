@@ -30,6 +30,7 @@ class HybridTestView(
   override var int64Value: Long = 0L
   override var colorScheme: ColorScheme = ColorScheme.LIGHT
   override var someCallback: () -> Unit = {}
+  override var someOptionalCallback: (() -> Unit)? = null
   override var nativeDefaultValue: Double? = 42.0
     set(value) {
       field = value
@@ -42,6 +43,8 @@ class HybridTestView(
   override fun getIsBlueSetterCallCount(): Double = isBlueSetterCallCount
 
   override fun getNativeDefaultValueSetterCallCount(): Double = nativeDefaultValueSetterCallCount
+
+  override fun hasSomeOptionalCallback(): Boolean = someOptionalCallback != null
 
   override fun someMethod() {
     hasBeenCalled = true

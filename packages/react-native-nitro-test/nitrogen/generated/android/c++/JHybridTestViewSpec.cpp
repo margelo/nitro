@@ -100,6 +100,23 @@ namespace margelo::nitro::test {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void::javaobject> /* someCallback */)>("setSomeCallback_cxx");
     method(_javaPart, JFunc_void_cxx::fromCpp(someCallback));
   }
+  std::optional<std::function<void()>> JHybridTestViewSpec::getSomeOptionalCallback() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JFunc_void::javaobject>()>("getSomeOptionalCallback_cxx");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional([&]() -> std::function<void()> {
+      if (__result->isInstanceOf(JFunc_void_cxx::javaClassStatic())) [[likely]] {
+        auto downcast = jni::static_ref_cast<JFunc_void_cxx::javaobject>(__result);
+        return downcast->cthis()->getFunction();
+      } else {
+        auto __resultRef = jni::make_global(__result);
+        return JNICallable<JFunc_void, void()>(std::move(__resultRef));
+      }
+    }()) : std::nullopt;
+  }
+  void JHybridTestViewSpec::setSomeOptionalCallback(const std::optional<std::function<void()>>& someOptionalCallback) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void::javaobject> /* someOptionalCallback */)>("setSomeOptionalCallback_cxx");
+    method(_javaPart, someOptionalCallback.has_value() ? JFunc_void_cxx::fromCpp(someOptionalCallback.value()) : nullptr);
+  }
   std::optional<double> JHybridTestViewSpec::getNativeDefaultValue() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JDouble>()>("getNativeDefaultValue");
     auto __result = method(_javaPart);
@@ -129,6 +146,11 @@ namespace margelo::nitro::test {
   void JHybridTestViewSpec::someMethod() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void()>("someMethod");
     method(_javaPart);
+  }
+  bool JHybridTestViewSpec::hasSomeOptionalCallback() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("hasSomeOptionalCallback");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
   }
 
 } // namespace margelo::nitro::test
