@@ -120,7 +120,7 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
     if (nitroSanitizerRuntime != null) {
@@ -131,9 +131,10 @@ android {
         }
         sourceSets {
             debug {
-                jniLibs.srcDir(nitroSanitizerJniLibsDir)
+                // AGP 9 no longer accepts Providers in the SourceSet API
+                jniLibs.srcDir(nitroSanitizerJniLibsDir.get().asFile)
                 if (nitroSanitizerUsesWrap) {
-                    resources.srcDir(nitroSanitizerResourcesDir)
+                    resources.srcDir(nitroSanitizerResourcesDir.get().asFile)
                 }
             }
         }
