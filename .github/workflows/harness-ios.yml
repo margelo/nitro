@@ -172,7 +172,7 @@ jobs:
         run: brew install watchman
 
       - name: Run Harness E2E tests
-        uses: callstackincubator/react-native-harness@v1.4.1
+        uses: callstackincubator/react-native-harness@v1.5.0
         env:
           SIMCTL_CHILD_TSAN_OPTIONS: ${{ matrix.sanitizer.name == 'TSan' && 'halt_on_error=1:log_path=/tmp/nitro-tsan' || '' }}
         with:

@@ -141,7 +141,7 @@ jobs:
         run: ./gradlew :app:assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=${{ env.DEVICE_ARCH }} -PnitroSanitizer=${{ matrix.sanitizer.gradle_property }}
 
       - name: Run Harness E2E tests
-        uses: callstackincubator/react-native-harness@v1.4.1
+        uses: callstackincubator/react-native-harness@v1.5.0
         with:
           runner: android
           projectRoot: apps/example
