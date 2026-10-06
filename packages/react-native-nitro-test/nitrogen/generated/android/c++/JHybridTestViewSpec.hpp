@@ -54,6 +54,8 @@ namespace margelo::nitro::test {
     void setIsBlue(bool isBlue) override;
     bool getHasBeenCalled() override;
     void setHasBeenCalled(bool hasBeenCalled) override;
+    int64_t getInt64Value() override;
+    void setInt64Value(int64_t int64Value) override;
     ColorScheme getColorScheme() override;
     void setColorScheme(ColorScheme colorScheme) override;
     std::function<void()> getSomeCallback() override;

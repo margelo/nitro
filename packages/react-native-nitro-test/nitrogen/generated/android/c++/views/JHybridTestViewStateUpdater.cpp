@@ -64,6 +64,11 @@ void JHybridTestViewStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /*
     hybridView->setHasBeenCalled(newProps->hasBeenCalled.get());
   }
   if (oldProps == nullptr
+        ? newProps->int64Value.isProvided()
+        : !newProps->int64Value.hasSameValue(oldProps->int64Value)) {
+    hybridView->setInt64Value(newProps->int64Value.get());
+  }
+  if (oldProps == nullptr
         ? newProps->colorScheme.isProvided()
         : !newProps->colorScheme.hasSameValue(oldProps->colorScheme)) {
     hybridView->setColorScheme(newProps->colorScheme.get());

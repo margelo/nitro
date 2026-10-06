@@ -143,6 +143,17 @@ open class HybridTestViewSpec_cxx {
     }
   }
   
+  public final var int64Value: Int64 {
+    @inline(__always)
+    get {
+      return self.__implementation.int64Value
+    }
+    @inline(__always)
+    set {
+      self.__implementation.int64Value = newValue
+    }
+  }
+  
   public final var colorScheme: Int32 {
     @inline(__always)
     get {

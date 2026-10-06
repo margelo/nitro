@@ -157,6 +157,8 @@ function expectRed(actualCoverage: PixelCoverage): void {
 
 const INITIAL_SIZE = { width: 80, height: 60 }
 const RESIZED_SIZE = { width: 160, height: 120 }
+const INITIAL_INT64_VALUE = 9_007_199_254_740_993n
+const UPDATED_INT64_VALUE = -9_007_199_254_740_993n
 const RENDER_TIMEOUT = 4_000
 const SUPPORTS_NATIVE_VIEW_RECYCLING =
   Platform.OS === 'ios' || Number(Platform.Version) >= 28
@@ -195,6 +197,7 @@ describe('TestView', () => {
         hybridRef={callback((view) => viewRef.resolve(view))}
         isBlue={true}
         hasBeenCalled={false}
+        int64Value={INITIAL_INT64_VALUE}
         colorScheme="dark"
         someCallback={callback(onSomeCallback)}
         onLayout={({ nativeEvent }) => layout.resolve(nativeEvent.layout)}
@@ -208,6 +211,7 @@ describe('TestView', () => {
     expect(reportedLayout.height).toBeCloseTo(INITIAL_SIZE.height, 0)
     expect(mountedView.isBlue).toBe(true)
     expect(mountedView.hasBeenCalled).toBe(false)
+    expect(mountedView.int64Value).toBe(INITIAL_INT64_VALUE)
     expect(mountedView.colorScheme).toBe('dark')
     expect(mountedView.getOnDropViewCount()).toBe(0)
     expect(HybridTestObjectCpp.getIsViewBlue(mountedView)).toBe(true)
@@ -234,6 +238,7 @@ describe('TestView', () => {
         hybridRef={callback((view) => initialRef.resolve(view))}
         isBlue={true}
         hasBeenCalled={false}
+        int64Value={INITIAL_INT64_VALUE}
         colorScheme="dark"
         someCallback={callback(initialCallback)}
       />,
@@ -241,6 +246,7 @@ describe('TestView', () => {
     )
 
     const firstView = await initialRef.promise
+    expect(firstView.int64Value).toBe(INITIAL_INT64_VALUE)
     const blueCapture = await captureView('test-view-updates')
     expectRenderedSize(blueCapture.size, INITIAL_SIZE)
     expectBlue(blueCapture.pixelCoverage)
@@ -260,6 +266,7 @@ describe('TestView', () => {
         hybridRef={updatedHybridRef}
         isBlue={false}
         hasBeenCalled={true}
+        int64Value={UPDATED_INT64_VALUE}
         colorScheme="light"
         someCallback={updatedSomeCallback}
       />
@@ -269,6 +276,7 @@ describe('TestView', () => {
     expect(updatedView.equals(firstView)).toBe(true)
     expect(updatedView.isBlue).toBe(false)
     expect(updatedView.hasBeenCalled).toBe(true)
+    expect(updatedView.int64Value).toBe(UPDATED_INT64_VALUE)
     expect(updatedView.colorScheme).toBe('light')
     expect(updatedView.getOnDropViewCount()).toBe(0)
     expect(HybridTestObjectCpp.getIsViewBlue(updatedView)).toBe(false)
@@ -291,6 +299,7 @@ describe('TestView', () => {
         hybridRef={updatedHybridRef}
         isBlue={false}
         hasBeenCalled={true}
+        int64Value={UPDATED_INT64_VALUE}
         colorScheme="light"
         someCallback={updatedSomeCallback}
         onLayout={({ nativeEvent }) =>
@@ -304,6 +313,7 @@ describe('TestView', () => {
     expect(reportedResizedLayout.height).toBeCloseTo(RESIZED_SIZE.height, 0)
     expect(firstView.isBlue).toBe(false)
     expect(firstView.hasBeenCalled).toBe(true)
+    expect(firstView.int64Value).toBe(UPDATED_INT64_VALUE)
     expect(firstView.colorScheme).toBe('light')
 
     const resizedCapture = await captureView('test-view-updates')
@@ -324,6 +334,7 @@ describe('TestView', () => {
         hybridRef={stableHybridRef}
         isBlue={false}
         hasBeenCalled={false}
+        int64Value={0n}
         colorScheme="dark"
         someCallback={stableSomeCallback}
       />,
@@ -346,6 +357,7 @@ describe('TestView', () => {
         )}
         isBlue={true}
         hasBeenCalled={false}
+        int64Value={0n}
         colorScheme="dark"
         someCallback={stableSomeCallback}
       />
@@ -371,6 +383,7 @@ describe('TestView', () => {
         hybridRef={stableHybridRef}
         isBlue={false}
         hasBeenCalled={false}
+        int64Value={0n}
         colorScheme="dark"
         someCallback={stableSomeCallback}
         nativeDefaultValue={1}
@@ -392,6 +405,7 @@ describe('TestView', () => {
         )}
         isBlue={false}
         hasBeenCalled={false}
+        int64Value={0n}
         colorScheme="dark"
         someCallback={stableSomeCallback}
         nativeDefaultValue={2}
@@ -416,6 +430,7 @@ describe('TestView', () => {
         hybridRef={isBlueUpdatedHybridRef}
         isBlue={true}
         hasBeenCalled={false}
+        int64Value={0n}
         colorScheme="dark"
         someCallback={stableSomeCallback}
         nativeDefaultValue={2}
@@ -436,6 +451,7 @@ describe('TestView', () => {
         hybridRef={isBlueUpdatedHybridRef}
         isBlue={true}
         hasBeenCalled={false}
+        int64Value={0n}
         colorScheme="dark"
         someCallback={stableSomeCallback}
         nativeDefaultValue={2}
@@ -461,6 +477,7 @@ describe('TestView', () => {
         hybridRef={callback((view) => firstRef.resolve(view))}
         isBlue={true}
         hasBeenCalled={false}
+        int64Value={0n}
         colorScheme="dark"
         someCallback={callback(fn())}
       />,
@@ -488,6 +505,7 @@ describe('TestView', () => {
         hybridRef={callback((view) => secondRef.resolve(view))}
         isBlue={false}
         hasBeenCalled={true}
+        int64Value={0n}
         colorScheme="light"
         someCallback={callback(fn())}
       />,
