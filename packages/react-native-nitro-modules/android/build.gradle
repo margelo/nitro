@@ -36,6 +36,15 @@ def getExtOrIntegerDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["Nitro_" + name]).toInteger()
 }
 
+def reactNativePackageOutput = providers.exec {
+  workingDir(rootDir)
+  commandLine("node", "--print", "require.resolve('react-native/package.json')")
+}
+def reactNativePackagePath = reactNativePackageOutput.standardOutput.asText.get()
+reactNativePackagePath = reactNativePackagePath.trim()
+def reactNativePackageFile = file(reactNativePackagePath)
+def reactNativeDir = reactNativePackageFile.parentFile.absolutePath
+
 logger.warn("[NitroModules] 🔥 Your app is boosted by nitro modules!")
 
 android {
@@ -52,7 +61,7 @@ android {
     externalNativeBuild {
       cmake {
         cppFlags "-frtti -fexceptions -Wall -Wextra -fstack-protector-all"
-        arguments "-DANDROID_STL=c++_shared", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON", "-DNITRO_SANITIZER=${rootProject.findProperty('nitroSanitizer') ?: ''}"
+        arguments "-DANDROID_STL=c++_shared", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON", "-DNITRO_SANITIZER=${rootProject.findProperty('nitroSanitizer') ?: ''}", "-DREACT_NATIVE_DIR=${reactNativeDir}"
         abiFilters (*reactNativeArchitectures())
 
         buildTypes {
