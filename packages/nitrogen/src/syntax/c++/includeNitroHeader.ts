@@ -30,6 +30,41 @@ export function includeHeader(
   }
 }
 
+/**
+ * Includes a module-local header through its iOS framework name.
+ * System headers are already qualified and stay unchanged.
+ */
+export function includeModuleHeader(
+  sourceImport: SourceImport,
+  moduleName: string,
+  force = true
+): string {
+  if (sourceImport.space === 'system') {
+    return includeHeader(sourceImport, force)
+  }
+
+  return includeHeader(
+    {
+      ...sourceImport,
+      name: `${moduleName}/${sourceImport.name}`,
+      space: 'system',
+    },
+    force
+  )
+}
+
+export function sortSourceImports(
+  sourceImports: SourceImport[]
+): SourceImport[] {
+  return [...sourceImports].sort((left, right) => {
+    const leftHeader = getHeader(left.name, left.space)
+    const rightHeader = getHeader(right.name, right.space)
+    if (leftHeader < rightHeader) return -1
+    if (leftHeader > rightHeader) return 1
+    return 0
+  })
+}
+
 function getHeader(name: string, space: 'user' | 'system'): string {
   switch (space) {
     case 'user':
