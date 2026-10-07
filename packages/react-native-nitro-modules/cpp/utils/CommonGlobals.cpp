@@ -10,6 +10,7 @@
 #include "JSIHelpers.hpp"
 #include "NitroDefines.hpp"
 #include "PropNameIDCache.hpp"
+#include <mutex>
 
 #if __has_include(<cxxreact/ReactNativeVersion.h>)
 #include <cxxreact/ReactNativeVersion.h>
@@ -23,6 +24,13 @@ namespace margelo::nitro {
 using namespace facebook;
 
 std::unordered_map<jsi::Runtime*, CommonGlobals::FunctionCache> CommonGlobals::_cache;
+
+// Guards the OUTER `_cache` map only - `operator[]` inserts, and concurrent
+// insertion/rehash from different Runtimes' Threads is UB. The inner per-Runtime
+// `FunctionCache` is only ever accessed from that Runtime's own Thread, and
+// `unordered_map` value references stay valid across rehash, so the reference can
+// be used lock-free after acquisition.
+static std::mutex g_functionCacheMutex;
 
 // pragma MARK: Object
 
@@ -188,7 +196,12 @@ const jsi::PropNameID& CommonGlobals::getKnownGlobalPropertyName(jsi::Runtime& r
 const jsi::Function& CommonGlobals::getGlobalFunction(jsi::Runtime& runtime, const char* key,
                                                       std::function<jsi::Function(jsi::Runtime&)> getFunction) {
   // Let's try to find the function in cache
-  FunctionCache& functionCache = _cache[&runtime];
+  FunctionCache* functionCachePtr;
+  {
+    std::unique_lock lock(g_functionCacheMutex);
+    functionCachePtr = &_cache[&runtime];
+  }
+  FunctionCache& functionCache = *functionCachePtr;
   std::string stringKey = key;
   auto iterator = functionCache.find(stringKey);
   if (iterator != functionCache.end()) {
