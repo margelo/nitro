@@ -7,11 +7,10 @@
 
 #pragma once
 
+#include <memory>
 #include <type_traits>
 
 namespace margelo::nitro {
-
-using namespace facebook;
 
 // Returns whether the given type T is a shared_ptr to type P.
 template <typename T, typename P>

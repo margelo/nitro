@@ -11,6 +11,17 @@ module.exports = {
        * @type {import('@react-native-community/cli-types').AndroidDependencyParams}
        */
       android: {},
+      windows: {
+        sourceDir: 'windows',
+        projects: [
+          {
+            projectFile: 'NitroModules\\NitroModules.vcxproj',
+            directDependency: true,
+            cppHeaders: ['NitroModules/ReactPackageProvider.h'],
+            cppPackageProviders: ['NitroModules::ReactPackageProvider'],
+          },
+        ],
+      },
     },
   },
 }

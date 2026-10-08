@@ -26,6 +26,11 @@ const autolinkingAndroidImplementationSchema = z.object({
   implementationClassName: z.string(),
 })
 
+const autolinkingWindowsImplementationSchema = z.object({
+  language: z.literal('c++'),
+  implementationClassName: z.string(),
+})
+
 const autolinkingPlatformImplementationSchema = z.object({
   language: autolinkingLanguageSchema,
   implementationClassName: z.string(),
@@ -36,6 +41,7 @@ const autolinkingModernHybridObjectSchema = z
     all: autolinkingAllImplementationSchema.optional(),
     ios: autolinkingIOSImplementationSchema.optional(),
     android: autolinkingAndroidImplementationSchema.optional(),
+    windows: autolinkingWindowsImplementationSchema.optional(),
   })
   .catchall(autolinkingPlatformImplementationSchema)
   .superRefine((value, ctx) => {
@@ -133,6 +139,9 @@ export type AutolinkingIOSImplementation = z.infer<
 export type AutolinkingAndroidImplementation = z.infer<
   typeof autolinkingAndroidImplementationSchema
 >
+export type AutolinkingWindowsImplementation = z.infer<
+  typeof autolinkingWindowsImplementationSchema
+>
 export type AutolinkingPlatformImplementation = z.infer<
   typeof autolinkingPlatformImplementationSchema
 >
@@ -201,6 +210,28 @@ export const NitroUserConfigSchema = z.object({
       .regex(safeNamePattern)
       .refine(isNotReservedKeyword, isReservedKeywordError),
   }),
+  /**
+   * Windows specific options.
+   *
+   * This is optional - if it is omitted, {@linkcode ios.iosModuleName} is used as the
+   * Windows module name as well.
+   */
+  windows: z
+    .object({
+      /**
+       * Represents the Windows module name of the module that will be generated.
+       *
+       * This is the `winrt::` namespace nitrogen puts the generated autolinking
+       * `ReactPackageProvider` in, and the name of the generated MSBuild `.props` file.
+       * It should match the `<RootNamespace>` of your `.vcxproj`.
+       * @example `NitroTest`
+       */
+      windowsModuleName: z
+        .string()
+        .regex(safeNamePattern)
+        .refine(isNotReservedKeyword, isReservedKeywordError),
+    })
+    .optional(),
   /**
    * Configures the code that gets generated for autolinking (registering)
    * Hybrid Object constructors.

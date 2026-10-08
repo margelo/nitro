@@ -6,10 +6,12 @@
 
 #include "NitroDefines.hpp"
 #include "Null.hpp"
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 

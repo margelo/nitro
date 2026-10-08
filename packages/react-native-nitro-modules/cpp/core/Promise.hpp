@@ -13,6 +13,8 @@
 #include <jsi/jsi.h>
 #include <memory>
 #include <mutex>
+#include <tuple>
+#include <utility>
 #include <variant>
 
 namespace margelo::nitro {

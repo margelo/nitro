@@ -11,6 +11,7 @@
 #include "JSIHelpers.hpp"
 #include "NitroDefines.hpp"
 #include "NitroLogger.hpp"
+#include <utility>
 
 namespace margelo::nitro {
 

@@ -4,6 +4,7 @@ import type {
   AutolinkingAndroidImplementation,
   AutolinkingIOSImplementation,
   AutolinkingPlatformImplementation,
+  AutolinkingWindowsImplementation,
   NitroUserConfig,
 } from './NitroUserConfig.js'
 
@@ -48,6 +49,18 @@ export class NitroConfig {
    */
   getIosModuleName(): string {
     return this.config.ios.iosModuleName
+  }
+
+  /**
+   * Returns the Windows module name of the module that will be generated.
+   * This is the `winrt::` namespace of the generated autolinking `ReactPackageProvider`.
+   * Falls back to the iOS module name if `windows` is not configured.
+   * @example `NitroTest`
+   */
+  getWindowsModuleName(): string {
+    return (
+      this.config.windows?.windowsModuleName ?? this.config.ios.iosModuleName
+    )
   }
 
   /**
@@ -155,6 +168,19 @@ export class NitroConfig {
       return objectConfig.all
     }
     return objectConfig.android
+  }
+
+  getWindowsAutolinkedImplementation(
+    hybridObjectName: string
+  ): AutolinkingWindowsImplementation | undefined {
+    const objectConfig = this.config.autolinking[hybridObjectName]
+    if (objectConfig == null) {
+      return undefined
+    }
+    if (objectConfig.all != null) {
+      return objectConfig.all
+    }
+    return objectConfig.windows
   }
 
   /**
