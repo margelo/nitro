@@ -18,12 +18,15 @@ struct JSIConverter;
 #include "NitroDefines.hpp"
 #include "NitroTypeInfo.hpp"
 #include "PropNameIDCache.hpp"
+#include <atomic>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <jsi/jsi.h>
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <typeinfo>
 
 namespace margelo::nitro {
 
@@ -91,8 +94,9 @@ public:
                                                               /* HybridObject */ const jsi::Value& thisValue,
                                                               /* JS arguments */ const jsi::Value* NON_NULL args,
                                                               /* argument size */ size_t count) -> jsi::Value {
-      // 1. Get actual `HybridObject` instance from `thisValue` (it's stored as `NativeState`)
-      std::shared_ptr<THybrid> hybridInstance = getHybridObjectNativeState<THybrid>(runtime, thisValue, kind, name);
+      // 1. Get actual `HybridObject` instance from `thisValue` (stored as `NativeState`) - `nativeState` keeps it alive during the call
+      std::shared_ptr<jsi::NativeState> nativeState;
+      THybrid* hybridInstance = getHybridObjectNativeState<THybrid>(runtime, thisValue, kind, name, nativeState);
 
       // 2. Make sure the given arguments match, either with a static size, or with potentially optional arguments size.
       constexpr size_t optionalArgsCount = trailing_optionals_count_v<Args...>;
@@ -101,7 +105,7 @@ public:
       bool isWithinArgsRange = (count >= minArgsCount && count <= maxArgsCount);
       if (!isWithinArgsRange) [[unlikely]] {
         // invalid amount of arguments passed!
-        std::string funcName = getHybridFuncFullName<THybrid>(kind, name, hybridInstance.get());
+        std::string funcName = getHybridFuncFullName<THybrid>(kind, name, hybridInstance);
         if constexpr (minArgsCount == maxArgsCount) {
           // min and max args length is the same, so we don't have any optional parameters. fixed count
           throw jsi::JSError(runtime, "`" + funcName + "` expected " + std::to_string(maxArgsCount) + " arguments, but received " +
@@ -116,15 +120,15 @@ public:
       try {
         // 3. Actually call the method with JSI values as arguments and return a JSI value again.
         //    Internally, this method converts the JSI values to C++ values using `JSIConverter<T>`.
-        return callMethod(hybridInstance.get(), method, runtime, args, count, std::index_sequence_for<Args...>{});
+        return callMethod(hybridInstance, method, runtime, args, count, std::index_sequence_for<Args...>{});
       } catch (const std::exception& exception) {
         // Some exception was thrown - add method name information and re-throw as `JSError`.
-        std::string funcName = getHybridFuncFullName<THybrid>(kind, name, hybridInstance.get());
+        std::string funcName = getHybridFuncFullName<THybrid>(kind, name, hybridInstance);
         std::string message = exception.what();
         throw jsi::JSError(runtime, funcName + ": " + message);
       } catch (...) {
         // Some unknown exception was thrown - add method name information and re-throw as `JSError`.
-        std::string funcName = getHybridFuncFullName<THybrid>(kind, name, hybridInstance.get());
+        std::string funcName = getHybridFuncFullName<THybrid>(kind, name, hybridInstance);
         std::string errorName = TypeInfo::getCurrentExceptionName();
         throw jsi::JSError(runtime, "`" + funcName + "` threw an unknown " + errorName + " error.");
       }
@@ -146,12 +150,12 @@ public:
                                                         /* HybridObject */ const jsi::Value& thisValue,
                                                         /* JS arguments */ const jsi::Value* args,
                                                         /* argument size */ size_t count) -> jsi::Value {
-      // 1. Get actual `HybridObject` instance from `thisValue` (it's stored as `NativeState`)
-      std::shared_ptr<Derived> hybridInstance = getHybridObjectNativeState<Derived>(runtime, thisValue, FunctionKind::METHOD, name);
+      // 1. Get actual `HybridObject` instance from `thisValue` (stored as `NativeState`) - `nativeState` keeps it alive during the call
+      std::shared_ptr<jsi::NativeState> nativeState;
+      Derived* hybridInstance = getHybridObjectNativeState<Derived>(runtime, thisValue, FunctionKind::METHOD, name, nativeState);
 
       // 2. Call the raw JSI method using raw JSI Values. Exceptions are also expected to be handled by the user.
-      Derived* pointer = hybridInstance.get();
-      return (pointer->*method)(runtime, thisValue, args, count);
+      return (hybridInstance->*method)(runtime, thisValue, args, count);
     };
 
     return HybridFunction(std::move(hostFunction), expectedArgumentsCount, name);
@@ -182,13 +186,48 @@ private:
   }
 
 private:
+  // `NativeState` is a unique virtual base, so its offset to `THybrid` is fixed per dynamic type - cache it (8 slots, then `dynamic_cast`)
+  template <typename THybrid>
+  static inline THybrid* NULLABLE castNativeState(jsi::NativeState* NON_NULL nativeState) {
+    struct CastEntry {
+      const std::type_info* type;
+      std::ptrdiff_t offset;
+    };
+    static constexpr size_t kCastCacheSize = 8;
+    static std::atomic<const CastEntry*> castCache[kCastCacheSize];
+
+    const std::type_info& actualType = typeid(*nativeState);
+    size_t freeSlot = kCastCacheSize;
+    for (size_t i = 0; i < kCastCacheSize; i++) {
+      const CastEntry* entry = castCache[i].load(std::memory_order_acquire);
+      if (entry == nullptr) {
+        freeSlot = i;
+        break;
+      }
+      if (entry->type == &actualType) {
+        return reinterpret_cast<THybrid*>(reinterpret_cast<char*>(nativeState) + entry->offset);
+      }
+    }
+
+    THybrid* hybridInstance = dynamic_cast<THybrid*>(nativeState);
+    if (hybridInstance != nullptr && freeSlot < kCastCacheSize) {
+      auto* entry = new CastEntry{&actualType, reinterpret_cast<char*>(hybridInstance) - reinterpret_cast<char*>(nativeState)};
+      const CastEntry* expected = nullptr;
+      if (!castCache[freeSlot].compare_exchange_strong(expected, entry, std::memory_order_release, std::memory_order_relaxed)) {
+        delete entry;
+      }
+    }
+    return hybridInstance;
+  }
+
   /**
-   * Get the `NativeState` of the given `value`.
+   * Get the `THybrid` instance stored as `NativeState` in the given `value`.
    */
   template <typename THybrid>
-  static inline std::shared_ptr<THybrid> getHybridObjectNativeState(jsi::Runtime& runtime, const jsi::Value& value,
-                                                                    [[maybe_unused]] FunctionKind funcKind,
-                                                                    [[maybe_unused]] const std::string& funcName) {
+  static inline THybrid* NULLABLE getHybridObjectNativeState(jsi::Runtime& runtime, const jsi::Value& value,
+                                                             [[maybe_unused]] FunctionKind funcKind,
+                                                             [[maybe_unused]] const std::string& funcName,
+                                                             std::shared_ptr<jsi::NativeState>& nativeState) {
     // 1. Convert jsi::Value to jsi::Object
 #ifdef NITRO_DEBUG
     if (!value.isObject()) [[unlikely]] {
@@ -219,7 +258,7 @@ private:
 #endif
 
     // 3. Get `NativeState` from the jsi::Object and check if it is non-null
-    std::shared_ptr<jsi::NativeState> nativeState = object.getNativeState(runtime);
+    nativeState = object.getNativeState(runtime);
 #ifdef NITRO_DEBUG
     if (nativeState == nullptr) [[unlikely]] {
       throw jsi::JSError(runtime, "Cannot " + getHybridFuncDebugInfo<THybrid>(funcKind, funcName) +
@@ -229,7 +268,7 @@ private:
 #endif
 
     // 4. Try casting it to our desired target type.
-    std::shared_ptr<THybrid> hybridInstance = std::dynamic_pointer_cast<THybrid>(nativeState);
+    THybrid* hybridInstance = castNativeState<THybrid>(nativeState.get());
 #ifdef NITRO_DEBUG
     if (hybridInstance == nullptr) [[unlikely]] {
       throw jsi::JSError(runtime, "Cannot " + getHybridFuncDebugInfo<THybrid>(funcKind, funcName) +
