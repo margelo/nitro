@@ -7,6 +7,7 @@ import { useColors } from './useColors'
 import { Image } from 'react-native'
 import { ViewScreen } from './screens/ViewScreen'
 import { EvalScreen } from './screens/EvalScreen'
+import { ChildrenScreen } from './screens/ChildrenScreen'
 
 const dna = require('./img/dna.png')
 const map = require('./img/map.png')
@@ -44,6 +45,20 @@ export default function App() {
           component={ViewScreen}
           options={{
             tabBarLabel: 'View',
+            tabBarIcon: ({ size, color }) => (
+              <Image
+                source={map}
+                tintColor={color}
+                style={{ width: size, height: size }}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="Children"
+          component={ChildrenScreen}
+          options={{
+            tabBarLabel: 'Children',
             tabBarIcon: ({ size, color }) => (
               <Image
                 source={map}

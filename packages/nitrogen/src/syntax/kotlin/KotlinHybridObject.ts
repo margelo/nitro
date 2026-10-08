@@ -13,8 +13,38 @@ import { KotlinCxxBridgedType } from './KotlinCxxBridgedType.js'
 
 export function createKotlinHybridObject(spec: HybridObjectSpec): SourceFile[] {
   const name = getHybridObjectName(spec.name)
-  const properties = spec.properties
-    .map((p) => getPropertyForwardImplementation(p))
+  // React Native can only mount children into a `ViewGroup`, so narrowing `view`
+  // here turns a leaf `View` into a compile error instead of a runtime crash.
+  const childrenMembers = spec.supportsChildren
+    ? `
+/**
+ * The [ViewGroup] this HybridView is holding.
+ *
+ * React Native positions each child itself, so this should be a
+ * [com.margelo.nitro.views.NitroViewGroup] (or another [ViewGroup] that
+ * doesn't lay out its own children).
+ *
+ * This value should not change during the lifetime of this \`HybridView\`.
+ */
+abstract override val view: ViewGroup
+
+/**
+ * The [ViewGroup] React children are mounted into.
+ *
+ * Defaults to [view]. Override this when the children have to live inside a
+ * sub-view - e.g. an overlay on top of a third-party [ViewGroup]. The sub-view
+ * has to cover the same area as [view], otherwise React Native's layout lands
+ * in the wrong place.
+ */
+open val childrenContainer: ViewGroup
+  get() = view
+`.trim()
+    : undefined
+  const properties = [
+    childrenMembers,
+    ...spec.properties.map((p) => getPropertyForwardImplementation(p)),
+  ]
+    .filter((p) => p != null)
     .join('\n\n')
   const methods = spec.methods
     .map((m) => getMethodForwardImplementation(m))
@@ -35,6 +65,13 @@ export function createKotlinHybridObject(spec: HybridObjectSpec): SourceFile[] {
   if (spec.isHybridView) {
     extraImports.push({
       name: 'com.margelo.nitro.views.HybridView',
+      space: 'system',
+      language: 'kotlin',
+    })
+  }
+  if (spec.supportsChildren) {
+    extraImports.push({
+      name: 'android.view.ViewGroup',
       space: 'system',
       language: 'kotlin',
     })

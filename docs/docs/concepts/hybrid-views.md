@@ -62,6 +62,22 @@ function App() {
 
 Internally, the `<Camera />` view will create the `HybridCamera` hybrid object - one hybrid object per view.
 
+## Rendering children
+
+A Nitro View is a leaf by default. To let it render React children, declare a `children` prop of
+type `HybridViewChildren` in its spec - React Native then mounts the child views into your native
+view, and lays them out with Yoga:
+
+```ts title="Card.nitro.ts"
+export interface CardProps extends HybridViewProps {
+  // highlight-next-line
+  children?: HybridViewChildren
+}
+export type Card = HybridView<CardProps>
+```
+
+See [View Components → Children](../guides/view-components#children) for the native side.
+
 ## Accessing the underlying Hybrid Object
 
 To access the actual underlying object, you can use the `hybridRef`:
