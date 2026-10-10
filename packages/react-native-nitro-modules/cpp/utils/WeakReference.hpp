@@ -49,8 +49,7 @@ public:
       return *this;
 
     if (_state != nullptr) {
-      _state->weakRefCount--;
-      maybeDestroy();
+      releaseWeakRef();
     }
 
     _value = ref._value;
@@ -67,8 +66,7 @@ public:
 
     if (_state != nullptr) {
       // destroy previous pointer
-      _state->weakRefCount--;
-      maybeDestroy();
+      releaseWeakRef();
     }
 
     _value = ref._value;
@@ -83,8 +81,7 @@ public:
 
   ~WeakReference() {
     if (_state != nullptr) {
-      _state->weakRefCount--;
-      maybeDestroy();
+      releaseWeakRef();
     }
   }
 
@@ -98,17 +95,15 @@ public:
   friend class BorrowingReference<T>;
 
 private:
-  void maybeDestroy() {
-    if (_state->strongRefCount == 0 && _state->weakRefCount == 0) {
-      // free the full memory if there are no more references at all
-      if (!_state->isDeleted) [[unlikely]] {
-        std::string typeName = TypeInfo::getFriendlyTypename<T>(true);
-        throw std::runtime_error("WeakReference<" + typeName + "> encountered a stale `_value` - BorrowingReference<" + typeName +
-                                 "> should've already deleted this!");
-      }
+  // Releases this weak reference's count on the state, freeing the state if it was the last reference overall.
+  // The strong cohort owns one implicit weak reference (see `ReferenceState`), so the count can only reach zero
+  // after the final strong release already destroyed the value, and `fetch_sub`'s return value alone decides
+  // who frees the state.
+  void releaseWeakRef() {
+    if (_state->weakRefCount.fetch_sub(1) == 1) {
       delete _state;
-      _state = nullptr;
     }
+    _state = nullptr;
   }
 
 private:
