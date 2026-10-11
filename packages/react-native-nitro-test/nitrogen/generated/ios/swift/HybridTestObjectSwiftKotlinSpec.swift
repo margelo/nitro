@@ -96,6 +96,7 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   func awaitPromise(promise: Promise<Void>) throws -> Promise<Void>
   func callCallback(callback: @escaping () -> Void) throws -> Void
   func callCallbackThatReturnsPromiseVoid(callback: @escaping () -> Promise<Promise<Void>>) throws -> Promise<Void>
+  func callCallbackThatReturnsPromiseVoidWithThen(callback: @escaping () -> Promise<Promise<Void>>) throws -> Promise<Void>
   func callAll(first: @escaping () -> Void, second: @escaping () -> Void, third: @escaping () -> Void) throws -> Void
   func callWithOptional(value: Double?, callback: @escaping (_ maybe: Double?) -> Void) throws -> Void
   func callSumUpNTimes(callback: @escaping () -> Promise<Double>, n: Double) throws -> Promise<Double>

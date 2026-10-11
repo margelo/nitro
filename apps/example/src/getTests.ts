@@ -1810,6 +1810,28 @@ export function getTests(
         .didNotThrow()
         .didReturn('undefined')
     ),
+    createTest('callCallbackThatReturnsPromiseVoidWithThen(...)', async () =>
+      (
+        await it(() =>
+          testObject.callCallbackThatReturnsPromiseVoidWithThen(() =>
+            Promise.resolve()
+          )
+        )
+      )
+        .didNotThrow()
+        .didReturn('undefined')
+    ),
+    createTest(
+      'callCallbackThatReturnsPromiseVoidWithThen(...) rejects if the callback rejects',
+      async () =>
+        (
+          await it(() =>
+            testObject.callCallbackThatReturnsPromiseVoidWithThen(() =>
+              Promise.reject(new Error(`rejected from JS!`))
+            )
+          )
+        ).didThrow()
+    ),
     createTest(
       'Single callback can be called and awaited: getValueFromJSCallbackAndWait(...)',
       async () =>

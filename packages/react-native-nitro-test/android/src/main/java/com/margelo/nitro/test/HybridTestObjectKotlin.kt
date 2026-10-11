@@ -389,6 +389,18 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     }
   }
 
+  override fun callCallbackThatReturnsPromiseVoidWithThen(callback: () -> Promise<Promise<Unit>>): Promise<Unit> {
+    // Uses `then` instead of `await()`: its typed `(Unit) -> Unit` listener only accepts a real `kotlin.Unit`.
+    val promise = Promise<Unit>()
+    callback()
+      .then { resultPromise ->
+        resultPromise
+          .then { result -> promise.resolve(result) }
+          .catch { error -> promise.reject(error) }
+      }.catch { error -> promise.reject(error) }
+    return promise
+  }
+
   override fun createNativeCallback(wrappingJsCallback: (num: Double) -> Unit): (Double) -> Unit {
     return { num ->
       wrappingJsCallback(num)

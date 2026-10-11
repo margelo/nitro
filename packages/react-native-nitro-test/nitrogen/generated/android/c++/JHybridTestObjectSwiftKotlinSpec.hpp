@@ -156,6 +156,7 @@ namespace margelo::nitro::test {
     std::shared_ptr<Promise<void>> awaitPromise(const std::shared_ptr<Promise<void>>& promise) override;
     void callCallback(const std::function<void()>& callback) override;
     std::shared_ptr<Promise<void>> callCallbackThatReturnsPromiseVoid(const std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<void>>>>()>& callback) override;
+    std::shared_ptr<Promise<void>> callCallbackThatReturnsPromiseVoidWithThen(const std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<void>>>>()>& callback) override;
     void callAll(const std::function<void()>& first, const std::function<void()>& second, const std::function<void()>& third) override;
     void callWithOptional(std::optional<double> value, const std::function<void(std::optional<double> /* maybe */)>& callback) override;
     std::shared_ptr<Promise<double>> callSumUpNTimes(const std::function<std::shared_ptr<Promise<double>>()>& callback, double n) override;
