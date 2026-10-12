@@ -41,6 +41,13 @@ export function getHybridObjectConstructor<T extends HybridObject<{}>>(
   constructorFunc.prototypeInitialized = false
   Object.defineProperty(constructorFunc, Symbol.hasInstance, {
     value: (instance: unknown) => {
+      if (
+        instance == null ||
+        (typeof instance !== 'object' && typeof instance !== 'function')
+      ) {
+        return false
+      }
+
       if (!constructorFunc.prototypeInitialized) {
         // User didn't call `new T()` yet, so we don't
         // know the prototype yet. Just create one temp object to find
