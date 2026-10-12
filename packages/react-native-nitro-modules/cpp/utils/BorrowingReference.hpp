@@ -71,10 +71,10 @@ public:
   }
 
 private:
-  // WeakReference<T> -> BorrowingReference<T> Lock-constructor
-  explicit BorrowingReference(const WeakReference<T>& ref) : _value(ref._value), _state(ref._state) {
-    _state->strongRefCount++;
-  }
+  // WeakReference<T> -> BorrowingReference<T> Lock-constructor.
+  // The caller (`WeakReference<T>::lock()`) has already claimed the strong ref count via
+  // `tryIncrementStrongRefCount()`, so this must NOT increment it again.
+  explicit BorrowingReference(const WeakReference<T>& ref) : _value(ref._value), _state(ref._state) {}
 
 private:
   // BorrowingReference<C> -> BorrowingReference<T> Cast-constructor
