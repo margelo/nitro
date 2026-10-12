@@ -35,6 +35,15 @@ public extension WrappedJsStruct {
   
   @inline(__always)
   var items: [JsStyleStruct] {
-    return self.__items.map({ __item in __item })
+    return { () -> [JsStyleStruct] in
+                  var __array = [JsStyleStruct]()
+                  let __count = self.__items.size()
+                  __array.reserveCapacity(Int(__count))
+                  for __i in 0..<__count {
+                    let __item = bridge.get_std__vector_JsStyleStruct_(self.__items, __i)
+                    __array.append(__item)
+                  }
+                  return __array
+                }()
   }
 }

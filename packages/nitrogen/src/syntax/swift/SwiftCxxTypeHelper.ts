@@ -282,6 +282,9 @@ inline ${actualType} create_${name}(size_t size) noexcept {
   ${actualType} vector;
   vector.reserve(size);
   return vector;
+}
+inline ${type.itemType.getCode('c++')} get_${name}(const ${actualType}& vector, size_t index) noexcept {
+  return vector[index];
 }`.trim()
 
   return {

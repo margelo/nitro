@@ -97,7 +97,16 @@ public extension Car {
   
   @inline(__always)
   var passengers: [Person] {
-    return self.__passengers.map({ __item in __item })
+    return { () -> [Person] in
+                  var __array = [Person]()
+                  let __count = self.__passengers.size()
+                  __array.reserveCapacity(Int(__count))
+                  for __i in 0..<__count {
+                    let __item = bridge.get_std__vector_Person_(self.__passengers, __i)
+                    __array.append(__item)
+                  }
+                  return __array
+                }()
   }
   
   @inline(__always)
@@ -126,7 +135,16 @@ public extension Car {
   
   @inline(__always)
   var performanceScores: [Double] {
-    return self.__performanceScores.map({ __item in __item })
+    return { () -> [Double] in
+                  var __array = [Double]()
+                  let __count = self.__performanceScores.size()
+                  __array.reserveCapacity(Int(__count))
+                  for __i in 0..<__count {
+                    let __item = bridge.get_std__vector_double_(self.__performanceScores, __i)
+                    __array.append(__item)
+                  }
+                  return __array
+                }()
   }
   
   @inline(__always)

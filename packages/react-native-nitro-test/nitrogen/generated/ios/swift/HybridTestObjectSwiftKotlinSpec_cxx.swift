@@ -329,7 +329,16 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
       self.__implementation.optionalArray = { () -> [String]? in
         if bridge.has_value_std__optional_std__vector_std__string__(newValue) {
           let __unwrapped = bridge.get_std__optional_std__vector_std__string__(newValue)
-          return __unwrapped.map({ __item in String(__item) })
+          return { () -> [String] in
+                        var __array = [String]()
+                        let __count = __unwrapped.size()
+                        __array.reserveCapacity(Int(__count))
+                        for __i in 0..<__count {
+                          let __item = bridge.get_std__vector_std__string_(__unwrapped, __i)
+                          __array.append(String(__item))
+                        }
+                        return __array
+                      }()
         } else {
           return nil
         }
@@ -645,7 +654,16 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func bounceStrings(array: bridge.std__vector_std__string_) -> bridge.Result_std__vector_std__string__ {
     do {
-      let __result = try self.__implementation.bounceStrings(array: array.map({ __item in String(__item) }))
+      let __result = try self.__implementation.bounceStrings(array: { () -> [String] in
+                    var __array = [String]()
+                    let __count = array.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_std__string_(array, __i)
+                      __array.append(String(__item))
+                    }
+                    return __array
+                  }())
       let __resultCpp = { () -> bridge.std__vector_std__string_ in
         var __vector = bridge.create_std__vector_std__string_(__result.count)
         for __item in __result {
@@ -663,7 +681,16 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func bounceNumbers(array: bridge.std__vector_double_) -> bridge.Result_std__vector_double__ {
     do {
-      let __result = try self.__implementation.bounceNumbers(array: array.map({ __item in __item }))
+      let __result = try self.__implementation.bounceNumbers(array: { () -> [Double] in
+                    var __array = [Double]()
+                    let __count = array.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_double_(array, __i)
+                      __array.append(__item)
+                    }
+                    return __array
+                  }())
       let __resultCpp = { () -> bridge.std__vector_double_ in
         var __vector = bridge.create_std__vector_double_(__result.count)
         for __item in __result {
@@ -681,7 +708,16 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func bounceStructs(array: bridge.std__vector_Person_) -> bridge.Result_std__vector_Person__ {
     do {
-      let __result = try self.__implementation.bounceStructs(array: array.map({ __item in __item }))
+      let __result = try self.__implementation.bounceStructs(array: { () -> [Person] in
+                    var __array = [Person]()
+                    let __count = array.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_Person_(array, __i)
+                      __array.append(__item)
+                    }
+                    return __array
+                  }())
       let __resultCpp = { () -> bridge.std__vector_Person_ in
         var __vector = bridge.create_std__vector_Person_(__result.count)
         for __item in __result {
@@ -735,7 +771,16 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func sumUpAllPassengers(cars: bridge.std__vector_Car_) -> bridge.Result_std__string_ {
     do {
-      let __result = try self.__implementation.sumUpAllPassengers(cars: cars.map({ __item in __item }))
+      let __result = try self.__implementation.sumUpAllPassengers(cars: { () -> [Car] in
+                    var __array = [Car]()
+                    let __count = cars.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_Car_(cars, __i)
+                      __array.append(__item)
+                    }
+                    return __array
+                  }())
       let __resultCpp = std.string(__result)
       return bridge.create_Result_std__string_(__resultCpp)
     } catch (let __error) {
@@ -747,7 +792,16 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func bounceEnums(array: bridge.std__vector_Powertrain_) -> bridge.Result_std__vector_Powertrain__ {
     do {
-      let __result = try self.__implementation.bounceEnums(array: array.map({ __item in __item }))
+      let __result = try self.__implementation.bounceEnums(array: { () -> [Powertrain] in
+                    var __array = [Powertrain]()
+                    let __count = array.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_Powertrain_(array, __i)
+                      __array.append(__item)
+                    }
+                    return __array
+                  }())
       let __resultCpp = { () -> bridge.std__vector_Powertrain_ in
         var __vector = bridge.create_std__vector_Powertrain_(__result.count)
         for __item in __result {
@@ -765,7 +819,16 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func complexEnumCallback(array: bridge.std__vector_Powertrain_, callback: bridge.Func_void_std__vector_Powertrain_) -> bridge.Result_void_ {
     do {
-      try self.__implementation.complexEnumCallback(array: array.map({ __item in __item }), callback: { () -> ([Powertrain]) -> Void in
+      try self.__implementation.complexEnumCallback(array: { () -> [Powertrain] in
+                    var __array = [Powertrain]()
+                    let __count = array.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_Powertrain_(array, __i)
+                      __array.append(__item)
+                    }
+                    return __array
+                  }(), callback: { () -> ([Powertrain]) -> Void in
         let __wrappedFunction = bridge.wrap_Func_void_std__vector_Powertrain_(callback)
         return { (__array: [Powertrain]) -> Void in
           __wrappedFunction.call({ () -> bridge.std__vector_Powertrain_ in
@@ -787,11 +850,20 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func bounceHybridObjects(array: bridge.std__vector_std__shared_ptr_HybridChildSpec__) -> bridge.Result_std__vector_std__shared_ptr_HybridChildSpec___ {
     do {
-      let __result = try self.__implementation.bounceHybridObjects(array: array.map({ __item in { () -> any HybridChildSpec in
+      let __result = try self.__implementation.bounceHybridObjects(array: { () -> [(any HybridChildSpec)] in
+                    var __array = [(any HybridChildSpec)]()
+                    let __count = array.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_std__shared_ptr_HybridChildSpec__(array, __i)
+                      __array.append({ () -> any HybridChildSpec in
         let __unsafePointer = bridge.get_std__shared_ptr_HybridChildSpec_(__item)
         let __instance = HybridChildSpec_cxx.fromUnsafe(__unsafePointer)
         return __instance.getHybridChildSpec()
-      }() }))
+      }())
+                    }
+                    return __array
+                  }())
       let __resultCpp = { () -> bridge.std__vector_std__shared_ptr_HybridChildSpec__ in
         var __vector = bridge.create_std__vector_std__shared_ptr_HybridChildSpec__(__result.count)
         for __item in __result {
@@ -812,12 +884,21 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func bounceFunctions(functions: bridge.std__vector_std__function_void____) -> bridge.Result_std__vector_std__function_void_____ {
     do {
-      let __result = try self.__implementation.bounceFunctions(functions: functions.map({ __item in { () -> () -> Void in
+      let __result = try self.__implementation.bounceFunctions(functions: { () -> [() -> Void] in
+                    var __array = [() -> Void]()
+                    let __count = functions.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_std__function_void____(functions, __i)
+                      __array.append({ () -> () -> Void in
         let __wrappedFunction = bridge.wrap_Func_void(__item)
         return { () -> Void in
           __wrappedFunction.call()
         }
-      }() }))
+      }())
+                    }
+                    return __array
+                  }())
       let __resultCpp = { () -> bridge.std__vector_std__function_void____ in
         var __vector = bridge.create_std__vector_std__function_void____(__result.count)
         for __item in __result {
@@ -838,7 +919,16 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func bounceMaps(maps: bridge.std__vector_std__shared_ptr_AnyMap__) -> bridge.Result_std__vector_std__shared_ptr_AnyMap___ {
     do {
-      let __result = try self.__implementation.bounceMaps(maps: maps.map({ __item in AnyMap(withCppPart: __item) }))
+      let __result = try self.__implementation.bounceMaps(maps: { () -> [AnyMap] in
+                    var __array = [AnyMap]()
+                    let __count = maps.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_std__shared_ptr_AnyMap__(maps, __i)
+                      __array.append(AnyMap(withCppPart: __item))
+                    }
+                    return __array
+                  }())
       let __resultCpp = { () -> bridge.std__vector_std__shared_ptr_AnyMap__ in
         var __vector = bridge.create_std__vector_std__shared_ptr_AnyMap__(__result.count)
         for __item in __result {
@@ -856,7 +946,13 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func bouncePromises(promises: bridge.std__vector_std__shared_ptr_Promise_double___) -> bridge.Result_std__vector_std__shared_ptr_Promise_double____ {
     do {
-      let __result = try self.__implementation.bouncePromises(promises: promises.map({ __item in { () -> Promise<Double> in
+      let __result = try self.__implementation.bouncePromises(promises: { () -> [Promise<Double>] in
+                    var __array = [Promise<Double>]()
+                    let __count = promises.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_std__shared_ptr_Promise_double___(promises, __i)
+                      __array.append({ () -> Promise<Double> in
         let __promise = Promise<Double>()
         let __resolver = { (__result: Double) in
           __promise.resolve(withResult: __result)
@@ -876,7 +972,10 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
         __promiseHolder.addOnResolvedListenerCopy(__resolverCpp)
         __promiseHolder.addOnRejectedListener(__rejecterCpp)
         return __promise
-      }() }))
+      }())
+                    }
+                    return __array
+                  }())
       let __resultCpp = { () -> bridge.std__vector_std__shared_ptr_Promise_double___ in
         var __vector = bridge.create_std__vector_std__shared_ptr_Promise_double___(__result.count)
         for __item in __result {
@@ -901,7 +1000,16 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   @inline(__always)
   public final func bounceArrayBuffers(arrayBuffers: bridge.std__vector_std__shared_ptr_ArrayBuffer__) -> bridge.Result_std__vector_std__shared_ptr_ArrayBuffer___ {
     do {
-      let __result = try self.__implementation.bounceArrayBuffers(arrayBuffers: arrayBuffers.map({ __item in ArrayBuffer(__item) }))
+      let __result = try self.__implementation.bounceArrayBuffers(arrayBuffers: { () -> [ArrayBuffer] in
+                    var __array = [ArrayBuffer]()
+                    let __count = arrayBuffers.size()
+                    __array.reserveCapacity(Int(__count))
+                    for __i in 0..<__count {
+                      let __item = bridge.get_std__vector_std__shared_ptr_ArrayBuffer__(arrayBuffers, __i)
+                      __array.append(ArrayBuffer(__item))
+                    }
+                    return __array
+                  }())
       let __resultCpp = { () -> bridge.std__vector_std__shared_ptr_ArrayBuffer__ in
         var __vector = bridge.create_std__vector_std__shared_ptr_ArrayBuffer__(__result.count)
         for __item in __result {
@@ -2476,10 +2584,28 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
             return .first(__actual)
           case 1:
             let __actual = __variant.get_1()
-            return .second(__actual.map({ __item in __item }))
+            return .second({ () -> [Double] in
+                          var __array = [Double]()
+                          let __count = __actual.size()
+                          __array.reserveCapacity(Int(__count))
+                          for __i in 0..<__count {
+                            let __item = bridge.get_std__vector_double_(__actual, __i)
+                            __array.append(__item)
+                          }
+                          return __array
+                        }())
           case 2:
             let __actual = __variant.get_2()
-            return .third(__actual.map({ __item in String(__item) }))
+            return .third({ () -> [String] in
+                          var __array = [String]()
+                          let __count = __actual.size()
+                          __array.reserveCapacity(Int(__count))
+                          for __i in 0..<__count {
+                            let __item = bridge.get_std__vector_std__string_(__actual, __i)
+                            __array.append(String(__item))
+                          }
+                          return __array
+                        }())
           case 3:
             let __actual = __variant.get_3()
             return .fourth(__actual)

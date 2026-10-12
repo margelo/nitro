@@ -22,7 +22,16 @@ public final class Func_void_std__vector_Powertrain_ {
 
   @inline(__always)
   public func call(array: bridge.std__vector_Powertrain_) -> Void {
-    self.closure(array.map({ __item in __item }))
+    self.closure({ () -> [Powertrain] in
+                  var __array = [Powertrain]()
+                  let __count = array.size()
+                  __array.reserveCapacity(Int(__count))
+                  for __i in 0..<__count {
+                    let __item = bridge.get_std__vector_Powertrain_(array, __i)
+                    __array.append(__item)
+                  }
+                  return __array
+                }())
   }
 
   /**
