@@ -113,6 +113,13 @@ private:
    * This needs to be a raw JSI function as we remove the NativeState here.
    */
   jsi::Value disposeRaw(jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* NON_NULL args, size_t count);
+  /**
+   * Shadow all enumerable prototype properties (getters, methods) with non-enumerable
+   * own properties on the instance, and define `__disposed = true`.
+   * This prevents React DEV tooling (`for...in` iteration) from accessing properties
+   * on a disposed object whose NativeState has been nulled.
+   */
+  void shadowPropertiesForDispose(jsi::Runtime& runtime, jsi::Object& object);
 
 protected:
   /**

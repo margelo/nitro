@@ -44,13 +44,56 @@ std::shared_ptr<HybridObject> HybridObject::shared() {
   throw std::runtime_error(std::string("HybridObject \"") + _name + "\" is not managed inside a std::shared_ptr - cannot access shared()!");
 }
 
+void HybridObject::shadowPropertiesForDispose(jsi::Runtime& runtime, jsi::Object& object) {
+  // Shadow all enumerable prototype properties with non-enumerable own properties
+  // so that `for...in` no longer iterates them after dispose.
+  // This prevents React DEV profiling (addObjectDiffToProperties) and
+  // deepFreezeAndThrowOnMutationInDev from accessing properties on a disposed object.
+  jsi::Value protoValue = getPrototype(runtime);
+  if (protoValue.isObject()) {
+    jsi::Object proto = protoValue.asObject(runtime);
+    jsi::Array names = proto.getPropertyNames(runtime);
+    size_t length = names.length(runtime);
+    for (size_t i = 0; i < length; i++) {
+      std::string name = names.getValueAtIndex(runtime, i).asString(runtime).utf8(runtime);
+      if (name == "__type") {
+        continue;
+      }
+      CommonGlobals::Object::defineProperty(runtime, object, name.c_str(),
+                                            PlainPropertyDescriptor{
+                                                .configurable = true,
+                                                .enumerable = false,
+                                                .value = jsi::Value::undefined(),
+                                                .writable = false,
+                                            });
+    }
+  }
+  // Mark the object as disposed so debuggers/devtools can see it
+  CommonGlobals::Object::defineProperty(runtime, object, "__disposed",
+                                        PlainPropertyDescriptor{
+                                            .configurable = false,
+                                            .enumerable = true,
+                                            .value = jsi::Value(true),
+                                            .writable = false,
+                                        });
+}
+
 jsi::Value HybridObject::disposeRaw(jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value*, size_t) {
   // 1. Dispose any resources - this might be overridden by child classes to perform manual cleanup.
   dispose();
-  // 2. Remove the NativeState from `this`
+  // 2. Shadow prototype properties so for...in iteration is safe after NativeState is removed.
+  //    This fails silently on frozen objects (where setNativeState will also fail).
   jsi::Object thisObject = thisArg.asObject(runtime);
+  try {
+    shadowPropertiesForDispose(runtime, thisObject);
+  } catch (...) {
+    // Object is frozen (e.g. by React's deepFreezeAndThrowOnMutationInDev) —
+    // we can't shadow properties, but setNativeState below will also fail,
+    // so NativeState stays valid and property access remains safe.
+  }
+  // 3. Remove the NativeState from `this`
   thisObject.setNativeState(runtime, nullptr);
-  // 3. Clear our object cache
+  // 4. Clear our object cache
   _objectCache.clear();
 
   return jsi::Value::undefined();
