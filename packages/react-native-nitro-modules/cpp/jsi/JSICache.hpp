@@ -10,6 +10,8 @@
 #include "BorrowingReference.hpp"
 #include "NitroLogger.hpp"
 #include "WeakReference.hpp"
+#include <algorithm>
+#include <cstddef>
 #include <jsi/jsi.h>
 #include <memory>
 #include <mutex>
@@ -57,14 +59,57 @@ public:
 private:
   friend class JSICacheReference;
 
+public:
+  /**
+   * A list of weakly-held cache slots that drops dead slots as it grows.
+   *
+   * Slots were previously only ever appended and freed as a whole in `~JSICache`, so a caller that converts
+   * values to JS at a high rate grew these lists without bound for the lifetime of the Runtime, long after the
+   * values themselves had been collected.
+   *
+   * `compact()` only erases slots whose value is definitively deleted (`isDeleted()` - deliberately NOT `lock()`,
+   * which materializes a strong reference), so it can never drop a slot `~JSICache` still needs to destroy.
+   * The doubling `_compactAt` watermark keeps this amortized O(1) per push, so a cache made mostly of long-lived
+   * values does not re-scan on every insert.
+   */
+  template <typename T>
+  class WeakCache final {
+  public:
+    void push(WeakReference<T>&& reference) {
+      if (_references.size() >= _compactAt) [[unlikely]] {
+        compact();
+      }
+      _references.push_back(std::move(reference));
+    }
+
+    [[nodiscard]]
+    const std::vector<WeakReference<T>>& references() const {
+      return _references;
+    }
+
+  private:
+    void compact() {
+      _references.erase(
+          std::remove_if(_references.begin(), _references.end(), [](const WeakReference<T>& reference) { return reference.isDeleted(); }),
+          _references.end());
+      _compactAt = std::max(kMinCompactSize, _references.size() * 2);
+    }
+
+  private:
+    static inline constexpr size_t kMinCompactSize = 64;
+
+    std::vector<WeakReference<T>> _references;
+    size_t _compactAt{kMinCompactSize};
+  };
+
 private:
   std::mutex _mutex;
-  std::vector<WeakReference<jsi::Value>> _valueCache;
-  std::vector<WeakReference<jsi::Object>> _objectCache;
-  std::vector<WeakReference<jsi::Function>> _functionCache;
-  std::vector<WeakReference<jsi::WeakObject>> _weakObjectCache;
-  std::vector<WeakReference<jsi::PropNameID>> _propNameIDCache;
-  std::vector<WeakReference<jsi::ArrayBuffer>> _arrayBufferCache;
+  WeakCache<jsi::Value> _valueCache;
+  WeakCache<jsi::Object> _objectCache;
+  WeakCache<jsi::Function> _functionCache;
+  WeakCache<jsi::WeakObject> _weakObjectCache;
+  WeakCache<jsi::PropNameID> _propNameIDCache;
+  WeakCache<jsi::ArrayBuffer> _arrayBufferCache;
 
 private:
   static inline std::unordered_map<jsi::Runtime*, std::weak_ptr<JSICache>> _globalCache;
@@ -86,32 +131,32 @@ public:
 public:
   BorrowingReference<jsi::Value> makeShared(jsi::Value&& value) {
     BorrowingReference<jsi::Value> owning(new jsi::Value(std::move(value)));
-    _strongCache->_valueCache.push_back(owning.weak());
+    _strongCache->_valueCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::Object> makeShared(jsi::Object&& value) {
     BorrowingReference<jsi::Object> owning(new jsi::Object(std::move(value)));
-    _strongCache->_objectCache.push_back(owning.weak());
+    _strongCache->_objectCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::Function> makeShared(jsi::Function&& value) {
     BorrowingReference<jsi::Function> owning(new jsi::Function(std::move(value)));
-    _strongCache->_functionCache.push_back(owning.weak());
+    _strongCache->_functionCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::WeakObject> makeShared(jsi::WeakObject&& value) {
     BorrowingReference<jsi::WeakObject> owning(new jsi::WeakObject(std::move(value)));
-    _strongCache->_weakObjectCache.push_back(owning.weak());
+    _strongCache->_weakObjectCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::PropNameID> makeShared(jsi::PropNameID&& value) {
     BorrowingReference<jsi::PropNameID> owning(new jsi::PropNameID(std::move(value)));
-    _strongCache->_propNameIDCache.push_back(owning.weak());
+    _strongCache->_propNameIDCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::ArrayBuffer> makeShared(jsi::ArrayBuffer&& value) {
     BorrowingReference<jsi::ArrayBuffer> owning(new jsi::ArrayBuffer(std::move(value)));
-    _strongCache->_arrayBufferCache.push_back(owning.weak());
+    _strongCache->_arrayBufferCache.push(owning.weak());
     return owning;
   }
 
