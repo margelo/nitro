@@ -19,6 +19,7 @@ import { StructType } from '../types/StructType.js'
 import { TupleType } from '../types/TupleType.js'
 import type { Type } from '../types/Type.js'
 import { VariantType } from '../types/VariantType.js'
+import { DiscriminatedUnionType } from '../types/DiscriminatedUnionType.js'
 import { getReferencedTypes } from '../getReferencedTypes.js'
 import {
   createSwiftCxxHelpers,
@@ -27,6 +28,7 @@ import {
 import { createSwiftEnumBridge } from './SwiftEnum.js'
 import { createSwiftStructBridge } from './SwiftStruct.js'
 import { createSwiftVariant } from './SwiftVariant.js'
+import { createSwiftDiscriminatedUnion } from './SwiftDiscriminatedUnion.js'
 import { VoidType } from '../types/VoidType.js'
 import { NamedWrappingType } from '../types/NamedWrappingType.js'
 import { ErrorType } from '../types/ErrorType.js'
@@ -83,6 +85,9 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
         return true
       case 'variant':
         // Variant_A_B_C <> std::variant<A, B, C>
+        return true
+      case 'discriminated-union':
+        // DiscriminatedUnion <> std::variant<A, B, C> dispatched by discriminant
         return true
       case 'tuple':
         // (A, B) <> std::tuple<A, B>
@@ -199,6 +204,16 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
         files.push(file)
         break
       }
+      case 'discriminated-union': {
+        const du = getTypeAs(this.type, DiscriminatedUnionType)
+        const file = createSwiftDiscriminatedUnion(du)
+        files.push(file)
+        du.variants.forEach((v) => {
+          const bridge = new SwiftCxxBridgedType(v.type)
+          files.push(...bridge.getExtraFiles())
+        })
+        break
+      }
     }
 
     // Recursively look into referenced types (e.g. the `T` of a `optional<T>`, or `T` of a `T[]`)
@@ -242,6 +257,7 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
       case 'array':
       case 'function':
       case 'variant':
+      case 'discriminated-union':
       case 'tuple':
       case 'record':
       case 'result-wrapper':
@@ -586,6 +602,36 @@ case ${i}:
             return cppParameterName
         }
       }
+      case 'discriminated-union': {
+        const bridge = this.getBridgeOrThrow()
+        const du = getTypeAs(this.type, DiscriminatedUnionType)
+        const valueInitialization = this.isBridgingToDirectCppTarget
+          ? `bridge.${bridge.specializationName}(${cppParameterName})`
+          : cppParameterName
+        const cases = du.variants.map((v, i) => {
+          const wrapping = new SwiftCxxBridgedType(v.type, true)
+          const parse = wrapping.parseFromCppToSwift('__actual', 'swift')
+          const caseName = v.discriminantValue.replace(/[^a-zA-Z0-9_]/g, '_')
+          return `
+case ${i}:
+  let __actual = __variant.get_${i}()
+  return .${caseName}(${indent(parse, '  ')})`.trim()
+        })
+        switch (language) {
+          case 'swift':
+            return `
+{ () -> ${du.unionName} in
+  let __variant = ${valueInitialization}
+  switch __variant.index() {
+    ${indent(cases.join('\n'), '    ')}
+    default:
+      fatalError("DiscriminatedUnion ${du.unionName} can never have index \\(__variant.index())!")
+  }
+}()`.trim()
+          default:
+            return cppParameterName
+        }
+      }
       case 'function': {
         const funcType = getTypeAs(this.type, FunctionType)
         switch (language) {
@@ -838,6 +884,36 @@ case .${label}(let __value):
               code += `.variant`
             }
             return code
+          default:
+            return swiftParameterName
+        }
+      }
+      case 'discriminated-union': {
+        const bridge = this.getBridgeOrThrow()
+        const du = getTypeAs(this.type, DiscriminatedUnionType)
+        switch (language) {
+          case 'swift':
+            const cases = du.variants.map((v) => {
+              const wrapping = new SwiftCxxBridgedType(v.type, true)
+              const parse = wrapping.parseFromSwiftToCpp('__value', 'swift')
+              const caseName = v.discriminantValue.replace(
+                /[^a-zA-Z0-9_]/g,
+                '_'
+              )
+              return `
+case .${caseName}(let __value):
+  return bridge.${bridge.funcName}(${indent(parse, '  ')})`.trim()
+            })
+            let duCode = `
+{ () -> bridge.${bridge.specializationName} in
+  switch ${swiftParameterName} {
+    ${indent(cases.join('\n'), '    ')}
+  }
+}()`.trim()
+            if (this.isBridgingToDirectCppTarget) {
+              duCode += `.variant`
+            }
+            return duCode
           default:
             return swiftParameterName
         }

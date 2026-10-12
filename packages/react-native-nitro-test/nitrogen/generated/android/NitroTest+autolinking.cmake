@@ -59,6 +59,7 @@ target_sources(
   ../nitrogen/generated/android/c++/JVariant_Powertrain_Car.cpp
   ../nitrogen/generated/android/c++/JVariant_WeirdNumbersEnum_Boolean.cpp
   ../nitrogen/generated/android/c++/JVariant_Person_Car.cpp
+  ../nitrogen/generated/android/c++/JVehicle.cpp
   ../nitrogen/generated/android/c++/JVariant_HybridBaseSpec_OptionalWrapper.cpp
   ../nitrogen/generated/android/c++/JCoreTypesVariant.cpp
   ../nitrogen/generated/android/c++/JStringOrExternal.cpp

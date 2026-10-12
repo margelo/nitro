@@ -1,5 +1,6 @@
 import { escapeCppName, toReferenceType } from '../helpers.js'
 import type { SourceImport } from '../SourceFile.js'
+import { DiscriminatedUnionType } from '../types/DiscriminatedUnionType.js'
 import { VariantType } from '../types/VariantType.js'
 import { ArrayType } from '../types/ArrayType.js'
 import { FunctionType } from '../types/FunctionType.js'
@@ -49,6 +50,15 @@ export function createSwiftCxxHelpers(type: Type): SwiftCxxHelper | undefined {
       return createCxxFunctionSwiftHelper(getTypeAs(type, FunctionType))
     case 'variant':
       return createCxxVariantSwiftHelper(getTypeAs(type, VariantType))
+    case 'discriminated-union': {
+      const du = getTypeAs(type, DiscriminatedUnionType)
+      // Reuse the variant helper — same std::variant<A,B> wrapper, different dispatch
+      const asVariant = new VariantType(
+        du.variants.map((v) => v.type),
+        du.unionName
+      )
+      return createCxxVariantSwiftHelper(asVariant)
+    }
     case 'tuple':
       return createCxxTupleSwiftHelper(getTypeAs(type, TupleType))
     case 'promise':

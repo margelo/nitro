@@ -2661,6 +2661,37 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
   }
   
   @inline(__always)
+  public final func bounceVehicle(vehicle: bridge.std__variant_Truck__Boat_) -> bridge.Result_std__variant_Truck__Boat__ {
+    do {
+      let __result = try self.__implementation.bounceVehicle(vehicle: { () -> Vehicle in
+        let __variant = vehicle
+        switch __variant.index() {
+          case 0:
+            let __actual = __variant.get_0()
+            return .truck(__actual)
+          case 1:
+            let __actual = __variant.get_1()
+            return .boat(__actual)
+          default:
+            fatalError("DiscriminatedUnion Vehicle can never have index \(__variant.index())!")
+        }
+      }())
+      let __resultCpp = { () -> bridge.std__variant_Truck__Boat_ in
+        switch __result {
+          case .truck(let __value):
+            return bridge.create_std__variant_Truck__Boat_(__value)
+          case .boat(let __value):
+            return bridge.create_std__variant_Truck__Boat_(__value)
+        }
+      }().variant
+      return bridge.create_Result_std__variant_Truck__Boat__(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__variant_Truck__Boat__(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
   public final func passAllEmptyObjectVariant(variant: bridge.std__variant_std__shared_ptr_HybridBaseSpec___OptionalWrapper_) -> bridge.Result_std__variant_std__shared_ptr_HybridBaseSpec___OptionalWrapper__ {
     do {
       let __result = try self.__implementation.passAllEmptyObjectVariant(variant: { () -> Variant__any_HybridBaseSpec__OptionalWrapper in
