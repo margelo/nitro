@@ -10,11 +10,11 @@
 #include "BorrowingReference.hpp"
 #include "NitroLogger.hpp"
 #include "WeakReference.hpp"
+#include "WeakReferenceCache.hpp"
 #include <jsi/jsi.h>
 #include <memory>
 #include <mutex>
 #include <unordered_map>
-#include <vector>
 
 namespace margelo::nitro {
 
@@ -59,12 +59,12 @@ private:
 
 private:
   std::mutex _mutex;
-  std::vector<WeakReference<jsi::Value>> _valueCache;
-  std::vector<WeakReference<jsi::Object>> _objectCache;
-  std::vector<WeakReference<jsi::Function>> _functionCache;
-  std::vector<WeakReference<jsi::WeakObject>> _weakObjectCache;
-  std::vector<WeakReference<jsi::PropNameID>> _propNameIDCache;
-  std::vector<WeakReference<jsi::ArrayBuffer>> _arrayBufferCache;
+  WeakReferenceCache<jsi::Value> _valueCache;
+  WeakReferenceCache<jsi::Object> _objectCache;
+  WeakReferenceCache<jsi::Function> _functionCache;
+  WeakReferenceCache<jsi::WeakObject> _weakObjectCache;
+  WeakReferenceCache<jsi::PropNameID> _propNameIDCache;
+  WeakReferenceCache<jsi::ArrayBuffer> _arrayBufferCache;
 
 private:
   static inline std::unordered_map<jsi::Runtime*, std::weak_ptr<JSICache>> _globalCache;
@@ -86,32 +86,32 @@ public:
 public:
   BorrowingReference<jsi::Value> makeShared(jsi::Value&& value) {
     BorrowingReference<jsi::Value> owning(new jsi::Value(std::move(value)));
-    _strongCache->_valueCache.push_back(owning.weak());
+    _strongCache->_valueCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::Object> makeShared(jsi::Object&& value) {
     BorrowingReference<jsi::Object> owning(new jsi::Object(std::move(value)));
-    _strongCache->_objectCache.push_back(owning.weak());
+    _strongCache->_objectCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::Function> makeShared(jsi::Function&& value) {
     BorrowingReference<jsi::Function> owning(new jsi::Function(std::move(value)));
-    _strongCache->_functionCache.push_back(owning.weak());
+    _strongCache->_functionCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::WeakObject> makeShared(jsi::WeakObject&& value) {
     BorrowingReference<jsi::WeakObject> owning(new jsi::WeakObject(std::move(value)));
-    _strongCache->_weakObjectCache.push_back(owning.weak());
+    _strongCache->_weakObjectCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::PropNameID> makeShared(jsi::PropNameID&& value) {
     BorrowingReference<jsi::PropNameID> owning(new jsi::PropNameID(std::move(value)));
-    _strongCache->_propNameIDCache.push_back(owning.weak());
+    _strongCache->_propNameIDCache.push(owning.weak());
     return owning;
   }
   BorrowingReference<jsi::ArrayBuffer> makeShared(jsi::ArrayBuffer&& value) {
     BorrowingReference<jsi::ArrayBuffer> owning(new jsi::ArrayBuffer(std::move(value)));
-    _strongCache->_arrayBufferCache.push_back(owning.weak());
+    _strongCache->_arrayBufferCache.push(owning.weak());
     return owning;
   }
 
