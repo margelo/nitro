@@ -177,6 +177,7 @@ namespace margelo::nitro::test {
       virtual std::variant<std::shared_ptr<HybridTestObjectCppSpec>, Powertrain> getVariantHybridEnum(const std::variant<std::shared_ptr<HybridTestObjectCppSpec>, Powertrain>& variant) = 0;
       virtual std::shared_ptr<HybridObject> bounceAnyHybrid(const std::shared_ptr<HybridObject>& object) = 0;
       virtual CustomString bounceCustomType(CustomString value) = 0;
+      virtual bool personConstructorMovesName() = 0;
       virtual void simpleFunc() = 0;
       virtual double addNumbers(double a, double b) = 0;
       virtual std::string addStrings(const std::string& a, const std::string& b) = 0;
