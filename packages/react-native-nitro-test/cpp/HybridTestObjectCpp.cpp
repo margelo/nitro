@@ -391,6 +391,18 @@ std::shared_ptr<Promise<void>> HybridTestObjectCpp::callCallbackThatReturnsPromi
   });
 }
 
+std::shared_ptr<Promise<void>> HybridTestObjectCpp::callCallbackThatReturnsPromiseVoidWithThen(
+    const std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<void>>>>()>& callback) {
+  auto promise = Promise<void>::create();
+  std::shared_ptr<Promise<std::shared_ptr<Promise<void>>>> callPromise = callback();
+  callPromise->addOnResolvedListener([=](const std::shared_ptr<Promise<void>>& resultPromise) {
+    resultPromise->addOnResolvedListener([=]() { promise->resolve(); });
+    resultPromise->addOnRejectedListener([=](const std::exception_ptr& error) { promise->reject(error); });
+  });
+  callPromise->addOnRejectedListener([=](const std::exception_ptr& error) { promise->reject(error); });
+  return promise;
+}
+
 std::shared_ptr<Promise<void>> HybridTestObjectCpp::funcThatThrowsBeforePromise() {
   throw std::runtime_error("This function will only work after sacrificing eight lambs!");
 }

@@ -1262,6 +1262,21 @@ namespace margelo::nitro::test {
       return __promise;
     }();
   }
+  std::shared_ptr<Promise<void>> JHybridTestObjectSwiftKotlinSpec::callCallbackThatReturnsPromiseVoidWithThen(const std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<void>>>>()>& callback) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_void____::javaobject> /* callback */)>("callCallbackThatReturnsPromiseVoidWithThen_cxx");
+    auto __result = method(_javaPart, JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_void_____cxx::fromCpp(callback));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
   void JHybridTestObjectSwiftKotlinSpec::callAll(const std::function<void()>& first, const std::function<void()>& second, const std::function<void()>& third) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void::javaobject> /* first */, jni::alias_ref<JFunc_void::javaobject> /* second */, jni::alias_ref<JFunc_void::javaobject> /* third */)>("callAll_cxx");
     method(_javaPart, JFunc_void_cxx::fromCpp(first), JFunc_void_cxx::fromCpp(second), JFunc_void_cxx::fromCpp(third));

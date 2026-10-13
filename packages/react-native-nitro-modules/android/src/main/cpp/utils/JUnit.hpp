@@ -16,7 +16,7 @@ using namespace facebook;
 
 /**
  * Represents a `Unit` from Kotlin.
- * This is similar to `void` for Java, but is actually an `Object`.
+ * This is similar to `void` for Java, but is actually an `Object` (the `kotlin.Unit.INSTANCE` singleton).
  */
 class JUnit final {
 public:
@@ -24,13 +24,9 @@ public:
    * Gets the shared instance to `Unit`. This is always a static global.
    */
   static jni::alias_ref<jni::JObject> instance() {
-    static jni::global_ref<jni::JObject> sharedInstance = nullptr;
-    if (sharedInstance == nullptr) {
-      jni::alias_ref<jni::JClass> clazz = jni::findClassStatic("java/lang/Object");
-      jni::JConstructor<jobject()> constructor = clazz->getConstructor<jobject()>();
-      jni::local_ref<jobject> instance = clazz->newObject(constructor);
-      sharedInstance = jni::make_global(instance);
-    }
+    static const auto clazz = jni::findClassStatic("kotlin/Unit");
+    static const auto instanceField = clazz->getStaticField<jni::JObject>("INSTANCE", "Lkotlin/Unit;");
+    static const jni::global_ref<jni::JObject> sharedInstance = jni::make_global(clazz->getStaticFieldValue(instanceField));
     return sharedInstance;
   }
 };

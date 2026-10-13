@@ -117,6 +117,7 @@ namespace margelo::nitro::test {
       prototype.registerHybridMethod("awaitPromise", &HybridTestObjectSwiftKotlinSpec::awaitPromise);
       prototype.registerHybridMethod("callCallback", &HybridTestObjectSwiftKotlinSpec::callCallback);
       prototype.registerHybridMethod("callCallbackThatReturnsPromiseVoid", &HybridTestObjectSwiftKotlinSpec::callCallbackThatReturnsPromiseVoid);
+      prototype.registerHybridMethod("callCallbackThatReturnsPromiseVoidWithThen", &HybridTestObjectSwiftKotlinSpec::callCallbackThatReturnsPromiseVoidWithThen);
       prototype.registerHybridMethod("callAll", &HybridTestObjectSwiftKotlinSpec::callAll);
       prototype.registerHybridMethod("callWithOptional", &HybridTestObjectSwiftKotlinSpec::callWithOptional);
       prototype.registerHybridMethod("callSumUpNTimes", &HybridTestObjectSwiftKotlinSpec::callSumUpNTimes);
