@@ -28,6 +28,9 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+#include <array>
+#include <string_view>
+
 
 
 #include <optional>
@@ -59,21 +62,30 @@ namespace margelo::nitro {
   // C++ OptionalPrimitivesHolder <> JS OptionalPrimitivesHolder (object)
   template <>
   struct JSIConverter<margelo::nitro::test::external::OptionalPrimitivesHolder> final {
+  private:
+    static inline PropNameIDCache::BatchHandle getPropertyNames(jsi::Runtime& runtime) {
+      static constexpr std::array<std::string_view, 4> names = { "optionalNumber", "optionalBoolean", "optionalUInt64", "optionalInt64" };
+      return PropNameIDCache::getBatch(runtime, &names, names);
+    }
+
+  public:
     static inline margelo::nitro::test::external::OptionalPrimitivesHolder fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
+      const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);
       return margelo::nitro::test::external::OptionalPrimitivesHolder(
-        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"))),
-        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"))),
-        JSIConverter<std::optional<uint64_t>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"))),
-        JSIConverter<std::optional<int64_t>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64")))
+        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[0])),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[1])),
+        JSIConverter<std::optional<uint64_t>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[2])),
+        JSIConverter<std::optional<int64_t>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[3]))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::test::external::OptionalPrimitivesHolder& arg) {
       jsi::Object obj(runtime);
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.optionalNumber));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.optionalBoolean));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"), JSIConverter<std::optional<uint64_t>>::toJSI(runtime, arg.optionalUInt64));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64"), JSIConverter<std::optional<int64_t>>::toJSI(runtime, arg.optionalInt64));
+      const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);
+      obj.setProperty(runtime, propertyNames[0], JSIConverter<std::optional<double>>::toJSI(runtime, arg.optionalNumber));
+      obj.setProperty(runtime, propertyNames[1], JSIConverter<std::optional<bool>>::toJSI(runtime, arg.optionalBoolean));
+      obj.setProperty(runtime, propertyNames[2], JSIConverter<std::optional<uint64_t>>::toJSI(runtime, arg.optionalUInt64));
+      obj.setProperty(runtime, propertyNames[3], JSIConverter<std::optional<int64_t>>::toJSI(runtime, arg.optionalInt64));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -84,10 +96,11 @@ namespace margelo::nitro {
       if (!nitro::isPlainObject(runtime, obj)) {
         return false;
       }
-      if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber")))) return false;
-      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean")))) return false;
-      if (!JSIConverter<std::optional<uint64_t>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64")))) return false;
-      if (!JSIConverter<std::optional<int64_t>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64")))) return false;
+      const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);
+      if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[0]))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[1]))) return false;
+      if (!JSIConverter<std::optional<uint64_t>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[2]))) return false;
+      if (!JSIConverter<std::optional<int64_t>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[3]))) return false;
       return true;
     }
   };

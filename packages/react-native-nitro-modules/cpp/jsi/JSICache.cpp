@@ -9,6 +9,7 @@
 #include "CommonGlobals.hpp"
 #include "JSIHelpers.hpp"
 #include "NitroDefines.hpp"
+#include "PropNameIDCache.hpp"
 
 namespace margelo::nitro {
 
@@ -17,7 +18,8 @@ inline void destroyReferences(const std::vector<WeakReference<T>>& references) {
   for (auto& func : references) {
     BorrowingReference<T> reference = func.lock();
     if (reference) {
-      // Destroy all functions that we might still have in cache, some callbacks and Promises may now become invalid.
+      // Destroy all functions that we might still have in cache, some callbacks
+      // and Promises may now become invalid.
       reference.destroy();
     }
   }
@@ -26,6 +28,12 @@ inline void destroyReferences(const std::vector<WeakReference<T>>& references) {
 JSICache::~JSICache() {
   Logger::log(LogLevel::Info, TAG, "Destroying JSICache...");
   std::unique_lock lock(_mutex);
+
+  PropNameIDCache::clear(_runtime);
+  {
+    std::lock_guard globalCacheLock(_globalCacheMutex);
+    _globalCache.erase(&_runtime);
+  }
 
   destroyReferences(_valueCache);
   destroyReferences(_objectCache);
@@ -36,32 +44,41 @@ JSICache::~JSICache() {
 }
 
 JSICacheReference JSICache::getOrCreateCache(jsi::Runtime& runtime) {
-  auto found = _globalCache.find(&runtime);
-  if (found != _globalCache.end()) [[likely]] {
-    // Fast path: get weak_ptr to JSICache from our global list.
-    std::weak_ptr<JSICache> weak = found->second;
-    std::shared_ptr<JSICache> strong = weak.lock();
-    if (strong) {
-      // It's still alive! Return it
-      return JSICacheReference(strong);
+  std::shared_ptr<JSICache> cached;
+  {
+    std::lock_guard globalCacheLock(_globalCacheMutex);
+    auto found = _globalCache.find(&runtime);
+    if (found != _globalCache.end()) [[likely]] {
+      // Fast path: get weak_ptr to JSICache from our global list.
+      cached = found->second.lock();
     }
-    Logger::log(LogLevel::Warning, TAG, "JSICache was created, but it is no longer strong!");
+  }
+  if (cached) [[likely]] {
+    // It's still alive! Return it
+    return JSICacheReference(cached);
   }
 
   // Cache doesn't exist yet.
   Logger::log(LogLevel::Info, TAG, "Creating new JSICache<T> for runtime %s..", getRuntimeId(runtime).c_str());
   // Create new cache
-  std::shared_ptr<JSICache> nativeState(new JSICache());
+  std::shared_ptr<JSICache> nativeState(new JSICache(runtime));
   // Wrap it in a jsi::Value using NativeState
   jsi::Object cache(runtime);
   cache.setNativeState(runtime, nativeState);
-  // Add it to our map of caches first, because the next `::defineGlobal(...)` call will already be using it (recursively)
-  _globalCache[&runtime] = nativeState;
+  // Add it to our map of caches first, because the next `::defineGlobal(...)`
+  // call will already be using it (recursively)
+  {
+    std::lock_guard globalCacheLock(_globalCacheMutex);
+    _globalCache[&runtime] = nativeState;
+  }
   try {
-    // Call Object.defineProperty(global, ...) now with our cache (it internally already uses cache)
+    // Call Object.defineProperty(global, ...) now with our cache (it internally
+    // already uses cache)
     CommonGlobals::defineGlobal(runtime, KnownGlobalPropertyName::JSI_CACHE, std::move(cache));
   } catch (...) {
-    // If `defineGlobal(...)` failed, we should remove it from `_globalCache` so we don't have invalid caches.
+    // If `defineGlobal(...)` failed, we should remove it from `_globalCache` so
+    // we don't have invalid caches.
+    std::lock_guard globalCacheLock(_globalCacheMutex);
     _globalCache.erase(&runtime);
     throw;
   }

@@ -28,6 +28,9 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+#include <array>
+#include <string_view>
+
 // Forward declaration of `SecondMapWrapper` to properly resolve imports.
 namespace margelo::nitro::test { struct SecondMapWrapper; }
 
@@ -60,17 +63,26 @@ namespace margelo::nitro {
   // C++ MapWrapper <> JS MapWrapper (object)
   template <>
   struct JSIConverter<margelo::nitro::test::MapWrapper> final {
+  private:
+    static inline PropNameIDCache::BatchHandle getPropertyNames(jsi::Runtime& runtime) {
+      static constexpr std::array<std::string_view, 2> names = { "map", "secondMap" };
+      return PropNameIDCache::getBatch(runtime, &names, names);
+    }
+
+  public:
     static inline margelo::nitro::test::MapWrapper fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
+      const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);
       return margelo::nitro::test::MapWrapper(
-        JSIConverter<std::unordered_map<std::string, std::string>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "map"))),
-        JSIConverter<margelo::nitro::test::SecondMapWrapper>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "secondMap")))
+        JSIConverter<std::unordered_map<std::string, std::string>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[0])),
+        JSIConverter<margelo::nitro::test::SecondMapWrapper>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[1]))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::test::MapWrapper& arg) {
       jsi::Object obj(runtime);
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "map"), JSIConverter<std::unordered_map<std::string, std::string>>::toJSI(runtime, arg.map));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "secondMap"), JSIConverter<margelo::nitro::test::SecondMapWrapper>::toJSI(runtime, arg.secondMap));
+      const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);
+      obj.setProperty(runtime, propertyNames[0], JSIConverter<std::unordered_map<std::string, std::string>>::toJSI(runtime, arg.map));
+      obj.setProperty(runtime, propertyNames[1], JSIConverter<margelo::nitro::test::SecondMapWrapper>::toJSI(runtime, arg.secondMap));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -81,8 +93,9 @@ namespace margelo::nitro {
       if (!nitro::isPlainObject(runtime, obj)) {
         return false;
       }
-      if (!JSIConverter<std::unordered_map<std::string, std::string>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "map")))) return false;
-      if (!JSIConverter<margelo::nitro::test::SecondMapWrapper>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "secondMap")))) return false;
+      const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);
+      if (!JSIConverter<std::unordered_map<std::string, std::string>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[0]))) return false;
+      if (!JSIConverter<margelo::nitro::test::SecondMapWrapper>::canConvert(runtime, obj.getProperty(runtime, propertyNames[1]))) return false;
       return true;
     }
   };
