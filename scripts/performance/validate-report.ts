@@ -1,4 +1,5 @@
 import type { ReportMetadata } from './report'
+import { PLATFORMS } from './report'
 import { appendFile, mkdir, readFile, lstat } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
@@ -42,7 +43,6 @@ if (
   typeof metadata.baseSha !== 'string' ||
   !/^[0-9a-f]{40}$/.test(metadata.baseSha) ||
   !Array.isArray(metadata.platforms) ||
-  metadata.platforms.length === 0 ||
   metadata.platforms.length > 2 ||
   new Set(metadata.platforms).size !== metadata.platforms.length ||
   metadata.platforms.some(
@@ -52,6 +52,31 @@ if (
   throw new Error(
     'Publication metadata does not match the triggering workflow.'
   )
+}
+
+// Successful platforms alone may provide Bencher data. A partial publication
+// must explicitly account for both platforms, including failure-only reports.
+const failures = metadata.platformFailures
+if (failures === undefined) {
+  if (metadata.platforms.length === 0)
+    throw new Error('Publication has no platform results.')
+} else if (
+  failures === null ||
+  typeof failures !== 'object' ||
+  Array.isArray(failures) ||
+  Object.entries(failures).some(
+    ([platform, reason]) =>
+      !PLATFORMS.includes(platform as (typeof PLATFORMS)[number]) ||
+      !['failure', 'cancelled', 'skipped', 'invalid-results'].includes(reason)
+  ) ||
+  PLATFORMS.some(
+    (platform) =>
+      metadata.platforms.includes(platform) ===
+      (failures[platform] !== undefined)
+  ) ||
+  (run.conclusion === 'success' && Object.keys(failures).length > 0)
+) {
+  throw new Error('Publication platform outcomes are invalid.')
 }
 
 if (run.event === 'issue_comment' || run.event === 'pull_request') {
@@ -105,3 +130,9 @@ await mkdir(output, { recursive: true })
 await Bun.write(path.join(output, 'metadata.json'), JSON.stringify(metadata))
 // Markdown is data. Do not interpolate it into shell commands or execute any artifact files.
 await Bun.write(path.join(output, 'performance-summary.md'), markdown)
+if (process.env.GITHUB_OUTPUT != null) {
+  await appendFile(
+    process.env.GITHUB_OUTPUT,
+    `has_measurements=${metadata.platforms.length > 0}\n`
+  )
+}

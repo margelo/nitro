@@ -14,6 +14,7 @@ export interface PerformanceComment extends Pick<
 interface PullRequestReport extends PerformanceComment {
   baseSha: string
   headSha: string
+  platformFailures?: ReportMetadata['platformFailures']
 }
 
 export type GitHubRequest = (
@@ -69,7 +70,12 @@ export async function postPerformanceComment(
   ) {
     return 'stale'
   }
-  return upsertPerformanceComment(report, request, botLogin, true)
+  return upsertPerformanceComment(
+    report,
+    request,
+    botLogin,
+    Object.keys(report.platformFailures ?? {}).length === 0
+  )
 }
 
 // Failure notifications share the run's comment, but leave older reports visible.

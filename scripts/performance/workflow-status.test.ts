@@ -89,6 +89,7 @@ test.each([
   ['in_progress', 'success', 'success', 'pending'],
   ['completed', 'success', 'success', 'success'],
   ['completed', 'failure', 'failure', 'failure'],
+  ['completed', 'failure', 'success', 'failure'],
   ['completed', 'success', 'failure', 'failure'],
   ['completed', 'cancelled', 'success', 'error'],
 ] as const)(

@@ -73,6 +73,10 @@ async function createFixture(root: string): Promise<{
   for (const platform of ['android', 'ios'] as const) {
     const directory = path.join(artifact, 'raw', platform)
     await mkdir(directory, { recursive: true })
+    await writeJson(path.join(directory, 'suite.json'), {
+      baseSuiteHash: SUITE_HASH,
+      headSuiteHash: SUITE_HASH,
+    })
     await writeJson(path.join(directory, 'measurement.json'), {
       buildArtifactId: platform === 'android' ? 1 : 3,
       runAttempt: 1,
@@ -213,7 +217,16 @@ describe('HEAD report generation', () => {
         if (kind === 'raw-id') value.metrics[0].id = '<script>alert(1)</script>'
         if (kind === 'raw-mode') value.environment.dev = true
         await writeJson(file, value)
-        expect((await generate(fixture)).exitCode).not.toBe(0)
+        expect((await generate(fixture)).exitCode).toBe(0)
+        expect(
+          await Bun.file(path.join(fixture.output, 'metadata.json')).json()
+        ).toMatchObject({
+          platforms: ['android'],
+          platformFailures: { ios: 'invalid-results' },
+        })
+        expect(
+          await Bun.file(path.join(fixture.output, 'bencher-ios.json')).exists()
+        ).toBe(false)
       } finally {
         await rm(root, { recursive: true, force: true })
       }
@@ -291,6 +304,129 @@ describe('HEAD report generation', () => {
     }
   })
 })
+
+test.each([
+  'complete',
+  'legacy-workflow',
+  'android-failed',
+  'ios-failed',
+  'both-failed',
+  'missing',
+  'stale',
+  'malformed',
+])(
+  'collects and renders completed platforms while retaining failure: %s',
+  async (kind) => {
+    const isComplete = kind === 'complete' || kind === 'legacy-workflow'
+    const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-partial-report-'))
+    try {
+      const fixture = await createFixture(root)
+      const androidResult =
+        kind === 'android-failed' || kind === 'both-failed'
+          ? 'failure'
+          : 'success'
+      const iosResult =
+        kind === 'ios-failed' || kind === 'both-failed' ? 'failure' : 'success'
+      if (kind === 'missing')
+        await rm(path.join(fixture.artifact, 'raw/android'), {
+          recursive: true,
+        })
+      if (kind === 'malformed')
+        await Bun.write(
+          path.join(fixture.artifact, 'raw/android/measurement.json'),
+          '{'
+        )
+      if (kind === 'stale') {
+        const file = path.join(fixture.artifact, 'raw/android/build.json')
+        const build = await Bun.file(file).json()
+        await writeJson(file, { ...build, workflowRunId: 111 })
+      }
+      const child = Bun.spawn(
+        [
+          'bun',
+          path.join(import.meta.dir, 'report.ts'),
+          '--raw-directory',
+          path.join(fixture.artifact, 'raw'),
+          '--output',
+          path.join(fixture.artifact, 'performance-report.json'),
+          '--repository',
+          REPOSITORY,
+          '--event-name',
+          'issue_comment',
+          '--pull-request',
+          '123',
+          '--base-sha',
+          BASE_SHA,
+          '--head-sha',
+          HEAD_SHA,
+        ],
+        {
+          env: {
+            ...process.env,
+            GITHUB_RUN_ID: '123456789',
+            GITHUB_RUN_ATTEMPT: '1',
+            ANDROID_ARTIFACT_ID: '2',
+            IOS_ARTIFACT_ID: '4',
+            ANDROID_RESULT:
+              kind === 'legacy-workflow' ? undefined : androidResult,
+            IOS_RESULT: kind === 'legacy-workflow' ? undefined : iosResult,
+          },
+          stdout: 'pipe',
+          stderr: 'pipe',
+        }
+      )
+      const [exitCode] = await Promise.all([
+        child.exited,
+        new Response(child.stdout).text(),
+        new Response(child.stderr).text(),
+      ])
+      expect(exitCode).toBe(0)
+      expect((await generate(fixture)).exitCode).toBe(0)
+      const metadata = await Bun.file(
+        path.join(fixture.output, 'metadata.json')
+      ).json()
+      const platforms = isComplete
+        ? ['android', 'ios']
+        : kind === 'both-failed'
+          ? []
+          : kind === 'ios-failed'
+            ? ['android']
+            : ['ios']
+      expect(metadata.platforms).toEqual(platforms)
+      expect(metadata.platformFailures).toEqual(
+        isComplete
+          ? {}
+          : kind === 'both-failed'
+            ? { android: 'failure', ios: 'failure' }
+            : kind === 'ios-failed'
+              ? { ios: 'failure' }
+              : {
+                  android:
+                    androidResult === 'failure' ? 'failure' : 'invalid-results',
+                }
+      )
+      const markdown = await Bun.file(
+        path.join(fixture.output, 'performance-summary.md')
+      ).text()
+      expect(markdown.includes('❌ **Performance run failed.**')).toBe(
+        !isComplete
+      )
+      if (!isComplete) expect(markdown).toContain('/attempts/1')
+      expect(markdown.includes('<strong>C++</strong>')).toBe(
+        platforms.length > 0
+      )
+      for (const platform of ['android', 'ios']) {
+        expect(
+          await Bun.file(
+            path.join(fixture.output, `bencher-${platform}.json`)
+          ).exists()
+        ).toBe(platforms.includes(platform))
+      }
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  }
+)
 
 test('rerunning Android retains the exact earlier iOS measurements and app builds', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-attempts-'))

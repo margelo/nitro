@@ -21,8 +21,11 @@ logs; publishing failures link to the publishing workflow. New requests replace
 this entry, and older runs finishing later cannot overwrite it. Each status belongs
 to the tested head commit, even if the PR advances while measurements run.
 
-Failures also produce a PR comment with direct links to the benchmark attempt
-and publishing logs. Re-running the failed workflow updates the same comment.
+If one platform fails, the comment includes the completed platform's comparison
+and identifies the failed platform, with a link to the benchmark attempt. The
+overall status stays red. Missing, incomplete, or invalid results are excluded
+from comparisons and Bencher history. If neither platform completes, the comment
+reports both failures. Re-running the failed workflow updates the same comment.
 If report publishing fails after measurements succeeded, available results stay
 in that comment. A failed run leaves earlier successful reports visible.
 
@@ -144,6 +147,10 @@ Bencher Metric Format (BMF) files using that revision's parser and renderer. It
 shows the report in the job summary and uploads `performance-publication-<attempt>`
 containing `performance-summary.md`, `metadata.json`, and `bencher-*.json`.
 The raw artifact is uploaded first so the rendered comment can link its exact ID.
+Aggregation and publication also run when a platform fails. The aggregate job
+uploads the partial report before failing its final completeness check; only
+completed, validated platforms receive BMF files. Artifact download failures are
+reported as unavailable results rather than preventing the other platform's report.
 Renderer and raw-schema changes can therefore be reviewed in PR CI before merging.
 
 The isolated request job saves `performance-request-<attempt>` before any PR code
@@ -162,13 +169,17 @@ and posts its Markdown unchanged. The trusted workflow run name identifies the
 triggering PR; the publisher does not choose a PR from artifact-provided data.
 It reads no raw samples and never installs or executes PR code or artifact scripts. Comment content is produced by PR code;
 provenance checks establish its source, not the correctness of its measurements.
-Cancelled and skipped runs skip publication. Build and measurement failures remain
-failures. Stale PR results are skipped. User comments are never edited.
+Cancelled and skipped workflows skip publication. Build and measurement failures
+remain failures even when their partial reports publish successfully. Stale PR
+results are skipped. User comments are never edited.
 
 The publication envelope is independent of raw app schema versions. Keep its
 filenames and identity fields stable when changing benchmarks or report rendering.
 Changes to the trusted upload code itself still take effect after merge; ordinary
 report changes do not. Raw app results currently use schema version 2.
+Partial reports also require the PR's report scripts to support platform failures;
+rebase older PR branches to pick up that support. Complete comparisons remain
+compatible with the older report scripts.
 
 The trusted workflow also performs the final Bencher upload with `BENCHER_KEY`;
 that secret never reaches HEAD code. Its CLI version and binary digest are pinned.

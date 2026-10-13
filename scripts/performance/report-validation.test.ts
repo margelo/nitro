@@ -233,3 +233,46 @@ test('skips comment-triggered results if the PR head advances', async () => {
     await Bun.file(path.join(f.output, 'performance-summary.md')).exists()
   ).toBe(false)
 })
+
+test.each([true, false])(
+  'accepts explicit platform failures with measurements=%s',
+  async (hasMeasurements) => {
+    const platforms = hasMeasurements ? ['ios'] : []
+    await using f = await fixture('issue_comment')
+    f.metadata.platforms = platforms
+    Object.assign(f.metadata, {
+      platformFailures:
+        platforms.length > 0
+          ? { android: 'failure' }
+          : { android: 'failure', ios: 'skipped' },
+    })
+    Object.assign(f.event.workflow_run, { conclusion: 'failure' })
+    expect((await f.validate()).exitCode).toBe(0)
+    expect(await Bun.file(path.join(f.root, 'outputs')).text()).toContain(
+      `has_measurements=${platforms.length > 0}`
+    )
+  }
+)
+
+test.each([
+  'missing-platform',
+  'overlap',
+  'unknown-platform',
+  'unknown-reason',
+  'successful-run',
+  'empty-legacy',
+])('rejects inconsistent partial report outcomes: %s', async (kind) => {
+  await using f = await fixture('issue_comment')
+  f.metadata.platforms = ['ios']
+  Object.assign(f.event.workflow_run, { conclusion: 'failure' })
+  const failures: Record<string, string> = { android: 'failure' }
+  if (kind === 'missing-platform') delete failures.android
+  if (kind === 'overlap') failures.ios = 'failure'
+  if (kind === 'unknown-platform') failures['../../injected'] = 'failure'
+  if (kind === 'unknown-reason') failures.android = 'success'
+  if (kind === 'successful-run')
+    Object.assign(f.event.workflow_run, { conclusion: 'success' })
+  if (kind === 'empty-legacy') f.metadata.platforms = []
+  else Object.assign(f.metadata, { platformFailures: failures })
+  expect((await f.validate()).exitCode).not.toBe(0)
+})

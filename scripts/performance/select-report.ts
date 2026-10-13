@@ -17,7 +17,7 @@ export function selectReportArtifact(
   jobs: readonly Job[]
 ): number | undefined {
   if (conclusion === 'cancelled' || conclusion === 'skipped') return undefined
-  if (conclusion !== 'success')
+  if (conclusion !== 'success' && conclusion !== 'failure')
     throw new Error(
       `Performance workflow ${conclusion}; no measurements published.`
     )
@@ -26,6 +26,7 @@ export function selectReportArtifact(
     (artifact) => artifact.name === name && !artifact.expired
   )
   if (
+    conclusion === 'success' &&
     matches.length === 0 &&
     jobs.some(
       (job) => job.name === 'nitro-performance' && job.conclusion === 'skipped'

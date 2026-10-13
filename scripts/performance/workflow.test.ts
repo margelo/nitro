@@ -113,6 +113,31 @@ test('one trusted publisher handles internal and fork reports without executing 
   expect(aggregate.steps[renderIndex + 1].with.name).toBe(
     'performance-publication-${{ github.run_attempt }}'
   )
+  const gate = aggregate.steps.at(-1)
+  expect(gate.name).toBe('Require complete platform results')
+  // Exercise the actual workflow gate: partial publication must leave CI red.
+  for (const platforms of [['android', 'ios'], ['ios'], []]) {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'nitro-report-gate-'))
+    try {
+      await Bun.write(
+        path.join(root, 'performance-publication/metadata.json'),
+        JSON.stringify({ platforms })
+      )
+      const child = Bun.spawn(['bash', '-euo', 'pipefail', '-c', gate.run], {
+        cwd: root,
+        stdout: 'pipe',
+        stderr: 'pipe',
+      })
+      expect(await child.exited).toBe(platforms.length === 2 ? 0 : 1)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  }
+  for (const name of ['Download Android results', 'Download iOS results']) {
+    const download = aggregate.steps.find((step: any) => step.name === name)
+    expect(download.if).toContain(".outputs.artifact_id != ''")
+    expect(download['continue-on-error']).toBe(true)
+  }
   const steps = publisher.jobs.publish.steps as any[]
   expect(
     steps.find((s) => s.name === 'Download performance report').with[
@@ -122,6 +147,15 @@ test('one trusted publisher handles internal and fork reports without executing 
   expect(
     steps.findIndex((s) => s.name === 'Verify pinned Bencher binary')
   ).toBeLessThan(steps.findIndex((s) => s.name === 'Publish Bencher history'))
+  for (const name of [
+    'Install Bencher CLI',
+    'Verify pinned Bencher binary',
+    'Publish Bencher history',
+  ]) {
+    expect(steps.find((s) => s.name === name).if).toContain(
+      "steps.validate.outputs.has_measurements == 'true'"
+    )
+  }
 })
 
 test.each(['margelo/nitro', 'contributor/nitro'])(

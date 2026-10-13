@@ -14,11 +14,24 @@ test('docs-only and cancelled measurements skip cleanly', () => {
 })
 test('a relevant build failure or missing results remains a failure', () => {
   expect(() => selectReportArtifact('failure', 1, [], [])).toThrow(
-    'workflow failure'
+    'exactly one'
   )
   expect(() => selectReportArtifact('success', 1, [], [])).toThrow(
     'exactly one'
   )
+})
+test('publishes the exact partial report from a failed workflow without using stale artifacts', () => {
+  const artifact = { id: 2, name: 'performance-publication-2', expired: false }
+  expect(selectReportArtifact('failure', 2, [artifact], [])).toBe(2)
+  expect(() => selectReportArtifact('failure', 3, [artifact], [])).toThrow(
+    'exactly one'
+  )
+  expect(() =>
+    selectReportArtifact('failure', 2, [{ ...artifact, expired: true }], [])
+  ).toThrow('exactly one')
+  expect(() =>
+    selectReportArtifact('failure', 2, [artifact, artifact], [])
+  ).toThrow('exactly one')
 })
 test('selects the immutable artifact for the triggering attempt only', () => {
   const artifacts = [1, 2].map((id) => ({

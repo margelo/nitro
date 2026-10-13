@@ -1,7 +1,8 @@
 import type { PerformanceReport, ReportMetadata } from './report'
+import { PLATFORMS } from './report'
 import type { BuildMetadata } from './build-metadata'
 import type { BenchmarkRunResult } from '../../apps/benchmark/src/benchmarks/types'
-import { appendFile, mkdir, readdir, readFile } from 'node:fs/promises'
+import { appendFile, mkdir, readdir, readFile, rm } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
 import { compareRuns, toBencherMetricFormat } from './comparison'
@@ -21,8 +22,10 @@ const report: PerformanceReport = JSON.parse(
 const workflowRunUrl = `https://github.com/${report.repository}/actions/runs/${report.workflowRunId}`
 const builds = new Map<string, BuildMetadata>()
 const pairCounts = new Map<string, number>()
-for (const platform of ['android', 'ios'] as const) {
+async function loadPlatform(platform: (typeof PLATFORMS)[number]) {
   const ids = report.artifacts[platform]
+  if (ids == null)
+    throw new Error(`${platform} artifact provenance is missing.`)
   const build: BuildMetadata = await Bun.file(
     path.join(artifactDirectory, 'raw', platform, 'build.json')
   ).json()
@@ -111,15 +114,34 @@ async function loadRawRuns(
 }
 
 const comparisons = await Promise.all(
-  (['android', 'ios'] as const).map(async (platform) => {
-    const headRuns = await loadRawRuns(platform, 'head', report.headSha)
-    const baseRuns = await loadRawRuns(platform, 'base', report.baseSha)
-    const comparison = compareRuns(baseRuns, headRuns)
-    return { comparison, baseRuns, headRuns }
+  PLATFORMS.map(async (platform) => {
+    if (report.platformFailures?.[platform] != null) return []
+    try {
+      await loadPlatform(platform)
+      const headRuns = await loadRawRuns(platform, 'head', report.headSha)
+      const baseRuns = await loadRawRuns(platform, 'base', report.baseSha)
+      const comparison = compareRuns(baseRuns, headRuns)
+      return [{ comparison, baseRuns, headRuns }]
+    } catch (error) {
+      console.error(`Cannot report ${platform} results:`, error)
+      if (report.platformFailures == null) report.platformFailures = {}
+      report.platformFailures[platform] = 'invalid-results'
+      return []
+    }
   })
-)
+).then((results) => results.flat())
 
 await mkdir(outputDirectory, { recursive: true })
+// A retry into an existing directory must not upload stale data for a failed platform.
+await Promise.all(
+  PLATFORMS.flatMap((platform) =>
+    ['', 'base-'].map((prefix) =>
+      rm(path.join(outputDirectory, `bencher-${prefix}${platform}.json`), {
+        force: true,
+      })
+    )
+  )
+)
 const markdown = renderPerformanceReportMarkdown(
   comparisons.map(({ comparison }) => comparison),
   {
@@ -130,6 +152,7 @@ const markdown = renderPerformanceReportMarkdown(
     artifactId: Number(requiredArgument(argumentsMap, 'artifact-id')),
     runAttempt: report.runAttempt,
     artifacts: report.artifacts,
+    platformFailures: report.platformFailures,
   }
 )
 await Bun.write(path.join(outputDirectory, 'performance-summary.md'), markdown)
@@ -146,6 +169,7 @@ await Bun.write(
       workflowRunId: report.workflowRunId,
       runAttempt: report.runAttempt,
       platforms: comparisons.map(({ comparison }) => comparison.platform),
+      platformFailures: report.platformFailures ?? {},
     } satisfies ReportMetadata,
     null,
     2

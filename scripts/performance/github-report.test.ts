@@ -376,6 +376,17 @@ describe('outdated performance comments', () => {
     expect(f.writes[0]?.method).toBe('POST')
   })
 
+  test('partial reports leave the previous successful reports visible', async () => {
+    const f = fixture()
+    await postPerformanceComment(
+      { ...report, platformFailures: { android: 'failure' } },
+      f.request,
+      'nitro-modules-bot[bot]'
+    )
+    expect(f.writes).toHaveLength(1)
+    expect(f.writes[0]?.body).toEqual({ body: `${marker}\n${report.markdown}` })
+  })
+
   test('a successful retry replaces its failure comment and hides older reports', async () => {
     const f = fixture()
     f.comments.push({

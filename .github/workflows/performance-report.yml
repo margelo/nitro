@@ -96,18 +96,18 @@ jobs:
         run: bun scripts/performance/github-report.ts --directory validated-report
 
       - name: Install Bencher CLI
-        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true'
+        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true' && steps.validate.outputs.has_measurements == 'true'
         uses: bencherdev/bencher@f80847436d7157936b40525db4c2a1064124f04a # v0.6.13
         with:
           version: '0.6.12'
 
       - name: Verify pinned Bencher binary
-        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true'
+        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true' && steps.validate.outputs.has_measurements == 'true'
         run: |
           printf '%s  %s\n' 'c2d3a6a7fae654246134e5ced1408bdb9ba4e198b0ac3b903af17a06574a7e08' "$(command -v bencher)" | sha256sum --check -
 
       - name: Publish Bencher history
-        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true'
+        if: steps.download.outcome == 'success' && steps.validate.outputs.stale != 'true' && steps.validate.outputs.has_measurements == 'true'
         env:
           BENCHER_API_KEY: ${{ secrets.BENCHER_KEY }}
           BENCHER_PROJECT: nitro

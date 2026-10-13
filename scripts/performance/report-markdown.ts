@@ -3,7 +3,16 @@ import {
   type MetricComparison,
   type PlatformComparison,
 } from './comparison'
-import type { PerformanceReport } from './report'
+import type { PerformanceReport, PlatformFailure } from './report'
+
+const FAILURE_MESSAGES: Record<PlatformFailure, string> = {
+  'failure': 'Benchmark job failed. No complete comparison is available.',
+  'cancelled':
+    'Benchmark job was cancelled. No complete comparison is available.',
+  'skipped': 'Benchmark job did not run. Check its build and preparation jobs.',
+  'invalid-results':
+    'Results are missing, incomplete, or invalid. No comparison was published for this platform.',
+}
 
 const OPERATION_NAMES: Readonly<Record<string, string>> = {
   'add-numbers': 'addNumbers()',
@@ -158,9 +167,16 @@ export function renderPerformanceReportMarkdown(
     artifactId?: number
     runAttempt?: number
     artifacts?: PerformanceReport['artifacts']
+    platformFailures?: PerformanceReport['platformFailures']
   }
 ): string {
   const lines = ['## Performance Report']
+  if (Object.keys(options.platformFailures ?? {}).length > 0) {
+    lines.push(
+      '',
+      `❌ **Performance run failed.** ${platforms.length > 0 ? 'Completed platform results are shown below; failed platforms have no comparison.' : 'Neither platform produced a complete comparison.'}`
+    )
+  }
   if (options.baseSha === options.headSha) {
     lines.push(
       '',
@@ -194,6 +210,22 @@ export function renderPerformanceReportMarkdown(
       '</details>'
     )
   }
+  for (const platform of ['ios', 'android'] as const) {
+    const failure = options.platformFailures?.[platform]
+    if (failure == null) continue
+    lines.push(
+      '',
+      `### ${platformName(platform)}`,
+      '',
+      `❌ ${FAILURE_MESSAGES[failure]}`
+    )
+    if (options.workflowRunUrl != null) {
+      lines.push(
+        '',
+        `[View failed run, attempt ${options.runAttempt}](${options.workflowRunUrl}/attempts/${options.runAttempt}).`
+      )
+    }
+  }
   lines.push(
     '',
     `Benchmarking Code Diff [\`${options.baseSha.slice(0, 8)}\`...\`${options.headSha.slice(0, 8)}\`](https://github.com/${options.repository}/compare/${options.baseSha}..${options.headSha})${options.workflowRunUrl == null ? '' : ` ([view raw output](${options.workflowRunUrl}))`}`,
@@ -218,9 +250,13 @@ export function renderPerformanceReportMarkdown(
   const platformArtifacts = options.artifacts
   if (platformArtifacts != null && options.workflowRunUrl != null) {
     lines.push(
-      ...(['android', 'ios'] as const).map((platform) => {
+      ...(['android', 'ios'] as const).flatMap((platform) => {
         const artifacts = platformArtifacts[platform]
-        return `${platformName(platform)}: [measurements, attempt ${artifacts.measurementAttempt}](${options.workflowRunUrl}/artifacts/${artifacts.measurementId}), [apps, attempt ${artifacts.buildAttempt}](${options.workflowRunUrl}/artifacts/${artifacts.buildId}).`
+        return artifacts == null
+          ? []
+          : [
+              `${platformName(platform)}: [measurements, attempt ${artifacts.measurementAttempt}](${options.workflowRunUrl}/artifacts/${artifacts.measurementId}), [apps, attempt ${artifacts.buildAttempt}](${options.workflowRunUrl}/artifacts/${artifacts.buildId}).`,
+            ]
       }),
       ''
     )
