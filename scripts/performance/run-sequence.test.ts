@@ -19,6 +19,7 @@ test.each([
   ['android', 'changed-suite', true],
   ['android', 'added-case', true],
   ['android', 'removed-case', true],
+  ['android', 'dead-device', true],
   ['ios', 'invalid-result', true],
 ] as const)(
   '%s per-case comparisons: %s, saved apps = %s',
@@ -75,6 +76,10 @@ test.each([
         import { appendFile } from 'node:fs/promises'
         const args = process.argv.slice(2)
         await appendFile(process.env.COMMANDS_LOG, JSON.stringify(args) + '\\n')
+        if (process.env.DEAD_DEVICE === 'true' && args.some((arg) => ['start', 'logcat', 'dumpsys', 'devices', 'force-stop'].includes(arg))) {
+          console.error('adb: device emulator-5554 not found')
+          process.exit(args.includes('start') ? 255 : 1)
+        }
         if (args.includes('launch') || args.includes('start')) {
           const appId = args.at(-1).split('/')[0]
           const child = Bun.spawn([process.execPath, ${JSON.stringify(simulator)}, appId], { stdout: 'inherit', stderr: 'inherit' })
@@ -163,6 +168,7 @@ test.each([
             COMMANDS_LOG: commandsLog,
             SAME_BINARY: String(sameBinary),
             INVALID_RESULT: String(mode === 'invalid-result'),
+            DEAD_DEVICE: String(mode === 'dead-device'),
             GITHUB_RUN_ID: '123',
             GITHUB_RUN_ATTEMPT: '2',
             BUILD_ARTIFACT_ID: '456',
@@ -178,6 +184,22 @@ test.each([
         new Response(child.stdout).text(),
         new Response(child.stderr).text(),
       ])
+      if (mode === 'dead-device') {
+        expect(exitCode).not.toBe(0)
+        const failure = await readFile(
+          path.join(output, 'base-1-cases/case-0.failure.log'),
+          'utf8'
+        )
+        expect(failure).toContain('failed with exit code 255')
+        expect(failure).toContain('adb: device emulator-5554 not found')
+        expect(failure).toContain('"exitCode": 1')
+        expect(failure).toContain('"timedOut": false')
+        expect(stderr).toContain('failed with exit code 255')
+        expect(await Bun.file(path.join(output, 'base-1.json')).exists()).toBe(
+          false
+        )
+        return
+      }
       const processes = (await readFile(log, 'utf8'))
         .trim()
         .split('\n')

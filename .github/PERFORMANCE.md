@@ -192,6 +192,11 @@ from different hosts are not evidence of a Nitro performance change.
 The API 36 x86_64 emulator requires KVM. CI checks `/dev/kvm`, verifies acceleration
 before boot and uses `-accel on`; it must not silently use software CPU emulation.
 Software GPU rendering is separate. Base/head measurements stay on that machine.
+The performance emulator is pinned to 37.1.11 (build `15917651`), used by
+[successful run 34414142495](https://github.com/margelo/nitro/actions/runs/34414142495).
+Update `emulator-build` deliberately after validating a complete paired run and
+same-code variation on the new version. The runner image and API 36 system image
+can still change independently; the emulator pin does not freeze the whole testbed.
 Android process failures retain logcat and process-exit diagnostics. Both platforms
 bound boot time to five minutes and individual install/launch commands to two.
 
