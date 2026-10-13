@@ -2007,6 +2007,17 @@ export function getTests(
         .didNotThrow()
         .equals(TEST_CAR_2)
     ),
+    ...('personConstructorMovesName' in testObject
+      ? [
+          createTest('Person constructor moves its name buffer', () =>
+            it(() => testObject.personConstructorMovesName())
+              .didNotThrow()
+              .equals(true)
+          ),
+        ]
+      : [
+          // Swift/Kotlin Test Object does not have the C++ struct constructor regression test!
+        ]),
     createTest('jsStyleObjectAsParameters()', async () =>
       (
         await it(() => {

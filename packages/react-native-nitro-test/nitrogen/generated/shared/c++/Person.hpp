@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -44,7 +46,7 @@ namespace margelo::nitro::test {
 
   public:
     Person() = default;
-    explicit Person(std::string name, double age): name(name), age(age) {}
+    explicit Person(std::string name, double age): name(std::move(name)), age(std::move(age)) {}
 
   public:
     friend bool operator==(const Person& lhs, const Person& rhs) = default;

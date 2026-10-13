@@ -404,6 +404,9 @@ export interface TestObjectCpp
 
   // Custom C++ JSI Converters
   bounceCustomType(value: CustomString): CustomString
+
+  // Struct constructors
+  personConstructorMovesName(): boolean
 }
 
 // This is a Swift/Kotlin-based `HybridObject`.
