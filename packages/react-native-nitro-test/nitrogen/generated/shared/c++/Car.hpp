@@ -28,6 +28,9 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+#include <array>
+#include <string_view>
+
 // Forward declaration of `Powertrain` to properly resolve imports.
 namespace margelo::nitro::test { enum class Powertrain; }
 // Forward declaration of `Person` to properly resolve imports.
@@ -74,35 +77,44 @@ namespace margelo::nitro {
   // C++ Car <> JS Car (object)
   template <>
   struct JSIConverter<margelo::nitro::test::Car> final {
+  private:
+    static inline PropNameIDCache::BatchHandle getPropertyNames(jsi::Runtime& runtime) {
+      static constexpr std::array<std::string_view, 11> names = { "year", "make", "model", "power", "powertrain", "driver", "passengers", "isFast", "favouriteTrack", "performanceScores", "someVariant" };
+      return PropNameIDCache::getBatch(runtime, &names, names);
+    }
+
+  public:
     static inline margelo::nitro::test::Car fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
+      const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);
       return margelo::nitro::test::Car(
-        JSIConverter<double>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "year"))),
-        JSIConverter<std::string>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "make"))),
-        JSIConverter<std::string>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "model"))),
-        JSIConverter<double>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "power"))),
-        JSIConverter<margelo::nitro::test::Powertrain>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "powertrain"))),
-        JSIConverter<std::optional<margelo::nitro::test::Person>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "driver"))),
-        JSIConverter<std::vector<margelo::nitro::test::Person>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "passengers"))),
-        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "isFast"))),
-        JSIConverter<std::optional<std::string>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "favouriteTrack"))),
-        JSIConverter<std::vector<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "performanceScores"))),
-        JSIConverter<std::optional<std::variant<double, std::string>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "someVariant")))
+        JSIConverter<double>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[0])),
+        JSIConverter<std::string>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[1])),
+        JSIConverter<std::string>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[2])),
+        JSIConverter<double>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[3])),
+        JSIConverter<margelo::nitro::test::Powertrain>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[4])),
+        JSIConverter<std::optional<margelo::nitro::test::Person>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[5])),
+        JSIConverter<std::vector<margelo::nitro::test::Person>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[6])),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[7])),
+        JSIConverter<std::optional<std::string>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[8])),
+        JSIConverter<std::vector<double>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[9])),
+        JSIConverter<std::optional<std::variant<double, std::string>>>::fromJSI(runtime, obj.getProperty(runtime, propertyNames[10]))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::test::Car& arg) {
       jsi::Object obj(runtime);
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "year"), JSIConverter<double>::toJSI(runtime, arg.year));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "make"), JSIConverter<std::string>::toJSI(runtime, arg.make));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "model"), JSIConverter<std::string>::toJSI(runtime, arg.model));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "power"), JSIConverter<double>::toJSI(runtime, arg.power));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "powertrain"), JSIConverter<margelo::nitro::test::Powertrain>::toJSI(runtime, arg.powertrain));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "driver"), JSIConverter<std::optional<margelo::nitro::test::Person>>::toJSI(runtime, arg.driver));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "passengers"), JSIConverter<std::vector<margelo::nitro::test::Person>>::toJSI(runtime, arg.passengers));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "isFast"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.isFast));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "favouriteTrack"), JSIConverter<std::optional<std::string>>::toJSI(runtime, arg.favouriteTrack));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "performanceScores"), JSIConverter<std::vector<double>>::toJSI(runtime, arg.performanceScores));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "someVariant"), JSIConverter<std::optional<std::variant<double, std::string>>>::toJSI(runtime, arg.someVariant));
+      const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);
+      obj.setProperty(runtime, propertyNames[0], JSIConverter<double>::toJSI(runtime, arg.year));
+      obj.setProperty(runtime, propertyNames[1], JSIConverter<std::string>::toJSI(runtime, arg.make));
+      obj.setProperty(runtime, propertyNames[2], JSIConverter<std::string>::toJSI(runtime, arg.model));
+      obj.setProperty(runtime, propertyNames[3], JSIConverter<double>::toJSI(runtime, arg.power));
+      obj.setProperty(runtime, propertyNames[4], JSIConverter<margelo::nitro::test::Powertrain>::toJSI(runtime, arg.powertrain));
+      obj.setProperty(runtime, propertyNames[5], JSIConverter<std::optional<margelo::nitro::test::Person>>::toJSI(runtime, arg.driver));
+      obj.setProperty(runtime, propertyNames[6], JSIConverter<std::vector<margelo::nitro::test::Person>>::toJSI(runtime, arg.passengers));
+      obj.setProperty(runtime, propertyNames[7], JSIConverter<std::optional<bool>>::toJSI(runtime, arg.isFast));
+      obj.setProperty(runtime, propertyNames[8], JSIConverter<std::optional<std::string>>::toJSI(runtime, arg.favouriteTrack));
+      obj.setProperty(runtime, propertyNames[9], JSIConverter<std::vector<double>>::toJSI(runtime, arg.performanceScores));
+      obj.setProperty(runtime, propertyNames[10], JSIConverter<std::optional<std::variant<double, std::string>>>::toJSI(runtime, arg.someVariant));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -113,17 +125,18 @@ namespace margelo::nitro {
       if (!nitro::isPlainObject(runtime, obj)) {
         return false;
       }
-      if (!JSIConverter<double>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "year")))) return false;
-      if (!JSIConverter<std::string>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "make")))) return false;
-      if (!JSIConverter<std::string>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "model")))) return false;
-      if (!JSIConverter<double>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "power")))) return false;
-      if (!JSIConverter<margelo::nitro::test::Powertrain>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "powertrain")))) return false;
-      if (!JSIConverter<std::optional<margelo::nitro::test::Person>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "driver")))) return false;
-      if (!JSIConverter<std::vector<margelo::nitro::test::Person>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "passengers")))) return false;
-      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "isFast")))) return false;
-      if (!JSIConverter<std::optional<std::string>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "favouriteTrack")))) return false;
-      if (!JSIConverter<std::vector<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "performanceScores")))) return false;
-      if (!JSIConverter<std::optional<std::variant<double, std::string>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "someVariant")))) return false;
+      const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);
+      if (!JSIConverter<double>::canConvert(runtime, obj.getProperty(runtime, propertyNames[0]))) return false;
+      if (!JSIConverter<std::string>::canConvert(runtime, obj.getProperty(runtime, propertyNames[1]))) return false;
+      if (!JSIConverter<std::string>::canConvert(runtime, obj.getProperty(runtime, propertyNames[2]))) return false;
+      if (!JSIConverter<double>::canConvert(runtime, obj.getProperty(runtime, propertyNames[3]))) return false;
+      if (!JSIConverter<margelo::nitro::test::Powertrain>::canConvert(runtime, obj.getProperty(runtime, propertyNames[4]))) return false;
+      if (!JSIConverter<std::optional<margelo::nitro::test::Person>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[5]))) return false;
+      if (!JSIConverter<std::vector<margelo::nitro::test::Person>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[6]))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[7]))) return false;
+      if (!JSIConverter<std::optional<std::string>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[8]))) return false;
+      if (!JSIConverter<std::vector<double>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[9]))) return false;
+      if (!JSIConverter<std::optional<std::variant<double, std::string>>>::canConvert(runtime, obj.getProperty(runtime, propertyNames[10]))) return false;
       return true;
     }
   };

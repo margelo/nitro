@@ -30,24 +30,43 @@ export function createCppStruct(
     fullyQualified: true,
     includeNameInfo: false,
   }
+  // A batch lookup only pays off when it replaces multiple name lookups.
+  const usesPropertyNameBatch = properties.length >= 2
+  const getPropertyName = (property: NamedType, index: number): string =>
+    usesPropertyNameBatch
+      ? `propertyNames[${index}]`
+      : `PropNameIDCache::get(runtime, "${property.name}")`
+  const cppPreparePropertyNames = usesPropertyNameBatch
+    ? 'const PropNameIDCache::BatchHandle propertyNames = getPropertyNames(runtime);\n      '
+    : ''
+  const cppPropertyNameCache = usesPropertyNameBatch
+    ? `  private:
+    static inline PropNameIDCache::BatchHandle getPropertyNames(jsi::Runtime& runtime) {
+      static constexpr std::array<std::string_view, ${properties.length}> names = { ${properties.map((property) => `"${property.name}"`).join(', ')} };
+      return PropNameIDCache::getBatch(runtime, &names, names);
+    }
+
+  public:
+`
+    : ''
   const cppFromJsiParams = properties
     .map(
-      (p) =>
-        `JSIConverter<${p.getCode('c++', codeOptions)}>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "${p.name}")))`
+      (p, index) =>
+        `JSIConverter<${p.getCode('c++', codeOptions)}>::fromJSI(runtime, obj.getProperty(runtime, ${getPropertyName(p, index)}))`
     )
     .join(',\n')
   // Get C++ code for converting each member to a jsi::Value
   const cppToJsiCalls = properties
     .map(
-      (p) =>
-        `obj.setProperty(runtime, PropNameIDCache::get(runtime, "${p.name}"), JSIConverter<${p.getCode('c++', codeOptions)}>::toJSI(runtime, arg.${p.escapedName}));`
+      (p, index) =>
+        `obj.setProperty(runtime, ${getPropertyName(p, index)}, JSIConverter<${p.getCode('c++', codeOptions)}>::toJSI(runtime, arg.${p.escapedName}));`
     )
     .join('\n')
   // Get C++ code for verifying if jsi::Value can be converted to type
   const cppCanConvertCalls = properties
     .map(
-      (p) =>
-        `if (!JSIConverter<${p.getCode('c++', codeOptions)}>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "${p.name}")))) return false;`
+      (p, index) =>
+        `if (!JSIConverter<${p.getCode('c++', codeOptions)}>::canConvert(runtime, obj.getProperty(runtime, ${getPropertyName(p, index)}))) return false;`
     )
     .join('\n')
 
@@ -84,7 +103,7 @@ ${includeNitroHeader('NitroDefines.hpp')}
 ${includeNitroHeader('JSIHelpers.hpp')}
 ${includeNitroHeader('PropNameIDCache.hpp')}
 
-${cppForwardDeclarations.join('\n')}
+${usesPropertyNameBatch ? '#include <array>\n#include <string_view>\n\n' : ''}${cppForwardDeclarations.join('\n')}
 
 ${cppExtraIncludes.join('\n')}
 
@@ -112,15 +131,15 @@ namespace margelo::nitro {
   // C++ ${typename} <> JS ${typename} (object)
   template <>
   struct JSIConverter<${fullyQualifiedTypename}> final {
-    static inline ${fullyQualifiedTypename} fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+${cppPropertyNameCache}    static inline ${fullyQualifiedTypename} fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
-      return ${fullyQualifiedTypename}(
+      ${cppPreparePropertyNames}return ${fullyQualifiedTypename}(
         ${indent(cppFromJsiParams, '        ')}
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const ${fullyQualifiedTypename}& arg) {
       jsi::Object obj(runtime);
-      ${indent(cppToJsiCalls, '      ')}
+      ${cppPreparePropertyNames}${indent(cppToJsiCalls, '      ')}
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -131,7 +150,7 @@ namespace margelo::nitro {
       if (!nitro::isPlainObject(runtime, obj)) {
         return false;
       }
-      ${indent(cppCanConvertCalls, '      ')}
+      ${cppPreparePropertyNames}${indent(cppCanConvertCalls, '      ')}
       return true;
     }
   };

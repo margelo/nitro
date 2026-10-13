@@ -2007,6 +2007,39 @@ export function getTests(
         .didNotThrow()
         .equals(TEST_CAR_2)
     ),
+    createTest('bounceCar(...) reads getters after reentrant conversions', () =>
+      it(() => {
+        let make = 'first'
+        const car = new Proxy(TEST_CAR, {
+          get(target, property, receiver) {
+            if (property === 'make') {
+              testObject.bounceCar(TEST_CAR_2)
+              return make
+            }
+            return Reflect.get(target, property, receiver)
+          },
+        })
+        const first = testObject.bounceCar(car)
+        make = 'second'
+        const second = testObject.bounceCar(car)
+        return [first.make, second.make]
+      })
+        .didNotThrow()
+        .equals(['first', 'second'])
+    ),
+    createTest(
+      'bounceCar(...) propagates a getter exception with warm names',
+      () =>
+        it(() => {
+          testObject.bounceCar(TEST_CAR)
+          return testObject.bounceCar({
+            ...TEST_CAR,
+            get make(): string {
+              throw new Error('car getter failed')
+            },
+          })
+        }).didThrow()
+    ),
     createTest('jsStyleObjectAsParameters()', async () =>
       (
         await it(() => {

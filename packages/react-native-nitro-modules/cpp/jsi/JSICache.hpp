@@ -26,12 +26,13 @@ class JSICacheReference;
  * A `JSICache` can safely store `jsi::Value` instances (e.g. `jsi::Object` or
  * `jsi::Function`) inside `BorrowingReference<T>`.
  *
- * `jsi::Value`s are managed by a `jsi::Runtime`, and will be deleted if the `jsi::Runtime`
- * is deleted - even if there are still strong references to the `jsi::Value`.
+ * `jsi::Value`s are managed by a `jsi::Runtime`, and will be deleted if the
+ * `jsi::Runtime` is deleted - even if there are still strong references to the
+ * `jsi::Value`.
  *
- * To access a `BorrowingReference<jsi::Value>` safely, make sure you are using it from
- * the same Thread that it was created on. This ensures that the `jsi::Runtime` cannot
- * delete it while you are still using it.
+ * To access a `BorrowingReference<jsi::Value>` safely, make sure you are using
+ * it from the same Thread that it was created on. This ensures that the
+ * `jsi::Runtime` cannot delete it while you are still using it.
  */
 class JSICache final : public jsi::NativeState {
 public:
@@ -42,14 +43,15 @@ public:
   JSICache(JSICache&&) = delete;
 
 private:
-  JSICache() = default;
+  explicit JSICache(jsi::Runtime& runtime) : _runtime(runtime) {}
 
 public:
   /**
    Gets or creates a `JSICache` for the given `jsi::Runtime`.
    The returned `shared_ptr` should not be stored in
-   If it can be locked, you can access data in the cache. Otherwise the Runtime has already been deleted.
-   Do not hold the returned `shared_ptr` in memory, only use it in the calling function's scope.
+   If it can be locked, you can access data in the cache. Otherwise the Runtime
+   has already been deleted. Do not hold the returned `shared_ptr` in memory,
+   only use it in the calling function's scope.
    */
   [[nodiscard]]
   static JSICacheReference getOrCreateCache(jsi::Runtime& runtime);
@@ -65,9 +67,11 @@ private:
   std::vector<WeakReference<jsi::WeakObject>> _weakObjectCache;
   std::vector<WeakReference<jsi::PropNameID>> _propNameIDCache;
   std::vector<WeakReference<jsi::ArrayBuffer>> _arrayBufferCache;
+  jsi::Runtime& _runtime;
 
 private:
   static inline std::unordered_map<jsi::Runtime*, std::weak_ptr<JSICache>> _globalCache;
+  static inline std::mutex _globalCacheMutex;
 
 private:
   static constexpr auto TAG = "JSICache";
@@ -113,6 +117,9 @@ public:
     BorrowingReference<jsi::ArrayBuffer> owning(new jsi::ArrayBuffer(std::move(value)));
     _strongCache->_arrayBufferCache.push_back(owning.weak());
     return owning;
+  }
+  std::shared_ptr<void> getLifetimeToken() const {
+    return std::static_pointer_cast<void>(_strongCache);
   }
 
 private:
