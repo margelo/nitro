@@ -236,11 +236,14 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --version
 
       - name: Run paired Android benchmarks
+        id: measure
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         with:
           api-level: 36
           arch: x86_64
           profile: pixel_7
+          # Emulator 37.1.11, used by successful performance run 34414142495.
+          emulator-build: '15917651'
           disable-animations: true
           # CPU acceleration is required, independently of software GPU rendering.
           disable-linux-hw-accel: false
@@ -256,6 +259,12 @@ jobs:
             --device-id "$(adb get-serialno)"
             --device "Pixel 7 emulator / KVM / Blacksmith 4 vCPU" --os-version "Android 16 / API 36"
             --architecture x86_64 --toolchain "$(jq -r .toolchain apps/build.json)"
+      - name: Preserve Android host failure diagnostics
+        if: always() && steps.measure.outcome == 'failure'
+        continue-on-error: true
+        timeout-minutes: 2
+        # Run after measurements, even when ADB and the emulator are gone.
+        run: bun scripts/performance/collect-android-diagnostics.ts --output-directory performance-android/host
       - name: Upload Android results
         id: upload
         if: always()
