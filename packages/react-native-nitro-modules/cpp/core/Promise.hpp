@@ -36,7 +36,11 @@ public:
   ~Promise() {
     if (isPending()) [[unlikely]] {
       auto message = std::string("Timeouted: Promise<") + TypeInfo::getFriendlyTypename<TResult>() + "> was destroyed!";
-      reject(std::make_exception_ptr(std::runtime_error(message)));
+      try {
+        throw std::runtime_error(message);
+      } catch (...) {
+        reject(std::current_exception());
+      }
     }
   }
 

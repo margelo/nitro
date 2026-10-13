@@ -580,8 +580,11 @@ void HybridTestObjectCpp::twoOptionalCallbacks(double value, const std::optional
 }
 
 void HybridTestObjectCpp::errorCallback(const std::function<void(const std::exception_ptr& /* error */)>& onError) {
-  std::runtime_error error("Some Error!");
-  onError(std::make_exception_ptr(error));
+  try {
+    throw std::runtime_error("Some Error!");
+  } catch (...) {
+    onError(std::current_exception());
+  }
 }
 
 std::shared_ptr<Promise<double>>
@@ -626,6 +629,13 @@ std::shared_ptr<Promise<double>> HybridTestObjectCpp::promiseReturnsInstantly() 
 
 std::shared_ptr<Promise<double>> HybridTestObjectCpp::promiseReturnsInstantlyAsync() {
   return Promise<double>::async([=]() { return 55; });
+}
+
+void HybridTestObjectCpp::destroyPendingPromises() {
+  auto voidPromise = Promise<void>::create();
+  auto valuePromise = Promise<double>::create();
+  valuePromise.reset();
+  voidPromise.reset();
 }
 
 std::shared_ptr<Promise<double>> HybridTestObjectCpp::createPendingPromise() {

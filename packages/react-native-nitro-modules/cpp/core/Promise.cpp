@@ -12,7 +12,11 @@ namespace margelo::nitro {
 Promise<void>::~Promise() {
   if (isPending()) [[unlikely]] {
     std::runtime_error error("Timeouted: Promise<void> was destroyed!");
-    reject(std::make_exception_ptr(error));
+    try {
+      throw error;
+    } catch (...) {
+      reject(std::current_exception());
+    }
   }
 }
 

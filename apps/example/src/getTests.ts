@@ -1524,6 +1524,13 @@ export function getTests(
         'Error: Promise throws :)'
       )
     ),
+    ...('destroyPendingPromises' in testObject
+      ? [
+          createTest('destroying pending C++ Promises is safe', () =>
+            it(() => testObject.destroyPendingPromises()).didNotThrow()
+          ),
+        ]
+      : []),
     createTest('promiseReturnsInstantly() works', async () =>
       (await it(() => testObject.promiseReturnsInstantly()))
         .didNotThrow()
@@ -1912,16 +1919,16 @@ export function getTests(
     createTest('Calling twoOptionalCallbacks(...) works with undefined', () =>
       it(() => testObject.twoOptionalCallbacks(55)).didNotThrow()
     ),
-    createTest('Calling errorCallback(...) works with error', async () =>
+    createTest('Calling errorCallback(...) preserves the error message', async () =>
       (
         await it(async () => {
-          return new Promise((resolve) => {
-            testObject.errorCallback((err) => resolve(err))
+          return new Promise<string>((resolve) => {
+            testObject.errorCallback((error) => resolve(error.message))
           })
         })
       )
         .didNotThrow()
-        .isInstanceOf(Error)
+        .equals('Some Error!')
     ),
 
     // Objects

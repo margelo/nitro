@@ -28,7 +28,11 @@ struct JSIConverter<std::exception_ptr> final {
     jsi::Object object = error.asObject(runtime);
     std::string name = object.getProperty(runtime, PropNameIDCache::get(runtime, "name")).asString(runtime).utf8(runtime);
     std::string message = object.getProperty(runtime, PropNameIDCache::get(runtime, "message")).asString(runtime).utf8(runtime);
-    return std::make_exception_ptr(std::runtime_error(name + ": " + message));
+    try {
+      throw std::runtime_error(name + ": " + message);
+    } catch (...) {
+      return std::current_exception();
+    }
   }
   static inline jsi::Value toJSI(jsi::Runtime& runtime, const std::exception_ptr& exception) {
     if (exception == nullptr) [[unlikely]] {

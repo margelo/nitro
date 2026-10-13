@@ -59,6 +59,7 @@ namespace margelo::nitro::test {
       prototype.registerHybridSetter("isTextValue", &HybridTestObjectCppSpec::setIsTextValue);
       prototype.registerHybridGetter("someVariant", &HybridTestObjectCppSpec::getSomeVariant);
       prototype.registerHybridSetter("someVariant", &HybridTestObjectCppSpec::setSomeVariant);
+      prototype.registerHybridMethod("destroyPendingPromises", &HybridTestObjectCppSpec::destroyPendingPromises);
       prototype.registerHybridMethod("getVariantTuple", &HybridTestObjectCppSpec::getVariantTuple);
       prototype.registerHybridMethod("flip", &HybridTestObjectCppSpec::flip);
       prototype.registerHybridMethod("passTuple", &HybridTestObjectCppSpec::passTuple);

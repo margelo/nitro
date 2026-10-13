@@ -379,6 +379,9 @@ interface SharedTestObjectProps {
 // it will be flattened out and every property/method will be added here.
 export interface TestObjectCpp
   extends HybridObject<{ ios: 'c++'; android: 'c++' }>, SharedTestObjectProps {
+  // Exercises pending C++ Promise destructors for both Promise<void> and Promise<T>.
+  destroyPendingPromises(): void
+
   // Complex Variants + Tuples
   getVariantTuple(variant: Float2 | Float3): Float2 | Float3
 

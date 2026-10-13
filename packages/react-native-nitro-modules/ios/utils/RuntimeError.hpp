@@ -14,7 +14,11 @@
 namespace margelo::nitro {
 
 static inline std::exception_ptr makeException(const std::string& message) {
-  return std::make_exception_ptr(std::runtime_error(message));
+  try {
+    throw std::runtime_error(message);
+  } catch (...) {
+    return std::current_exception();
+  }
 }
 
 static inline std::string getExceptionMessage(const std::exception_ptr& exception) {
