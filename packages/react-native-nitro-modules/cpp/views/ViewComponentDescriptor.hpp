@@ -9,6 +9,8 @@
 #include <concepts>
 #include <memory>
 #include <react/renderer/core/ConcreteComponentDescriptor.h>
+#include <stdexcept>
+#include <string>
 #include <utility>
 
 namespace margelo::nitro {
@@ -21,8 +23,10 @@ using namespace facebook;
  * Requires the `TShadowNode` to be a `react::ShadowNode` composited of `Props`
  * which support Raw Props Parsing, and `State` which supports holding `Props`
  * for direct transfer to JNI on Android.
+ *
+ * `SupportsChildren` mirrors whether the Nitro View declared a `children` prop.
  */
-template <typename TShadowNode>
+template <typename TShadowNode, bool SupportsChildren = false>
 class ViewComponentDescriptor final : public react::ConcreteComponentDescriptor<TShadowNode> {
   using Base = react::ConcreteComponentDescriptor<TShadowNode>;
   using Props = typename TShadowNode::ConcreteProps;
@@ -39,6 +43,25 @@ public:
       : Base(parameters, RawPropsCompat::makePropsParser()) {}
 
 public:
+  /**
+   * Rejects React children for a Nitro View that didn't declare a `children` prop.
+   *
+   * This is the render phase, so it is the one place both platforms pass through:
+   * Android would otherwise crash inside React Native's mounting layer with
+   * "Unable to add a view into a view that is not a ViewGroup", and iOS would
+   * silently render the children behind the native View.
+   */
+  void appendChild(const std::shared_ptr<const react::ShadowNode>& parentShadowNode,
+                   const std::shared_ptr<const react::ShadowNode>& childShadowNode) const override {
+    if constexpr (SupportsChildren) {
+      Base::appendChild(parentShadowNode, childShadowNode);
+    } else {
+      throw std::runtime_error(std::string(this->getComponentName()) +
+                               " cannot render React children! To render children inside this Nitro View, "
+                               "declare a `children?: HybridViewChildren` prop in its Nitro spec.");
+    }
+  }
+
   /**
    * A faster path for cloning props - reuses the caching logic from the `Props`.
    */

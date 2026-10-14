@@ -80,7 +80,8 @@ namespace margelo::nitro::test::views {
   /**
    * The Component Descriptor for the "RecyclableTestView" View.
    */
-  using HybridRecyclableTestViewComponentDescriptor = nitro::ViewComponentDescriptor<HybridRecyclableTestViewShadowNode>;
+  using HybridRecyclableTestViewComponentDescriptor = nitro::ViewComponentDescriptor<HybridRecyclableTestViewShadowNode,
+                                                                                     false /* supportsChildren */>;
 
   /* The actual view for "RecyclableTestView" needs to be implemented in platform-specific code. */
 

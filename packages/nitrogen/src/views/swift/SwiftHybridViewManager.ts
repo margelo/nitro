@@ -56,6 +56,41 @@ if (oldViewProps == nullptr
 }
 `.trim()
   })
+  // React children are mounted into the Nitro View, not as siblings of it:
+  // `RCTViewComponentView` adds `contentView` as its last subview, so any child
+  // inserted by Fabric would end up *behind* the native View.
+  const childrenMethods = spec.supportsChildren
+    ? `- (void) mountChildComponentView:(UIView<RCTComponentViewProtocol>*)childComponentView index:(NSInteger)index {
+  [_childrenContainer mountChildComponentView:childComponentView index:index];
+}
+
+- (void) unmountChildComponentView:(UIView<RCTComponentViewProtocol>*)childComponentView index:(NSInteger)index {
+  [_childrenContainer unmountChildComponentView:childComponentView index:index];
+}
+
+- (void) updateLayoutMetrics:(const react::LayoutMetrics&)layoutMetrics
+            oldLayoutMetrics:(const react::LayoutMetrics&)oldLayoutMetrics {
+  [super updateLayoutMetrics:layoutMetrics oldLayoutMetrics:oldLayoutMetrics];
+  // Yoga positions each child relative to this component's border box, so the
+  // Nitro View has to span the full bounds. \`RCTViewComponentView\` would
+  // otherwise inset it by border + padding and double-apply that to every child.
+  self.contentView.frame = self.bounds;
+}
+
+`
+    : ''
+
+  const childrenIvar = spec.supportsChildren
+    ? '\n  UIView* _childrenContainer;'
+    : ''
+  const childrenContainerUpdate = spec.supportsChildren
+    ? `
+
+  // 4. Get the UIView* React children are mounted into
+  void* containerUnsafe = swiftPart.getChildrenContainer();
+  _childrenContainer = (__bridge_transfer UIView*) containerUnsafe;`
+    : ''
+
   const mmFile = `
 ${createFileMetadataString(`${component}.mm`)}
 
@@ -90,7 +125,7 @@ using namespace ${namespace}::views;
 @end
 
 @implementation ${component} {
-  std::shared_ptr<${HybridTSpecSwift}> _hybridView;
+  std::shared_ptr<${HybridTSpecSwift}> _hybridView;${childrenIvar}
   BOOL _didDropView;
 }
 
@@ -122,10 +157,10 @@ using namespace ${namespace}::views;
   UIView* view = (__bridge_transfer UIView*) viewUnsafe;
 
   // 3. Update RCTViewComponentView's [contentView]
-  [self setContentView:view];
+  [self setContentView:view];${childrenContainerUpdate}
 }
 
-- (void) notifyOnDropView {
+${childrenMethods}- (void) notifyOnDropView {
   // A recycled component can later be invalidated. Notify only once per mount.
   if (_didDropView) {
     return;

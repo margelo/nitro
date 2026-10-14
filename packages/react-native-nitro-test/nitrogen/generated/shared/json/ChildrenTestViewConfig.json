@@ -1,0 +1,10 @@
+{
+  "uiViewClassName": "ChildrenTestView",
+  "supportsRawText": false,
+  "bubblingEventTypes": {},
+  "directEventTypes": {},
+  "validAttributes": {
+    "isBlue": true,
+    "hybridRef": true
+  }
+}

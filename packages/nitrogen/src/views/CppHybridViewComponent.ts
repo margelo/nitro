@@ -94,6 +94,7 @@ export function createViewComponentShadowNodeFiles(
 
   // .hpp code
   const shadowIndent = createIndentation(shadowNodeClassName.length)
+  const descriptorIndent = createIndentation(descriptorClassName.length)
   const componentHeaderCode = `
 ${createFileMetadataString(`${component}.hpp`)}
 
@@ -163,7 +164,8 @@ namespace ${namespace} {
   /**
    * The Component Descriptor for the "${spec.name}" View.
    */
-  using ${descriptorClassName} = nitro::ViewComponentDescriptor<${shadowNodeClassName}>;
+  using ${descriptorClassName} = nitro::ViewComponentDescriptor<${shadowNodeClassName},
+        ${descriptorIndent}                                  ${spec.supportsChildren} /* supportsChildren */>;
 
   /* The actual view for "${spec.name}" needs to be implemented in platform-specific code. */
 

@@ -31,6 +31,48 @@ export interface HybridViewProps {
   /* no default props */
 }
 
+declare const childrenBrand: unique symbol
+/**
+ * Marks a Hybrid View as being able to render React children.
+ *
+ * Declare a prop named `children` with this type to opt the view into hosting
+ * React children. Nitrogen then requires the view's native implementation to be
+ * a container (a `ViewGroup` on Android), and Fabric mounts the child views
+ * into it.
+ *
+ * `children` is a marker, not a Nitro prop - it never crosses the JS <-> native
+ * prop bridge. React's renderer mounts and unmounts the child views directly.
+ *
+ * Views that don't declare it stay leaf views, and passing children to them is
+ * a compile error.
+ * @example
+ * ```ts
+ * // Definition:
+ * interface CardProps extends HybridViewProps {
+ *   children?: HybridViewChildren
+ *   isElevated: boolean
+ * }
+ * export type Card = HybridView<CardProps>
+ *
+ * // in React:
+ * function App() {
+ *   return (
+ *     <HybridCard isElevated={true}>
+ *       <Text>Hello</Text>
+ *     </HybridCard>
+ *   )
+ * }
+ * ```
+ */
+export interface HybridViewChildren {
+  /**
+   * Nitrogen identifies the `children` marker by its declared type, so it needs
+   * a member that no other type structurally matches.
+   * @internal
+   */
+  readonly [childrenBrand]?: never
+}
+
 /**
  * Represents methods for a Hybrid View.
  * Such methods are implemented on the native side, and can be
@@ -82,7 +124,7 @@ export type HybridRef<
   Props extends HybridViewProps,
   Methods extends HybridViewMethods = {},
   Platforms extends ViewPlatformSpec = { ios: 'swift'; android: 'kotlin' },
-> = HybridObject<Platforms> & Props & Methods
+> = HybridObject<Platforms> & Omit<Props, 'children'> & Methods
 
 /**
  * This interface acts as a tag for Hybrid Views so nitrogen detects them.
