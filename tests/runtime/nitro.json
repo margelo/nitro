@@ -1,0 +1,23 @@
+{
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "cxxNamespace": ["test"],
+  "ios": { "iosModuleName": "NitroTestFixtures" },
+  "android": {
+    "androidNamespace": ["test"],
+    "androidCxxLibName": "NitroRuntimeTests"
+  },
+  "autolinking": {
+    "TestObject": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridTestObject"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridTestObject"
+      }
+    }
+  },
+  "ignorePaths": ["**/node_modules", "**/build"],
+  "gitAttributesGeneratedFlag": false
+}

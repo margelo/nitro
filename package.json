@@ -10,7 +10,8 @@
   "workspaces": [
     "packages/nitro-core",
     "packages/nitrogen",
-    "docs"
+    "docs",
+    "tests/runtime"
   ],
   "scripts": {
     "postinstall": "bun run build && bun install --ignore-scripts --frozen-lockfile",
@@ -29,7 +30,8 @@
     "version:set": "node scripts/set-version.mjs",
     "check-versions": "node scripts/set-version.mjs --check",
     "test:release": "node --test scripts/releases/lib.test.mjs",
-    "docs": "bun --cwd docs"
+    "docs": "bun --cwd docs",
+    "test:prepare": "bun run build && bun --cwd tests/runtime prepare-tests"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",

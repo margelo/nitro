@@ -92,3 +92,6 @@ apps/*/.harness/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Native runtime test build products
+/tests/.build/
