@@ -31,6 +31,13 @@
 #define _CXX_INTEROP_HAS_ATTRIBUTE(x) 0
 #endif
 
+// Helper to find out if this code is currently being compiled as part of a given clang module
+#ifdef __building_module
+#define NITRO_BUILDING_MODULE(module) __building_module(module)
+#else
+#define NITRO_BUILDING_MODULE(module) 0
+#endif
+
 // Closed/Final Enums
 #if _CXX_INTEROP_HAS_ATTRIBUTE(enum_extensibility)
 // Enum is marked as closed/not extensible
