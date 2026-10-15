@@ -13,6 +13,7 @@ export interface TestViewProps extends HybridViewProps {
   int64Value: Int64
   colorScheme: ColorScheme
   someCallback: () => void
+  someOptionalCallback?: () => void
   nativeDefaultValue?: number
 }
 export interface TestViewMethods extends HybridViewMethods {
@@ -20,6 +21,7 @@ export interface TestViewMethods extends HybridViewMethods {
   getIsBlueSetterCallCount(): number
   getNativeDefaultValueSetterCallCount(): number
   someMethod(): void
+  hasSomeOptionalCallback(): boolean
 }
 
 export type TestView = HybridViewAlias<TestViewProps, TestViewMethods>

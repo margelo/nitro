@@ -9,6 +9,7 @@
     "int64Value": true,
     "colorScheme": true,
     "someCallback": true,
+    "someOptionalCallback": true,
     "nativeDefaultValue": true,
     "hybridRef": true
   }

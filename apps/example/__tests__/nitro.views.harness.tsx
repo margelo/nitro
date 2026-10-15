@@ -370,6 +370,50 @@ describe('TestView', () => {
     expect(view.getNativeDefaultValueSetterCallCount()).toBe(0)
   })
 
+  it('accepts a function prop being removed on a later render', async () => {
+    const viewRef = deferred<TestViewRef>()
+    const stableHybridRef = callback((view: TestViewRef) =>
+      viewRef.resolve(view)
+    )
+    const stableSomeCallback = callback(fn())
+    const renderResult = await render(
+      <TestView
+        testID="test-view-optional-callback"
+        style={INITIAL_SIZE}
+        hybridRef={stableHybridRef}
+        isBlue={false}
+        hasBeenCalled={false}
+        colorScheme="dark"
+        someCallback={stableSomeCallback}
+        someOptionalCallback={callback(fn())}
+      />,
+      { timeout: RENDER_TIMEOUT }
+    )
+
+    const view = await viewRef.promise
+    expect(view.hasSomeOptionalCallback()).toBe(true)
+
+    // Dropping a function prop sends `null` for it, which the native prop
+    // parser must treat the same as "not set".
+    const updatedViewRef = deferred<TestViewRef>()
+    await renderResult.rerender(
+      <TestView
+        testID="test-view-optional-callback"
+        style={INITIAL_SIZE}
+        hybridRef={callback((updatedView) =>
+          updatedViewRef.resolve(updatedView)
+        )}
+        isBlue={false}
+        hasBeenCalled={false}
+        colorScheme="dark"
+        someCallback={stableSomeCallback}
+      />
+    )
+
+    await updatedViewRef.promise
+    expect(view.hasSomeOptionalCallback()).toBe(false)
+  })
+
   it('only calls native setters for changed Nitro props', async () => {
     const viewRef = deferred<TestViewRef>()
     const stableHybridRef = callback((view: TestViewRef) =>

@@ -97,6 +97,13 @@ namespace margelo::nitro::test {
     inline void setSomeCallback(const std::function<void()>& someCallback) noexcept override {
       _swiftPart.setSomeCallback(someCallback);
     }
+    inline std::optional<std::function<void()>> getSomeOptionalCallback() noexcept override {
+      auto __result = _swiftPart.getSomeOptionalCallback();
+      return __result;
+    }
+    inline void setSomeOptionalCallback(const std::optional<std::function<void()>>& someOptionalCallback) noexcept override {
+      _swiftPart.setSomeOptionalCallback(someOptionalCallback);
+    }
     inline std::optional<double> getNativeDefaultValue() noexcept override {
       auto __result = _swiftPart.getNativeDefaultValue();
       return __result;
@@ -136,6 +143,14 @@ namespace margelo::nitro::test {
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
+    }
+    inline bool hasSomeOptionalCallback() override {
+      auto __result = _swiftPart.hasSomeOptionalCallback();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
     }
 
   private:
