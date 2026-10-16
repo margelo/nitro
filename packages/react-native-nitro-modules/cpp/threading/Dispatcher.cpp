@@ -11,6 +11,7 @@
 #include "JSIHelpers.hpp"
 #include "NitroDefines.hpp"
 #include "NitroLogger.hpp"
+#include <mutex>
 
 namespace margelo::nitro {
 
@@ -22,11 +23,19 @@ using namespace facebook;
  */
 std::unordered_map<jsi::Runtime * NON_NULL, std::weak_ptr<Dispatcher>> Dispatcher::_globalCache;
 
+// Guards `_globalCache` - it is mutated from every Runtime's Thread (RN JS thread,
+// Worklet Runtime initializers on their own threads), and un-synchronized
+// `unordered_map` access is UB. Never held across any JSI call.
+static std::mutex g_globalCacheMutex;
+
 void Dispatcher::installRuntimeGlobalDispatcher(jsi::Runtime& runtime, std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(LogLevel::Info, TAG, "Installing global Dispatcher Holder into Runtime \"%s\"...", getRuntimeId(runtime).c_str());
 
   // Store a weak reference in global cache
-  _globalCache[&runtime] = dispatcher;
+  {
+    std::unique_lock lock(g_globalCacheMutex);
+    _globalCache[&runtime] = dispatcher;
+  }
 
   // Inject the dispatcher into Runtime global (runtime will hold a strong reference)
   jsi::Value dispatcherHolder = JSIConverter<std::shared_ptr<Dispatcher>>::toJSI(runtime, dispatcher);
@@ -34,14 +43,17 @@ void Dispatcher::installRuntimeGlobalDispatcher(jsi::Runtime& runtime, std::shar
 }
 
 std::shared_ptr<Dispatcher> Dispatcher::getRuntimeGlobalDispatcher(jsi::Runtime& runtime) {
-  auto found = _globalCache.find(&runtime);
-  if (found != _globalCache.end()) [[likely]] {
-    // the runtime is known - we have something in cache
-    std::weak_ptr<Dispatcher> weakDispatcher = found->second;
-    std::shared_ptr<Dispatcher> strongDispatcher = weakDispatcher.lock();
-    if (strongDispatcher) {
-      // the weak reference we cached is still valid - return it!
-      return strongDispatcher;
+  {
+    std::unique_lock lock(g_globalCacheMutex);
+    auto found = _globalCache.find(&runtime);
+    if (found != _globalCache.end()) [[likely]] {
+      // the runtime is known - we have something in cache
+      std::weak_ptr<Dispatcher> weakDispatcher = found->second;
+      std::shared_ptr<Dispatcher> strongDispatcher = weakDispatcher.lock();
+      if (strongDispatcher) {
+        // the weak reference we cached is still valid - return it!
+        return strongDispatcher;
+      }
     }
   }
 
@@ -58,7 +70,10 @@ std::shared_ptr<Dispatcher> Dispatcher::getRuntimeGlobalDispatcher(jsi::Runtime&
   // 2. Cast it to the jsi::Object
   std::shared_ptr<Dispatcher> dispatcher = JSIConverter<std::shared_ptr<Dispatcher>>::fromJSI(runtime, dispatcherHolderValue);
   // 3. Throw it in our cache and return
-  _globalCache[&runtime] = dispatcher;
+  {
+    std::unique_lock lock(g_globalCacheMutex);
+    _globalCache[&runtime] = dispatcher;
+  }
   return dispatcher;
 }
 
