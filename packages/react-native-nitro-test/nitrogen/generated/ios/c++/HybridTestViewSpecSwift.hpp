@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "HybridTestViewSpec.hpp"
+#include <NitroTest/HybridTestViewSpec.hpp>
 
 // Forward declaration of `HybridTestViewSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridTestViewSpec_cxx; }
@@ -15,7 +15,7 @@ namespace NitroTest { class HybridTestViewSpec_cxx; }
 // Forward declaration of `ColorScheme` to properly resolve imports.
 namespace margelo::nitro::test { enum class ColorScheme; }
 
-#include "ColorScheme.hpp"
+#include <NitroTest/ColorScheme.hpp>
 #include <functional>
 #include <optional>
 

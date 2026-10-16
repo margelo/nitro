@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "HybridPlatformObjectSpec.hpp"
+#include <NitroTest/HybridPlatformObjectSpec.hpp>
 
 // Forward declaration of `HybridPlatformObjectSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridPlatformObjectSpec_cxx; }

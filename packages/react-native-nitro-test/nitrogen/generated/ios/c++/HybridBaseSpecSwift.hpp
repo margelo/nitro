@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "HybridBaseSpec.hpp"
+#include <NitroTest/HybridBaseSpec.hpp>
 
 // Forward declaration of `HybridBaseSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridBaseSpec_cxx; }
