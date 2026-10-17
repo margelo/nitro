@@ -52,7 +52,7 @@ export class ModuleNotFoundError extends Error {
     suggestions.push(
       'Make sure React Native Codegen generated the "NativeNitroModules" specs.'
     )
-    suggestions.push('Make sure you are using react-native 0.75.0 or higher.')
+    suggestions.push('Make sure you are using react-native 0.78.0 or higher.')
     suggestions.push('Make sure you rebuilt the app.')
     if (framework === 'expo') {
       suggestions.push('Make sure you ran `expo prebuild`.')
