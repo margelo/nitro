@@ -65,9 +65,14 @@ updates:
       - "dependencies"
       - "kotlin"
     groups:
-      agp:
+      android-toolchain:
         patterns:
+          - "gradle-wrapper"
           - "com.android.tools.build:gradle"
+          - "com.android.application"
+          - "com.android.library"
+          - "org.jetbrains.kotlin:kotlin-gradle-plugin"
+          - "org.jetbrains.kotlin.android"
       dependencies:
         group-by: dependency-name
         patterns:
