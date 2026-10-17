@@ -19,7 +19,7 @@
         "eslint-plugin-prettier": "^5.5.5",
         "jest": "^29.7.0",
         "prettier": "^3.8.3",
-        "react": "19.2.3",
+        "react": "19.3.0",
         "react-native": "0.85.3",
         "typescript": "~6.0.3",
         "typescript-eslint": "^8.60.0",
@@ -40,8 +40,8 @@
         "clsx": "^2.1.1",
         "esbuild-register": "^3.6.0",
         "prism-react-renderer": "^2.4.1",
-        "react": "19.2.3",
-        "react-dom": "19.2.3",
+        "react": "19.3.0",
+        "react-dom": "19.3.0",
         "satori": "^0.44.3",
         "sharp": "^0.35.5",
       },
@@ -84,7 +84,7 @@
         "@types/jest": "*",
         "@types/react": "^19.2.15",
         "jest": "*",
-        "react": "19.2.3",
+        "react": "19.3.0",
         "react-native": "0.85.3",
         "react-native-builder-bob": "^0.41.0",
         "react-native-worklets": "^0.9.1",
@@ -98,9 +98,9 @@
       "name": "react-native-nitro-benchmark",
       "version": "0.37.1",
       "dependencies": {
-        "react": "19.2.3",
+        "react": "19.3.0",
         "react-native": "0.85.3",
-        "react-native-nitro-modules": "workspace:*",
+        "react-native-nitro-modules": "0.37.1",
         "react-native-nitro-test": "workspace:*",
         "react-native-nitro-test-external": "workspace:*",
       },
@@ -124,10 +124,10 @@
         "@react-native-segmented-control/segmented-control": "^2.5.7",
         "@react-navigation/bottom-tabs": "^7.16.2",
         "@react-navigation/native": "^7.2.5",
-        "nitro-core": "workspace:*",
-        "react": "19.2.3",
+        "nitro-core": "0.37.1",
+        "react": "19.3.0",
         "react-native": "0.85.3",
-        "react-native-nitro-modules": "workspace:*",
+        "react-native-nitro-modules": "0.37.1",
         "react-native-nitro-test": "workspace:*",
         "react-native-nitro-test-external": "workspace:*",
         "react-native-safe-area-context": "^5.8.0",
@@ -150,7 +150,7 @@
         "@types/upng-js": "2.1.5",
         "babel-plugin-module-resolver": "^5.0.3",
         "event-target-shim": "^6.0.2",
-        "nitrogen": "workspace:*",
+        "nitrogen": "0.37.1",
         "react-native-harness": "1.5.0",
         "upng-js": "2.1.0",
       },
@@ -164,7 +164,7 @@
         "@types/react": "^19.2.15",
         "jest": "*",
         "nitrogen": "0.37.1",
-        "react": "19.2.3",
+        "react": "19.3.0",
         "react-native": "0.85.3",
         "react-native-nitro-modules": "0.37.1",
         "react-native-nitro-test-external": "workspace:*",
@@ -191,7 +191,7 @@
         "eslint-plugin-prettier": "^5.5.5",
         "nitrogen": "0.37.1",
         "prettier": "^3.8.3",
-        "react": "19.2.3",
+        "react": "19.3.0",
         "react-native": "0.85.3",
         "react-native-nitro-modules": "0.37.1",
         "typescript": "^6.0.3",
@@ -3439,11 +3439,11 @@
 
     "rc": ["rc@1.2.8", "", { "dependencies": { "deep-extend": "^0.6.0", "ini": "~1.3.0", "minimist": "^1.2.0", "strip-json-comments": "~2.0.1" }, "bin": { "rc": "./cli.js" } }, "sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw=="],
 
-    "react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
+    "react": ["react@19.3.0", "", {}, "sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog=="],
 
     "react-devtools-core": ["react-devtools-core@6.1.5", "", { "dependencies": { "shell-quote": "^1.6.1", "ws": "^7" } }, "sha512-ePrwPfxAnB+7hgnEr8vpKxL9cmnp7F322t8oqcPshbIQQhDKgFDW4tjhF2wjVbdXF9O/nyuy3sQWd9JGpiLPvA=="],
 
-    "react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
+    "react-dom": ["react-dom@19.3.0", "", { "dependencies": { "scheduler": "^0.28.0" }, "peerDependencies": { "react": "^19.3.0" } }, "sha512-JDk8dgif51OjFoDE70+OT9ICyYr+69HlmihNwp1+Nsfbna3t5sIiCa9ZJktDmQ4/1b/rn26hIAR2uYXDMr5r0Q=="],
 
     "react-fast-compare": ["react-fast-compare@3.2.2", "", {}, "sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ=="],
 
@@ -4674,6 +4674,8 @@
     "rc/ini": ["ini@1.3.8", "", {}, "sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew=="],
 
     "rc/strip-json-comments": ["strip-json-comments@2.0.1", "", {}, "sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ=="],
+
+    "react-dom/scheduler": ["scheduler@0.28.0", "", {}, "sha512-juorfCmIkIw8tT+p5BXSm6PJjQF/ycEYmKyzURCIt/RaZIhL+PulbQ9Yu2z1HdOJDdqDTlxA1+xKBmHXJsczAw=="],
 
     "react-native/yargs": ["yargs@17.7.3", "", { "dependencies": { "cliui": "^8.0.1", "escalade": "^3.1.1", "get-caller-file": "^2.0.5", "require-directory": "^2.1.1", "string-width": "^4.2.3", "y18n": "^5.0.5", "yargs-parser": "^21.1.1" } }, "sha512-GZtjxm/J/4TSxuL3FNYjCmLktBTnIw/rVmKSIyKeYAZpmJB2ig9VauCC5xsa82GNKVKDAqpOn3KVzNt0zmrU0g=="],
 

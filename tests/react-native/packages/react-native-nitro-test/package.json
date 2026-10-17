@@ -62,7 +62,7 @@
     "jest": "*",
     "nitrogen": "0.37.1",
     "@react-native/jest-preset": "0.85.3",
-    "react": "19.2.3",
+    "react": "19.3.0",
     "react-native": "0.85.3",
     "react-native-nitro-modules": "0.37.1",
     "react-native-nitro-test-external": "workspace:*"
