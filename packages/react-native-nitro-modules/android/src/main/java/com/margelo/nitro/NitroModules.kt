@@ -17,7 +17,7 @@ import dalvik.annotation.optimization.FastNative
 @Suppress("KotlinJniMissingFunction")
 class NitroModules internal constructor(
   val context: ReactApplicationContext,
-) : NitroModulesSpec(context) {
+) : NativeNitroModulesSpec(context) {
   private val mHybridData: HybridData
 
   init {

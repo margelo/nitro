@@ -21,7 +21,6 @@ class NitroModulesPackage : BaseReactPackage() {
   override fun getReactModuleInfoProvider(): ReactModuleInfoProvider {
     return ReactModuleInfoProvider {
       val moduleInfos: MutableMap<String, ReactModuleInfo> = HashMap()
-      val isTurboModule: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
       moduleInfos[NitroModules.NAME] =
         ReactModuleInfo(
           NitroModules.NAME,
@@ -29,7 +28,7 @@ class NitroModulesPackage : BaseReactPackage() {
           canOverrideExistingModule = false,
           needsEagerInit = false,
           isCxxModule = false,
-          isTurboModule = isTurboModule,
+          isTurboModule = true,
         )
       moduleInfos
     }

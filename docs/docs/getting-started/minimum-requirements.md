@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 # Minimum Requirements
 
 Nitro is a Framework built on top of newer APIs like `jsi::NativeState`.
-To use Nitro, make sure your app meets the minimum requirements:
+The React Native package requires the New Architecture. Make sure your app meets the minimum requirements:
 
 <Tabs groupId="platform">
   <TabItem value="ios" label="iOS" default>
@@ -22,3 +22,7 @@ To use Nitro, make sure your app meets the minimum requirements:
     - `ndkVersion` 27 or higher
   </TabItem>
 </Tabs>
+
+If your React Native version allows opting out of the New Architecture, set `newArchEnabled=true` in `android/gradle.properties` and run `RCT_NEW_ARCH_ENABLED=1 bundle exec pod install` in your `ios` directory. Rebuild the app after changing these settings.
+
+Standalone `nitro-core` projects do not depend on React Native or its architecture settings.

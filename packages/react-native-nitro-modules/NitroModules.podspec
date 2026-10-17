@@ -3,6 +3,10 @@ require_relative "./apple/nitro_pod_utils"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
+if ENV["RCT_NEW_ARCH_ENABLED"] == "0"
+  raise "[NitroModules] Nitro requires React Native's New Architecture. Remove RCT_NEW_ARCH_ENABLED=0 and reinstall Pods."
+end
+
 Pod::UI.puts "[NitroModules] 🔥 Your app is boosted by nitro modules!"
 
 Pod::Spec.new do |s|

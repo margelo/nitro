@@ -45,6 +45,8 @@ const result = math.add(5, 3)
 
 ## Installation
 
+The React Native package requires the New Architecture. See the [minimum requirements](https://nitro.margelo.com/docs/getting-started/minimum-requirements) before installing.
+
 Install [react-native-nitro-modules](https://npmjs.org/react-native-nitro-modules) from npm:
 ```sh
 npm i react-native-nitro-modules

@@ -1,13 +1,11 @@
 //
-//  NativeNitroModules+NewArch.mm
+//  NativeNitroModules.mm
 //  react-native-nitro
 //
 //  Created by Marc Rousavy on 21.06.24.
 //
 
 #import "NativeNitroModules.h"
-
-#ifdef RCT_NEW_ARCH_ENABLED
 
 #import "CallInvokerDispatcher.hpp"
 #import "InstallNitro.hpp"
@@ -24,7 +22,7 @@ using namespace margelo;
 @end
 
 /**
- * NativeNitroModules implementation for the new architecture.
+ * NativeNitroModules TurboModule implementation.
  * This uses `installJSIBindingsWithRuntime:` to install the `global.NitroModulesProxy` into the JS Runtime.
  */
 @implementation NativeNitroModules {
@@ -87,4 +85,3 @@ RCT_EXPORT_MODULE(NitroModules)
 
 @end
 
-#endif
