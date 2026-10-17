@@ -1,4 +1,4 @@
-name: Check generated test bindings
+name: Check Nitrogen output
 
 on:
   push:
@@ -40,7 +40,7 @@ permissions:
 
 jobs:
   generate:
-    name: Generate standalone and React Native fixtures
+    name: Check Nitrogen output
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -51,7 +51,7 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - run: bun specs:all
+      - run: bun specs
       - name: Verify generated bindings are committed
         shell: bash
         run: |

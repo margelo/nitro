@@ -42,7 +42,10 @@ bun test:prepare
 regenerates bindings, and bundles the JS into `runtime/build/runtime-tests.js`.
 It also writes `runtime/build/runtime-tests.json`, the case list used by both
 native runners. The bundle and case list are generated together.
-Commit generated binding changes with their spec. The fixture CI checks for drift.
+Commit generated binding changes with their spec. The **Check Nitrogen output**
+job regenerates bindings for both test environments and checks for drift. It does
+not bundle the JavaScript tests; each native test job runs `test:prepare` before
+building and executing its tests.
 
 Run `bun test:ios` on macOS with Xcode, or `bun test:android` with the Android SDK,
 NDK, JDK and a running emulator. See each platform directory for its toolchain and
