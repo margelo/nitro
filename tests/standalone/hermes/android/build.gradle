@@ -44,7 +44,7 @@ android {
 }
 
 dependencies {
-  api 'com.facebook.fbjni:fbjni:0.7.0'
+  api 'com.facebook.fbjni:fbjni:0.8.1'
   implementation 'com.facebook.yoga:proguard-annotations:1.19.0'
 }
 
