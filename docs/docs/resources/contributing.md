@@ -75,7 +75,7 @@ After installing all dependencies, you can run the React Native app in `tests/re
   </TabItem>
 </Tabs>
 
-Edit shared implementations in `packages/nitro-core`. `bun sync-core` stages those sources into the RN package, and `bun specs:all` regenerates every test fixture with the local Nitrogen build.
+Edit shared implementations in `packages/nitro-core`. `bun sync-core` stages those sources into the RN package, and `bun specs` regenerates the Nitrogen bindings for every test fixture with the local Nitrogen build.
 
 ## Reproduce something in the Nitro Example app
 

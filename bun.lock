@@ -212,6 +212,7 @@
         "@types/chai": "5.2.3",
         "chai": "5.3.3",
         "nitro-core": "workspace:*",
+        "nitrogen": "workspace:*",
       },
     },
   },

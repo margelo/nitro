@@ -70,12 +70,6 @@ const root = path.resolve(
   "../../../..",
 );
 const environment = { ...process.env };
-if (
-  !environment.DEVELOPER_DIR &&
-  existsSync("/Applications/Xcode.app/Contents/Developer")
-) {
-  environment.DEVELOPER_DIR = "/Applications/Xcode.app/Contents/Developer";
-}
 function run(command, args, capture = false) {
   const result = spawnSync(command, args, {
     cwd: root,
