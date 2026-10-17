@@ -42,7 +42,7 @@
         "prism-react-renderer": "^2.4.1",
         "react": "19.2.3",
         "react-dom": "19.2.3",
-        "satori": "^0.44.3",
+        "satori": "^0.56.2",
         "sharp": "^0.35.5",
       },
       "devDependencies": {
@@ -3607,7 +3607,7 @@
 
     "safer-buffer": ["safer-buffer@2.1.2", "", {}, "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg=="],
 
-    "satori": ["satori@0.44.3", "", { "dependencies": { "@shuding/opentype.js": "1.4.0-beta.0", "css-background-parser": "^0.1.0", "css-box-shadow": "1.0.0-3", "css-gradient-parser": "^0.0.17", "css-to-react-native": "^3.0.0", "emoji-regex-xs": "^2.0.1", "escape-html": "^1.0.3", "fflate": "0.7.3", "harfbuzzjs": "0.10.0", "linebreak": "^1.1.0", "parse-css-color": "^0.2.1", "postcss-value-parser": "^4.2.0" } }, "sha512-3Dj7zB2jc+806+YYinNID9nvdJK2AagSmpNeG/qeHY7Yq7jQ5EpMSQ8C5rLSw1PMxnrbQaQsQnCiEGzIKKq3HA=="],
+    "satori": ["satori@0.56.2", "", { "dependencies": { "@shuding/opentype.js": "1.4.0-beta.0", "css-background-parser": "^0.1.0", "css-box-shadow": "1.0.0-3", "css-gradient-parser": "^0.0.17", "css-to-react-native": "^3.0.0", "emoji-regex-xs": "^2.0.1", "escape-html": "^1.0.3", "fflate": "0.7.3", "harfbuzzjs": "0.10.0", "linebreak": "^1.1.0", "parse-css-color": "^0.2.1", "postcss-value-parser": "^4.2.0" } }, "sha512-XeufDrze8opEuCN16V8ovGDr6jVPbyNI+4l/C47YoPBV7ZrGMDzCFNH9D8/uIKcKBDPHtBXUg3E9OEA2c7nXXg=="],
 
     "sax": ["sax@1.6.1", "", {}, "sha512-42tBVwLWnaQvW5zc4HbZrTuWccECCZfBi92FDuwtqxasH+JbPB3/FOKb1m222K42R4WxuxzzMsTswfzgtSu64Q=="],
 
