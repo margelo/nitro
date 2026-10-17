@@ -12,15 +12,51 @@ import NitroModules
 public final class NitroTestFixturesAutolinking {
   public typealias bridge = margelo.nitro.test.bridge.swift
 
-  public static func createTestObject() -> bridge.std__shared_ptr_HybridTestObjectSpec_ {
-    let hybridObject = HybridTestObject()
-    return { () -> bridge.std__shared_ptr_HybridTestObjectSpec_ in
+  public static func createTestObjectSwiftKotlin() -> bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ {
+    let hybridObject = HybridTestObjectSwift()
+    return { () -> bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ in
       let __cxxWrapped = hybridObject.getCxxWrapper()
       return __cxxWrapped.getCxxPart()
     }()
   }
   
-  public static func isTestObjectRecyclable() -> Bool {
-    return HybridTestObject.self is any RecyclableView.Type
+  public static func isTestObjectSwiftKotlinRecyclable() -> Bool {
+    return HybridTestObjectSwift.self is any RecyclableView.Type
+  }
+  
+  public static func createBase() -> bridge.std__shared_ptr_HybridBaseSpec_ {
+    let hybridObject = HybridBase()
+    return { () -> bridge.std__shared_ptr_HybridBaseSpec_ in
+      let __cxxWrapped = hybridObject.getCxxWrapper()
+      return __cxxWrapped.getCxxPart()
+    }()
+  }
+  
+  public static func isBaseRecyclable() -> Bool {
+    return HybridBase.self is any RecyclableView.Type
+  }
+  
+  public static func createChild() -> bridge.std__shared_ptr_HybridChildSpec_ {
+    let hybridObject = HybridChild()
+    return { () -> bridge.std__shared_ptr_HybridChildSpec_ in
+      let __cxxWrapped = hybridObject.getCxxWrapper()
+      return __cxxWrapped.getCxxPart()
+    }()
+  }
+  
+  public static func isChildRecyclable() -> Bool {
+    return HybridChild.self is any RecyclableView.Type
+  }
+  
+  public static func createPlatformObject() -> bridge.std__shared_ptr_HybridPlatformObjectSpec_ {
+    let hybridObject = HybridPlatformObject()
+    return { () -> bridge.std__shared_ptr_HybridPlatformObjectSpec_ in
+      let __cxxWrapped = hybridObject.getCxxWrapper()
+      return __cxxWrapped.getCxxPart()
+    }()
+  }
+  
+  public static func isPlatformObjectRecyclable() -> Bool {
+    return HybridPlatformObject.self is any RecyclableView.Type
   }
 }

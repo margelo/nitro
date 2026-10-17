@@ -1,8 +1,11 @@
 # Native runtime tests
 
-`runtime/` exercises Nitro through Hermes and the generated Swift/Kotlin bindings.
-It has two HybridObject methods: `bounceBoolean` and `calculateFibonacciAsync`.
-The same TypeScript cases run on iOS and Android. React Native and Fabric tests live in `../react-native/`.
+`runtime/` exercises Nitro through Hermes, C++ fixtures, and generated
+Swift/Kotlin bindings. The same TypeScript cases run on iOS and Android.
+The suites cover primitives, arrays, maps, variants, structs, callbacks,
+Promises, buffers, inheritance, object lifetime, and the Nitro registry.
+React Native integration and View tests live in `../react-native/`.
+See [MIGRATION.md](MIGRATION.md) for the source inventory and exclusions.
 
 ```text
 tests/standalone/
@@ -10,11 +13,13 @@ tests/standalone/
     specs/                # Nitrogen inputs, importing nitro-core
     js/                   # Shared TypeScript behavior tests
     cpp/                  # Hermes runtime and dispatcher
+    fixtures/             # C++ HybridObject implementations
     nitrogen/generated/   # Committed Nitrogen output
     ios/                  # Swift fixtures and Swift Testing target
     android/              # Kotlin fixtures and instrumented JUnit tests
     package.json          # Private workspace, never published
     tsconfig.json
+  external/               # Separate Swift/Kotlin module for cross-module tests
   hermes/                 # Engine build helpers, Swift package and Android library
   nitro-core/android/     # Local Gradle/Prefab adapter for the core sources
   vendor/hermes/          # Public Hermes static_h submodule, pinned by Git
@@ -41,7 +46,8 @@ bun test:prepare
 `test:prepare` builds the workspace Nitrogen, typechecks the specs and tests,
 regenerates bindings, and bundles the JS into `runtime/build/runtime-tests.js`.
 It also writes `runtime/build/runtime-tests.json`, the case list used by both
-native runners. The bundle and case list are generated together.
+native runners, and `runtime/build/runtime-test-skips.json`, the original
+platform/build exclusions. The bundle and manifests are generated together.
 Commit generated binding changes with their spec. The **Check Nitrogen output**
 job regenerates bindings for both test environments and checks for drift. It does
 not bundle the JavaScript tests; each native test job runs `test:prepare` before
@@ -58,8 +64,9 @@ Core, the native fixtures, and the test host. Hermes stays uninstrumented.
 See the [iOS](runtime/ios/README.md) and
 [Android](runtime/android/README.md) guides for local sanitizer commands.
 
-React Native Harness runs without sanitizers. Portable cases still in Harness
-gain sanitizer coverage when they move into this suite.
+All portable Harness cases now run in this suite with the sanitizer
+configurations above. React Native Harness keeps its integration and View tests
+without sanitizers.
 
 ## Writing tests
 
@@ -69,7 +76,7 @@ The native engine executes the bundled JavaScript. `chai` supplies assertions:
 ```ts
 import { expect } from "chai";
 
-expect(object.bounceBoolean(true)).to.equal(true);
+expect(object.addNumbers(5, 13)).to.equal(18);
 expect(await object.calculateFibonacciAsync(10)).to.equal(55n);
 ```
 
@@ -84,8 +91,14 @@ Export a named, zero-argument function from any `runtime/js/**/*.test.ts` file.
 It can return `void` or `Promise<void>`:
 
 ```ts
+import { expect } from "chai";
+import { getNitroModules } from "nitro-core";
+import type { TestObjectSwiftKotlin } from "../specs/TestObject.nitro";
+
 export async function fibonacci(): Promise<void> {
-  const object = getNitroModules().createHybridObject<TestObject>("TestObject");
+  const object = getNitroModules().createHybridObject<TestObjectSwiftKotlin>(
+    "TestObjectSwiftKotlin",
+  );
   expect(await object.calculateFibonacciAsync(10)).to.equal(55n);
 }
 ```
@@ -93,34 +106,77 @@ export async function fibonacci(): Promise<void> {
 The bundler discovers exported values using TypeScript's module information,
 without executing test modules in Bun. Keep helper functions unexported or in
 separate helper files. Each test gets a file-qualified name, such as
-`TestObject.fibonacci`. New files and cases require no Swift/Kotlin edits.
+`promises.fibonacci` for a function in `promises.test.ts`. New files and cases
+require no Swift/Kotlin edits.
 
 Swift Testing and JUnit run the names as parameterized cases, preserving individual
 results and continuing after a case fails. Missing, invalid, or empty case lists
-fail discovery. The four native error/timeout contract tests remain handwritten.
+fail discovery. The native error/timeout contract tests remain handwritten.
 Jest and Vitest are not needed to run the JS cases.
+
+Larger suites can export a `cases` object whose keys are literal test names.
+`casesForTestObjects` binds each case to a fresh C++ or Swift/Kotlin fixture;
+`namedCases` prefixes cases that do not use that pair of fixtures:
+
+```ts
+import { expect } from "chai";
+import { casesForTestObjects } from "./utils/cases";
+
+export const cases = casesForTestObjects("Numbers", {
+  "adds two numbers": (object) => {
+    expect(object.addNumbers(5, 13)).to.equal(18);
+  },
+});
+```
+
+The bundler reads literal keys through TypeScript, without evaluating the module
+or creating native objects in Bun. It rejects case maps with open string index
+signatures, empty suites, invalid callbacks, and exclusions for unknown tests.
+
+Migrated suites also export a literal `skips` object with `as const`. Each key
+matches a case key, and each value maps `ios`, `android`, or `release` to the
+original exclusion reason. JUnit reports these as assumptions; Swift Testing
+puts them in a separate disabled parameterized test. They are never counted as
+successful behavior checks. New regressions should fail normally.
 
 ## Execution and failures
 
 Each native case creates a fresh Hermes runtime, installs Nitro, loads the bundle,
-and calls `runNitroTest(name)`. The calling native test thread owns the runtime
-and pumps its dispatcher. Native work runs on background threads; its callbacks
-are queued back to the runtime's owning thread. When the microtask queue is empty,
-the dispatcher sleeps until a native callback arrives or the deadline expires.
+and calls `runNitroTest(name)`. The runner eagerly compiles the bundle once and
+caches its bytecode by source contents. Each runtime evaluates that bytecode with
+fresh globals and native objects. Compilation happens before the JS deadlines;
+Hermes' watchdog cannot interrupt the native compiler.
+
+The native thread owns the runtime and pumps its dispatcher. On iOS, a dedicated
+serial queue runs this blocking work while the Swift test awaits a continuation.
+This leaves Swift's cooperative executor free to run `Promise.async` tasks that
+the JavaScript case awaits. The iOS runner restricts the cooperative pool to one
+worker so the concurrent native Promise test checks this behavior.
+Native work runs on background threads; its callbacks are queued back to the
+runtime's owning thread. When the microtask queue is empty, the dispatcher sleeps
+until a native callback arrives or the deadline expires.
 Runtime execution is serialized because Nitro currently has process-wide caches.
 
 An async case keeps that same runtime alive across every `await`. Put repeated
 calls, concurrent Promises, or cache-growth checks in one case when they must
 share runtime state. The suite checks concurrent native completions and a long
 Promise chain with per-iteration captured bindings. This host does not
-install timer APIs such as `setTimeout`.
+install timer APIs such as `setTimeout`. Migrated asynchronous helpers yield via
+the C++ fixture's native `wait` method. The host exposes `gc()` for the original
+lifetime tests and `__nitroTestPlatform` for platform-dependent assertions.
 
 Fulfillment passes. An assertion, JS exception, rejection, native exception, or
 timeout becomes a Swift error or JUnit assertion failure containing the case name
 and JS stack. The helper returns a message across the native boundary rather than
-exposing JSI values or throwing C++ exceptions into Swift. The default timeout is
-10 seconds; Hermes also interrupts synchronous JS loops. Late native callbacks
-cannot re-enter the runtime after it closes.
+exposing JSI values or throwing C++ exceptions into Swift. Bundle setup and test
+execution each get a 10-second timeout. Setup cannot consume the test's budget.
+`withTestTimeout(150_000, test)` gives the four 55,000-object allocation/disposal
+cases the previous Harness CI allowance. Other tests retain the default, and
+the override never extends bundle setup. Native runner contracts pass shorter
+explicit limits to check timeouts.
+Hermes interrupts synchronous JS loops and endless microtask chains in either
+phase; timeout errors identify the phase. Late native callbacks cannot re-enter
+the runtime after it closes.
 
 Chai includes expected/actual values in assertion messages with truncation
 disabled. There is no custom property-diff reporter or source-map symbolicator

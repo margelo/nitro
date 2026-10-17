@@ -5,6 +5,209 @@
 	"objectVersion" = "77";
 	"archiveVersion" = "1";
 	"objects" = {
+		"A3100000000000000000001A" = {
+			"isa" = "PBXFileReference";
+			"path" = "../build/runtime-test-skips.json";
+			"lastKnownFileType" = "text.json";
+			"sourceTree" = "<group>";
+		};
+		"A3100000000000000000001B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A3100000000000000000001A";
+		};
+		"A31000000000000000000001" = {
+			"isa" = "PBXNativeTarget";
+			"dependencies" = (
+				"A31000000000000000000011",
+			);
+			"productType" = "com.apple.product-type.framework";
+			"productReference" = "A31000000000000000000002";
+			"buildConfigurationList" = "A31000000000000000000006";
+			"productName" = "NitroTestExternal";
+			"fileSystemSynchronizedGroups" = (
+				"A31000000000000000000009",
+				"A3100000000000000000000A",
+				"A3100000000000000000000B",
+			);
+			"buildPhases" = (
+				"A31000000000000000000003",
+				"A31000000000000000000004",
+				"A31000000000000000000005",
+			);
+			"name" = "NitroTestExternal";
+			"buildRules" = (
+			);
+		};
+		"A31000000000000000000002" = {
+			"isa" = "PBXFileReference";
+			"path" = "NitroTestExternal.framework";
+			"lastKnownFileType" = "wrapper.framework";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"A31000000000000000000003" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"A31000000000000000000004" = {
+			"isa" = "PBXHeadersBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"A3100000000000000000000F",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"A31000000000000000000005" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"A31000000000000000000012",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"A31000000000000000000006" = {
+			"isa" = "XCConfigurationList";
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Debug";
+			"buildConfigurations" = (
+				"A31000000000000000000007",
+				"A31000000000000000000008",
+			);
+		};
+		"A31000000000000000000007" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Debug";
+			"buildSettings" = {
+				"PRODUCT_MODULE_NAME" = "NitroTestExternal";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroTestExternal";
+				"SKIP_INSTALL" = "YES";
+				"SWIFT_INSTALL_OBJC_HEADER" = "NO";
+				"DEFINES_MODULE" = "YES";
+				"PRODUCT_NAME" = "NitroTestExternal";
+				"MACH_O_TYPE" = "staticlib";
+			};
+		};
+		"A31000000000000000000008" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Release";
+			"buildSettings" = {
+				"PRODUCT_MODULE_NAME" = "NitroTestExternal";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroTestExternal";
+				"SKIP_INSTALL" = "YES";
+				"SWIFT_INSTALL_OBJC_HEADER" = "NO";
+				"DEFINES_MODULE" = "YES";
+				"PRODUCT_NAME" = "NitroTestExternal";
+				"MACH_O_TYPE" = "staticlib";
+			};
+		};
+		"A31000000000000000000009" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../../external/ios";
+			"exceptions" = (
+				"A3100000000000000000000D",
+			);
+			"sourceTree" = "<group>";
+			"explicitFolders" = (
+				"Support",
+			);
+		};
+		"A3100000000000000000000A" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../../external/nitrogen/generated/ios";
+			"exceptions" = (
+				"A3100000000000000000000C",
+			);
+			"sourceTree" = "<group>";
+		};
+		"A3100000000000000000000B" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../../external/nitrogen/generated/shared";
+			"sourceTree" = "<group>";
+		};
+		"A3100000000000000000000C" = {
+			"isa" = "PBXFileSystemSynchronizedBuildFileExceptionSet";
+			"target" = "A31000000000000000000001";
+			"membershipExceptions" = (
+				"NitroTestExternal+autolinking.rb",
+			);
+		};
+		"A3100000000000000000000D" = {
+			"isa" = "PBXFileSystemSynchronizedBuildFileExceptionSet";
+			"target" = "A31000000000000000000001";
+			"membershipExceptions" = (
+				"Support",
+			);
+		};
+		"A3100000000000000000000E" = {
+			"isa" = "PBXFileReference";
+			"path" = "../../external/ios/Support/NitroTestExternal.h";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"sourceTree" = "<group>";
+		};
+		"A3100000000000000000000F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A3100000000000000000000E";
+			"settings" = {
+				"ATTRIBUTES" = (
+					"Public",
+				);
+			};
+		};
+		"A31000000000000000000010" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"remoteGlobalIDString" = "6CBE257FF20F1296AB407DBC";
+			"remoteInfo" = "NitroModules";
+			"proxyType" = "1";
+		};
+		"A31000000000000000000011" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "6CBE257FF20F1296AB407DBC";
+			"targetProxy" = "A31000000000000000000010";
+		};
+		"A31000000000000000000012" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F1EF64D6FA16E706AC9BAF17";
+		};
+		"A31000000000000000000013" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"remoteGlobalIDString" = "A31000000000000000000001";
+			"remoteInfo" = "NitroTestExternal";
+			"proxyType" = "1";
+		};
+		"A31000000000000000000014" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "A31000000000000000000001";
+			"targetProxy" = "A31000000000000000000013";
+		};
+		"A31000000000000000000015" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A31000000000000000000002";
+		};
+		"A31000000000000000000016" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"remoteGlobalIDString" = "A31000000000000000000001";
+			"remoteInfo" = "NitroTestExternal";
+			"proxyType" = "1";
+		};
+		"A31000000000000000000017" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "A31000000000000000000001";
+			"targetProxy" = "A31000000000000000000016";
+		};
+		"A31000000000000000000018" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A31000000000000000000002";
+		};
+		"A31000000000000000000019" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../fixtures";
+			"sourceTree" = "<group>";
+		};
 		"FEBA150E779FF183EC0E7020" = {
 			"isa" = "PBXTargetDependency";
 			"target" = "2CF3AE9D8CF9E682FC1AADBE";
@@ -127,6 +330,7 @@
 			"runOnlyForDeploymentPostprocessing" = "0";
 			"outputPaths" = (
 				"$(BUILT_PRODUCTS_DIR)/include/NitroModules",
+				"$(BUILT_PRODUCTS_DIR)/include/NitroTestExternal",
 			);
 			"shellScript" = "/bin/sh \"$SRCROOT/prepare-headers.sh\"\n";
 			"name" = "Prepare Nitro headers";
@@ -153,6 +357,7 @@
 			"files" = (
 				"FE7FE366CCF7920C3DC7424B",
 				"74BB83F8671E19014B8EAA57",
+				"A3100000000000000000001B",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};
@@ -196,6 +401,7 @@
 			"buildActionMask" = "2147483647";
 			"files" = (
 				"EACEA4950268A0A97B2ED2A4",
+				"A31000000000000000000015",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};
@@ -220,6 +426,7 @@
 				"F1EF64D6FA16E706AC9BAF17",
 				"28486F24E892427E47C433F9",
 				"BD7ABD422F87ECBD09215C89",
+				"A31000000000000000000002",
 			);
 		};
 		"80DE6F2423420D3DCEE4FAC8" = {
@@ -236,6 +443,7 @@
 				"6CBE257FF20F1296AB407DBC",
 				"2CF3AE9D8CF9E682FC1AADBE",
 				"75E1957B85157B2788675914",
+				"A31000000000000000000001",
 			);
 			"developmentRegion" = "en";
 			"knownRegions" = (
@@ -286,6 +494,7 @@
 		"2CF3AE9D8CF9E682FC1AADBE" = {
 			"dependencies" = (
 				"F292CFF87FBC1457ADE34534",
+				"A31000000000000000000014",
 			);
 			"productType" = "com.apple.product-type.framework";
 			"productReference" = "28486F24E892427E47C433F9";
@@ -296,6 +505,7 @@
 				"80DE6F2423420D3DCEE4FAC8",
 				"E94B95F154E204F6DA54E6C1",
 				"6E892F881E37E4AFCB5FD437",
+				"A31000000000000000000019",
 			);
 			"buildPhases" = (
 				"8B0E117F17316968A61FB589",
@@ -355,6 +565,7 @@
 			"dependencies" = (
 				"BEB4D80D86EA9A6F1FFEA9F6",
 				"FEBA150E779FF183EC0E7020",
+				"A31000000000000000000017",
 			);
 			"productType" = "com.apple.product-type.bundle.unit-test";
 			"productReference" = "BD7ABD422F87ECBD09215C89";
@@ -447,7 +658,13 @@
 				"72000EC893B5C16DBB73C064",
 				"8C596FAF64219ECB904B4B58",
 				"107B3F486EB8308BCC5A0D11",
+				"A3100000000000000000001A",
 				"6F7199ED7B63CDA338A0FB82",
+				"A31000000000000000000009",
+				"A3100000000000000000000A",
+				"A3100000000000000000000B",
+				"A3100000000000000000000E",
+				"A31000000000000000000019",
 			);
 		};
 		"82909BADB2BE2F35E6FFD9E2" = {
@@ -475,6 +692,7 @@
 				"2A6F4F80F913260559C7B4F8",
 				"0CC8B52FDFCA5117F26C16D1",
 				"C7B626903A49721DF1C7A9A0",
+				"A31000000000000000000018",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};

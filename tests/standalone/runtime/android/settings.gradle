@@ -15,6 +15,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = 'NitroRuntimeTests'
-include ':hermes', ':nitro-core'
+include ':hermes', ':nitro-core', ':nitro-test-external'
 project(':hermes').projectDir = file('../../hermes/android')
 project(':nitro-core').projectDir = file('../../nitro-core/android')
+project(':nitro-test-external').projectDir = file('../../external/android')

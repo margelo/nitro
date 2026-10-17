@@ -9,6 +9,7 @@ set(GENERATED "${CMAKE_CURRENT_LIST_DIR}/../nitrogen/generated")
 find_package(fbjni REQUIRED CONFIG)
 find_package(hermes REQUIRED CONFIG)
 find_package(nitro-core REQUIRED CONFIG)
+find_package(nitro-test-external REQUIRED CONFIG)
 
 file(GLOB_RECURSE GENERATED_CPP CONFIGURE_DEPENDS
   "${GENERATED}/shared/c++/*.cpp"
@@ -16,6 +17,7 @@ file(GLOB_RECURSE GENERATED_CPP CONFIGURE_DEPENDS
 
 add_library(NitroRuntimeTests SHARED
   ${GENERATED_CPP}
+  ../fixtures/HybridTestObjectCpp.cpp
   "${GENERATED}/android/NitroRuntimeTestsOnLoad.cpp"
   ../cpp/TestRuntime.cpp
   src/main/cpp/JNIOnLoad.cpp)
@@ -26,9 +28,10 @@ target_include_directories(NitroRuntimeTests PRIVATE
   "${GENERATED}/shared/c++"
   "${GENERATED}/android/c++"
   "${GENERATED}/android"
-  ../cpp)
+  ../cpp
+  ../fixtures)
 target_link_libraries(NitroRuntimeTests PRIVATE
-  nitro-core::NitroModules hermes::hermesvm fbjni::fbjni android log)
+  nitro-core::NitroModules nitro-test-external::NitroTestExternal hermes::hermesvm fbjni::fbjni android log)
 
 include("${CMAKE_CURRENT_LIST_DIR}/sanitizer.cmake")
 nitro_apply_test_sanitizer(NitroRuntimeTests)

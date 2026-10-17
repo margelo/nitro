@@ -1,0 +1,34 @@
+{
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "cxxNamespace": [
+    "test",
+    "external"
+  ],
+  "ios": {
+    "iosModuleName": "NitroTestExternal"
+  },
+  "android": {
+    "androidNamespace": [
+      "test",
+      "external"
+    ],
+    "androidCxxLibName": "NitroTestExternal"
+  },
+  "autolinking": {
+    "SomeExternalObject": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridSomeExternalObject"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridSomeExternalObject"
+      }
+    }
+  },
+  "ignorePaths": [
+    "**/node_modules",
+    "**/build"
+  ],
+  "gitAttributesGeneratedFlag": false
+}

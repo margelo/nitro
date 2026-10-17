@@ -205,6 +205,13 @@
         "react-native-nitro-modules",
       ],
     },
+    "tests/standalone/external": {
+      "name": "nitro-test-external",
+      "version": "0.0.0",
+      "devDependencies": {
+        "nitro-core": "workspace:*",
+      },
+    },
     "tests/standalone/runtime": {
       "name": "nitro-runtime-tests",
       "version": "0.0.0",
@@ -3096,6 +3103,8 @@
     "nitro-docs": ["nitro-docs@workspace:docs"],
 
     "nitro-runtime-tests": ["nitro-runtime-tests@workspace:tests/standalone/runtime"],
+
+    "nitro-test-external": ["nitro-test-external@workspace:tests/standalone/external"],
 
     "nitrogen": ["nitrogen@workspace:packages/nitrogen"],
 

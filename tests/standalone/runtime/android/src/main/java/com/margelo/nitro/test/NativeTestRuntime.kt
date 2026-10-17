@@ -5,6 +5,7 @@ import com.margelo.nitro.testing.NitroCore
 internal object NativeTestRuntime {
   init {
     NitroCore.initialize()
+    System.loadLibrary("NitroTestExternal")
     System.loadLibrary("NitroRuntimeTests")
   }
 

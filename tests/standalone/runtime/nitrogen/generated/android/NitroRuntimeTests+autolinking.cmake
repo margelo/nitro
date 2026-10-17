@@ -33,9 +33,30 @@ target_sources(
   # Autolinking Setup
   ../nitrogen/generated/android/NitroRuntimeTestsOnLoad.cpp
   # Shared Nitrogen C++ sources
-  ../nitrogen/generated/shared/c++/HybridTestObjectSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridBaseSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridChildSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridPlatformObjectSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridTestObjectCppSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridTestObjectSwiftKotlinSpec.cpp
   # Android-specific Nitrogen C++ sources
-  ../nitrogen/generated/android/c++/JHybridTestObjectSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridBaseSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridChildSpec.cpp
+  ../nitrogen/generated/android/c++/JNamedVariant.cpp
+  ../nitrogen/generated/android/c++/JVariant_Double_String.cpp
+  ../nitrogen/generated/android/c++/JHybridPlatformObjectSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridTestObjectSwiftKotlinSpec.cpp
+  ../nitrogen/generated/android/c++/JVariant_NullType_String.cpp
+  ../nitrogen/generated/android/c++/JVariant_HybridTestObjectSwiftKotlinSpec_Person.cpp
+  ../nitrogen/generated/android/c++/JVariant_Boolean_Double.cpp
+  ../nitrogen/generated/android/c++/JVariant_______Unit_Double.cpp
+  ../nitrogen/generated/android/c++/JVariant_OldEnum_Boolean.cpp
+  ../nitrogen/generated/android/c++/JVariant_Powertrain_Car.cpp
+  ../nitrogen/generated/android/c++/JVariant_WeirdNumbersEnum_Boolean.cpp
+  ../nitrogen/generated/android/c++/JVariant_Person_Car.cpp
+  ../nitrogen/generated/android/c++/JVariant_HybridBaseSpec_OptionalWrapper.cpp
+  ../nitrogen/generated/android/c++/JCoreTypesVariant.cpp
+  ../nitrogen/generated/android/c++/JStringOrExternal.cpp
+  ../nitrogen/generated/android/c++/JVariant_Boolean_DoubleArray_Array_String__Double_String.cpp
 )
 
 # From node_modules/react-native/ReactAndroid/cmake-utils/folly-flags.cmake

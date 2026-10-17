@@ -13,6 +13,7 @@
     "packages/react-native-nitro-modules",
     "docs",
     "tests/standalone/runtime",
+    "tests/standalone/external",
     "tests/react-native/packages/*",
     "tests/react-native/apps/*"
   ],

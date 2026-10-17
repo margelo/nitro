@@ -35,8 +35,8 @@ const config = {
   defaultRunner: 'android',
   plugins: [runningTestPlugin()],
   resetEnvironmentBetweenTestFiles: 'runtime',
-  // Harness has no per-test timeout. Allow more time on CI for async stress tests.
-  testTimeout: process.env.CI === 'true' ? 150000 : 10000,
+  // View cases perform several render/recycling steps and native screenshots.
+  testTimeout: process.env.CI === 'true' ? 30000 : 10000,
   platformReadyTimeout: process.env.CI === 'true' ? 420000 : 300000,
   bridgeTimeout: process.env.CI === 'true' ? 180000 : 60000,
   bundleStartTimeout: process.env.CI === 'true' ? 120000 : 60000,

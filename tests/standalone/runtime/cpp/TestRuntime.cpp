@@ -3,9 +3,12 @@
 #include <NitroModules/Dispatcher.hpp>
 #include <NitroModules/InstallNitro.hpp>
 #include <chrono>
+#include <cmath>
 #include <condition_variable>
 #include <future>
 #include <hermes/hermes.h>
+#include <jsi/instrumentation.h>
+#include <limits>
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -89,10 +92,43 @@ namespace {
     return error.toString(runtime).utf8(runtime);
   }
 
+  std::shared_ptr<const jsi::PreparedJavaScript> prepareBundle(jsi::Runtime& runtime, const std::string& source) {
+    struct PreparedBundle {
+      std::string source;
+      std::shared_ptr<const jsi::PreparedJavaScript> script;
+    };
+    // runTest's mutex serializes access. Prepared bytecode can be shared across
+    // Hermes runtimes; globals and native objects still belong to each runtime.
+    static PreparedBundle cached;
+    if (!cached.script || cached.source != source) {
+      auto script = runtime.prepareJavaScript(std::make_shared<jsi::StringBuffer>(source), "runtime-tests.js");
+      cached = {source, std::move(script)};
+    }
+    return cached.script;
+  }
+
+  uint32_t getTestTimeout(jsi::Runtime& runtime, const std::string& name, uint32_t defaultTimeoutMs) {
+    auto getter = runtime.global().getProperty(runtime, "getNitroTestTimeoutMs");
+    if (getter.isUndefined())
+      return defaultTimeoutMs;
+    auto timeout = getter.asObject(runtime).asFunction(runtime).call(runtime, jsi::String::createFromUtf8(runtime, name));
+    if (timeout.isUndefined())
+      return defaultTimeoutMs;
+    if (!timeout.isNumber() || !std::isfinite(timeout.getNumber()) || timeout.getNumber() <= 0 ||
+        timeout.getNumber() > std::numeric_limits<uint32_t>::max() || std::floor(timeout.getNumber()) != timeout.getNumber()) {
+      throw std::runtime_error("getNitroTestTimeoutMs must return a positive uint32 timeout or undefined");
+    }
+    return static_cast<uint32_t>(timeout.getNumber());
+  }
+
   std::string execute(const std::string& bundle, const std::string& name, uint32_t timeoutMs) {
     auto dispatcher = std::make_shared<TestDispatcher>();
-    auto config =
-        ::hermes::vm::RuntimeConfig::Builder().withMicrotaskQueue(true).withAsyncBreakCheckInEval(true).withES6BlockScoping(true).build();
+    auto config = ::hermes::vm::RuntimeConfig::Builder()
+                      .withMicrotaskQueue(true)
+                      .withAsyncBreakCheckInEval(true)
+                      .withES6BlockScoping(true)
+                      .withCompilationMode(::hermes::vm::ForceEagerCompilation)
+                      .build();
     auto runtime = facebook::hermes::makeHermesRuntime(config);
     struct Cleanup {
       std::shared_ptr<TestDispatcher> dispatcher;
@@ -102,12 +138,33 @@ namespace {
         runtime.unwatchTimeLimit();
       }
     } cleanup{dispatcher, *runtime};
+    const char* phase = "preparing JS test bundle";
     // JSError owns JSI values. Convert it before destroying their runtime.
     try {
-      const auto deadline = Clock::now() + std::chrono::milliseconds(timeoutMs);
+      // The watchdog interrupts JS execution, not the native compiler. Compile
+      // once before timing setup, then evaluate in a fresh runtime for each case.
+      auto prepared = prepareBundle(*runtime, bundle);
+      phase = "loading JS test bundle";
+      const auto timeout = std::chrono::milliseconds(timeoutMs);
+      const auto timeoutMessage = "Timed out after " + std::to_string(timeoutMs) + "ms";
+      const auto bundleDeadline = Clock::now() + timeout;
       runtime->watchTimeLimit(timeoutMs);
       install(*runtime, dispatcher);
-      runtime->evaluateJavaScript(std::make_shared<jsi::StringBuffer>(bundle), "runtime-tests.js");
+      // The migrated tests need platform information and explicit collections,
+      // without React Native's Platform module or development globals.
+#ifdef __ANDROID__
+      runtime->global().setProperty(*runtime, "__nitroTestPlatform", "android");
+#else
+      runtime->global().setProperty(*runtime, "__nitroTestPlatform", "ios");
+#endif
+      runtime->global().setProperty(
+          *runtime, "gc",
+          jsi::Function::createFromHostFunction(*runtime, jsi::PropNameID::forAscii(*runtime, "gc"), 0,
+                                                [](jsi::Runtime& rt, const jsi::Value&, const jsi::Value*, size_t) {
+                                                  rt.instrumentation().collectGarbage("Nitro runtime test");
+                                                  return jsi::Value::undefined();
+                                                }));
+      runtime->evaluatePreparedJavaScript(prepared);
 
       struct Result {
         bool done = false;
@@ -136,22 +193,36 @@ namespace {
                                                   return jsi::Value::undefined();
                                                 });
       auto run = runtime->global().getPropertyAsFunction(*runtime, "runNitroTest");
+      const auto testTimeoutMs = getTestTimeout(*runtime, name, timeoutMs);
+      // Stop setup's watchdog before checking elapsed time so an expired
+      // interrupt cannot carry over when the execution deadline is reset.
+      runtime->unwatchTimeLimit();
+      if (Clock::now() >= bundleDeadline)
+        throw std::runtime_error(timeoutMessage);
+
+      phase = "running JS test";
+      const auto testTimeoutMessage = "Timed out after " + std::to_string(testTimeoutMs) + "ms";
+      const auto deadline = Clock::now() + std::chrono::milliseconds(testTimeoutMs);
+      runtime->watchTimeLimit(testTimeoutMs);
       auto promise = run.call(*runtime, jsi::String::createFromUtf8(*runtime, name)).asObject(*runtime);
       promise.getPropertyAsFunction(*runtime, "then").callWithThis(*runtime, promise, success, failure);
 
       while (!result->done) {
         if (Clock::now() >= deadline)
-          throw std::runtime_error("Timed out waiting for JS test completion");
+          throw std::runtime_error(testTimeoutMessage);
         const bool drained = runtime->drainMicrotasks(128);
         if (!result->done && drained)
           dispatcher->tick(deadline);
       }
+      runtime->unwatchTimeLimit();
+      if (Clock::now() >= deadline)
+        throw std::runtime_error(testTimeoutMessage);
       return result->error;
     } catch (const std::exception& error) {
       std::string message = error.what();
-      return message.empty() ? "Native exception without a message" : message;
+      return std::string("While ") + phase + ": " + (message.empty() ? "Native exception without a message" : message);
     } catch (...) {
-      return "Unknown native exception";
+      return std::string("While ") + phase + ": unknown native exception";
     }
   }
 } // namespace

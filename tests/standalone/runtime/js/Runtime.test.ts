@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { getNitroModules } from "nitro-core";
-import type { TestObject } from "../specs/TestObject.nitro";
+import type { TestObjectSwiftKotlin } from "../specs/TestObject.nitro";
 
 export async function microtasksDrainInOrder(): Promise<void> {
   const completed: number[] = [];
@@ -18,12 +18,14 @@ export async function microtasksDrainInOrder(): Promise<void> {
 }
 
 export async function concurrentNativePromises(): Promise<void> {
-  const object = getNitroModules().createHybridObject<TestObject>("TestObject");
+  const object = getNitroModules().createHybridObject<TestObjectSwiftKotlin>(
+    "TestObjectSwiftKotlin",
+  );
   const results = await Promise.all(
     Array.from({ length: 16 }, () => object.calculateFibonacciAsync(10)),
   );
   expect(results).to.deep.equal(Array(16).fill(55n));
   // The same runtime and object remain usable after all completions.
-  expect(object.bounceBoolean(true)).to.equal(true);
+  expect(object.addNumbers(1, 2)).to.equal(3);
   expect(await object.calculateFibonacciAsync(1)).to.equal(1n);
 }

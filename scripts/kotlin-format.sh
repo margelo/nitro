@@ -6,6 +6,7 @@ KOTLIN_DIRS=(
   "packages/nitro-core/native/android/src/main/java"
   "tests/standalone/nitro-core/android/src"
   "tests/standalone/runtime/android/src"
+  "tests/standalone/external/android/src"
   "tests/react-native/packages/react-native-nitro-test/android/src/main/java"
   "tests/react-native/packages/react-native-nitro-test-external/android/src/main/java"
 )

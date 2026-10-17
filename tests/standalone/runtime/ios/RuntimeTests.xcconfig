@@ -1,6 +1,7 @@
 NITRO_ROOT = $(SRCROOT)/../../../..
 NITRO_NATIVE = $(NITRO_ROOT)/packages/nitro-core/native
 NITRO_GENERATED = $(SRCROOT)/../nitrogen/generated
+NITRO_EXTERNAL_GENERATED = $(SRCROOT)/../../external/nitrogen/generated
 
 SDKROOT = iphonesimulator
 SUPPORTED_PLATFORMS = iphonesimulator
@@ -22,5 +23,5 @@ MARKETING_VERSION = 1.0
 
 HEADERMAP_INCLUDES_PROJECT_HEADERS = YES
 HEADERMAP_INCLUDES_FRAMEWORK_ENTRIES_FOR_ALL_PRODUCT_TYPES = YES
-HEADER_SEARCH_PATHS = $(inherited) $(BUILT_PRODUCTS_DIR)/include $(DERIVED_SOURCES_DIR) $(NITRO_NATIVE)/cpp/** $(NITRO_NATIVE)/apple/** $(NITRO_GENERATED)/shared/** $(NITRO_GENERATED)/ios/** $(SRCROOT)/../cpp
+HEADER_SEARCH_PATHS = $(inherited) $(BUILT_PRODUCTS_DIR)/include $(DERIVED_SOURCES_DIR) $(NITRO_NATIVE)/cpp/** $(NITRO_NATIVE)/apple/** $(NITRO_GENERATED)/shared/** $(NITRO_GENERATED)/ios/** $(NITRO_EXTERNAL_GENERATED)/shared/** $(NITRO_EXTERNAL_GENERATED)/ios/** $(SRCROOT)/../cpp $(SRCROOT)/../fixtures
 OTHER_CPLUSPLUSFLAGS = $(inherited) -Wno-nullability-completeness -Wno-nullability-extension

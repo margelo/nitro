@@ -28,7 +28,10 @@ android {
     }
   }
 
-  buildFeatures { prefab true }
+  buildFeatures {
+    prefab true
+    buildConfig true
+  }
   packaging { jniLibs { pickFirsts += ['**/libc++_shared.so', '**/libfbjni.so'] } }
   if (nitroSanitizer == 'address') {
     // Android must extract wrap.sh and the preloaded ASan runtime together.
@@ -101,6 +104,7 @@ if (nitroSanitizer == 'address') {
 dependencies {
   implementation project(':hermes')
   implementation project(':nitro-core')
+  implementation project(':nitro-test-external')
 
   androidTestImplementation 'junit:junit:4.13.2'
   androidTestImplementation 'androidx.test:runner:1.7.0'

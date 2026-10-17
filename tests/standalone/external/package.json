@@ -1,0 +1,12 @@
+{
+  "name": "nitro-test-external",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "rm -rf nitrogen/generated && bun ../../../packages/nitrogen/lib/index.js"
+  },
+  "devDependencies": {
+    "nitro-core": "workspace:*"
+  }
+}

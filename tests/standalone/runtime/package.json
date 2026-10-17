@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "specs": "bun nitrogen",
+    "specs": "bun --cwd ../external generate && bun nitrogen",
     "typecheck": "tsc --noEmit",
     "bundle": "bun scripts/bundle.ts",
-    "prepare-tests": "bun run typecheck && bun run specs && bun run bundle",
+    "test:helpers": "bun test scripts/*.test.ts",
+    "prepare-tests": "bun run typecheck && bun run test:helpers && bun run specs && bun run bundle",
     "test:ios": "bun ios/run.mjs",
     "test:android": "cd android && ./gradlew :connectedDebugAndroidTest"
   },
