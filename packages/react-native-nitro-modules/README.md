@@ -14,6 +14,8 @@ It uses JSI to generate C++ templates that can bridge virtually any JS type to a
 
 ## Installation
 
+Nitro requires React Native's New Architecture. See the [minimum requirements](https://nitro.margelo.com/docs/getting-started/minimum-requirements) before installing.
+
 ### Inside an app
 
 Install [react-native-nitro-modules](https://npmjs.org/react-native-nitro-modules) as a `dependency` in your react-native app:
