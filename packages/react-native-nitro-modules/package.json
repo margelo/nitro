@@ -19,6 +19,7 @@
     "android/fix-prefab.gradle",
     "android/CMakeLists.txt",
     "android/src/",
+    "android/core/",
     "ios/",
     "cpp/",
     "apple/nitro_pod_utils.rb",

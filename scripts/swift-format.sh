@@ -4,6 +4,7 @@ set -e
 
 SWIFT_DIRS=(
   "packages/nitro-core/native/apple"
+  "packages/react-native-nitro-modules/ios/views"
   "tests/standalone/runtime/ios"
   "tests/standalone/external/ios"
   "tests/react-native/packages/react-native-nitro-test/ios"

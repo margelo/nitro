@@ -280,13 +280,7 @@
 		"F6EDF968062C881AA1E47828" = {
 			"path" = "../../../../packages/nitro-core/native/cpp";
 			"isa" = "PBXFileSystemSynchronizedRootGroup";
-			"exceptions" = (
-				"E4817569EAE9D5176810C7D1",
-			);
 			"sourceTree" = "<group>";
-			"explicitFolders" = (
-				"views",
-			);
 		};
 		"8C596FAF64219ECB904B4B58" = {
 			"path" = "../build/runtime-tests.js";
@@ -306,14 +300,6 @@
 		"2A6F4F80F913260559C7B4F8" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "F1EF64D6FA16E706AC9BAF17";
-		};
-		"E4817569EAE9D5176810C7D1" = {
-			"isa" = "PBXFileSystemSynchronizedBuildFileExceptionSet";
-			"target" = "6CBE257FF20F1296AB407DBC";
-			"membershipExceptions" = (
-				"views",
-				"threading/CallInvokerDispatcher.hpp",
-			);
 		};
 		"C7B626903A49721DF1C7A9A0" = {
 			"isa" = "PBXBuildFile";
@@ -463,13 +449,6 @@
 		"01960F0288B41626470E79EC" = {
 			"isa" = "XCLocalSwiftPackageReference";
 			"relativePath" = "../../hermes";
-		};
-		"1054F9247EE822617483CE22" = {
-			"isa" = "PBXFileSystemSynchronizedBuildFileExceptionSet";
-			"target" = "6CBE257FF20F1296AB407DBC";
-			"membershipExceptions" = (
-				"turbomodule",
-			);
 		};
 		"72000EC893B5C16DBB73C064" = {
 			"path" = "Support/NitroTestFixtures.h";
@@ -758,13 +737,7 @@
 		"0E8B0A12F5C0A3B4EA4233FA" = {
 			"path" = "../../../../packages/nitro-core/native/apple";
 			"isa" = "PBXFileSystemSynchronizedRootGroup";
-			"exceptions" = (
-				"1054F9247EE822617483CE22",
-			);
 			"sourceTree" = "<group>";
-			"explicitFolders" = (
-				"turbomodule",
-			);
 		};
 		"7804B733268243331873BC4D" = {
 			"isa" = "PBXFileSystemSynchronizedBuildFileExceptionSet";

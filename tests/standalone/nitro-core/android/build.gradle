@@ -8,7 +8,6 @@ def prefabHeaders = layout.buildDirectory.dir('generated/prefab-headers')
 def prepareHeaders = tasks.register('prepareHeaders', Sync) {
   from(new File(nativeRoot, 'cpp')) { include '**/*.hpp' }
   from(new File(nativeRoot, 'android/src/main/cpp')) { include '**/*.hpp' }
-  exclude '**/views/**', '**/turbomodule/**', '**/CallInvokerDispatcher.hpp'
   eachFile { path = "NitroModules/${name}" }
   includeEmptyDirs = false
   duplicatesStrategy = DuplicatesStrategy.FAIL
@@ -46,10 +45,7 @@ android {
   }
   sourceSets {
     main {
-      java.srcDirs += [
-        new File(nativeRoot, 'android/src/main/java/com/margelo/nitro/core'),
-        new File(nativeRoot, 'android/src/main/java/com/margelo/nitro/utils'),
-      ]
+      java.srcDirs += [new File(nativeRoot, 'android/src/main/java')]
     }
   }
   compileOptions {

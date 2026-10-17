@@ -11,9 +11,7 @@ prepare_headers() {
   trap 'rm -rf "$staging"' EXIT HUP INT TERM
 
   find "$@" -type f \
-    \( -name '*.hpp' -o -name '*.h' \) \
-    ! -path '*/cpp/views/*' ! -path '*/apple/turbomodule/*' \
-    ! -name 'CallInvokerDispatcher.hpp' | sort | while IFS= read -r header; do
+    \( -name '*.hpp' -o -name '*.h' \) | sort | while IFS= read -r header; do
     destination="$staging/$(basename "$header")"
     if [ -L "$destination" ]; then
       echo "error: Duplicate $module header name: $(basename "$header")" >&2

@@ -19,8 +19,4 @@ public final class NitroTestExternalAutolinking {
       return __cxxWrapped.getCxxPart()
     }()
   }
-  
-  public static func isSomeExternalObjectRecyclable() -> Bool {
-    return HybridSomeExternalObject.self is any RecyclableView.Type
-  }
 }

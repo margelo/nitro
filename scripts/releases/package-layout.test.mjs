@@ -28,8 +28,8 @@ function fixture(t) {
       wrapper,
       [
         ...reactNativePackageFiles,
-        'cpp/core/HybridObject.hpp',
-        'ios/core/HybridObject.swift',
+        'cpp/core/core/HybridObject.hpp',
+        'ios/core/core/HybridObject.swift',
       ],
     ],
   ]) {
@@ -51,7 +51,7 @@ function fixture(t) {
   }
   for (const file of [
     path.join(core, 'native/cpp/utils/NitroDefines.hpp'),
-    path.join(wrapper, 'cpp/utils/NitroDefines.hpp'),
+    path.join(wrapper, 'cpp/core/utils/NitroDefines.hpp'),
   ])
     writeFileSync(file, '#define NITRO_VERSION "0.38.0-beta.1"\n')
   writeFileSync(
@@ -69,7 +69,7 @@ test('packed RN adapter contains matching JS/native package versions and core so
 test('consumer checks reject stale staged RN implementation even when versions match', (t) => {
   const { core, wrapper } = fixture(t)
   writeFileSync(
-    path.join(wrapper, 'ios/core/HybridObject.swift'),
+    path.join(wrapper, 'ios/core/core/HybridObject.swift'),
     'stale source'
   )
   assert.throws(
