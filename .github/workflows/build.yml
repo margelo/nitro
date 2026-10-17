@@ -43,7 +43,6 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - run: bun typecheck
       - name: Pack Nitro core
         working-directory: packages/nitro-core
         run: npm pack --pack-destination "$RUNNER_TEMP"

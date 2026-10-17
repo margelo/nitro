@@ -4,16 +4,17 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "generate": "rm -rf nitrogen/generated && bun ../../../packages/nitrogen/lib/index.js",
+    "specs": "bun nitrogen",
     "typecheck": "tsc --noEmit",
     "bundle": "bun scripts/bundle.ts",
-    "prepare-tests": "bun run typecheck && bun run generate && bun run bundle",
+    "prepare-tests": "bun run typecheck && bun run specs && bun run bundle",
     "test:ios": "bun ios/run.mjs",
     "test:android": "cd android && ./gradlew :connectedDebugAndroidTest"
   },
   "devDependencies": {
     "@types/chai": "5.2.3",
     "chai": "5.3.3",
-    "nitro-core": "workspace:*"
+    "nitro-core": "workspace:*",
+    "nitrogen": "workspace:*"
   }
 }

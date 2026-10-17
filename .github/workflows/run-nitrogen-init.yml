@@ -37,9 +37,6 @@ jobs:
       - name: Install npm dependencies (bun)
         run: bun install --frozen-lockfile
 
-      - name: Build all packages
-        run: bun run build
-
       - name: Run nitrogen init outside the checkout
         working-directory: ${{ runner.temp }}
         run: node "$GITHUB_WORKSPACE/packages/nitrogen/lib/index.js" init react-native-math

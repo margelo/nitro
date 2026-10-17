@@ -22,21 +22,33 @@ updates:
       react:
         patterns:
           - "react"
-
-  - package-ecosystem: "bun"
-    directories:
-      - "/docs/"
-    schedule:
-      interval: "daily"
-    labels:
-      - "dependencies"
-    groups:
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      react-native-cli:
+        patterns:
+          - "@react-native-community/cli*"
+      react-native-harness:
+        patterns:
+          - "react-native-harness"
+          - "@react-native-harness/*"
+      babel:
+        patterns:
+          - "@babel/*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/js"
+      jest:
+        patterns:
+          - "jest"
+          - "jest-*"
+          - "@jest/*"
+          - "@types/jest"
+          - "babel-jest"
       docusaurus:
         patterns:
           - "@docusaurus/*"
-      react:
-        patterns:
-          - "react*"
 
   - package-ecosystem: "gradle"
     directories:
@@ -47,14 +59,21 @@ updates:
       - "/tests/react-native/apps/example/android/"
       - "/tests/react-native/apps/benchmark/android/"
       - "/tests/standalone/runtime/android/"
-      - "/tests/standalone/hermes/android/"
-      - "/tests/standalone/nitro-core/android/"
     schedule:
       interval: "daily"
     labels:
       - "dependencies"
       - "kotlin"
     groups:
-      agp:
+      android-toolchain:
         patterns:
+          - "gradle-wrapper"
           - "com.android.tools.build:gradle"
+          - "com.android.application"
+          - "com.android.library"
+          - "org.jetbrains.kotlin:kotlin-gradle-plugin"
+          - "org.jetbrains.kotlin.android"
+      dependencies:
+        group-by: dependency-name
+        patterns:
+          - "*"

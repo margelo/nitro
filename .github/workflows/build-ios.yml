@@ -62,7 +62,7 @@ jobs:
       - name: Install npm dependencies (bun)
         run: bun install --frozen-lockfile
 
-      - name: Generate React Native test bindings
+      - name: Generate test bindings
         run: bun specs
 
       - name: Install Ccache
