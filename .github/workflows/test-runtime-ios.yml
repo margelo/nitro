@@ -74,7 +74,7 @@ jobs:
           echo "toolchain=$toolchain" >> "$GITHUB_OUTPUT"
       - name: Cache Hermes simulator XCFramework
         id: hermes-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: tests/standalone/.build/hermes/NitroTestHermes.xcframework
           key: hermes-ios-${{ runner.os }}-${{ runner.arch }}-${{ steps.hermes.outputs.revision }}-${{ steps.hermes.outputs.toolchain }}-${{ hashFiles('tests/standalone/hermes/build.mjs', 'tests/standalone/hermes/options.cmake', 'tests/standalone/runtime/ios/config.json') }}
