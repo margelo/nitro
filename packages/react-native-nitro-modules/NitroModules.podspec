@@ -81,6 +81,9 @@ Pod::Spec.new do |s|
 
   if has_react_native()
     react_native_version = get_react_native_version()
+    if react_native_version < 78
+      raise "[NitroModules] Nitro requires React Native 0.78 or newer for JSI binding installation."
+    end
     if (react_native_version < 80)
       # C++ compiler flags, for folly when building as static framework:
       current_header_search_paths = Array(xcconfig["HEADER_SEARCH_PATHS"])

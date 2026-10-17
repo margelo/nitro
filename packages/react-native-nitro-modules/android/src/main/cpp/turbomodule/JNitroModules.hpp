@@ -4,34 +4,21 @@
 
 #pragma once
 
-#include <ReactCommon/CallInvoker.h>
-#include <ReactCommon/CallInvokerHolder.h>
+#include <ReactCommon/BindingsInstallerHolder.h>
 #include <fbjni/fbjni.h>
-#include <jsi/jsi.h>
 
 namespace margelo::nitro {
 
 using namespace facebook;
 
-class JNitroModules final : public jni::HybridClass<JNitroModules> {
+class JNitroModules final : public jni::JavaClass<JNitroModules> {
 public:
   static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/NitroModules;";
 
-private:
-  explicit JNitroModules() = default;
-
-private:
-  // JNI Methods
-  static jni::local_ref<JNitroModules::jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis);
-  void install(jlong runtimePointer, jni::alias_ref<react::CallInvokerHolder::javaobject> callInvokerHolder);
-
-private:
-  static constexpr auto TAG = "NitroModules";
-  using HybridBase::HybridBase;
-  friend HybridBase;
-
-public:
   static void registerNatives();
+
+private:
+  static jni::local_ref<react::BindingsInstallerHolder::javaobject> getBindingsInstaller(jni::alias_ref<JNitroModules::javaobject>);
 };
 
 } // namespace margelo::nitro
