@@ -84,7 +84,7 @@ jobs:
       - name: Read pinned Hermes revision
         id: hermes
         run: echo "revision=$(git -C tests/standalone/vendor/hermes rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: tests/standalone/.build/hermes/host
           key: hermes-host-${{ runner.os }}-${{ runner.arch }}-${{ steps.hermes.outputs.revision }}-${{ hashFiles('tests/standalone/hermes/build.mjs', 'tests/standalone/hermes/options.cmake') }}
@@ -103,7 +103,7 @@ jobs:
           script: cd tests/standalone/runtime/android && ./gradlew :connectedDebugAndroidTest -PnitroTestAbi=x86_64 -PnitroSanitizer=${{ matrix.sanitizer.flag }} --no-daemon
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: runtime-android-results-${{ matrix.sanitizer.name }}
           path: |
