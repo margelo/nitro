@@ -6,11 +6,13 @@ import { createSwiftUmbrellaHeader } from './ios/createSwiftUmbrellaHeader.js'
 
 interface IOSAutolinking extends Autolinking {}
 
-export function createIOSAutolinking(): IOSAutolinking {
+export function createIOSAutolinking(
+  hybridViewNames: ReadonlySet<string>
+): IOSAutolinking {
   const podspecExtension = createPodspecRubyExtension()
   const swiftCxxBridge = createSwiftCxxBridge()
   const swiftUmbrellaHeader = createSwiftUmbrellaHeader()
-  const hybridObjectInitializer = createHybridObjectIntializer()
+  const hybridObjectInitializer = createHybridObjectIntializer(hybridViewNames)
 
   return {
     platform: 'ios',

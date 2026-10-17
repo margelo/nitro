@@ -89,6 +89,7 @@ export async function runNitrogen({
   }
 
   const usedPlatforms: Platform[] = []
+  const hybridViewNames = new Set<string>()
   const filesAfter: string[] = []
   const writtenFiles: SourceFile[] = []
 
@@ -109,6 +110,7 @@ export async function runNitrogen({
         if (isHybridView(declaration.getType())) {
           // Hybrid View Props
           platformSpec = getHybridViewPlatforms(declaration)
+          hybridViewNames.add(typeName)
         } else if (extendsHybridObject(declaration.getType(), true)) {
           // Hybrid View
           platformSpec = getHybridObjectPlatforms(declaration)
@@ -198,7 +200,7 @@ export async function runNitrogen({
   const autolinkingFiles: Autolinking[] = []
 
   if (usedPlatforms.includes('ios')) {
-    autolinkingFiles.push(createIOSAutolinking())
+    autolinkingFiles.push(createIOSAutolinking(hybridViewNames))
   }
   if (usedPlatforms.includes('android')) {
     autolinkingFiles.push(createAndroidAutolinking(writtenFiles))

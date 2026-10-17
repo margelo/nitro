@@ -14,6 +14,7 @@ interface Props {
    * The name of the Swift class that will be default-constructed
    */
   swiftClassName: string
+  isHybridView: boolean
 }
 
 interface SwiftHybridObjectRegistration {
@@ -43,6 +44,7 @@ export function getIsRecyclableCall(hybridObjectName: string): string {
 export function createSwiftHybridObjectRegistration({
   hybridObjectName,
   swiftClassName,
+  isHybridView,
 }: Props): SwiftHybridObjectRegistration {
   const { HybridTSpecSwift } = getHybridObjectName(hybridObjectName)
 
@@ -54,6 +56,14 @@ export function createSwiftHybridObjectRegistration({
   )
   const bridge = new SwiftCxxBridgedType(type)
 
+  const recyclingMethod = isHybridView
+    ? `
+public static func is${hybridObjectName}Recyclable() -> Bool {
+  return ${swiftClassName}.self is any RecyclableView.Type
+}
+`.trim()
+    : ''
+
   return {
     swiftRegistrationMethods: `
 public static func create${hybridObjectName}() -> ${bridge.getTypeCode('swift')} {
@@ -61,9 +71,7 @@ public static func create${hybridObjectName}() -> ${bridge.getTypeCode('swift')}
   return ${indent(bridge.parseFromSwiftToCpp('hybridObject', 'swift'), '  ')}
 }
 
-public static func is${hybridObjectName}Recyclable() -> Bool {
-  return ${swiftClassName}.self is any RecyclableView.Type
-}
+${recyclingMethod}
     `.trim(),
     requiredImports: [
       { name: `${HybridTSpecSwift}.hpp`, language: 'c++', space: 'user' },
