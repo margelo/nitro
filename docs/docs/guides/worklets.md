@@ -67,6 +67,43 @@ This needs to be done once, ideally immediately after creating the `jsi::Runtime
 
 Your `runSync` and `runAsync` implementations must run the given `function` on the same Thread that the `jsi::Runtime` was created on - see [`CallInvokerDispatcher.hpp`](https://github.com/margelo/nitro/blob/core-split/packages/nitro-core/native/cpp/threading/CallInvokerDispatcher.hpp) for an example.
 
+### react-native-worklets runtimes
+
+If you created the runtime with [react-native-worklets](https://github.com/software-mansion/react-native-reanimated/tree/main/packages/react-native-worklets) (`createWorkletRuntime(...)`), your `Dispatcher` can schedule onto that runtime's own queue using `WorkletRuntime::schedule(...)`:
+
+```cpp
+#include <NitroModules/Dispatcher.hpp>
+#include <worklets/WorkletRuntime/WorkletRuntime.h>
+using namespace margelo::nitro;
+
+class WorkletRuntimeDispatcher: public Dispatcher {
+public:
+  explicit WorkletRuntimeDispatcher(std::weak_ptr<worklets::WorkletRuntime> runtime): _runtime(std::move(runtime)) {}
+
+  void runSync(std::function<void()>&&) override {
+    throw std::runtime_error("runSync(...) is not implemented for WorkletRuntimeDispatcher!");
+  }
+  void runAsync(std::function<void()>&& function) override {
+    if (auto runtime = _runtime.lock()) {
+      runtime->schedule([function = std::move(function)](facebook::jsi::Runtime&) { function(); });
+    }
+  }
+
+private:
+  std::weak_ptr<worklets::WorkletRuntime> _runtime;
+};
+```
+
+The `jsi::Runtime` holds a strong reference to its `Dispatcher`, so the `Dispatcher` holds the `WorkletRuntime` weakly to avoid a reference cycle.
+
+Install it from a [raw method](../types/raw-jsi-value) that you call on the worklet runtime:
+
+```cpp
+auto workletRuntime = worklets::WorkletRuntime::getWeakRuntimeFromJSIRuntime(runtime);
+auto dispatcher = std::make_shared<WorkletRuntimeDispatcher>(workletRuntime);
+Dispatcher::installRuntimeGlobalDispatcher(runtime, dispatcher);
+```
+
 ## Boxing
 
 A [Hybrid Object](../concepts/hybrid-objects) is a JS object with `jsi::NativeState` and a prototype chain.
