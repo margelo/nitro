@@ -19,6 +19,7 @@ on:
       - '**/*.jsx'
       - '**/*.json'
       - 'bun.lock'
+      - 'bunfig.toml'
       - '**/package.json'
   pull_request:
     paths:
@@ -33,6 +34,7 @@ on:
       - '**/*.jsx'
       - '**/*.json'
       - 'bun.lock'
+      - 'bunfig.toml'
       - '**/package.json'
 
 jobs:
