@@ -65,7 +65,7 @@ dependencies {
   api 'com.facebook.yoga:proguard-annotations:1.19.0'
   api 'androidx.annotation:annotation:1.8.1'
   implementation 'com.facebook.soloader:nativeloader:0.10.5'
-  api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+  api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
 }
 
 tasks.configureEach {
