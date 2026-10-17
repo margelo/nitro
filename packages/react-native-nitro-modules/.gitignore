@@ -78,7 +78,7 @@ android/keystores/debug.keystore
 lib/
 
 # Staged from packages/nitro-core by bun sync-core
-/cpp/
-/ios/
-/android/src/
+/cpp/core/
+/ios/core/
+/android/core/
 /LICENSE

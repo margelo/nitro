@@ -8,11 +8,9 @@ get_filename_component(NITRO_NATIVE "../../../../packages/nitro-core/native" ABS
 find_package(fbjni REQUIRED CONFIG)
 find_package(hermes REQUIRED CONFIG)
 
-# Build the shared runtime without React Native view or TurboModule adapters.
+# Build every source in Nitro Core directly from the package.
 file(GLOB_RECURSE NITRO_CPP CONFIGURE_DEPENDS "${NITRO_NATIVE}/cpp/*.cpp")
-list(FILTER NITRO_CPP EXCLUDE REGEX "/views/")
 file(GLOB_RECURSE NITRO_ANDROID CONFIGURE_DEPENDS "${NITRO_NATIVE}/android/src/main/cpp/*.cpp")
-list(FILTER NITRO_ANDROID EXCLUDE REGEX "/turbomodule/|/JNIOnLoad.cpp$")
 file(GLOB_RECURSE NITRO_HEADERS CONFIGURE_DEPENDS
   "${NITRO_NATIVE}/cpp/*.hpp"
   "${NITRO_NATIVE}/android/src/main/cpp/*.hpp")

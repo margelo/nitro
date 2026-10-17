@@ -16,7 +16,7 @@ export const corePackageFiles = [
   'native/cpp/core/HybridObject.hpp',
   'native/cpp/utils/NitroDefines.hpp',
   'native/apple/core/HybridObject.swift',
-  'native/android/src/main/cpp/JNIOnLoad.cpp',
+  'native/android/src/main/cpp/NitroOnLoad.cpp',
   'native/android/src/main/java/com/margelo/nitro/core/HybridObject.kt',
 ]
 
@@ -25,10 +25,11 @@ export const reactNativePackageFiles = [
   'NitroModules.podspec',
   'react-native.config.js',
   'apple/nitro_pod_utils.rb',
-  'cpp/entrypoint/InstallNitro.hpp',
-  'cpp/utils/NitroDefines.hpp',
+  'cpp/core/entrypoint/InstallNitro.hpp',
+  'cpp/core/utils/NitroDefines.hpp',
   'ios/views/HybridView.swift',
   'android/src/main/cpp/JNIOnLoad.cpp',
+  'android/core/main/cpp/NitroOnLoad.cpp',
   'android/build.gradle',
   'android/CMakeLists.txt',
   'src/index.ts',
@@ -141,12 +142,12 @@ export function verifyReactNativePackage(directory, coreDirectory, options) {
       `Missing RN package file: ${relative}`
     )
   for (const [source, target] of [
-    ['native/cpp/utils/NitroDefines.hpp', 'cpp/utils/NitroDefines.hpp'],
-    ['native/cpp/core/HybridObject.hpp', 'cpp/core/HybridObject.hpp'],
-    ['native/apple/core/HybridObject.swift', 'ios/core/HybridObject.swift'],
+    ['native/cpp/utils/NitroDefines.hpp', 'cpp/core/utils/NitroDefines.hpp'],
+    ['native/cpp/core/HybridObject.hpp', 'cpp/core/core/HybridObject.hpp'],
+    ['native/apple/core/HybridObject.swift', 'ios/core/core/HybridObject.swift'],
     [
-      'native/android/src/main/cpp/JNIOnLoad.cpp',
-      'android/src/main/cpp/JNIOnLoad.cpp',
+      'native/android/src/main/cpp/NitroOnLoad.cpp',
+      'android/core/main/cpp/NitroOnLoad.cpp',
     ],
     ['LICENSE', 'LICENSE'],
   ]) {

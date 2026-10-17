@@ -1,6 +1,6 @@
 # Nitro core Android test module
 
-This local Android library builds `packages/nitro-core/native` without React Native. It excludes the TurboModule and view adapters, includes the core Kotlin helpers, and supplies an entry point that registers only the core JNI bindings. The module is a build example for the native tests; it is not a published Android artifact.
+This local Android library builds `packages/nitro-core/native` without React Native. It compiles every core C++ and Kotlin/Java source directly from the package, with no React Native source exclusions. Its JNI entry point calls the same core registration function as the React Native adapter. The module is a build example for the native tests; it is not a published Android artifact.
 
 `NitroModules` keeps its existing shared-library name. Prefab exports the native headers as `<NitroModules/Header.hpp>`. The header staging task writes only to this module's ignored build directory; implementation files stay in `packages/nitro-core`.
 

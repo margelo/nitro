@@ -203,10 +203,11 @@ that Hermes implements every API. Native execution checks the actual engine.
 Microtasks, execution interrupts, and per-iteration block scoping are explicitly
 enabled in the test runtime. Other browser APIs and polyfills are not installed.
 
-The test targets compile the existing core implementation with the RN bootstrap
-and Fabric/view integration excluded. They do not maintain copies of runtime
-sources or change the published CocoaPods/Gradle integration. RN integration
-coverage runs in `tests/react-native/`.
+The test targets compile sources directly from `packages/nitro-core/native`,
+including all Core Swift, Kotlin, and C++ sources for each platform. No React Native
+source filters or copied runtime implementation are needed. React Native adapters
+live in `packages/react-native-nitro-modules`; their integration coverage runs in
+`tests/react-native/`.
 
 On Android, the runtime project depends on local `hermes` and `nitro-core` Gradle
 libraries. Each owns its native build and exposes headers through Prefab. The

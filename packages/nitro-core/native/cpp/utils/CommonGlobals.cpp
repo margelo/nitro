@@ -11,13 +11,6 @@
 #include "NitroDefines.hpp"
 #include "PropNameIDCache.hpp"
 
-#if __has_include(<cxxreact/ReactNativeVersion.h>)
-#include <cxxreact/ReactNativeVersion.h>
-#if REACT_NATIVE_VERSION_MINOR >= 78
-#define ENABLE_NATIVE_OBJECT_CREATE
-#endif
-#endif
-
 namespace margelo::nitro {
 
 using namespace facebook;
@@ -27,14 +20,17 @@ std::unordered_map<jsi::Runtime*, CommonGlobals::FunctionCache> CommonGlobals::_
 // pragma MARK: Object
 
 jsi::Object CommonGlobals::Object::create(jsi::Runtime& runtime, const jsi::Value& prototype) {
-#ifdef ENABLE_NATIVE_OBJECT_CREATE
-  return jsi::Object::create(runtime, prototype);
-#else
-  const jsi::Function& createFn = getGlobalFunction(runtime, "Object.create", [](jsi::Runtime& runtime) {
-    return runtime.global().getPropertyAsObject(runtime, "Object").getPropertyAsFunction(runtime, "create");
-  });
-  return createFn.call(runtime, prototype).getObject(runtime);
-#endif
+  // Detect the JSI API directly so standalone runtimes can use it too.
+  return [&]<typename Object = jsi::Object>() {
+    if constexpr (requires { Object::create(runtime, prototype); }) {
+      return Object::create(runtime, prototype);
+    } else {
+      const jsi::Function& createFn = getGlobalFunction(runtime, "Object.create", [](jsi::Runtime& runtime) {
+        return runtime.global().getPropertyAsObject(runtime, "Object").getPropertyAsFunction(runtime, "create");
+      });
+      return createFn.call(runtime, prototype).getObject(runtime);
+    }
+  }();
 }
 
 void CommonGlobals::Object::defineProperty(jsi::Runtime& runtime, const jsi::Object& object, const char* propertyName,

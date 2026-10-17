@@ -69,7 +69,7 @@ function fixture(t) {
 test("stages workspace sources without dependencies and cleans only generated directories", (t) => {
   const { root, put, wrapper } = fixture(t);
   put(
-    "packages/react-native-nitro-modules/android/src/obsolete.kt",
+    "packages/react-native-nitro-modules/android/core/obsolete.kt",
     "// stale",
   );
   put(
@@ -77,10 +77,17 @@ test("stages workspace sources without dependencies and cleans only generated di
     "// handwritten",
   );
   put("packages/react-native-nitro-modules/src/index.ts", "// RN integration");
+  const adapters = [
+    "cpp/views/HybridView.hpp",
+    "ios/views/HybridView.swift",
+    "android/src/main/java/NitroModules.kt",
+  ];
+  for (const file of adapters)
+    put(`packages/react-native-nitro-modules/${file}`, "// RN adapter");
   put("packages/nitro-core/native/cpp/cache.o", "build cache");
   assert.deepEqual(syncCore(root), { version: "1.2.3", files: 5 });
   assert.equal(
-    readFileSync(path.join(wrapper, "ios/HybridObject.swift"), "utf8"),
+    readFileSync(path.join(wrapper, "ios/core/HybridObject.swift"), "utf8"),
     "// Swift source\n",
   );
   assert.equal(
@@ -92,16 +99,18 @@ test("stages workspace sources without dependencies and cleans only generated di
     "// RN integration",
   );
   assert.equal(
-    existsSync(path.join(wrapper, "android/src/obsolete.kt")),
+    existsSync(path.join(wrapper, "android/core/obsolete.kt")),
     false,
   );
-  assert.equal(existsSync(path.join(wrapper, "cpp/cache.o")), false);
+  assert.equal(existsSync(path.join(wrapper, "cpp/core/cache.o")), false);
   assert.doesNotThrow(() => syncCore(root, { check: true }));
-  put("packages/react-native-nitro-modules/cpp/stale.hpp", "// stale");
+  for (const file of adapters)
+    assert.equal(readFileSync(path.join(wrapper, file), "utf8"), "// RN adapter");
+  put("packages/react-native-nitro-modules/cpp/core/stale.hpp", "// stale");
   assert.throws(() => syncCore(root, { check: true }), /stale/);
   syncCore(root);
   put(
-    "packages/react-native-nitro-modules/ios/HybridObject.swift",
+    "packages/react-native-nitro-modules/ios/core/HybridObject.swift",
     "// independently changed",
   );
   assert.throws(() => syncCore(root, { check: true }), /differs/);
@@ -109,14 +118,14 @@ test("stages workspace sources without dependencies and cleans only generated di
 
 test("rejects a version mismatch before cleaning staged sources", (t) => {
   const { root, put, wrapper } = fixture(t);
-  put("packages/react-native-nitro-modules/cpp/preserve.hpp", "// keep");
+  put("packages/react-native-nitro-modules/cpp/core/preserve.hpp", "// keep");
   put(
     "packages/nitro-core/js/src/version.ts",
     "export const version = '1.2.4'\n",
   );
   assert.throws(() => syncCore(root), /must match/);
   assert.equal(
-    readFileSync(path.join(wrapper, "cpp/preserve.hpp"), "utf8"),
+    readFileSync(path.join(wrapper, "cpp/core/preserve.hpp"), "utf8"),
     "// keep",
   );
 });
@@ -133,14 +142,14 @@ test("uses workspace changes even when an older core package is installed", (t) 
   assert.throws(() => syncCore(root, { check: true }), /differs/);
   syncCore(root);
   assert.equal(
-    readFileSync(path.join(wrapper, "ios/HybridObject.swift"), "utf8"),
+    readFileSync(path.join(wrapper, "ios/core/HybridObject.swift"), "utf8"),
     "// edited source\n",
   );
 });
 
 test("rejects unpinned dependencies and native source symlinks before cleaning", (t) => {
   const { root, put, wrapper } = fixture(t);
-  put("packages/react-native-nitro-modules/cpp/preserve.hpp", "// keep");
+  put("packages/react-native-nitro-modules/cpp/core/preserve.hpp", "// keep");
   put("packages/react-native-nitro-modules/package.json", {
     version: "1.2.3",
     dependencies: { "nitro-core": "^1.2.3" },
@@ -156,7 +165,25 @@ test("rejects unpinned dependencies and native source symlinks before cleaning",
   );
   assert.throws(() => syncCore(root), /symlink/);
   assert.equal(
-    readFileSync(path.join(wrapper, "cpp/preserve.hpp"), "utf8"),
+    readFileSync(path.join(wrapper, "cpp/core/preserve.hpp"), "utf8"),
     "// keep",
   );
+});
+
+
+test("migrates the old staging layout without duplicating Core or deleting RN adapters", (t) => {
+  const { root, put, wrapper } = fixture(t);
+  const legacy = [
+    "cpp/utils/NitroDefines.hpp",
+    "ios/HybridObject.swift",
+    "android/src/main/HybridObject.kt",
+  ];
+  for (const file of legacy)
+    put(`packages/react-native-nitro-modules/${file}`, "// previous generated source");
+  put("packages/react-native-nitro-modules/ios/turbomodule/NativeNitroModules.mm", "// RN adapter");
+  assert.throws(() => syncCore(root, { check: true }), /Legacy staged/);
+  syncCore(root);
+  for (const file of legacy) assert.equal(existsSync(path.join(wrapper, file)), false);
+  assert.equal(readFileSync(path.join(wrapper, "ios/turbomodule/NativeNitroModules.mm"), "utf8"), "// RN adapter");
+  assert.doesNotThrow(() => syncCore(root, { check: true }));
 });

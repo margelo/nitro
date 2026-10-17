@@ -97,7 +97,7 @@ tests/react-native/apps/*/.harness/
 /tests/standalone/.build/
 
 # Native sources staged from the local nitro-core package
-/packages/react-native-nitro-modules/cpp/
-/packages/react-native-nitro-modules/ios/
-/packages/react-native-nitro-modules/android/src/
+/packages/react-native-nitro-modules/cpp/core/
+/packages/react-native-nitro-modules/ios/core/
+/packages/react-native-nitro-modules/android/core/
 /packages/react-native-nitro-modules/LICENSE
