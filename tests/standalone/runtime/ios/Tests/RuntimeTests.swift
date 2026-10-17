@@ -66,7 +66,7 @@ struct RuntimeTests {
   @Test func unresolvedPromisesTimeOut() throws {
     let source = "globalThis.runNitroTest = () => new Promise(() => {})"
     let failure = try #require(NitroRunTest(source, "promise-timeout-contract", 100))
-    #expect(failure.contains("Timed out"))
+    #expect(failure.lowercased().contains("timed out"))
   }
 
   @Test func synchronousLoopsTimeOut() throws {

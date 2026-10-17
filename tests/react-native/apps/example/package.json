@@ -22,7 +22,7 @@
     "@react-native-segmented-control/segmented-control": "^2.5.7",
     "@react-navigation/bottom-tabs": "^7.16.2",
     "@react-navigation/native": "^7.2.5",
-    "react": "19.2.3",
+    "react": "19.3.0",
     "react-native": "0.87.1",
     "react-native-nitro-test": "workspace:*",
     "react-native-nitro-test-external": "workspace:*",
