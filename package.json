@@ -23,6 +23,7 @@
     "typecheck": "bun nitro typecheck && bun nitrogen typecheck && bun nitro-rn typecheck && bun nitro-test-external typecheck && bun nitro-test typecheck && bun example typecheck && bun benchmark typecheck && bun docs typecheck",
     "lint": "bun nitro lint && bun nitrogen lint && bun nitro-rn lint && bun nitro-test-external lint && bun nitro-test lint && bun example lint && bun benchmark lint",
     "lint-cpp": "./scripts/clang-format.sh",
+    "clang-tidy": "./scripts/clang-tidy.sh",
     "lint-swift": "./scripts/swift-format.sh",
     "lint-kotlin": "./scripts/kotlin-format.sh",
     "lint-all": "bun lint-cpp && bun lint-swift && bun lint-kotlin && bun lint",
