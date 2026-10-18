@@ -8,7 +8,9 @@ import {
   TextInput,
   View,
 } from 'react-native'
-import SegmentedControl from '@react-native-segmented-control/segmented-control'
+import NativeSegmentedControl, {
+  type SegmentedControlProps,
+} from '@react-native-segmented-control/segmented-control'
 import { NitroModules } from 'react-native-nitro-modules'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColors } from '../useColors'
@@ -21,6 +23,11 @@ import {
   type InAppTestFile,
   type InAppTestResult,
 } from '../harness/inAppHarness'
+
+// The library's class declaration uses NativeMethods, which RN 0.88 no longer
+// exports. Keep its props while adapting the component type until it is updated.
+const SegmentedControl =
+  NativeSegmentedControl as unknown as React.ComponentType<SegmentedControlProps>
 
 type TestFilter = 'all' | 'passed' | 'failed' | 'pending'
 

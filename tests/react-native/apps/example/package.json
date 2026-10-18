@@ -20,15 +20,15 @@
   },
   "dependencies": {
     "@react-native-segmented-control/segmented-control": "^2.5.7",
-    "@react-navigation/bottom-tabs": "^7.16.2",
-    "@react-navigation/native": "^7.2.5",
+    "@react-navigation/bottom-tabs": "^7.21.0",
+    "@react-navigation/native": "^7.5.1",
     "react": "19.3.0",
-    "react-native": "0.85.3",
+    "react-native": "0.88.0",
     "react-native-nitro-test": "workspace:*",
     "react-native-nitro-test-external": "workspace:*",
     "react-native-nitro-modules": "0.37.1",
-    "react-native-safe-area-context": "^5.8.0",
-    "react-native-screens": "^4.25.2",
+    "react-native-safe-area-context": "^5.10.1",
+    "react-native-screens": "^4.30.0",
     "nitro-core": "0.37.1"
   },
   "devDependencies": {
@@ -38,10 +38,10 @@
     "@react-native-community/cli": "20.2.0",
     "@react-native-community/cli-platform-android": "20.2.0",
     "@react-native-community/cli-platform-ios": "20.2.0",
-    "@react-native/babel-preset": "0.85.3",
-    "@react-native/eslint-config": "0.85.3",
-    "@react-native/metro-config": "0.85.3",
-    "@react-native/typescript-config": "0.85.3",
+    "@react-native/babel-preset": "0.88.0",
+    "@react-native/eslint-config": "0.88.0",
+    "@react-native/metro-config": "0.88.0",
+    "@react-native/typescript-config": "0.88.0",
     "@react-native-harness/platform-android": "1.5.0",
     "@react-native-harness/platform-apple": "1.5.0",
     "@react-native-harness/ui": "1.5.0",
@@ -53,6 +53,6 @@
     "upng-js": "2.1.0"
   },
   "engines": {
-    "node": ">=20.19.4"
+    "node": "^22.13.0 || ^24.3.0 || >=26.0.0"
   }
 }

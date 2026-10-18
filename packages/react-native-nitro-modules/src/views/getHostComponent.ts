@@ -1,12 +1,15 @@
 import { Platform, type HostComponent, type ViewProps } from 'react-native'
-// TODO: Migrate to the official export of `NativeComponentRegistry` from `react-native` once react-native 0.83.0 becomes more established as this is deprecated
-// eslint-disable-next-line @react-native/no-deep-imports
-import * as NativeComponentRegistry from 'react-native/Libraries/NativeComponent/NativeComponentRegistry'
 import type {
   HybridView,
   HybridViewMethods,
   HybridViewProps,
 } from './HybridView'
+
+// Keep the runtime import compatible with React Native < 0.83. The public export
+// supplies the types because React Native 0.88 no longer exposes deep-import types.
+const NativeComponentRegistry =
+  // eslint-disable-next-line @react-native/no-deep-imports
+  require('react-native/Libraries/NativeComponent/NativeComponentRegistry') as typeof import('react-native').NativeComponentRegistry
 
 type AttributeValue<T, V = T> =
   | boolean
