@@ -1,0 +1,17 @@
+{
+  "name": "nitro-test-external",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "specs": "rm -rf nitrogen/generated && bun nitrogen"
+  },
+  "devDependencies": {
+    "nitro-core": "workspace:*",
+    "nitrogen": "workspace:*"
+  },
+  "exports": {
+    ".": "./specs/SomeExternalObject.nitro.ts"
+  }
+}

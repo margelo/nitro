@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test'
 import {
   median,
   medianAbsoluteDeviation,
-} from '../../apps/benchmark/src/benchmarks/statistics'
+} from '../../tests/react-native/apps/benchmark/src/benchmarks/statistics'
 
 test('median and MAD preserve their input and resist an isolated outlier', () => {
   const values = [100, 2, 3, 4, 1]

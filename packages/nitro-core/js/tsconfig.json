@@ -1,0 +1,13 @@
+{
+  "extends": "../../../config/tsconfig.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "rootDir": "src",
+    "composite": false,
+    "noEmit": true,
+    "noEmitOnError": true,
+    "types": [],
+    "lib": ["ESNext", "DOM"],
+    "isolatedModules": true
+  }
+}

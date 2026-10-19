@@ -11,18 +11,21 @@
     "src",
     "!src/__tests__",
     "react-native.config.js",
-    "lib",
+    "lib/commonjs",
+    "lib/module",
+    "lib/typescript",
     "android/build.gradle",
     "android/gradle.properties",
     "android/fix-prefab.gradle",
     "android/CMakeLists.txt",
     "android/src/",
-    "ios/",
+    "android/core/",
+    "apple/",
     "cpp/",
-    "app.plugin.js",
-    "*.podspec",
-    "nitro_pod_utils.rb",
-    "README.md"
+    "README.md",
+    "NitroModules.podspec",
+    "LICENSE",
+    "!lib/typescript/__tests__"
   ],
   "keywords": [
     "react-native",
@@ -47,7 +50,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/margelo/nitro.git"
+    "url": "git+https://github.com/margelo/nitro.git",
+    "directory": "packages/react-native-nitro-modules"
   },
   "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
   "license": "MIT",
@@ -59,25 +63,25 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "write-native-version": "version=$(node -p \"require('./package.json').version\") && sed -i '' \"s/#define NITRO_VERSION \\\".*\\\"/#define NITRO_VERSION \\\"$version\\\"/\" ./cpp/utils/NitroDefines.hpp",
-    "postversion": "bun run write-native-version",
-    "build": "rm -rf lib && bun typecheck && bob build",
+    "build": "bun sync-core && rm -rf lib && bun typecheck && bob build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
     "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions --max-warnings 0",
     "test": "jest",
     "clean": "rm -rf android/build node_modules/**/android/build lib",
-    "release": "release-it"
+    "release": "../../scripts/release.sh",
+    "sync-core": "node ../../scripts/sync-core.mjs",
+    "prepack": "bun run --cwd ../.. check-versions 1>&2 && bun run --cwd ../nitro-core build 1>&2 && bun run build 1>&2 && node ../../scripts/sync-core.mjs --check 1>&2"
   },
   "devDependencies": {
     "@types/jest": "*",
-    "@types/react": "^19.2.15",
+    "@types/react": "^19.3.0",
     "jest": "*",
-    "@react-native/jest-preset": "0.85.3",
-    "react": "19.2.3",
-    "react-native": "0.85.3",
+    "@react-native/jest-preset": "0.88.0",
+    "react": "19.3.0",
+    "react-native": "0.88.0",
     "react-native-builder-bob": "^0.41.0",
-    "react-native-worklets": "^0.9.1"
+    "react-native-worklets": "^0.13.0"
   },
   "peerDependencies": {
     "react": "*",
@@ -98,19 +102,6 @@
       "<rootDir>/lib/"
     ]
   },
-  "release-it": {
-    "npm": {
-      "publish": true
-    },
-    "git": false,
-    "github": {
-      "release": false
-    },
-    "hooks": {
-      "before:init": "bun typecheck && bun lint",
-      "after:bump": "bun run build"
-    }
-  },
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
@@ -125,5 +116,8 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "nitro-core": "0.37.1"
   }
 }

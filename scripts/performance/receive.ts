@@ -1,6 +1,6 @@
 import { parseArguments, requiredArgument } from './args'
 import { validateBenchmarkRun, validateExpectedRun } from './schema'
-import type { BenchmarkRunConfiguration } from '../../apps/benchmark/src/benchmarks/types'
+import type { BenchmarkRunConfiguration } from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 
 const MAX_BODY_BYTES = 5 * 1024 * 1024
 

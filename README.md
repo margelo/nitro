@@ -9,10 +9,11 @@
 <br />
 
 **Nitro Modules** are fast, type-safe native modules for React Native with statically compiled bindings to JSI.
-They consist of two parts:
+This repository contains:
 
-- [**react-native-nitro-modules**](packages/react-native-nitro-modules): The core C++ library powering all nitro modules
-- [**nitrogen**](packages/nitrogen): An optional code-generator for nitro module library authors
+- [**nitro-core**](packages/nitro-core): Shared native runtime for C++, Swift and Kotlin, the JavaScript API, and TypeScript definitions
+- [**nitrogen**](packages/nitrogen): Code generator for C++, Swift, and Kotlin bindings
+- [**react-native-nitro-modules**](packages/react-native-nitro-modules): React Native installation, views, worklets, and native build integration
 
 ## Example
 
@@ -58,8 +59,8 @@ cd ios && pod install
 - [**How to build a Nitro Module** YouTube Tutorial ▶️](https://youtu.be/528SxTGnIlc?si=IxH7n09ZVe4iwRPv)
 - [**nitrogen**/README.md](./packages/nitrogen/README.md)
 - [**react-native-nitro-modules**/README.md](./packages/react-native-nitro-modules/README.md)
-- [**react-native-nitro-test** example module](./packages/react-native-nitro-test/README.md)
-- [`TestObject.nitro.ts` example playground](./packages/react-native-nitro-test/src/specs/TestObject.nitro.ts)
+- [**react-native-nitro-test** example module](./tests/react-native/packages/react-native-nitro-test/README.md)
+- [`TestObject.nitro.ts` HybridObject test specs](./tests/standalone/nitro-test/specs/TestObject.nitro.ts)
 
 ## Supported Platforms
 

@@ -99,11 +99,11 @@ test.each([
       const root = path.resolve(import.meta.dir, '../..')
       const baseRoot = path.join(directory, 'base')
       if (changedSuite) {
-        await mkdir(path.join(baseRoot, 'apps/benchmark/src/benchmarks'), {
+        await mkdir(path.join(baseRoot, 'tests/react-native/apps/benchmark/src/benchmarks'), {
           recursive: true,
         })
         await Bun.write(
-          path.join(baseRoot, 'apps/benchmark/index.js'),
+          path.join(baseRoot, 'tests/react-native/apps/benchmark/index.js'),
           '// old benchmark'
         )
       }

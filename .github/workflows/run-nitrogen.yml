@@ -1,57 +1,56 @@
-name: Run Nitrogen
+name: Check Nitrogen output
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/run-nitrogen.yml'
-      - '**/*.ts'
-      - '**/*.tsx'
-      - '**/*.js'
-      - '**/*.jsx'
-      - '**/*.json'
-      - '**/*.lockb'
-      - '**/nitro.json'
-      - '**/package.json'
-      - 'packages/nitrogen/**'
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
   pull_request:
     paths:
-      - '.github/workflows/run-nitrogen.yml'
-      - '**/*.ts'
-      - '**/*.tsx'
-      - '**/*.js'
-      - '**/*.jsx'
-      - '**/*.json'
-      - '**/*.lockb'
-      - '**/nitro.json'
-      - '**/package.json'
       - 'packages/nitrogen/**'
+      - 'packages/nitro-core/**'
+      - 'packages/react-native-nitro-modules/**'
+      - 'tests/standalone/nitro-test/**'
+      - 'tests/standalone/nitro-test-external/**'
+      - 'tests/react-native/packages/**'
+      - 'config/**'
+      - '**/package.json'
+      - 'bun.lock'
+      - 'bunfig.toml'
+      - 'scripts/releases/**'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/core-package.mjs'
+      - 'scripts/set-version.mjs'
+      - '.github/workflows/run-nitrogen.yml'
+
+permissions:
+  contents: read
 
 jobs:
-  lint:
-    name: Run Nitrogen for example module (react-native-nitro-test)
+  generate:
+    name: Check Nitrogen output
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: oven-sh/setup-bun@v2
-
-      - name: Install npm dependencies (bun)
-        run: bun install
-
-      - name: Build all packages
-        run: bun run build
-
-      - name: Run nitrogen in packages/react-native-nitro-test-external
-        working-directory: packages/react-native-nitro-test-external
-        run: bun i && bun specs
-
-      - name: Run nitrogen in packages/react-native-nitro-test
-        working-directory: packages/react-native-nitro-test
-        run: bun i && bun specs
-
-      - name: Verify no files have changed after nitrogen
-        run: git diff --exit-code HEAD -- . ':(exclude)bun.lock'
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - run: bun specs
+      - name: Verify generated bindings are committed
+        shell: bash
+        run: |
+          paths=(
+            tests/standalone/nitro-test/nitrogen/generated
+            tests/standalone/nitro-test-external/nitrogen/generated
+            tests/react-native/packages/react-native-nitro-test/nitrogen/generated
+          )
+          git diff --exit-code -- "${paths[@]}"
+          test -z "$(git ls-files --others --exclude-standard -- "${paths[@]}")"

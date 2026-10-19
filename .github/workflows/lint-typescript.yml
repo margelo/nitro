@@ -4,29 +4,26 @@ permissions:
   contents: read
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/lint-typescript.yml'
-      - 'config'
-      - '**/*.ts'
-      - '**/*.tsx'
-      - '**/*.js'
-      - '**/*.jsx'
-      - '**/*.json'
-      - '**/*.lockb'
-      - '**/package.json'
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
   pull_request:
     paths:
       - '.github/workflows/lint-typescript.yml'
-      - 'config'
+      - 'config/**'
       - '**/*.ts'
       - '**/*.tsx'
       - '**/*.js'
+      - '**/*.mjs'
+      - '**/*.cjs'
+      - 'eslint.config.mjs'
       - '**/*.jsx'
       - '**/*.json'
-      - '**/*.lockb'
+      - 'bun.lock'
+      - 'bunfig.toml'
       - '**/package.json'
 
 jobs:
@@ -35,10 +32,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Run TypeScript (tsc)
         run: bun typecheck
@@ -48,41 +49,51 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile
 
-      - name: Run ESLint CI in apps/example/
-        working-directory: apps/example
+      - name: Run ESLint CI in example
+        working-directory: tests/react-native/apps/example
         run: bun lint-ci
-      - name: Run ESLint CI in packages/nitrogen
-        working-directory: packages/nitrogen
+      - name: Run ESLint CI in benchmark
+        working-directory: tests/react-native/apps/benchmark
         run: bun lint-ci
-      - name: Run ESLint CI in packages/react-native-nitro-test-external
-        working-directory: packages/react-native-nitro-test-external
+      - name: Run ESLint CI in react-native-nitro-test
+        working-directory: tests/react-native/packages/react-native-nitro-test
         run: bun lint-ci
-      - name: Run ESLint CI in packages/react-native-nitro-test
-        working-directory: packages/react-native-nitro-test
-        run: bun lint-ci
-      - name: Run ESLint CI in packages/react-native-nitro-modules
+      - name: Run ESLint CI in react-native-nitro-modules
         working-directory: packages/react-native-nitro-modules
         run: bun lint-ci
+      - name: Run ESLint CI in nitrogen
+        working-directory: packages/nitrogen
+        run: bun lint-ci
+      - name: Run ESLint CI in nitro-core
+        working-directory: packages/nitro-core
+        run: bun lint-ci
 
-      - name: Run ESLint with auto-fix in apps/example/
-        working-directory: apps/example
+      - name: Run ESLint with auto-fix in example
+        working-directory: tests/react-native/apps/example
         run: bun lint
-      - name: Run ESLint with auto-fix in packages/nitrogen
+      - name: Run ESLint with auto-fix in benchmark
+        working-directory: tests/react-native/apps/benchmark
+        run: bun lint
+      - name: Run ESLint with auto-fix in react-native-nitro-test
+        working-directory: tests/react-native/packages/react-native-nitro-test
+        run: bun lint
+      - name: Run ESLint with auto-fix in react-native-nitro-modules
+        working-directory: packages/react-native-nitro-modules
+        run: bun lint
+      - name: Run ESLint with auto-fix in nitrogen
         working-directory: packages/nitrogen
         run: bun lint
-      - name: Run ESLint with auto-fix in packages/react-native-nitro-test-external
-        working-directory: packages/react-native-nitro-test-external
-        run: bun lint
-      - name: Run ESLint with auto-fix in packages/react-native-nitro-test
-        working-directory: packages/react-native-nitro-test
-        run: bun lint
-      - name: Run ESLint with auto-fix in packages/react-native-nitro-modules
-        working-directory: packages/react-native-nitro-modules
+      - name: Run ESLint with auto-fix in nitro-core
+        working-directory: packages/nitro-core
         run: bun lint
 
       - name: Verify no files have changed after auto-fix

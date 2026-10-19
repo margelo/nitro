@@ -3,7 +3,7 @@ import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'
 import { installApp, runDeviceCase } from './run-device'
 import { combineIsolatedCases } from './isolated-cases'
-import type { BenchmarkRunResult } from '../../apps/benchmark/src/benchmarks/types'
+import type { BenchmarkRunResult } from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 import { calculateSuiteHash } from './suite-hash'
 import type { BuildMetadata } from './build-metadata'
 

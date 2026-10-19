@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "${1:?Usage: build-ios.sh <checkout-root> [application-id]}"
 bun install --frozen-lockfile
-cd apps/benchmark
+cd tests/react-native/apps/benchmark
 bundle install
 bun pods
 cd ios

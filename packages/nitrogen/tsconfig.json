@@ -1,13 +1,11 @@
 {
-  "extends": [
-    "@tsconfig/react-native/tsconfig.json",
-    "../../config/tsconfig.json"
-  ],
+  "extends": "../../config/tsconfig.json",
   "include": ["src"],
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
     "types": ["node"],
+    "isolatedModules": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext"
   }

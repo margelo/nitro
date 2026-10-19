@@ -1,11 +1,11 @@
 import {
   median,
   medianAbsoluteDeviation,
-} from '../../apps/benchmark/src/benchmarks/statistics'
+} from '../../tests/react-native/apps/benchmark/src/benchmarks/statistics'
 import type {
   BenchmarkMetric,
   BenchmarkRunResult,
-} from '../../apps/benchmark/src/benchmarks/types'
+} from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 
 /** A presentation threshold, not a calibrated regression budget. */
 export const REPORTING_THRESHOLD_PERCENT = 5

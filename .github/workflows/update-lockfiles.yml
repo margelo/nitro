@@ -5,12 +5,22 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/update-lockfiles.yml"
+      - '**/package.json'
+      - 'bun.lock'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/core-package.mjs'
+      - '.github/workflows/update-lockfiles.yml'
+      - 'tests/react-native/apps/**/Podfile'
+      - 'tests/react-native/apps/**/Gemfile'
   pull_request:
     paths:
-      - ".github/workflows/update-lockfiles.yml"
-      - "package.json"
-      - "**/package.json"
+      - '**/package.json'
+      - 'bun.lock'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/core-package.mjs'
+      - '.github/workflows/update-lockfiles.yml'
+      - 'tests/react-native/apps/**/Podfile'
+      - 'tests/react-native/apps/**/Gemfile'
 
 permissions:
   contents: write
@@ -27,13 +37,15 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
 
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7.2
           bundler-cache: true
-          working-directory: apps/example/ios
+          working-directory: tests/react-native/apps/example/ios
 
       - name: Select Xcode 26.2
         run: sudo xcode-select -s "/Applications/Xcode_26.2.app/Contents/Developer"
@@ -41,18 +53,14 @@ jobs:
       - run: |
           bun install
 
-          cd apps/example
+          cd tests/react-native/apps/example
           bundle install
           bun pods
           cd "$GITHUB_WORKSPACE"
 
-          cd docs
-          bun install
-          cd ..
-
           git add bun.lock
-          git add apps/example/ios/Podfile.lock
-          git add apps/example/Gemfile.lock
+          git add tests/react-native/apps/example/ios/Podfile.lock
+          git add tests/react-native/apps/example/Gemfile.lock
 
           git config --global user.name 'dependabot[bot]'
           git config --global user.email 'dependabot[bot]@users.noreply.github.com'

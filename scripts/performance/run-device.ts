@@ -1,4 +1,4 @@
-import type { BenchmarkRunConfiguration } from '../../apps/benchmark/src/benchmarks/types'
+import type { BenchmarkRunConfiguration } from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 import path from 'node:path'
 import { mkdir, readFile } from 'node:fs/promises'
 import { validateBenchmarkRun } from './schema'

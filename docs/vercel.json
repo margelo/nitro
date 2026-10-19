@@ -1,5 +1,5 @@
 {
-  "installCommand": "rm -rf node_modules && bun install --force",
+  "installCommand": "bun install --frozen-lockfile --ignore-scripts",
   "buildCommand": "bun run build",
   "cleanUrls": true,
   "trailingSlash": false,

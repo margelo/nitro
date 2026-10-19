@@ -1,0 +1,62 @@
+plugins {
+  id 'com.android.library'
+  id 'org.jetbrains.kotlin.android'
+}
+
+def generatedRoot = file('../nitrogen/generated')
+def prefabHeaders = layout.buildDirectory.dir('generated/prefab-headers')
+def prepareHeaders = tasks.register('prepareHeaders', Sync) {
+  from(new File(generatedRoot, 'shared/c++')) { include '*.hpp' }
+  from(new File(generatedRoot, 'android/c++')) { include '*.hpp' }
+  from('../cpp') { include '*.hpp' }
+  eachFile { path = "NitroTest/${name}" }
+  includeEmptyDirs = false
+  duplicatesStrategy = DuplicatesStrategy.FAIL
+  into prefabHeaders
+}
+
+android {
+  namespace 'com.margelo.nitro.test'
+  compileSdk providers.gradleProperty('nitroTestCompileSdk').get().toInteger()
+  ndkVersion providers.gradleProperty('nitroTestNdkVersion').get()
+
+  defaultConfig {
+    minSdk providers.gradleProperty('nitroTestMinSdk').get().toInteger()
+    ndk { abiFilters providers.gradleProperty('nitroTestAbi').get() }
+    externalNativeBuild {
+      cmake {
+        arguments '-DANDROID_STL=c++_shared', '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON', "-DNITRO_SANITIZER=${providers.gradleProperty('nitroSanitizer').getOrElse('')}"
+        targets 'NitroTest'
+      }
+    }
+  }
+
+  buildFeatures {
+    prefab true
+    prefabPublishing true
+  }
+  prefab {
+    NitroTest { headers prefabHeaders.get().asFile.absolutePath }
+  }
+  externalNativeBuild {
+    cmake {
+      path 'CMakeLists.txt'
+      version providers.gradleProperty('nitroTestCmakeVersion').get()
+    }
+  }
+  sourceSets.main.java.srcDirs += [new File(generatedRoot, 'android/kotlin')]
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+  kotlinOptions { jvmTarget = '17' }
+}
+
+dependencies {
+  api project(':nitro-core')
+  api project(':nitro-test-external')
+}
+
+tasks.configureEach {
+  if (name == 'preBuild' || name.startsWith('prefab')) dependsOn prepareHeaders
+}

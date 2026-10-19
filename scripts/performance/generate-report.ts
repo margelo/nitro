@@ -1,6 +1,6 @@
 import type { PerformanceReport, ReportMetadata } from './report'
 import type { BuildMetadata } from './build-metadata'
-import type { BenchmarkRunResult } from '../../apps/benchmark/src/benchmarks/types'
+import type { BenchmarkRunResult } from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 import { appendFile, mkdir, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArguments, requiredArgument } from './args'

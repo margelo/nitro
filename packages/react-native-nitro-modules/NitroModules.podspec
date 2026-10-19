@@ -1,5 +1,5 @@
 require "json"
-require "./nitro_pod_utils"
+require_relative "./apple/nitro_pod_utils"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.homepage     = package["homepage"]
   s.license      = package["license"]
   s.authors      = package["author"]
-  s.source       = { :git => "https://github.com/margelo/nitro.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/margelo/nitro.git", :tag => "v#{s.version}" }
   s.platforms    = {
     :ios => min_ios_version_supported,
     :visionos => 1.0,
@@ -25,45 +25,45 @@ Pod::Spec.new do |s|
     # Shared C++ codebase
     "cpp/**/*.{h,hpp}",
     "cpp/**/*.{c,cpp}",
-    # iOS codebase
-    "ios/**/*.{h,hpp}",
-    "ios/**/*.{c,cpp}",
-    "ios/**/*.{m,mm}",
-    "ios/**/*.swift",
+    # Apple codebase
+    "apple/**/*.{h,hpp}",
+    "apple/**/*.{c,cpp}",
+    "apple/**/*.{m,mm}",
+    "apple/**/*.swift",
   ]
   s.public_header_files = [
     # Public C++ headers will be exposed in modulemap (for Swift)
-    "cpp/core/AnyMap.hpp",
-    "cpp/core/ArrayBuffer.hpp",
-    "cpp/core/HybridObject.hpp",
-    "cpp/core/Null.hpp",
-    "cpp/core/Promise.hpp",
-    "cpp/entrypoint/HybridNitroModulesProxy.hpp",
-    "cpp/entrypoint/InstallNitro.hpp",
-    "cpp/registry/HybridObjectRegistry.hpp",
-    "cpp/jsi/JSIConverter.hpp",
-    "cpp/jsi/JSIHelpers.hpp",
-    "cpp/platform/NitroLogger.hpp",
-    "cpp/threading/Dispatcher.hpp",
-    "cpp/threading/ThreadPool.hpp",
-    "cpp/utils/JSCallback.hpp",
-    "cpp/utils/FastVectorCopy.hpp",
-    "cpp/utils/NitroHash.hpp",
-    "cpp/utils/NitroDefines.hpp",
-    "cpp/utils/PropNameIDCache.hpp",
+    "cpp/core/core/AnyMap.hpp",
+    "cpp/core/core/ArrayBuffer.hpp",
+    "cpp/core/core/HybridObject.hpp",
+    "cpp/core/core/Null.hpp",
+    "cpp/core/core/Promise.hpp",
+    "cpp/core/entrypoint/HybridNitroModulesProxy.hpp",
+    "cpp/core/entrypoint/InstallNitro.hpp",
+    "cpp/core/registry/HybridObjectRegistry.hpp",
+    "cpp/core/jsi/JSIConverter.hpp",
+    "cpp/core/jsi/JSIHelpers.hpp",
+    "cpp/core/platform/NitroLogger.hpp",
+    "cpp/core/threading/Dispatcher.hpp",
+    "cpp/core/threading/ThreadPool.hpp",
+    "cpp/core/utils/JSCallback.hpp",
+    "cpp/core/utils/FastVectorCopy.hpp",
+    "cpp/core/utils/NitroHash.hpp",
+    "cpp/core/utils/NitroDefines.hpp",
+    "cpp/core/utils/PropNameIDCache.hpp",
     "cpp/views/CachedProp.hpp",
     "cpp/views/RawPropsCompat.hpp",
     "cpp/views/ReactProp.hpp",
     "cpp/views/ViewComponentDescriptor.hpp",
     "cpp/views/ViewPropsHolderState.hpp",
-    # Public iOS-specific headers that will be exposed in modulemap (for Swift)
-    "ios/core/ArrayBufferHolder.hpp",
-    "ios/core/PromiseHolder.hpp",
-    "ios/utils/AnyMapUtils.hpp",
-    "ios/utils/Result.hpp",
-    "ios/utils/DateToChronoDate.hpp",
-    "ios/utils/RuntimeError.hpp",
-    "ios/utils/SwiftClosure.hpp",
+    # Public Apple-specific headers that will be exposed in modulemap (for Swift)
+    "apple/core/core/ArrayBufferHolder.hpp",
+    "apple/core/core/PromiseHolder.hpp",
+    "apple/core/utils/AnyMapUtils.hpp",
+    "apple/core/utils/Result.hpp",
+    "apple/core/utils/DateToChronoDate.hpp",
+    "apple/core/utils/RuntimeError.hpp",
+    "apple/core/utils/SwiftClosure.hpp",
   ]
 
   xcconfig = {

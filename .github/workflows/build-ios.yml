@@ -1,40 +1,27 @@
-name: Build iOS
+name: Build React Native iOS
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/build-ios.yml'
-      - 'apps/example/ios/**'
-      - '**/nitrogen/generated/shared/**'
-      - '**/nitrogen/generated/ios/**'
-      - 'packages/react-native-nitro-test/cpp/**'
-      - 'packages/react-native-nitro-test/ios/**'
-      - 'packages/react-native-nitro-test-external/cpp/**'
-      - 'packages/react-native-nitro-test-external/ios/**'
-      - 'packages/react-native-nitro-modules/cpp/**'
-      - 'packages/react-native-nitro-modules/ios/**'
-      - '**/Podfile.lock'
-      - '**/*.podspec'
-      - '**/react-native.config.js'
-      - '**/nitro.json'
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
   pull_request:
     paths:
       - '.github/workflows/build-ios.yml'
-      - 'apps/example/ios/**'
-      - '**/nitrogen/generated/shared/**'
-      - '**/nitrogen/generated/ios/**'
-      - 'packages/react-native-nitro-test/cpp/**'
-      - 'packages/react-native-nitro-test/ios/**'
-      - 'packages/react-native-nitro-test-external/cpp/**'
-      - 'packages/react-native-nitro-test-external/ios/**'
-      - 'packages/react-native-nitro-modules/cpp/**'
-      - 'packages/react-native-nitro-modules/ios/**'
-      - '**/Podfile.lock'
-      - '**/*.podspec'
-      - '**/react-native.config.js'
-      - '**/nitro.json'
+      - 'packages/nitro-core/**'
+      - 'packages/nitrogen/**'
+      - 'packages/react-native-nitro-modules/**'
+      - 'tests/react-native/**'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/core-package.mjs'
+      - 'scripts/set-version.mjs'
+      - 'package.json'
+      - 'bun.lock'
+      - 'bunfig.toml'
+      - 'scripts/releases/**'
+      - 'config/**'
 
 env:
   XCODE_VERSION: '26.5'
@@ -53,14 +40,21 @@ jobs:
             use_frameworks: ""   # intentionally unset
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Set USE_FRAMEWORKS
         if: matrix.use_frameworks != ''
         run: echo "USE_FRAMEWORKS=${{ matrix.use_frameworks }}" >> "$GITHUB_ENV"
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile
+
+      - name: Generate test bindings
+        run: bun specs
 
       - name: Install Ccache
         uses: hendrikmuhs/ccache-action@v1.2
@@ -81,7 +75,7 @@ jobs:
         with:
           ruby-version: 2.7.2
           bundler-cache: true
-          working-directory: apps/example
+          working-directory: tests/react-native/apps/example
 
       - name: Select Xcode ${{ env.XCODE_VERSION }}
         run: sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer"
@@ -89,24 +83,24 @@ jobs:
       - name: Restore Pods cache
         uses: actions/cache@v6
         with:
-          path: apps/example/ios/Pods
-          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-pods-${{ hashFiles('bun.lock', 'apps/example/Gemfile.lock', 'apps/example/ios/Podfile.lock') }}
+          path: tests/react-native/apps/example/ios/Pods
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-pods-${{ hashFiles('bun.lock', 'tests/react-native/apps/example/Gemfile.lock', 'tests/react-native/apps/example/ios/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-pods-
       - name: Install Pods
-        working-directory: apps/example
+        working-directory: tests/react-native/apps/example
         run: bun pods
 
       - name: Restore DerivedData cache
         uses: actions/cache@v6
         with:
-          path: apps/example/ios/build
-          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-xcode${{ env.XCODE_VERSION }}-dd-${{ hashFiles('bun.lock', 'apps/example/Gemfile.lock', 'apps/example/ios/Podfile.lock') }}
+          path: tests/react-native/apps/example/ios/build
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-xcode${{ env.XCODE_VERSION }}-dd-${{ hashFiles('bun.lock', 'tests/react-native/apps/example/Gemfile.lock', 'tests/react-native/apps/example/ios/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-xcode${{ env.XCODE_VERSION }}-dd-
 
       - name: Build App
-        working-directory: apps/example/ios
+        working-directory: tests/react-native/apps/example/ios
         run: |
           set -o pipefail
           xcodebuild \

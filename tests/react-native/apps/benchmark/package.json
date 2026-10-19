@@ -1,0 +1,45 @@
+{
+  "name": "react-native-nitro-benchmark",
+  "version": "0.37.1",
+  "private": true,
+  "scripts": {
+    "android": "node ../../../../scripts/sync-core.mjs && react-native run-android --mode release",
+    "ios": "node ../../../../scripts/sync-core.mjs && react-native run-ios --mode Release",
+    "build:android": "node ../../../../scripts/sync-core.mjs && cd android && ./gradlew :app:assembleRelease --no-daemon",
+    "build:ios": "node ../../../../scripts/sync-core.mjs && cd ios && xcodebuild -workspace NitroBenchmark.xcworkspace -scheme NitroBenchmark -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO",
+    "bundle-install": "bundle install",
+    "pods": "node ../../../../scripts/sync-core.mjs && cd ios && bundle exec pod install",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
+    "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions --max-warnings 0"
+  },
+  "dependencies": {
+    "react": "19.3.0",
+    "react-native": "0.88.0",
+    "react-native-nitro-modules": "0.37.1",
+    "react-native-nitro-test": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/core": "^8.0.7",
+    "@babel/preset-env": "^8.0.7",
+    "@babel/runtime": "^8.0.7",
+    "@react-native-community/cli": "20.2.0",
+    "@react-native-community/cli-platform-android": "20.2.0",
+    "@react-native-community/cli-platform-ios": "20.2.0",
+    "@react-native/babel-preset": "0.88.0",
+    "@react-native/eslint-config": "0.88.0",
+    "@react-native/metro-config": "0.88.0",
+    "@react-native/typescript-config": "0.88.0"
+  },
+  "engines": {
+    "node": "^22.13.0 || ^24.3.0 || >=26.0.0"
+  },
+  "codegenConfig": {
+    "name": "ExampleTurboModule",
+    "type": "modules",
+    "jsSrcsDir": "src/turbo-module",
+    "android": {
+      "javaPackageName": "com.nitroexample.exampleturbomodule"
+    }
+  }
+}

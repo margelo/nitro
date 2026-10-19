@@ -1,11 +1,29 @@
-name: Build Android (Release)
+name: Build React Native Android (Release)
 
 on:
+  workflow_call:
+    inputs:
+      release-tag:
+        description: Published tag to build and attach app artifacts to
+        required: true
+        type: string
   release:
     types: [published]
   pull_request:
     paths:
       - '.github/workflows/build-android-release.yml'
+      - 'packages/nitro-core/**'
+      - 'packages/nitrogen/**'
+      - 'packages/react-native-nitro-modules/**'
+      - 'tests/react-native/**'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/core-package.mjs'
+      - 'scripts/set-version.mjs'
+      - 'package.json'
+      - 'bun.lock'
+      - 'bunfig.toml'
+      - 'scripts/releases/**'
+      - 'config/**'
 
 jobs:
   build_release:
@@ -15,37 +33,49 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.release-tag || github.sha }}
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile
+
+      - name: Generate test bindings
+        run: bun specs
 
       - name: Setup JDK 17
-        uses: actions/setup-java@v6.0.0
+        uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: 17
           java-package: jdk
 
       - name: Set minSdk in build.gradle to 26
-        run: sed -i "s/minSdkVersion = 24/minSdkVersion = 26/g" apps/example/android/build.gradle
+        run: sed -i "s/minSdkVersion = 24/minSdkVersion = 26/g" tests/react-native/apps/example/android/build.gradle
 
-      - name: Run Gradle Build for apps/example/android/
-        working-directory: apps/example/android
+      - name: Run Gradle Build for tests/react-native/apps/example/android/
+        working-directory: tests/react-native/apps/example/android
         run: |
           ./gradlew clean :app:assembleRelease --no-daemon --no-build-cache
 
       - name: Upload APK to Release
-        if: github.event_name == 'release'
+        if: inputs.release-tag != '' || github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ inputs.release-tag || github.event.release.tag_name }}
         run: |
           ASSET_NAME="NitroExample-${RELEASE_TAG}.apk"
-          mv apps/example/android/app/build/outputs/apk/release/app-release.apk "$ASSET_NAME"
-          gh release upload "$RELEASE_TAG" "$ASSET_NAME" --repo "$GITHUB_REPOSITORY"
+          EXISTING_ASSETS=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')
+          if printf '%s\n' "$EXISTING_ASSETS" | grep -Fxq -- "$ASSET_NAME"; then
+            echo "Release asset $ASSET_NAME already exists; keeping it."
+          else
+            mv tests/react-native/apps/example/android/app/build/outputs/apk/release/app-release.apk "$ASSET_NAME"
+            gh release upload "$RELEASE_TAG" "$ASSET_NAME" --repo "$GITHUB_REPOSITORY"
+          fi
 
       # Gradle cache doesn't like daemons
       - name: Stop Gradle Daemon
-        working-directory: apps/example/android
+        working-directory: tests/react-native/apps/example/android
         run: ./gradlew --stop

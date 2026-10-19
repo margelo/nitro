@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, spyOn, test } from 'bun:test'
-import { runBenchmarkDefinitions } from '../../apps/benchmark/src/benchmarks/runner'
-import { executeBatch } from '../../apps/benchmark/src/benchmarks/batch'
-import { getBenchmarkIterations } from '../../apps/benchmark/src/benchmarks/iterations'
-import type { BenchmarkDefinition } from '../../apps/benchmark/src/benchmarks/types'
+import { runBenchmarkDefinitions } from '../../tests/react-native/apps/benchmark/src/benchmarks/runner'
+import { executeBatch } from '../../tests/react-native/apps/benchmark/src/benchmarks/batch'
+import { getBenchmarkIterations } from '../../tests/react-native/apps/benchmark/src/benchmarks/iterations'
+import type { BenchmarkDefinition } from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 
 const runtime = { collectGarbage() {}, async yieldToRuntime() {} }
 const id = 'javascript/control/add-numbers'

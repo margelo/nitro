@@ -1,0 +1,790 @@
+// !$*UTF8*$!
+{
+	"classes" = {
+	};
+	"objectVersion" = "77";
+	"archiveVersion" = "1";
+	"objects" = {
+		"A3100000000000000000001A" = {
+			"isa" = "PBXFileReference";
+			"path" = "../build/runtime-test-skips.json";
+			"lastKnownFileType" = "text.json";
+			"sourceTree" = "<group>";
+		};
+		"A3100000000000000000001B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A3100000000000000000001A";
+		};
+		"A31000000000000000000001" = {
+			"isa" = "PBXNativeTarget";
+			"dependencies" = (
+				"A31000000000000000000011",
+			);
+			"productType" = "com.apple.product-type.framework";
+			"productReference" = "A31000000000000000000002";
+			"buildConfigurationList" = "A31000000000000000000006";
+			"productName" = "NitroTestExternal";
+			"fileSystemSynchronizedGroups" = (
+				"A31000000000000000000009",
+				"A3100000000000000000000A",
+				"A3100000000000000000000B",
+			);
+			"buildPhases" = (
+				"A31000000000000000000003",
+				"A31000000000000000000004",
+				"A31000000000000000000005",
+			);
+			"name" = "NitroTestExternal";
+			"buildRules" = (
+			);
+		};
+		"A31000000000000000000002" = {
+			"isa" = "PBXFileReference";
+			"path" = "NitroTestExternal.framework";
+			"lastKnownFileType" = "wrapper.framework";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"A31000000000000000000003" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"A31000000000000000000004" = {
+			"isa" = "PBXHeadersBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"A3100000000000000000000F",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"A31000000000000000000005" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"A31000000000000000000012",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"A31000000000000000000006" = {
+			"isa" = "XCConfigurationList";
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Debug";
+			"buildConfigurations" = (
+				"A31000000000000000000007",
+				"A31000000000000000000008",
+			);
+		};
+		"A31000000000000000000007" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Debug";
+			"buildSettings" = {
+				"PRODUCT_MODULE_NAME" = "NitroTestExternal";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroTestExternal";
+				"SKIP_INSTALL" = "YES";
+				"SWIFT_INSTALL_OBJC_HEADER" = "NO";
+				"DEFINES_MODULE" = "YES";
+				"PRODUCT_NAME" = "NitroTestExternal";
+				"MACH_O_TYPE" = "staticlib";
+			};
+		};
+		"A31000000000000000000008" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Release";
+			"buildSettings" = {
+				"PRODUCT_MODULE_NAME" = "NitroTestExternal";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroTestExternal";
+				"SKIP_INSTALL" = "YES";
+				"SWIFT_INSTALL_OBJC_HEADER" = "NO";
+				"DEFINES_MODULE" = "YES";
+				"PRODUCT_NAME" = "NitroTestExternal";
+				"MACH_O_TYPE" = "staticlib";
+			};
+		};
+		"A31000000000000000000009" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../../nitro-test-external/ios";
+			"exceptions" = (
+				"A3100000000000000000000D",
+			);
+			"sourceTree" = "<group>";
+			"explicitFolders" = (
+				"Support",
+			);
+		};
+		"A3100000000000000000000A" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../../nitro-test-external/nitrogen/generated/ios";
+			"exceptions" = (
+				"A3100000000000000000000C",
+			);
+			"sourceTree" = "<group>";
+		};
+		"A3100000000000000000000B" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../../nitro-test-external/nitrogen/generated/shared";
+			"sourceTree" = "<group>";
+		};
+		"A3100000000000000000000C" = {
+			"isa" = "PBXFileSystemSynchronizedBuildFileExceptionSet";
+			"target" = "A31000000000000000000001";
+			"membershipExceptions" = (
+				"NitroTestExternal+autolinking.rb",
+			);
+		};
+		"A3100000000000000000000D" = {
+			"isa" = "PBXFileSystemSynchronizedBuildFileExceptionSet";
+			"target" = "A31000000000000000000001";
+			"membershipExceptions" = (
+				"Support",
+			);
+		};
+		"A3100000000000000000000E" = {
+			"isa" = "PBXFileReference";
+			"path" = "../../nitro-test-external/ios/Support/NitroTestExternal.h";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"sourceTree" = "<group>";
+		};
+		"A3100000000000000000000F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A3100000000000000000000E";
+			"settings" = {
+				"ATTRIBUTES" = (
+					"Public",
+				);
+			};
+		};
+		"A31000000000000000000010" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"remoteGlobalIDString" = "6CBE257FF20F1296AB407DBC";
+			"remoteInfo" = "NitroModules";
+			"proxyType" = "1";
+		};
+		"A31000000000000000000011" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "6CBE257FF20F1296AB407DBC";
+			"targetProxy" = "A31000000000000000000010";
+		};
+		"A31000000000000000000012" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F1EF64D6FA16E706AC9BAF17";
+		};
+		"A31000000000000000000013" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"remoteGlobalIDString" = "A31000000000000000000001";
+			"remoteInfo" = "NitroTestExternal";
+			"proxyType" = "1";
+		};
+		"A31000000000000000000014" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "A31000000000000000000001";
+			"targetProxy" = "A31000000000000000000013";
+		};
+		"A31000000000000000000015" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A31000000000000000000002";
+		};
+		"A31000000000000000000016" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"remoteGlobalIDString" = "A31000000000000000000001";
+			"remoteInfo" = "NitroTestExternal";
+			"proxyType" = "1";
+		};
+		"A31000000000000000000017" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "A31000000000000000000001";
+			"targetProxy" = "A31000000000000000000016";
+		};
+		"A31000000000000000000018" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A31000000000000000000002";
+		};
+		"A3100000000000000000001C" = {
+			"isa" = "PBXFileSystemSynchronizedBuildFileExceptionSet";
+			"target" = "2CF3AE9D8CF9E682FC1AADBE";
+			"membershipExceptions" = (
+				"Support",
+			);
+		};
+		"A31000000000000000000019" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../../nitro-test/cpp";
+			"sourceTree" = "<group>";
+		};
+		"FEBA150E779FF183EC0E7020" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "2CF3AE9D8CF9E682FC1AADBE";
+			"targetProxy" = "06FA7B966A80505C9C34684D";
+		};
+		"F3D2F6230D2C852B33A71343" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"remoteGlobalIDString" = "6CBE257FF20F1296AB407DBC";
+			"remoteInfo" = "NitroModules";
+			"proxyType" = "1";
+		};
+		"E9FAC86F09E7E697F4EC48A4" = {
+			"isa" = "XCSwiftPackageProductDependency";
+			"package" = "01960F0288B41626470E79EC";
+			"productName" = "Hermes";
+		};
+		"74BB83F8671E19014B8EAA57" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "107B3F486EB8308BCC5A0D11";
+		};
+		"986965E417CFC77E1F2A9A4E" = {
+			"isa" = "PBXHeadersBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"C60221AF8E1A4423A6676616",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"5112FE4528A424FA5573A38C" = {
+			"isa" = "XCConfigurationList";
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Debug";
+			"buildConfigurations" = (
+				"ED825C0D9A9099F011C42A6B",
+				"CD715C4C202A7195BAA73F86",
+			);
+		};
+		"E5AB0CB65E14733C482CA950" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../cpp";
+			"sourceTree" = "<group>";
+		};
+		"3C18E2B846FF9B421D41A814" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Release";
+			"buildSettings" = {
+				"PRODUCT_MODULE_NAME" = "NitroTest";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroTest";
+				"SKIP_INSTALL" = "YES";
+				"SWIFT_INSTALL_OBJC_HEADER" = "NO";
+				"DEFINES_MODULE" = "YES";
+				"PRODUCT_NAME" = "NitroTest";
+				"MACH_O_TYPE" = "staticlib";
+			};
+		};
+		"0CC8B52FDFCA5117F26C16D1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "28486F24E892427E47C433F9";
+		};
+		"F292CFF87FBC1457ADE34534" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "6CBE257FF20F1296AB407DBC";
+			"targetProxy" = "191BAA77A206070938FD3CE2";
+		};
+		"EACEA4950268A0A97B2ED2A4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F1EF64D6FA16E706AC9BAF17";
+		};
+		"F6EDF968062C881AA1E47828" = {
+			"path" = "../../../../packages/nitro-core/native/cpp";
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"sourceTree" = "<group>";
+		};
+		"8C596FAF64219ECB904B4B58" = {
+			"path" = "../build/runtime-tests.js";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.javascript";
+			"sourceTree" = "<group>";
+		};
+		"C60221AF8E1A4423A6676616" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "72000EC893B5C16DBB73C064";
+			"settings" = {
+				"ATTRIBUTES" = (
+					"Public",
+				);
+			};
+		};
+		"2A6F4F80F913260559C7B4F8" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F1EF64D6FA16E706AC9BAF17";
+		};
+		"C7B626903A49721DF1C7A9A0" = {
+			"isa" = "PBXBuildFile";
+			"productRef" = "E9FAC86F09E7E697F4EC48A4";
+		};
+		"65AE40983E9F2CFAAA83298F" = {
+			"files" = (
+			);
+			"inputPaths" = (
+			);
+			"buildActionMask" = "2147483647";
+			"shellPath" = "/bin/sh";
+			"isa" = "PBXShellScriptBuildPhase";
+			"runOnlyForDeploymentPostprocessing" = "0";
+			"outputPaths" = (
+				"$(BUILT_PRODUCTS_DIR)/include/NitroModules",
+				"$(BUILT_PRODUCTS_DIR)/include/NitroTestExternal",
+			);
+			"shellScript" = "/bin/sh \"$SRCROOT/prepare-headers.sh\"\n";
+			"name" = "Prepare Nitro headers";
+			"alwaysOutOfDate" = "1";
+		};
+		"6406EB86626EBEAC0F5BC2D2" = {
+			"isa" = "XCConfigurationList";
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Debug";
+			"buildConfigurations" = (
+				"B1E338E4D97D37BE9D0BCD61",
+				"82909BADB2BE2F35E6FFD9E2",
+			);
+		};
+		"BD7ABD422F87ECBD09215C89" = {
+			"path" = "NitroRuntimeTests.xctest";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "wrapper.cfbundle";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"740C30D7771F0A04BF796BF9" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"FE7FE366CCF7920C3DC7424B",
+				"74BB83F8671E19014B8EAA57",
+				"A3100000000000000000001B",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"6CBE257FF20F1296AB407DBC" = {
+			"dependencies" = (
+				"6AFB3AA230D6F3989B6D63F0",
+			);
+			"productType" = "com.apple.product-type.framework";
+			"productReference" = "F1EF64D6FA16E706AC9BAF17";
+			"buildConfigurationList" = "6406EB86626EBEAC0F5BC2D2";
+			"productName" = "NitroModules";
+			"isa" = "PBXNativeTarget";
+			"fileSystemSynchronizedGroups" = (
+				"F6EDF968062C881AA1E47828",
+				"0E8B0A12F5C0A3B4EA4233FA",
+			);
+			"buildPhases" = (
+				"65AE40983E9F2CFAAA83298F",
+				"645405CF4097F448750AB5D9",
+				"F918B416A0F43A3492A848F7",
+				"8619D512C281C3BB08E29FF5",
+			);
+			"name" = "NitroModules";
+			"buildRules" = (
+			);
+		};
+		"FE7FE366CCF7920C3DC7424B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "8C596FAF64219ECB904B4B58";
+		};
+		"E94B95F154E204F6DA54E6C1" = {
+			"path" = "../../nitro-test/nitrogen/generated/ios";
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"exceptions" = (
+				"7804B733268243331873BC4D",
+			);
+			"sourceTree" = "<group>";
+		};
+		"4D35CFFC24F6128B73828F28" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"EACEA4950268A0A97B2ED2A4",
+				"A31000000000000000000015",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"28486F24E892427E47C433F9" = {
+			"path" = "NitroTest.framework";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "wrapper.framework";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"06FA7B966A80505C9C34684D" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"remoteGlobalIDString" = "2CF3AE9D8CF9E682FC1AADBE";
+			"remoteInfo" = "NitroTest";
+			"proxyType" = "1";
+		};
+		"6F7199ED7B63CDA338A0FB82" = {
+			"isa" = "PBXGroup";
+			"name" = "Products";
+			"sourceTree" = "<group>";
+			"children" = (
+				"F1EF64D6FA16E706AC9BAF17",
+				"28486F24E892427E47C433F9",
+				"BD7ABD422F87ECBD09215C89",
+				"A31000000000000000000002",
+			);
+		};
+		"80DE6F2423420D3DCEE4FAC8" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../../nitro-test/nitrogen/generated/shared";
+			"sourceTree" = "<group>";
+		};
+		"244210E48437B6556980A702" = {
+			"buildConfigurationList" = "3F4E3252342126A3569A588E";
+			"packageReferences" = (
+				"01960F0288B41626470E79EC",
+			);
+			"targets" = (
+				"6CBE257FF20F1296AB407DBC",
+				"2CF3AE9D8CF9E682FC1AADBE",
+				"75E1957B85157B2788675914",
+				"A31000000000000000000001",
+			);
+			"developmentRegion" = "en";
+			"knownRegions" = (
+				"en",
+				"Base",
+			);
+			"isa" = "PBXProject";
+			"productRefGroup" = "6F7199ED7B63CDA338A0FB82";
+			"projectDirPath" = "";
+			"attributes" = {
+				"LastUpgradeCheck" = "2600";
+			};
+			"preferredProjectObjectVersion" = "77";
+			"projectRoot" = "";
+			"mainGroup" = "AA0596BBDB4DCC95D5D4F10C";
+		};
+		"01960F0288B41626470E79EC" = {
+			"isa" = "XCLocalSwiftPackageReference";
+			"relativePath" = "../../hermes";
+		};
+		"72000EC893B5C16DBB73C064" = {
+			"path" = "../../nitro-test/ios/Support/NitroTest.h";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"sourceTree" = "<group>";
+		};
+		"F918B416A0F43A3492A848F7" = {
+			"isa" = "PBXHeadersBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"6C8E7177F1FDDDF22DF115C7",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"107B3F486EB8308BCC5A0D11" = {
+			"path" = "../build/runtime-tests.json";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.json";
+			"sourceTree" = "<group>";
+		};
+		"2CF3AE9D8CF9E682FC1AADBE" = {
+			"dependencies" = (
+				"F292CFF87FBC1457ADE34534",
+				"A31000000000000000000014",
+			);
+			"productType" = "com.apple.product-type.framework";
+			"productReference" = "28486F24E892427E47C433F9";
+			"buildConfigurationList" = "90500731D44DFE81F1C42C60";
+			"productName" = "NitroTest";
+			"isa" = "PBXNativeTarget";
+			"fileSystemSynchronizedGroups" = (
+				"80DE6F2423420D3DCEE4FAC8",
+				"E94B95F154E204F6DA54E6C1",
+				"6E892F881E37E4AFCB5FD437",
+				"A31000000000000000000019",
+			);
+			"buildPhases" = (
+				"8B0E117F17316968A61FB589",
+				"986965E417CFC77E1F2A9A4E",
+				"4D35CFFC24F6128B73828F28",
+			);
+			"name" = "NitroTest";
+			"buildRules" = (
+			);
+		};
+		"3F4E3252342126A3569A588E" = {
+			"isa" = "XCConfigurationList";
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Debug";
+			"buildConfigurations" = (
+				"184B519F8E1416CCE38CFFD7",
+				"A824290273A346217D9BE6F4",
+			);
+		};
+		"8619D512C281C3BB08E29FF5" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"6C8E7177F1FDDDF22DF115C7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C1A3F93182B3E6DCC3BAD63C";
+			"settings" = {
+				"ATTRIBUTES" = (
+					"Public",
+				);
+			};
+		};
+		"7610B62D79683A120E8C8B68" = {
+			"isa" = "PBXHeadersBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"1FBAD21BB3B02DCE0EF8B353" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Debug";
+			"buildSettings" = {
+				"PRODUCT_MODULE_NAME" = "NitroTest";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroTest";
+				"SKIP_INSTALL" = "YES";
+				"SWIFT_INSTALL_OBJC_HEADER" = "NO";
+				"DEFINES_MODULE" = "YES";
+				"PRODUCT_NAME" = "NitroTest";
+				"MACH_O_TYPE" = "staticlib";
+			};
+		};
+		"75E1957B85157B2788675914" = {
+			"dependencies" = (
+				"BEB4D80D86EA9A6F1FFEA9F6",
+				"FEBA150E779FF183EC0E7020",
+				"A31000000000000000000017",
+			);
+			"productType" = "com.apple.product-type.bundle.unit-test";
+			"productReference" = "BD7ABD422F87ECBD09215C89";
+			"buildConfigurationList" = "5112FE4528A424FA5573A38C";
+			"packageProductDependencies" = (
+				"E9FAC86F09E7E697F4EC48A4",
+			);
+			"productName" = "NitroRuntimeTests";
+			"isa" = "PBXNativeTarget";
+			"fileSystemSynchronizedGroups" = (
+				"77DBD7D37F477A6353CC4B3C",
+				"E5AB0CB65E14733C482CA950",
+			);
+			"buildPhases" = (
+				"AFC224B989B4BEE8EA429681",
+				"7610B62D79683A120E8C8B68",
+				"D6DF078FA34572F57A6C7AF2",
+				"740C30D7771F0A04BF796BF9",
+			);
+			"name" = "NitroRuntimeTests";
+			"buildRules" = (
+			);
+		};
+		"F1EF64D6FA16E706AC9BAF17" = {
+			"path" = "NitroModules.framework";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "wrapper.framework";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"A824290273A346217D9BE6F4" = {
+			"baseConfigurationReference" = "E295C7BE36E7AA2E66676164";
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+				"GCC_PREPROCESSOR_DEFINITIONS" = (
+					"$(inherited)",
+					"NDEBUG=1",
+				);
+			};
+			"name" = "Release";
+		};
+		"AFC224B989B4BEE8EA429681" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"B1E338E4D97D37BE9D0BCD61" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Debug";
+			"buildSettings" = {
+				"PRODUCT_MODULE_NAME" = "NitroModules";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroModules";
+				"SKIP_INSTALL" = "YES";
+				"SWIFT_INSTALL_OBJC_HEADER" = "NO";
+				"DEFINES_MODULE" = "YES";
+				"PRODUCT_NAME" = "NitroModules";
+				"MACH_O_TYPE" = "staticlib";
+			};
+		};
+		"E295C7BE36E7AA2E66676164" = {
+			"path" = "RuntimeTests.xcconfig";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xcconfig";
+			"sourceTree" = "<group>";
+		};
+		"90500731D44DFE81F1C42C60" = {
+			"isa" = "XCConfigurationList";
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Debug";
+			"buildConfigurations" = (
+				"1FBAD21BB3B02DCE0EF8B353",
+				"3C18E2B846FF9B421D41A814",
+			);
+		};
+		"AA0596BBDB4DCC95D5D4F10C" = {
+			"isa" = "PBXGroup";
+			"sourceTree" = "<group>";
+			"children" = (
+				"F6EDF968062C881AA1E47828",
+				"0E8B0A12F5C0A3B4EA4233FA",
+				"80DE6F2423420D3DCEE4FAC8",
+				"E94B95F154E204F6DA54E6C1",
+				"6E892F881E37E4AFCB5FD437",
+				"77DBD7D37F477A6353CC4B3C",
+				"E5AB0CB65E14733C482CA950",
+				"E295C7BE36E7AA2E66676164",
+				"C1A3F93182B3E6DCC3BAD63C",
+				"72000EC893B5C16DBB73C064",
+				"8C596FAF64219ECB904B4B58",
+				"107B3F486EB8308BCC5A0D11",
+				"A3100000000000000000001A",
+				"6F7199ED7B63CDA338A0FB82",
+				"A31000000000000000000009",
+				"A3100000000000000000000A",
+				"A3100000000000000000000B",
+				"A3100000000000000000000E",
+				"A31000000000000000000019",
+			);
+		};
+		"82909BADB2BE2F35E6FFD9E2" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Release";
+			"buildSettings" = {
+				"PRODUCT_MODULE_NAME" = "NitroModules";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroModules";
+				"SKIP_INSTALL" = "YES";
+				"SWIFT_INSTALL_OBJC_HEADER" = "NO";
+				"DEFINES_MODULE" = "YES";
+				"PRODUCT_NAME" = "NitroModules";
+				"MACH_O_TYPE" = "staticlib";
+			};
+		};
+		"6E892F881E37E4AFCB5FD437" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "../../nitro-test/ios";
+			"exceptions" = (
+				"A3100000000000000000001C",
+			);
+			"sourceTree" = "<group>";
+		};
+		"D6DF078FA34572F57A6C7AF2" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"2A6F4F80F913260559C7B4F8",
+				"0CC8B52FDFCA5117F26C16D1",
+				"C7B626903A49721DF1C7A9A0",
+				"A31000000000000000000018",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"184B519F8E1416CCE38CFFD7" = {
+			"baseConfigurationReference" = "E295C7BE36E7AA2E66676164";
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "DEBUG";
+				"GCC_PREPROCESSOR_DEFINITIONS" = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+			};
+			"name" = "Debug";
+		};
+		"ED825C0D9A9099F011C42A6B" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Debug";
+			"buildSettings" = {
+				"TEST_HOST" = "";
+				"SWIFT_OBJC_BRIDGING_HEADER" = "$(SRCROOT)/Tests/NitroTestBridge.h";
+				"PRODUCT_MODULE_NAME" = "NitroRuntimeTests";
+				"OTHER_LDFLAGS" = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroRuntimeTests";
+				"BUNDLE_LOADER" = "";
+				"PRODUCT_NAME" = "NitroRuntimeTests";
+			};
+		};
+		"BEB4D80D86EA9A6F1FFEA9F6" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "6CBE257FF20F1296AB407DBC";
+			"targetProxy" = "F3D2F6230D2C852B33A71343";
+		};
+		"191BAA77A206070938FD3CE2" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "244210E48437B6556980A702";
+			"remoteGlobalIDString" = "6CBE257FF20F1296AB407DBC";
+			"remoteInfo" = "NitroModules";
+			"proxyType" = "1";
+		};
+		"CD715C4C202A7195BAA73F86" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Release";
+			"buildSettings" = {
+				"TEST_HOST" = "";
+				"SWIFT_OBJC_BRIDGING_HEADER" = "$(SRCROOT)/Tests/NitroTestBridge.h";
+				"PRODUCT_MODULE_NAME" = "NitroRuntimeTests";
+				"OTHER_LDFLAGS" = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.margelo.nitro.tests.NitroRuntimeTests";
+				"BUNDLE_LOADER" = "";
+				"PRODUCT_NAME" = "NitroRuntimeTests";
+			};
+		};
+		"0E8B0A12F5C0A3B4EA4233FA" = {
+			"path" = "../../../../packages/nitro-core/native/apple";
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"sourceTree" = "<group>";
+		};
+		"7804B733268243331873BC4D" = {
+			"isa" = "PBXFileSystemSynchronizedBuildFileExceptionSet";
+			"target" = "2CF3AE9D8CF9E682FC1AADBE";
+			"membershipExceptions" = (
+				"NitroTest+autolinking.rb",
+			);
+		};
+		"C1A3F93182B3E6DCC3BAD63C" = {
+			"path" = "Support/NitroModules.h";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"sourceTree" = "<group>";
+		};
+		"77DBD7D37F477A6353CC4B3C" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"path" = "Tests";
+			"sourceTree" = "<group>";
+		};
+		"8B0E117F17316968A61FB589" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"645405CF4097F448750AB5D9" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"6AFB3AA230D6F3989B6D63F0" = {
+			"isa" = "PBXTargetDependency";
+			"productRef" = "E9FAC86F09E7E697F4EC48A4";
+		};
+	};
+	"rootObject" = "244210E48437B6556980A702";
+}
