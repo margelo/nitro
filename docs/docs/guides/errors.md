@@ -14,7 +14,7 @@ Every method in a [Hybrid Object](../concepts/hybrid-objects) can throw an error
     class HybridMath : HybridMathSpec {
       func add(a: Double, b: Double) throws -> Double {
         if a < 0 || b < 0 {
-          throw RuntimeError.error(withMessage: "Value cannot be negative!")
+          throw RuntimeError("Value cannot be negative!")
         }
         return a + b
       }
@@ -62,10 +62,10 @@ Promises can also be rejected using error throwing syntax on the native side:
   <TabItem value="swift" label="Swift" default>
     ```swift title="HybridMath.swift"
     class HybridMath : HybridMathSpec {
-      func add(a: Double, b: Double) throws -> Promise<Double> {
-        return Promise.async {
+      func add(a: Double, b: Double) throws -> any Promise<Double> {
+        return .async {
           if a < 0 || b < 0 {
-            throw RuntimeError.error(withMessage: "Value cannot be negative!")
+            throw RuntimeError("Value cannot be negative!")
           }
           return a + b
         }
@@ -90,7 +90,7 @@ Promises can also be rejected using error throwing syntax on the native side:
   <TabItem value="cpp" label="C++">
     ```cpp title="HybridMath.hpp"
     class HybridMath: public HybridMathSpec {
-      std::shared_ptr<Promise<double>> add(double a, double b) override {
+      Promise<double> add(double a, double b) override {
         return Promise<double>::async([=]() -> double {
           if (a < 0 || b < 0) {
             throw std::runtime_error("Value cannot be negative!");

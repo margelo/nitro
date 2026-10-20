@@ -5,14 +5,14 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-
+internal import NitroModules
 
 /**
- * An Swift enum with associated values representing a Variant/Union type.
+ * A Swift enum with associated values representing a Variant/Union type.
  * JS type: `enum | struct`
  */
 @frozen
-public indirect enum Variant_Powertrain_Car {
+public enum Variant_Powertrain_Car: Equatable, Hashable, Sendable {
   case first(Powertrain)
   case second(Car)
 }
@@ -26,5 +26,44 @@ public extension Variant_Powertrain_Car {
   }
   func isType<T>(_ type: T.Type = T.self) -> Bool {
     return self.asType(type) != nil
+  }
+}
+
+// Raw Swift storage keeps associated values containing imported C++ types exportable.
+@_expose(Cxx)
+public struct Variant_Powertrain_Car_cxx: Equatable, Hashable, Sendable {
+  let value: Variant_Powertrain_Car
+
+  init(_ value: Variant_Powertrain_Car) {
+    self.value = value
+  }
+
+  public var index: Int {
+    switch value {
+      case .first: return 0
+      case .second: return 1
+    }
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeFirst(_ payload: Powertrain, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: Variant_Powertrain_Car_cxx.self).initialize(to: Self(.first(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getFirst() -> Powertrain {
+    guard case .first(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeSecond(_ payload: Car, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: Variant_Powertrain_Car_cxx.self).initialize(to: Self(.second(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getSecond() -> Car {
+    guard case .second(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload
   }
 }

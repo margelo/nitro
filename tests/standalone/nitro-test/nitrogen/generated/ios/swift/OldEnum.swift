@@ -5,10 +5,21 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
+
+
 /**
- * Represents the JS enum `OldEnum`, backed by a C++ enum.
+ * Represents the JS enum `OldEnum`.
  */
-public typealias OldEnum = margelo.nitro.test.OldEnum
+@_expose(Cxx)
+public enum OldEnum: Int32, CaseIterable, Sendable, CustomStringConvertible {
+  case `first` = 0
+  case `second` = 1
+  case `third` = 2
+
+  public static func fromRawValue(_ value: Int32) -> Self {
+    return Self(rawValue: value)!
+  }
+}
 
 public extension OldEnum {
   /**
@@ -40,5 +51,9 @@ public extension OldEnum {
       case .third:
         return "THIRD"
     }
+  }
+
+  var description: String {
+    return stringValue
   }
 }

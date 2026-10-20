@@ -14,7 +14,10 @@ This allows your native code to perform heavy-, long-running tasks in parallel, 
     In TypeScript, a `Promise<T>` is represented using the built-in `Promise<T>` type, which can be awaited:
 
     ```ts
-    interface Math extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Math extends HybridObject {
       fibonacci(n: number): Promise<number>
     }
 
@@ -27,12 +30,12 @@ This allows your native code to perform heavy-, long-running tasks in parallel, 
     :::
   </TabItem>
   <TabItem value="swift" label="Swift">
-    In Swift, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/Promise.swift) type - for example, to use Swift's new async/await syntax:
+    In Swift, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/v1/packages/nitro-core/native/apple/core/Promise.swift) type - for example, to use Swift's new async/await syntax:
 
     ```swift
-    func fibonacci(n: Double) -> Promise<Double> {
-      return Promise.async {
-        // This runs on a separate Thread, and can use `await` syntax!
+    func fibonacci(n: Double) -> any Promise<Double> {
+      return .async {
+        // This runs in a Swift Task and can await asynchronous work.
         return try await calculateFibonacciSequence(n)
       }
     }
@@ -43,13 +46,13 @@ This allows your native code to perform heavy-, long-running tasks in parallel, 
     :::
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
-    In Kotlin, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/Promise.kt) type - for example, to use Kotlin's coroutine syntax:
+    In Kotlin, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/v1/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/Promise.kt) type - for example, to use Kotlin's coroutine syntax:
 
     ```kotlin
     fun fibonacci(n: Double): Promise<Double> {
       return Promise.async {
         // This runs on a separate Thread, and can use suspending coroutine functions!
-        return calculateFibonacciSequence(n)
+        return@async calculateFibonacciSequence(n)
       }
     }
     ```
@@ -59,10 +62,10 @@ This allows your native code to perform heavy-, long-running tasks in parallel, 
     :::
   </TabItem>
   <TabItem value="cpp" label="C++">
-    In C++, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/Promise.hpp) type - for example, to use an asynchronous Thread pool:
+    In C++, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/v1/packages/nitro-core/native/cpp/include/NitroModules/Promise.hpp) type - for example, to use an asynchronous Thread pool:
 
     ```cpp
-    std::shared_ptr<Promise<double>> fibonacci(double n) {
+    Promise<double> fibonacci(double n) {
       return Promise<double>::async([=]() -> double {
         // This runs on a separate Thread!
         return calculateFibonacciSequence(n);
@@ -79,12 +82,14 @@ This allows your native code to perform heavy-, long-running tasks in parallel, 
 Additionally, Nitro statically enforces that **Promises can never go stale**, preventing you from accidentally "forgetting" to resolve or reject a Promise:
 
 ```swift title="HybridMath.swift"
-func saveToFile(image: HybridImage) -> Promise<Void> {
+func saveToFile(image: HybridImage) -> any Promise<Void> {
   guard let data = image.data else { return }
   // code-error
                                      ^ // Error: Cannot return void!
-  return Promise.async {
+  return .async {
     try await data.writeToFile("file://tmp/img.png")
   }
 }
 ```
+
+In Swift, `Promise<T>` is a protocol. Use `any Promise<T>` in signatures and contextual factories such as `.async { ... }`, `.parallel { ... }`, `.resolved(with: value)`, or `.rejected(with: error)`. Nitrogen generates these factories for the promise types used by your specs.

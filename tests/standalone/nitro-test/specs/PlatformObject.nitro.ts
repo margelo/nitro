@@ -1,9 +1,14 @@
-import type { HybridObject } from 'nitro-core'
+import { iOS } from "nitro-core";
+import type { HybridObject } from "nitro-core";
+
+export * from "#nitro/PlatformObject";
 
 // This object is implemented in Swift and Kotlin
-export interface PlatformObject extends HybridObject<{
-  ios: 'swift'
-  android: 'kotlin'
-}> {
-  getOSVersion(): string
+@iOS({
+  language: "swift",
+  implementation: { className: "HybridPlatformObject" },
+})
+export declare class PlatformObject extends HybridObject {
+  constructor();
+  getOSVersion(): string;
 }

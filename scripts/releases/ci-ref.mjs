@@ -14,12 +14,17 @@ const root = fileURLToPath(new URL('../../', import.meta.url))
 export function resolveCICommit({ cwd = root, env = process.env } = {}) {
   const sourceCommit = git(['rev-parse', 'HEAD'], { cwd })
   const releaseEventTag = env.RELEASE_EVENT_TAG || undefined
+  const branch =
+    env.RELEASE_BRANCH ||
+    env.GITHUB_REF_NAME ||
+    git(['branch', '--show-current'], { cwd })
   const version =
     env.RELEASE_MODE === 'nightly'
       ? nightlyVersion(
           readJSON(path.join(cwd, 'package.json')).version,
           env.GITHUB_RUN_NUMBER,
-          sourceCommit
+          sourceCommit,
+          branch === 'v1' ? 'alpha-nightly' : 'nightly'
         )
       : releaseEventTag
         ? versionFromTag(releaseEventTag)

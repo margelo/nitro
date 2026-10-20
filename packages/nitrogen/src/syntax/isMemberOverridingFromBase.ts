@@ -16,13 +16,12 @@ function getMemberNamesOfBaseType(language: Language): string[] {
   }
 }
 function getMemberNamesOfHybridObject(): string[] {
-  type MemberName = keyof HybridObject<{}>
+  type MemberName = keyof HybridObject
   type HasToContainAllKeys = { [P in MemberName]: boolean }
   const allKeys: HasToContainAllKeys = {
     __type: true,
     dispose: true,
     equals: true,
-    name: true,
     toString: true,
   }
   return Object.keys(allKeys)

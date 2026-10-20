@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { getNitroModules } from "nitro-core";
-import type { TestObjectSwiftKotlin } from "nitro-test";
+import { NitroModules } from "nitro-core";
+import { TestObjectSwiftKotlin } from "nitro-test";
 
 export async function microtasksDrainInOrder(): Promise<void> {
   const completed: number[] = [];
@@ -18,9 +18,7 @@ export async function microtasksDrainInOrder(): Promise<void> {
 }
 
 export async function concurrentNativePromises(): Promise<void> {
-  const object = getNitroModules().createHybridObject<TestObjectSwiftKotlin>(
-    "TestObjectSwiftKotlin",
-  );
+  const object = new TestObjectSwiftKotlin();
   const results = await Promise.all(
     Array.from({ length: 16 }, () => object.calculateFibonacciAsync(10)),
   );

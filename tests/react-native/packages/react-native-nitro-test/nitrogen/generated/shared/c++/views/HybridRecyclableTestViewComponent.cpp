@@ -5,7 +5,7 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridRecyclableTestViewComponent.hpp"
+#include <NitroTest/private/views/HybridRecyclableTestViewComponent.hpp>
 
 #include <NitroModules/NitroHash.hpp>
 #include <NitroModules/RawPropsCompat.hpp>
@@ -13,9 +13,10 @@
 
 namespace margelo::nitro::test::views {
 
+  using namespace margelo;
   using namespace facebook;
 
-  extern const char HybridRecyclableTestViewComponentName[] = "RecyclableTestView";
+  extern const char HybridRecyclableTestViewComponentName[] = "test.RecyclableTestView";
 
   HybridRecyclableTestViewProps::HybridRecyclableTestViewProps(const react::PropsParserContext& context,
                                                                const HybridRecyclableTestViewProps& sourceProps,
@@ -23,7 +24,7 @@ namespace margelo::nitro::test::views {
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
     isBlue(nitro::ReactProp<bool>::fromRawValue("RecyclableTestView", "isBlue", rawProps, sourceProps.isBlue)),
     nativeDefaultValue(nitro::ReactProp<std::optional<double>>::fromRawValue("RecyclableTestView", "nativeDefaultValue", rawProps, sourceProps.nativeDefaultValue)),
-    hybridRef(nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridRecyclableTestViewSpec>& /* ref */)>>>::fromRawValue("RecyclableTestView", "hybridRef", rawProps, sourceProps.hybridRef)) {
+    hybridRef(nitro::ReactProp<std::optional<Callback<void(const std::shared_ptr<HybridRecyclableTestViewSpec>& /* ref */)>>>::fromRawValue("RecyclableTestView", "hybridRef", rawProps, sourceProps.hybridRef)) {
 #ifdef ANDROID
     nitro::RawPropsCompat::initializeDynamicProps(*this, sourceProps, rawProps, filterObjectKeys);
 #endif

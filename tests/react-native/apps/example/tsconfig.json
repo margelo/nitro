@@ -3,6 +3,7 @@
     "@react-native/typescript-config"
   ],
   "compilerOptions": {
+    "resolvePackageJsonImports": true,
     "types": []
   },
   "include": ["src", "index.js", "__tests__"],

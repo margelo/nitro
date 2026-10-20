@@ -49,7 +49,7 @@ function fixture(t) {
   }
   for (const [relative, content] of [
     [
-      'packages/nitro-core/native/cpp/utils/NitroDefines.hpp',
+      'packages/nitro-core/native/cpp/include/NitroModules/NitroDefines.hpp',
       '#define NITRO_VERSION "0.37.1"\n',
     ],
     [

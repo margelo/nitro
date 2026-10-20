@@ -5,7 +5,7 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
 
 /// See ``HybridRecyclableTestViewSpec``
 public protocol HybridRecyclableTestViewSpec_protocol: HybridObject, HybridView {
@@ -31,7 +31,7 @@ public extension HybridRecyclableTestViewSpec_protocol {
 open class HybridRecyclableTestViewSpec_base {
   private weak var cxxWrapper: HybridRecyclableTestViewSpec_cxx? = nil
   public init() { }
-  public func getCxxWrapper() -> HybridRecyclableTestViewSpec_cxx {
+  public final func getCxxWrapper() -> HybridRecyclableTestViewSpec_cxx {
   #if DEBUG
     guard self is any HybridRecyclableTestViewSpec else {
       fatalError("`self` is not a `HybridRecyclableTestViewSpec`! Did you accidentally inherit from `HybridRecyclableTestViewSpec_base` instead of `HybridRecyclableTestViewSpec`?")

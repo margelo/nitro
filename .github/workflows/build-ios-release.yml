@@ -12,6 +12,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build-ios-release.yml'
+      - 'Package.swift'
+      - 'Package.resolved'
       - 'packages/nitro-core/**'
       - 'packages/nitrogen/**'
       - 'packages/react-native-nitro-modules/**'
@@ -28,7 +30,7 @@ on:
 jobs:
   build_release:
     name: Build iOS Example App (release, new architecture)
-    runs-on: macos-26
+    runs-on: xcode-27
     permissions:
       contents: write
     steps:
@@ -45,18 +47,14 @@ jobs:
       - name: Generate test bindings
         run: bun specs
 
-      - name: Setup Ruby (bundle)
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.7.2
-          bundler-cache: true
-          working-directory: tests/react-native/apps/example
-
-      - name: Select Xcode 26.5
-        run: sudo xcode-select -s "/Applications/Xcode_26.5.app/Contents/Developer"
-      - name: Install Pods
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_27.1.app/Contents/Developer
+          xcodebuild -version
+          xcrun swift --version
+      - name: Resolve Swift packages
         working-directory: tests/react-native/apps/example
-        run: bun pods
+        run: bun spm
 
       - name: Build App (Release, Simulator)
         working-directory: tests/react-native/apps/example/ios
@@ -64,7 +62,7 @@ jobs:
           set -o pipefail
           xcodebuild \
             -derivedDataPath build -UseModernBuildSystem=YES \
-            -workspace NitroExample.xcworkspace \
+            -project NitroExample.xcodeproj \
             -scheme NitroExample \
             -sdk iphonesimulator \
             -configuration Release \

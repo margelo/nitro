@@ -5,7 +5,9 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#import "HybridRecyclableTestViewComponent.hpp"
+#include <NitroTest/private/views/HybridRecyclableTestViewComponent.hpp>
+#include <NitroTest/private/HybridRecyclableTestViewSpecSwift.hpp>
+#include <NitroTest/private/NitroTest-Swift-Cxx-Umbrella.hpp>
 #import <memory>
 #import <react/renderer/componentregistry/ComponentDescriptorProvider.h>
 #import <React/RCTViewComponentView.h>
@@ -14,8 +16,6 @@
 #import <NitroModules/NitroDefines.hpp>
 #import <UIKit/UIKit.h>
 
-#import "HybridRecyclableTestViewSpecSwift.hpp"
-#import "NitroTest-Swift-Cxx-Umbrella.hpp"
 
 #if __has_include(<cxxreact/ReactNativeVersion.h>)
 #include <cxxreact/ReactNativeVersion.h>
@@ -24,6 +24,7 @@
 #endif
 #endif
 
+using namespace margelo;
 using namespace facebook;
 using namespace margelo::nitro::test;
 using namespace margelo::nitro::test::views;
@@ -31,18 +32,18 @@ using namespace margelo::nitro::test::views;
 /**
  * Represents the React Native View holder for the Nitro "RecyclableTestView" HybridView.
  */
-@interface HybridRecyclableTestViewComponent: RCTViewComponentView
+@interface NitroTest_HybridRecyclableTestViewComponent: RCTViewComponentView
 + (BOOL)shouldBeRecycled;
 @end
 
-@implementation HybridRecyclableTestViewComponent {
+@implementation NitroTest_HybridRecyclableTestViewComponent {
   std::shared_ptr<HybridRecyclableTestViewSpecSwift> _hybridView;
   BOOL _didDropView;
 }
 
 + (void) load {
   [super load];
-  [RCTComponentViewFactory.currentComponentViewFactory registerComponentViewClass:[HybridRecyclableTestViewComponent class]];
+  [RCTComponentViewFactory.currentComponentViewFactory registerComponentViewClass:[NitroTest_HybridRecyclableTestViewComponent class]];
 }
 
 + (react::ComponentDescriptorProvider) componentDescriptorProvider {
@@ -52,7 +53,7 @@ using namespace margelo::nitro::test::views;
 - (instancetype) init {
   if (self = [super init]) {
     _props = HybridRecyclableTestViewShadowNode::defaultSharedProps();
-    std::shared_ptr<HybridRecyclableTestViewSpec> hybridView = NitroTest::NitroTestAutolinking::createRecyclableTestView();
+    auto hybridView = NitroTest::HybridRecyclableTestViewSpec_cxx::createRecyclableTestViewView();
     _hybridView = std::dynamic_pointer_cast<HybridRecyclableTestViewSpecSwift>(hybridView);
     [self updateView];
   }
@@ -102,13 +103,13 @@ using namespace margelo::nitro::test::views;
     if (oldViewProps == nullptr
           ? newViewProps.isBlue.isProvided()
           : !newViewProps.isBlue.hasSameValue(oldViewProps->isBlue)) {
-      swiftPart.setIsBlue(newViewProps.isBlue.get());
+      _hybridView->setIsBlue(newViewProps.isBlue.get());
     }
     // nativeDefaultValue: optional
     if (oldViewProps == nullptr
           ? newViewProps.nativeDefaultValue.isProvided()
           : !newViewProps.nativeDefaultValue.hasSameValue(oldViewProps->nativeDefaultValue)) {
-      swiftPart.setNativeDefaultValue(newViewProps.nativeDefaultValue.get());
+      _hybridView->setNativeDefaultValue(newViewProps.nativeDefaultValue.get());
     }
 
     // Update hybridRef if it changed
@@ -118,7 +119,7 @@ using namespace margelo::nitro::test::views;
       // hybridRef changed - call it with new this
       const auto& maybeFunc = newViewProps.hybridRef.get();
       if (maybeFunc.has_value()) {
-        maybeFunc.value()(_hybridView);
+        maybeFunc.value().callAsync(_hybridView);
       }
     }
 
@@ -130,7 +131,7 @@ using namespace margelo::nitro::test::views;
 }
 
 + (BOOL)shouldBeRecycled {
-  return NitroTest::NitroTestAutolinking::isRecyclableTestViewRecyclable();
+  return NitroTest::HybridRecyclableTestViewSpec_cxx::isRecyclableTestViewRecyclable();
 }
 
 - (void)prepareForRecycle {

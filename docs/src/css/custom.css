@@ -251,7 +251,14 @@ pre code:has(.code-block-diff-remove-line) {
   display: flex;
 }
 
-.side-by-side-block .theme-code-block {
+.side-by-side-block .theme-code-block,
+.side-by-side-block .theme-code-block > div:has(> pre) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.side-by-side-block .theme-code-block pre {
   flex: 1;
 }
 

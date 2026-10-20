@@ -5,16 +5,15 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
 
 /// See ``HybridBenchmarkObjectSwiftKotlinSpec``
 public protocol HybridBenchmarkObjectSwiftKotlinSpec_protocol: HybridObject {
   // Properties
-  var thisObject: (any HybridBenchmarkObjectSwiftKotlinSpec) { get }
   var numberValue: Double { get set }
+  var thisObject: (any HybridBenchmarkObjectSwiftKotlinSpec) { get }
 
   // Methods
-  func newBenchmarkObject() throws -> (any HybridBenchmarkObjectSwiftKotlinSpec)
   func simpleFunc() throws -> Void
   func addNumbers(a: Double, b: Double) throws -> Double
   func addStrings(a: String, b: String) throws -> String
@@ -25,10 +24,11 @@ public protocol HybridBenchmarkObjectSwiftKotlinSpec_protocol: HybridObject {
   func passVariant(either: Variant_Bool__Double___String__Double_String) throws -> Variant_Double_String
   func bounceArrayBuffer(buffer: ArrayBuffer) throws -> ArrayBuffer
   func copyBuffer(buffer: ArrayBuffer) throws -> ArrayBuffer
-  func callbackSync(callback: @escaping () -> Double) throws -> Double
-  func promiseReturnsInstantly() throws -> Promise<Double>
-  func createPendingPromise() throws -> Promise<Double>
+  func callbackSync(callback: any Callback<(), Double>) throws -> Double
+  func promiseReturnsInstantly() throws -> any Promise<Double>
+  func createPendingPromise() throws -> any Promise<Double>
   func resolvePendingPromiseOnWorker() throws -> Void
+  func newBenchmarkObject() throws -> (any HybridBenchmarkObjectSwiftKotlinSpec)
 }
 
 public extension HybridBenchmarkObjectSwiftKotlinSpec_protocol {
@@ -42,7 +42,7 @@ public extension HybridBenchmarkObjectSwiftKotlinSpec_protocol {
 open class HybridBenchmarkObjectSwiftKotlinSpec_base {
   private weak var cxxWrapper: HybridBenchmarkObjectSwiftKotlinSpec_cxx? = nil
   public init() { }
-  public func getCxxWrapper() -> HybridBenchmarkObjectSwiftKotlinSpec_cxx {
+  public final func getCxxWrapper() -> HybridBenchmarkObjectSwiftKotlinSpec_cxx {
   #if DEBUG
     guard self is any HybridBenchmarkObjectSwiftKotlinSpec else {
       fatalError("`self` is not a `HybridBenchmarkObjectSwiftKotlinSpec`! Did you accidentally inherit from `HybridBenchmarkObjectSwiftKotlinSpec_base` instead of `HybridBenchmarkObjectSwiftKotlinSpec`?")

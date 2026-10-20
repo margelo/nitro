@@ -88,9 +88,9 @@ Then, simply clone (potentially also fork?) the Nitro repository and install its
 
     #### iOS
 
-    To run the iOS app of Nitro Example, open `tests/react-native/apps/example/ios/NitroExample.xcworkspace` in Xcode, and hit run.
+    To run the iOS app of Nitro Example, open `tests/react-native/apps/example/ios/NitroExample.xcodeproj` in Xcode, and hit run.
 
-    The `bun bootstrap:ios` command builds the local workspace packages and installs the example app’s Pods.
+    The `bun bootstrap:ios` command builds the local workspace packages and sets up the example app's SwiftPM dependencies. Use Xcode with Swift 6.4 or newer.
 
     #### Android
 
@@ -143,10 +143,10 @@ After changing a Nitro spec, regenerate bindings from the repository root:
 bun specs
 ```
 
-This runs [nitrogen](../concepts/nitrogen) for the React Native fixture package and both standalone packages. Reinstall pods if the React Native iOS files changed:
+This runs [nitrogen](../concepts/nitrogen) for the React Native fixture package and both standalone packages. Refresh SwiftPM integration if the React Native iOS files changed:
 
 ```sh
-bun example pods
+bun example spm
 ```
 
-Then simply run again.
+Then rebuild the app.

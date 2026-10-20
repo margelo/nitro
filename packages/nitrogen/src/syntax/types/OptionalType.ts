@@ -9,10 +9,6 @@ export class OptionalType implements Type {
     this.wrappingType = wrappingType
   }
 
-  get canBePassedByReference(): boolean {
-    // depends whether the wrapping type is heavy to copy or not.
-    return this.wrappingType.canBePassedByReference
-  }
   get kind(): TypeKind {
     return 'optional'
   }
@@ -21,18 +17,23 @@ export class OptionalType implements Type {
   }
   get needsBraces(): boolean {
     switch (this.wrappingType.kind) {
-      case 'function':
+      case 'callback':
         return true
       default:
         return false
     }
   }
 
-  getCode(language: Language, options?: GetCodeOptions): string {
-    const wrapping = this.wrappingType.getCode(language, options)
+  getCode(language: Language, options: GetCodeOptions): string {
+    const wrapping = this.wrappingType.getCode(language, {
+      ...options,
+      context: 'type-argument',
+    })
     switch (language) {
-      case 'c++':
-        return `std::optional<${wrapping}>`
+      case 'c++': {
+        const type = `std::optional<${wrapping}>`
+        return options.context === 'parameter' ? `const ${type}&` : type
+      }
       case 'swift':
         if (this.needsBraces) {
           return `(${wrapping})?`
@@ -57,12 +58,13 @@ export class OptionalType implements Type {
   getRequiredImports(language: Language): SourceImport[] {
     const imports: SourceImport[] =
       this.wrappingType.getRequiredImports(language)
-    if (language === 'c++') {
-      imports.push({
-        language: 'c++',
-        name: 'optional',
-        space: 'system',
-      })
+    switch (language) {
+      case 'c++':
+        imports.push({
+          language,
+          declaration: { name: 'optional', space: 'system' },
+        })
+        break
     }
     return imports
   }

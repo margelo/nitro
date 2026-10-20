@@ -5,56 +5,31 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
+internal import CxxStdlib
 
-/**
- * Represents an instance of `OptionalWrapper`, backed by a C++ struct.
- */
-public typealias OptionalWrapper = margelo.nitro.test.OptionalWrapper
+@_expose(Cxx)
+public struct OptionalWrapper: Equatable {
+  public let optionalArrayBuffer: ArrayBuffer?
+  public let optionalString: String?
 
-public extension OptionalWrapper {
-  private typealias bridge = margelo.nitro.test.bridge.swift
-
-  /**
-   * Create a new instance of `OptionalWrapper`.
-   */
-  init(optionalArrayBuffer: ArrayBuffer?, optionalString: String?) {
-    self.init({ () -> bridge.std__optional_std__shared_ptr_ArrayBuffer__ in
-      if let __unwrappedValue = optionalArrayBuffer {
-        return bridge.create_std__optional_std__shared_ptr_ArrayBuffer__(__unwrappedValue.getArrayBuffer())
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_std__string_ in
-      if let __unwrappedValue = optionalString {
-        return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
-      } else {
-        return .init()
-      }
-    }())
+  public init(optionalArrayBuffer: ArrayBuffer?, optionalString: String?) {
+    self.optionalArrayBuffer = optionalArrayBuffer
+    self.optionalString = optionalString
   }
 
-  @inline(__always)
-  var optionalArrayBuffer: ArrayBuffer? {
-    return { () -> ArrayBuffer? in
-      if bridge.has_value_std__optional_std__shared_ptr_ArrayBuffer__(self.__optionalArrayBuffer) {
-        let __unwrapped = bridge.get_std__optional_std__shared_ptr_ArrayBuffer__(self.__optionalArrayBuffer)
-        return ArrayBuffer(__unwrapped)
-      } else {
-        return nil
-      }
-    }()
+  @_spi(NitroCxx)
+  public static func init_cxx(_ optionalArrayBuffer: ArrayBuffer?, _ optionalString: String?) -> Self {
+    return Self(optionalArrayBuffer: optionalArrayBuffer, optionalString: optionalString)
   }
-  
-  @inline(__always)
-  var optionalString: String? {
-    return { () -> String? in
-      if bridge.has_value_std__optional_std__string_(self.__optionalString) {
-        let __unwrapped = bridge.get_std__optional_std__string_(self.__optionalString)
-        return String(__unwrapped)
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getOptionalArrayBuffer_cxx() -> ArrayBuffer? {
+    return self.optionalArrayBuffer
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getOptionalString_cxx() -> String? {
+    return self.optionalString
   }
 }

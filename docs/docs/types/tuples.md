@@ -6,8 +6,11 @@
 A Tuple is a fixed-length set of items of the given types. Example:
 
 ```ts
+import { type HybridObject, iOS } from 'nitro-core'
+
 type Point = [number, number]
-interface Math extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Math extends HybridObject {
   distance(a: Point, b: Point): number
 }
 ```
@@ -18,8 +21,11 @@ Tuples can also have different types per value:
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
+import { type HybridObject, iOS } from 'nitro-core'
+
 type Values = (number | string | Person)[]
-interface Math extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Math extends HybridObject {
   calculate(values: Values): void
 }
 ```
@@ -29,8 +35,11 @@ The type in the **Bad ❌** example generates an [array](arrays) of [variants](v
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
+import { type HybridObject, iOS } from 'nitro-core'
+
 type Values = [number, string, Person]
-interface Math extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Math extends HybridObject {
   calculate(values: Values): void
 }
 ```

@@ -5,6 +5,8 @@
 //  Created by Marc Rousavy on 17.12.2024.
 //
 
+internal import Darwin
+
 public final class MemoryHelper {
   /**
    * Get the amount of memory that was allocated using a `malloc`-like allocator

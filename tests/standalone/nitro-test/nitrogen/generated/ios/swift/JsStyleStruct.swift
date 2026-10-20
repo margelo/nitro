@@ -5,38 +5,32 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
+public import NitroTestAppleCxx
+internal import CxxStdlib
 
-/**
- * Represents an instance of `JsStyleStruct`, backed by a C++ struct.
- */
-public typealias JsStyleStruct = margelo.nitro.test.JsStyleStruct
+@_expose(Cxx)
+public struct JsStyleStruct {
+  public let value: Double
+  public let onChanged: any Callback<(/* num */ Double), Void>
 
-public extension JsStyleStruct {
-  private typealias bridge = margelo.nitro.test.bridge.swift
-
-  /**
-   * Create a new instance of `JsStyleStruct`.
-   */
-  init(value: Double, onChanged: @escaping (_ num: Double) -> Void) {
-    self.init(value, { () -> bridge.Func_void_double in
-      let __closureWrapper = Func_void_double(onChanged)
-      return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-    }())
+  public init(value: Double, onChanged: any Callback<(/* num */ Double), Void>) {
+    self.value = value
+    self.onChanged = onChanged
   }
 
-  @inline(__always)
-  var value: Double {
-    return self.__value
+  @_spi(NitroCxx)
+  public static func init_cxx(_ value: Double, _ onChanged: margelo.nitro.test.swift_bridge.Callback_void_double) -> Self {
+    return Self(value: value, onChanged: onChanged)
   }
-  
-  @inline(__always)
-  var onChanged: (_ num: Double) -> Void {
-    return { () -> (Double) -> Void in
-      let __wrappedFunction = bridge.wrap_Func_void_double(self.__onChanged)
-      return { (__num: Double) -> Void in
-        __wrappedFunction.call(__num)
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getValue_cxx() -> Double {
+    return self.value
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getOnChanged_cxx() -> margelo.nitro.test.swift_bridge.Callback_void_double {
+    return self.onChanged.toCpp()
   }
 }

@@ -5,7 +5,9 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#import "HybridTestViewComponent.hpp"
+#include <NitroTest/private/views/HybridTestViewComponent.hpp>
+#include <NitroTest/private/HybridTestViewSpecSwift.hpp>
+#include <NitroTest/private/NitroTest-Swift-Cxx-Umbrella.hpp>
 #import <memory>
 #import <react/renderer/componentregistry/ComponentDescriptorProvider.h>
 #import <React/RCTViewComponentView.h>
@@ -14,8 +16,6 @@
 #import <NitroModules/NitroDefines.hpp>
 #import <UIKit/UIKit.h>
 
-#import "HybridTestViewSpecSwift.hpp"
-#import "NitroTest-Swift-Cxx-Umbrella.hpp"
 
 #if __has_include(<cxxreact/ReactNativeVersion.h>)
 #include <cxxreact/ReactNativeVersion.h>
@@ -24,6 +24,7 @@
 #endif
 #endif
 
+using namespace margelo;
 using namespace facebook;
 using namespace margelo::nitro::test;
 using namespace margelo::nitro::test::views;
@@ -31,18 +32,18 @@ using namespace margelo::nitro::test::views;
 /**
  * Represents the React Native View holder for the Nitro "TestView" HybridView.
  */
-@interface HybridTestViewComponent: RCTViewComponentView
+@interface NitroTest_HybridTestViewComponent: RCTViewComponentView
 + (BOOL)shouldBeRecycled;
 @end
 
-@implementation HybridTestViewComponent {
+@implementation NitroTest_HybridTestViewComponent {
   std::shared_ptr<HybridTestViewSpecSwift> _hybridView;
   BOOL _didDropView;
 }
 
 + (void) load {
   [super load];
-  [RCTComponentViewFactory.currentComponentViewFactory registerComponentViewClass:[HybridTestViewComponent class]];
+  [RCTComponentViewFactory.currentComponentViewFactory registerComponentViewClass:[NitroTest_HybridTestViewComponent class]];
 }
 
 + (react::ComponentDescriptorProvider) componentDescriptorProvider {
@@ -52,7 +53,7 @@ using namespace margelo::nitro::test::views;
 - (instancetype) init {
   if (self = [super init]) {
     _props = HybridTestViewShadowNode::defaultSharedProps();
-    std::shared_ptr<HybridTestViewSpec> hybridView = NitroTest::NitroTestAutolinking::createTestView();
+    auto hybridView = NitroTest::HybridTestViewSpec_cxx::createTestViewView();
     _hybridView = std::dynamic_pointer_cast<HybridTestViewSpecSwift>(hybridView);
     [self updateView];
   }
@@ -102,37 +103,37 @@ using namespace margelo::nitro::test::views;
     if (oldViewProps == nullptr
           ? newViewProps.isBlue.isProvided()
           : !newViewProps.isBlue.hasSameValue(oldViewProps->isBlue)) {
-      swiftPart.setIsBlue(newViewProps.isBlue.get());
+      _hybridView->setIsBlue(newViewProps.isBlue.get());
     }
     // hasBeenCalled: boolean
     if (oldViewProps == nullptr
           ? newViewProps.hasBeenCalled.isProvided()
           : !newViewProps.hasBeenCalled.hasSameValue(oldViewProps->hasBeenCalled)) {
-      swiftPart.setHasBeenCalled(newViewProps.hasBeenCalled.get());
+      _hybridView->setHasBeenCalled(newViewProps.hasBeenCalled.get());
     }
     // int64Value: int64
     if (oldViewProps == nullptr
           ? newViewProps.int64Value.isProvided()
           : !newViewProps.int64Value.hasSameValue(oldViewProps->int64Value)) {
-      swiftPart.setInt64Value(newViewProps.int64Value.get());
+      _hybridView->setInt64Value(newViewProps.int64Value.get());
     }
     // colorScheme: enum
     if (oldViewProps == nullptr
           ? newViewProps.colorScheme.isProvided()
           : !newViewProps.colorScheme.hasSameValue(oldViewProps->colorScheme)) {
-      swiftPart.setColorScheme(static_cast<int>(newViewProps.colorScheme.get()));
+      _hybridView->setColorScheme(newViewProps.colorScheme.get());
     }
-    // someCallback: function
+    // someCallback: callback
     if (oldViewProps == nullptr
           ? newViewProps.someCallback.isProvided()
           : !newViewProps.someCallback.hasSameValue(oldViewProps->someCallback)) {
-      swiftPart.setSomeCallback(newViewProps.someCallback.get());
+      _hybridView->setSomeCallback(newViewProps.someCallback.get());
     }
     // nativeDefaultValue: optional
     if (oldViewProps == nullptr
           ? newViewProps.nativeDefaultValue.isProvided()
           : !newViewProps.nativeDefaultValue.hasSameValue(oldViewProps->nativeDefaultValue)) {
-      swiftPart.setNativeDefaultValue(newViewProps.nativeDefaultValue.get());
+      _hybridView->setNativeDefaultValue(newViewProps.nativeDefaultValue.get());
     }
 
     // Update hybridRef if it changed
@@ -142,7 +143,7 @@ using namespace margelo::nitro::test::views;
       // hybridRef changed - call it with new this
       const auto& maybeFunc = newViewProps.hybridRef.get();
       if (maybeFunc.has_value()) {
-        maybeFunc.value()(_hybridView);
+        maybeFunc.value().callAsync(_hybridView);
       }
     }
 
@@ -154,7 +155,7 @@ using namespace margelo::nitro::test::views;
 }
 
 + (BOOL)shouldBeRecycled {
-  return NitroTest::NitroTestAutolinking::isTestViewRecyclable();
+  return NitroTest::HybridTestViewSpec_cxx::isTestViewRecyclable();
 }
 
 - (void)prepareForRecycle {

@@ -5,10 +5,21 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
+
+
 /**
- * Represents the JS union `Powertrain`, backed by a C++ enum.
+ * Represents the JS union `Powertrain`.
  */
-public typealias Powertrain = margelo.nitro.test.Powertrain
+@_expose(Cxx)
+public enum Powertrain: Int32, CaseIterable, Sendable, CustomStringConvertible {
+  case `electric` = 0
+  case `gas` = 1
+  case `hybrid` = 2
+
+  public static func fromRawValue(_ value: Int32) -> Self {
+    return Self(rawValue: value)!
+  }
+}
 
 public extension Powertrain {
   /**
@@ -40,5 +51,9 @@ public extension Powertrain {
       case .hybrid:
         return "hybrid"
     }
+  }
+
+  var description: String {
+    return stringValue
   }
 }

@@ -1,22 +1,28 @@
-import type { HybridObject, Int64, UInt64 } from 'nitro-core'
+import { iOS } from "nitro-core";
+import type { HybridObject, Int64, UInt64 } from "nitro-core";
+
+export * from "#nitro/SomeExternalObject";
 
 // A Type specifically testing optional primitives
 export interface OptionalPrimitivesHolder {
-  optionalNumber?: number
-  optionalBoolean?: boolean
-  optionalUInt64?: UInt64
-  optionalInt64?: Int64
+  optionalNumber?: number;
+  optionalBoolean?: boolean;
+  optionalUInt64?: UInt64;
+  optionalInt64?: Int64;
 }
 
 /**
  * This hybrid object is implemented in Swift and Kotlin.
  * It can be called from Swift/Kotlin, as well as C++ directly.
  */
-export interface SomeExternalObject extends HybridObject<{
-  ios: 'swift'
-  android: 'kotlin'
-}> {
-  getValue(): string
+@iOS({
+  language: "swift",
+  allowMultipleImplementations: true,
+  implementation: { className: "HybridSomeExternalObject" },
+})
+export declare class SomeExternalObject extends HybridObject {
+  constructor();
+  getValue(): string;
 
   // This tests a weird Swift bug: when a Hybrid Object imported in another
   // module (aka an "external HybridObject") uses optional primitives (here
@@ -27,6 +33,6 @@ export interface SomeExternalObject extends HybridObject<{
     optionalNumber?: number,
     optionalBoolean?: boolean,
     optionalUInt64?: UInt64,
-    optionalInt64?: Int64
-  ): OptionalPrimitivesHolder
+    optionalInt64?: Int64,
+  ): OptionalPrimitivesHolder;
 }

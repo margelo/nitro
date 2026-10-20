@@ -4,44 +4,39 @@
 /// https://github.com/margelo/nitro
 /// Copyright © Marc Rousavy @ Margelo
 ///
-
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
+public import NitroTestExternalAppleCxx
 
 /**
  * A class implementation that bridges HybridSomeExternalObjectSpec over to C++.
  * In C++, we cannot use Swift protocols - so we need to wrap it in a class to make it strongly defined.
- *
- * Also, some Swift types need to be bridged with special handling:
- * - Enums need to be wrapped in Structs, otherwise they cannot be accessed bi-directionally (Swift bug: https://github.com/swiftlang/swift/issues/75330)
- * - Other HybridObjects need to be wrapped/unwrapped from the Swift TCxx wrapper
- * - Throwing methods need to be wrapped with a Result<T, Error> type, as exceptions cannot be propagated to C++
  */
-open class HybridSomeExternalObjectSpec_cxx {
+@_expose(Cxx)
+public final class HybridSomeExternalObjectSpec_cxx {
   /**
-   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::external::bridge::swift`)
-   * from `NitroTestExternal-Swift-Cxx-Bridge.hpp`.
+   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::external::swift_bridge`)
+   * from `NitroTestExternalAppleCxx/NitroTestExternalAppleCxx.h`.
    * This contains specialized C++ templates, and C++ helper functions that can be accessed from Swift.
    */
-  public typealias bridge = margelo.nitro.test.external.bridge.swift
+  public typealias bridge = margelo.nitro.test.external.swift_bridge
 
   /**
-   * Holds an instance of the `HybridSomeExternalObjectSpec` Swift protocol.
+   * Holds the Swift implementation of `HybridSomeExternalObjectSpec`.
    */
   private let __implementation: any HybridSomeExternalObjectSpec
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.
    */
-  private var __cxxPart: bridge.std__weak_ptr_HybridSomeExternalObjectSpec_
+  private var __cxxPart: bridge.std__weak_ptr_HybridSomeExternalObjectSpec_ = .init()
 
   /**
    * Create a new `HybridSomeExternalObjectSpec_cxx` that wraps the given `HybridSomeExternalObjectSpec`.
-   * All properties and methods bridge to C++ types.
    */
   public init(_ implementation: any HybridSomeExternalObjectSpec) {
     self.__implementation = implementation
-    self.__cxxPart = .init()
-    /* no base class */
+
   }
 
   /**
@@ -65,7 +60,7 @@ open class HybridSomeExternalObjectSpec_cxx {
    * The pointer has to be a retained opaque `Unmanaged<HybridSomeExternalObjectSpec_cxx>`.
    * This removes one strong reference from the object!
    */
-  public class func fromUnsafe(_ pointer: UnsafeMutableRawPointer) -> HybridSomeExternalObjectSpec_cxx {
+  public class func fromUnsafe(pointer: UnsafeMutableRawPointer) -> HybridSomeExternalObjectSpec_cxx {
     return Unmanaged<HybridSomeExternalObjectSpec_cxx>.fromOpaque(pointer).takeRetainedValue()
   }
 
@@ -74,17 +69,23 @@ open class HybridSomeExternalObjectSpec_cxx {
    * The C++ part is a `std::shared_ptr<HybridSomeExternalObjectSpec>`.
    */
   public func getCxxPart() -> bridge.std__shared_ptr_HybridSomeExternalObjectSpec_ {
-    let cachedCxxPart = self.__cxxPart.lock()
-    if cachedCxxPart.use_count() > 0 {
-      return cachedCxxPart
-    } else {
-      let newCxxPart = bridge.create_std__shared_ptr_HybridSomeExternalObjectSpec_(self.toUnsafe())
-      __cxxPart = bridge.weakify_std__shared_ptr_HybridSomeExternalObjectSpec_(newCxxPart)
-      return newCxxPart
+    let cached = __cxxPart.lock()
+    if cached.use_count() > 0 {
+      return cached
     }
+    let value = bridge.create_std__shared_ptr_HybridSomeExternalObjectSpec_(self.toUnsafe())
+    __cxxPart = bridge.weakify_std__shared_ptr_HybridSomeExternalObjectSpec_(value)
+    return value
   }
 
-  
+
+  // A static borrowing accessor lets C++ pass a const reference without copying it.
+  // TODO: Remove this adapter and call the instance method directly once
+  // https://github.com/swiftlang/swift/pull/92862 is merged and supported by our Swift toolchain.
+  @_spi(NitroCxx)
+  public static func getCxxPart(_ value: borrowing HybridSomeExternalObjectSpec_cxx) -> bridge.std__shared_ptr_HybridSomeExternalObjectSpec_ {
+    return value.getCxxPart()
+  }
 
   /**
    * Get the memory size of the Swift class (plus size of any other allocations)
@@ -92,7 +93,7 @@ open class HybridSomeExternalObjectSpec_cxx {
    */
   @inline(__always)
   public var memorySize: Int {
-    return MemoryHelper.getSizeOf(self.__implementation) + self.__implementation.memorySize
+    return MemoryHelper.getSizeOf(__implementation) + __implementation.memorySize
   }
 
   /**
@@ -100,7 +101,7 @@ open class HybridSomeExternalObjectSpec_cxx {
    */
   @inline(__always)
   public func equals(other: HybridSomeExternalObjectSpec_cxx) -> Bool {
-    return self.__implementation === other.__implementation
+    return __implementation === other.__implementation
   }
 
   /**
@@ -109,7 +110,7 @@ open class HybridSomeExternalObjectSpec_cxx {
    */
   @inline(__always)
   public func dispose() {
-    self.__implementation.dispose()
+    __implementation.dispose()
   }
 
   /**
@@ -117,48 +118,41 @@ open class HybridSomeExternalObjectSpec_cxx {
    */
   @inline(__always)
   public func toString() -> String {
-    return self.__implementation.toString()
+    return __implementation.toString()
   }
 
   // Properties
-  
 
   // Methods
-  @inline(__always)
-  public final func getValue() -> bridge.Result_std__string_ {
+
+  public final func getValue(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.getValue()
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
+      let value = try __implementation.getValue()
+      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func createOptionalPrimitivesHolder(optionalNumber: bridge.std__optional_double_, optionalBoolean: bridge.std__optional_bool_, optionalUInt64: bridge.std__optional_uint64_t_, optionalInt64: bridge.std__optional_int64_t_) -> bridge.Result_OptionalPrimitivesHolder_ {
+
+  public final func createOptionalPrimitivesHolder(optionalNumber: Double?, optionalBoolean: Bool?, optionalUInt64: UInt64?, optionalInt64: Int64?, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.createOptionalPrimitivesHolder(optionalNumber: { () -> Double? in
-        if bridge.has_value_std__optional_double_(optionalNumber) {
-          let __unwrapped = bridge.get_std__optional_double_(optionalNumber)
-          return __unwrapped
-        } else {
-          return nil
-        }
-      }(), optionalBoolean: { () -> Bool? in
-        if bridge.has_value_std__optional_bool_(optionalBoolean) {
-          let __unwrapped = bridge.get_std__optional_bool_(optionalBoolean)
-          return __unwrapped
-        } else {
-          return nil
-        }
-      }(), optionalUInt64: optionalUInt64.value, optionalInt64: optionalInt64.value)
-      let __resultCpp = __result
-      return bridge.create_Result_OptionalPrimitivesHolder_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_OptionalPrimitivesHolder_(__exceptionPtr)
+      let value = try __implementation.createOptionalPrimitivesHolder(optionalNumber: optionalNumber, optionalBoolean: optionalBoolean, optionalUInt64: optionalUInt64, optionalInt64: optionalInt64)
+      __outResult.assumingMemoryBound(to: OptionalPrimitivesHolder.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  // Constructor
+
+  public class func constructor() -> bridge.Result_void_ {
+    do {
+      let value = try HybridSomeExternalObject()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
     }
   }
 }

@@ -36,6 +36,9 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Enable long paths on Windows
+        if: runner.os == 'Windows'
+        run: git config --global core.longpaths true
       - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref || github.sha }}
@@ -51,6 +54,7 @@ jobs:
             tests/standalone/nitro-test/nitrogen/generated
             tests/standalone/nitro-test-external/nitrogen/generated
             tests/react-native/packages/react-native-nitro-test/nitrogen/generated
+            tests/react-native/packages/react-native-nitro-test-external/nitrogen/generated
           )
           git diff --exit-code -- "${paths[@]}"
           test -z "$(git ls-files --others --exclude-standard -- "${paths[@]}")"

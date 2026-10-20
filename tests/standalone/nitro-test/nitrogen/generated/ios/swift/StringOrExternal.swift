@@ -5,14 +5,15 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroTestExternal
+public import NitroTestExternal
+internal import NitroModules
 
 /**
- * An Swift enum with associated values representing a Variant/Union type.
+ * A Swift enum with associated values representing a Variant/Union type.
  * JS type: `hybrid-object | string`
  */
 @frozen
-public indirect enum StringOrExternal {
+public enum StringOrExternal {
   case first((any HybridSomeExternalObjectSpec))
   case second(String)
 }
@@ -26,5 +27,44 @@ public extension StringOrExternal {
   }
   func isType<T>(_ type: T.Type = T.self) -> Bool {
     return self.asType(type) != nil
+  }
+}
+
+// Raw Swift storage keeps associated values containing imported C++ types exportable.
+@_expose(Cxx)
+public struct StringOrExternal_cxx {
+  let value: StringOrExternal
+
+  init(_ value: StringOrExternal) {
+    self.value = value
+  }
+
+  public var index: Int {
+    switch value {
+      case .first: return 0
+      case .second: return 1
+    }
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeFirst(_ payload: HybridSomeExternalObjectSpec_cxx, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: StringOrExternal_cxx.self).initialize(to: Self(.first(payload.getHybridSomeExternalObjectSpec())))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getFirst() -> HybridSomeExternalObjectSpec_cxx {
+    guard case .first(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload.getCxxWrapper()
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeSecond(_ payload: String, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: StringOrExternal_cxx.self).initialize(to: Self(.second(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getSecond() -> String {
+    guard case .second(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload
   }
 }

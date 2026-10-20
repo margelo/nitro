@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "classes": {
+    "TestView": {
+      "ios": {
+        "implementation": {
+          "className": "HybridTestView"
+        },
+        "language": "swift"
+      }
+    }
+  }
+}

@@ -1,39 +1,35 @@
 import type { HybridObject } from './HybridObject.js'
 import type { BoxedHybridObject } from './BoxedHybridObject.js'
+import { NitroModules } from './NitroModules.js'
 
-/**
- * The native entry point for Nitro Modules in a JavaScript runtime.
- *
- * This is a `HybridObject` on the native side as well, and is expected to be
- * installed into the runtime's `global` by the host integration.
- */
-export interface NitroModulesProxy extends HybridObject<{
-  ios: 'c++'
-  android: 'c++'
-}> {
+declare class NitroModulesProxy extends HybridObject {
   /**
-   * Create a new instance of the `HybridObject` {@linkcode T}.
-   *
-   * {@linkcode T} has to be registered beforehand under the name {@linkcode name}
-   * in the native Nitro Modules `HybridObjectRegistry`.
-   *
-   * @param name The name of the `HybridObject` under which it was registered at.
-   * @returns An instance of {@linkcode T}
-   * @throws an Error if {@linkcode T} has not been registered under the name {@linkcode name}.
+   * The native runtime creates this singleton during installation.
    */
-  createHybridObject<T extends HybridObject<{}>>(name: string): T
+  private constructor()
+
   /**
-   * Returns whether a HybridObject under the given {@linkcode name} is registered, or not.
+   * Returns the registered class and its shared prototype in this runtime.
+   * Generated classes use their `nitro.json` namespace as a dot-separated prefix,
+   * for example `image.Image`. The constructor's `name` remains `Image`.
+   * Nitrogen's generated exports provide the class type automatically.
+   * Classes without a public constructor can still be used with `instanceof`.
    */
-  hasHybridObject(name: string): boolean
+  getHybridClass<T extends { readonly prototype: HybridObject }>(
+    name: string
+  ): T
+  /**
+   * Returns whether a HybridObject class is registered under the given {@linkcode name}.
+   */
+  hasHybridClass(name: string): boolean
   /**
    * Returns whether the given {@linkcode object} is a {@linkcode HybridObject}, or not.
    */
-  isHybridObject(object: object): object is HybridObject<{}>
+  isHybridObject(object: object): object is HybridObject
   /**
-   * Get a list of all registered Hybrid Objects.
+   * Gets the names of all registered HybridObject classes.
    */
-  getAllHybridObjectNames(): string[]
+  getAllHybridClassNames(): string[]
 
   /**
    * Gets the current build type configuration as defined in the `NITRO_DEBUG`
@@ -60,17 +56,19 @@ export interface NitroModulesProxy extends HybridObject<{
    *
    * @example
    * ```ts
-   * const something = NitroModules.createHybridObject<Something>('Something')
+   * import { Something } from './Something.nitro.js'
+   *
+   * const something = new Something()
    * const boxed = NitroModules.box(something)
    * const context = Worklets.createContext('DummyContext')
    * context.runAsync(() => {
    *   'worklet'
    *   const unboxed = boxed.unbox()
-   *   console.log(unboxed.name) // --> "Something"
+   *   console.log(unboxed.toString()) // --> "[HybridObject Something]"
    * })
    * ```
    */
-  box<T extends HybridObject<{}>>(obj: T): BoxedHybridObject<T>
+  box<T extends HybridObject>(obj: T): BoxedHybridObject<T>
 
   /**
    * Returns whether the given {@linkcode object} has NativeState or not.
@@ -83,7 +81,7 @@ export interface NitroModulesProxy extends HybridObject<{
    *
    * This is achieved by just doing a round-trip from JS -> native -> JS.
    */
-  updateMemorySize<T extends HybridObject<{}>>(obj: T): T
+  updateMemorySize<T extends HybridObject>(obj: T): T
 
   /**
    * Allocate a new native {@linkcode ArrayBuffer} with the
@@ -102,3 +100,21 @@ export interface NitroModulesProxy extends HybridObject<{
    */
   debug_getTotalAllocatedHybridObjects(): number
 }
+
+/**
+ * The native class of the {@linkcode NitroModules} singleton.
+ * Native installation creates the instance before JavaScript runs.
+ *
+ * @example
+ * ```ts
+ * import { NitroModules, NitroModulesProxy } from 'nitro-core'
+ *
+ * NitroModules instanceof NitroModulesProxy // true
+ * NitroModules.getHybridClass('core.Performance')
+ * ```
+ */
+const NativeNitroModulesProxy: typeof NitroModulesProxy =
+  NitroModules.getHybridClass('NitroModulesProxy')
+type NativeNitroModulesProxy = NitroModulesProxy
+
+export { NativeNitroModulesProxy as NitroModulesProxy }

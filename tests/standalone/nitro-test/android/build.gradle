@@ -6,10 +6,12 @@ plugins {
 def generatedRoot = file('../nitrogen/generated')
 def prefabHeaders = layout.buildDirectory.dir('generated/prefab-headers')
 def prepareHeaders = tasks.register('prepareHeaders', Sync) {
-  from(new File(generatedRoot, 'shared/c++')) { include '*.hpp' }
-  from(new File(generatedRoot, 'android/c++')) { include '*.hpp' }
-  from('../cpp') { include '*.hpp' }
-  eachFile { path = "NitroTest/${name}" }
+  from(new File(generatedRoot, 'shared/c++/include')) { include '**/*.hpp' }
+  from(new File(generatedRoot, 'android/c++/include')) { include '**/*.hpp' }
+  from('../cpp') {
+    include '*.hpp'
+    into 'NitroTest'
+  }
   includeEmptyDirs = false
   duplicatesStrategy = DuplicatesStrategy.FAIL
   into prefabHeaders

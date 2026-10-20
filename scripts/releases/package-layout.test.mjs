@@ -28,7 +28,7 @@ function fixture(t) {
       wrapper,
       [
         ...reactNativePackageFiles,
-        'cpp/core/core/HybridObject.hpp',
+        'cpp/core/include/NitroModules/HybridObject.hpp',
         'apple/core/core/HybridObject.swift',
       ],
     ],
@@ -50,8 +50,8 @@ function fixture(t) {
     )
   }
   for (const file of [
-    path.join(core, 'native/cpp/utils/NitroDefines.hpp'),
-    path.join(wrapper, 'cpp/core/utils/NitroDefines.hpp'),
+    path.join(core, 'native/cpp/include/NitroModules/NitroDefines.hpp'),
+    path.join(wrapper, 'cpp/core/include/NitroModules/NitroDefines.hpp'),
   ])
     writeFileSync(file, '#define NITRO_VERSION "0.38.0-beta.1"\n')
   writeFileSync(

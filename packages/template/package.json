@@ -7,6 +7,9 @@
   "types": "lib/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
+  "imports": {
+    "#nitro/*": "./nitrogen/generated/shared/javascript/*.cjs"
+  },
   "files": [
     "src",
     "react-native.config.js",
@@ -25,8 +28,9 @@
     "ios/**/*.swift",
     "app.plugin.js",
     "nitro.json",
-    "*.podspec",
-    "README.md"
+    "README.md",
+    "Package.swift",
+    "*.podspec"
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -34,7 +38,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
     "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions --max-warnings 0",
     "typescript": "tsc",
-    "specs": "tsc --noEmit false && nitrogen --logLevel=\"debug\""
+    "specs": "nitrogen --logLevel=\"debug\" && tsc --noEmit false"
   },
   "keywords": [
     "react-native",
@@ -59,22 +63,19 @@
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "nitrogen": "*",
+    "nitro-core": "$$nitroVersion$$",
+    "nitrogen": "$$nitroVersion$$",
     "prettier": "^3.8.3",
     "react": "19.3.0",
     "react-native": "0.88.0",
-    "react-native-nitro-modules": "*",
+    "react-native-nitro-modules": "$$nitroVersion$$",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*",
-    "react-native-nitro-modules": "*"
-  },
-  "peerDependenciesMeta": {
-    "react-native-nitro-modules": {
-      "optional": true
-    }
+    "react-native": ">=0.88.0",
+    "nitro-core": "$$nitroVersion$$",
+    "react-native-nitro-modules": "$$nitroVersion$$"
   },
   "eslintConfig": {
     "root": true,
@@ -109,5 +110,11 @@
     "trailingComma": "es5",
     "useTabs": false,
     "semi": false
+  },
+  "swiftpmConfig": {
+    "name": "$$iosModuleName$$",
+    "dependencies": [
+      "react-native-nitro-modules"
+    ]
   }
 }

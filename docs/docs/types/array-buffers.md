@@ -12,7 +12,10 @@ Passing an `ArrayBuffer` between JS and native is zero-copy.
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    interface Image extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Image extends HybridObject {
       getData(): ArrayBuffer
     }
     ```
@@ -24,7 +27,7 @@ Passing an `ArrayBuffer` between JS and native is zero-copy.
   <TabItem value="swift" label="Swift">
     ```swift
     class HybridImage: HybridImageSpec {
-      func getData() -> ArrayBuffer
+      func getData() throws -> ArrayBuffer
     }
     ```
 
@@ -35,7 +38,7 @@ Passing an `ArrayBuffer` between JS and native is zero-copy.
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
     class HybridImage: HybridImageSpec() {
-      fun getData(): ArrayBuffer
+      override fun getData(): ArrayBuffer
     }
     ```
 
@@ -46,8 +49,8 @@ Passing an `ArrayBuffer` between JS and native is zero-copy.
   <TabItem value="cpp" label="C++">
     ```cpp
     class HybridImage: public HybridImageSpec {
-      std::shared_ptr<ArrayBuffer> getData();
-    }
+      ArrayBuffer getData() override;
+    };
     ```
 
     :::note
@@ -56,7 +59,7 @@ Passing an `ArrayBuffer` between JS and native is zero-copy.
   </TabItem>
 </Tabs>
 
-It is crucial to understand the ownership and threading concerns around shared memory access.
+`ArrayBuffer` is a value type in C++ and Swift. Copying the handle shares its backing storage; use `ArrayBuffer.copy(...)` to copy the bytes. In C++, access it with `buffer.data()` and `buffer.size()`.
 
 ## Ownership
 
@@ -83,8 +86,7 @@ func doSomething() -> ArrayBuffer {
 
 ### Non-owning
 
-An `ArrayBuffer` that was created in JS cannot be safely kept strong as the JS VM can delete it at any point, hence it is **non-owning** (`isOwner = false`).
-Its data can only be safely accessed before the synchronous function returned, as this will stay within the JS bounds.
+A buffer received from JS may borrow storage owned by the JS runtime (`isOwner = false`). Access its bytes only during the synchronous native call on that runtime's thread. Before retaining it or passing it to another thread, call `asOwning()` while the JS storage is still valid.
 
 ```swift
 func doSomething(buffer: ArrayBuffer) {
@@ -117,6 +119,14 @@ Not every `ArrayBuffer` received from JS is **non-owning**, eg if the buffer was
 
 Always check the `isOwner` property to prevent unnecessary copies.
 :::
+Swift's `data` property is optional, including for empty buffers. Prefer `withUnsafeBytes` or `withUnsafeMutableBytes` for scoped access, and do not let their pointers escape:
+
+```swift
+let buffer = ArrayBuffer.allocate(4096)
+buffer.withUnsafeMutableBytes { bytes in
+  bytes[0] = 42
+}
+```
 
 ## Threading
 
@@ -141,9 +151,9 @@ On the native side, an **owning** `ArrayBuffer` can either **wrap-**, or **copy-
                                                size: 4096,
                                                onDelete: { myData.deallocate() })
     // copy
-    let copiedArrayBuffer = ArrayBuffer.copy(of: wrappingArrayBuffer)
+    let copiedArrayBuffer = ArrayBuffer.copy(wrappingArrayBuffer)
     // new blank buffer
-    let newArrayBuffer = ArrayBuffer.allocate(size: 4096)
+    let newArrayBuffer = ArrayBuffer.allocate(4096)
     ```
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
@@ -155,7 +165,7 @@ On the native side, an **owning** `ArrayBuffer` can either **wrap-**, or **copy-
 
 
     // copy
-    let copiedArrayBuffer = ArrayBuffer.copy(myData)
+    val copiedArrayBuffer = ArrayBuffer.copy(myData)
     // new blank buffer
     val newArrayBuffer = ArrayBuffer.allocate(4096)
     ```
@@ -185,7 +195,7 @@ ArrayBuffers also provide helper and conversion methods for the language-native 
     Swift often uses [`Data`](https://developer.apple.com/documentation/foundation/data) to represent Data.
     ```swift
     let data = Data(capacity: 1024)
-    let buffer = ArrayBuffer.copy(data: data)
+    let buffer = try ArrayBuffer.copy(data: data)
     let dataAgain = buffer.toData(copyIfNeeded: true)
     ```
   </TabItem>

@@ -1,0 +1,15 @@
+{
+  "name": "@nitro/scripts",
+  "private": true,
+  "scripts": {
+    "build:core": "bun check-versions && bun --filter nitro-core build && bun --filter nitrogen build",
+    "version:set": "bun set-version.mjs",
+    "check-versions": "bun set-version.mjs --check",
+    "sync-core": "bun sync-core.mjs",
+    "release": "bun releases/request.mjs",
+    "release:ci": "bun releases/core.mjs",
+    "check-consumer": "bun releases/check-consumer.mjs",
+    "test:release": "bun test releases/*.test.mjs",
+    "test:staging": "bun test sync-core.test.mjs"
+  }
+}

@@ -29,14 +29,12 @@ The Nitro repository is a Bun monorepo:
 You need:
 
 - [Bun](https://bun.sh)
-- [CocoaPods](https://cocoapods.org) (installed via Bundler - see below)
-- Ruby 2.7.2 (matches CI)
-- Xcode 26.2 or higher
+- Xcode with Swift 6.4 or higher for iOS builds
 - Android Studio
 
 ### 2. Clone the repo
 
-Clone [margelo/nitro](https://github.com/margelo/nitro) and navigate into the `nitro` folder. Target `main` for contributions.
+Clone [margelo/nitro](https://github.com/margelo/nitro) and navigate into the `nitro` folder. Target `v1` for Nitro V1 contributions.
 
 ### 3. Install dependencies
 
@@ -50,13 +48,13 @@ All packages resolve from the local workspace. The only submodule is the Hermes 
 
 #### 3.1. (Optional) Install iOS dependencies
 
-If you want to work on the iOS codebase, you also need to install the Pods:
+For iOS, set up React Native's SwiftPM dependencies from the repository root:
 
 ```sh
-cd tests/react-native/apps/example
-bundle install
-bun pods
+bun example spm
 ```
+
+The example and benchmark apps use React Native 0.88 and SwiftPM. The remaining Podfiles and podspecs provide discovery metadata for React Native CLI; CocoaPods is not needed to build these apps.
 
 ### 4. Run the app
 
@@ -64,7 +62,7 @@ After installing all dependencies, you can run the React Native app in `tests/re
 
 <Tabs groupId="platform">
   <TabItem value="ios" label="iOS" default>
-    1. Open `tests/react-native/apps/example/ios/NitroExample.xcworkspace` in Xcode
+    1. Open `tests/react-native/apps/example/ios/NitroExample.xcodeproj` in Xcode
     2. Select your target (iPhone Simulator)
     3. Click Run
   </TabItem>
@@ -97,7 +95,7 @@ See [You don't need to ship a fix](https://github.com/margelo/nitro/blob/main/CO
 ### Reproduce a build error
 
 If you encounter a build error, compare your setup to the setup in `tests/react-native/apps/example/`.
-For example, if you have a different setting in your `Podfile`, try changing it here in Nitro `tests/react-native/apps/example/` as well to see if it builds here. Submit a PR with the change required to make it fail, and see if the CI fails to build. That alone is enough - you don't need to also fix it.
+For example, reproduce changes to your Xcode project or SwiftPM dependencies in `tests/react-native/apps/example/` and check whether it still builds. Submit a PR with the change required to make it fail, and see if the CI fails to build. That alone is enough - you don't need to also fix it.
 
 ### Reproduce a nitrogen bug
 

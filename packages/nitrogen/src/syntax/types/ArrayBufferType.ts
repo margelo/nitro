@@ -1,13 +1,8 @@
 import type { Language } from '../../getPlatformSpecs.js'
 import type { SourceFile, SourceImport } from '../SourceFile.js'
-import type { Type, TypeKind } from './Type.js'
+import type { GetCodeOptions, Type, TypeKind } from './Type.js'
 
 export class ArrayBufferType implements Type {
-  get canBePassedByReference(): boolean {
-    // It's a shared_ptr.
-    return true
-  }
-
   get kind(): TypeKind {
     return 'array-buffer'
   }
@@ -15,10 +10,12 @@ export class ArrayBufferType implements Type {
     return true
   }
 
-  getCode(language: Language): string {
+  getCode(language: Language, options: GetCodeOptions): string {
     switch (language) {
-      case 'c++':
-        return 'std::shared_ptr<ArrayBuffer>'
+      case 'c++': {
+        const type = 'ArrayBuffer'
+        return options.context === 'parameter' ? `const ${type}&` : type
+      }
       case 'swift':
         return 'ArrayBuffer'
       case 'kotlin':
@@ -37,23 +34,24 @@ export class ArrayBufferType implements Type {
     switch (language) {
       case 'c++':
         imports.push({
-          language: 'c++',
-          name: 'NitroModules/ArrayBuffer.hpp',
-          space: 'system',
+          language,
+          declaration: {
+            name: 'NitroModules/ArrayBuffer.hpp',
+            space: 'system',
+          },
         })
         break
       case 'swift':
         imports.push({
           name: 'NitroModules',
-          language: 'swift',
-          space: 'system',
+          language,
+          access: 'public',
         })
         break
       case 'kotlin':
         imports.push({
           name: 'com.margelo.nitro.core.ArrayBuffer',
-          language: 'kotlin',
-          space: 'system',
+          language,
         })
         break
     }

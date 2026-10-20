@@ -1,4 +1,4 @@
-name: 'Update Lockfiles (bun.lock + Podfile.lock)'
+name: 'Update Lockfiles (bun.lock + Package.resolved)'
 
 on:
   push:
@@ -10,8 +10,8 @@ on:
       - 'scripts/sync-core.mjs'
       - 'scripts/core-package.mjs'
       - '.github/workflows/update-lockfiles.yml'
-      - 'tests/react-native/apps/**/Podfile'
-      - 'tests/react-native/apps/**/Gemfile'
+      - '**/Package.swift'
+      - 'Package.resolved'
   pull_request:
     paths:
       - '**/package.json'
@@ -19,17 +19,17 @@ on:
       - 'scripts/sync-core.mjs'
       - 'scripts/core-package.mjs'
       - '.github/workflows/update-lockfiles.yml'
-      - 'tests/react-native/apps/**/Podfile'
-      - 'tests/react-native/apps/**/Gemfile'
+      - '**/Package.swift'
+      - 'Package.resolved'
 
 permissions:
   contents: write
 
 jobs:
   update-lockfiles:
-    name: "Update lockfiles (Podfile.lock)"
+    name: "Update lockfiles (SwiftPM)"
     if: github.actor == 'dependabot[bot]'
-    runs-on: macOS-26
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v7
         with:
@@ -40,27 +40,22 @@ jobs:
         with:
           bun-version-file: package.json
 
-      - name: Setup Ruby (bundle)
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.7.2
-          bundler-cache: true
-          working-directory: tests/react-native/apps/example/ios
-
-      - name: Select Xcode 26.2
-        run: sudo xcode-select -s "/Applications/Xcode_26.2.app/Contents/Developer"
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_27.1.app/Contents/Developer
+          xcodebuild -version
+          xcrun swift --version
 
       - run: |
           bun install
 
-          cd tests/react-native/apps/example
-          bundle install
-          bun pods
-          cd "$GITHUB_WORKSPACE"
+          bun example spm
+          xcodebuild -resolvePackageDependencies -project tests/react-native/apps/example/ios/NitroExample.xcodeproj -scheme NitroExample
+          bun benchmark spm
+          xcodebuild -resolvePackageDependencies -project tests/react-native/apps/benchmark/ios/NitroBenchmark.xcodeproj -scheme NitroBenchmark
 
-          git add bun.lock
-          git add tests/react-native/apps/example/ios/Podfile.lock
-          git add tests/react-native/apps/example/Gemfile.lock
+          git add bun.lock Package.resolved
+          git add tests/react-native/apps/*/ios/*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
           git config --global user.name 'dependabot[bot]'
           git config --global user.email 'dependabot[bot]@users.noreply.github.com'

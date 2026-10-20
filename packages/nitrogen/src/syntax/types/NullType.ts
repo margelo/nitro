@@ -1,12 +1,8 @@
 import type { Language } from '../../getPlatformSpecs.js'
 import type { SourceFile, SourceImport } from '../SourceFile.js'
-import type { Type, TypeKind } from './Type.js'
+import type { GetCodeOptions, Type, TypeKind } from './Type.js'
 
 export class NullType implements Type {
-  get canBePassedByReference(): boolean {
-    // It's a primitive.
-    return false
-  }
   get kind(): TypeKind {
     return 'null'
   }
@@ -14,7 +10,7 @@ export class NullType implements Type {
     return true
   }
 
-  getCode(language: Language): string {
+  getCode(language: Language, _options: GetCodeOptions): string {
     switch (language) {
       case 'c++':
         return 'nitro::NullType'
@@ -36,23 +32,21 @@ export class NullType implements Type {
     switch (language) {
       case 'c++':
         imports.push({
-          language: language,
-          name: 'NitroModules/Null.hpp',
-          space: 'system',
+          language,
+          declaration: { name: 'NitroModules/Null.hpp', space: 'system' },
         })
         break
       case 'swift':
         imports.push({
-          language: language,
+          language,
           name: 'NitroModules',
-          space: 'system',
+          access: 'public',
         })
         break
       case 'kotlin':
         imports.push({
-          language: language,
+          language,
           name: 'com.margelo.nitro.core.NullType',
-          space: 'system',
         })
         break
     }

@@ -1,5 +1,6 @@
 {
   "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "environment": "bare",
   "cxxNamespace": [
     "test",
     "external"
@@ -13,18 +14,6 @@
       "external"
     ],
     "androidCxxLibName": "NitroTestExternal"
-  },
-  "autolinking": {
-    "SomeExternalObject": {
-      "ios": {
-        "language": "swift",
-        "implementationClassName": "HybridSomeExternalObject"
-      },
-      "android": {
-        "language": "kotlin",
-        "implementationClassName": "HybridSomeExternalObject"
-      }
-    }
   },
   "ignorePaths": [
     "**/node_modules",

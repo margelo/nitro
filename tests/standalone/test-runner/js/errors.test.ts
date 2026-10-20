@@ -38,7 +38,7 @@ export const cases = {
       testObject,
     ) => {
       expect(() => testObject.funcThatThrows()).to.throw(
-        `${testObject.name}.funcThatThrows(...):`,
+        `${testObject.constructor.name}.funcThatThrows(...):`,
       );
       expect(() => testObject.funcThatThrows()).to.throw(
         "This function will only work after sacrificing seven lambs!",
@@ -49,7 +49,7 @@ export const cases = {
       testObject,
     ) => {
       expect(() => testObject.funcThatThrowsBeforePromise()).to.throw(
-        `${testObject.name}.funcThatThrowsBeforePromise(...):`,
+        `${testObject.constructor.name}.funcThatThrowsBeforePromise(...):`,
       );
       expect(() => testObject.funcThatThrowsBeforePromise()).to.throw(
         "This function will only work after sacrificing eight lambs!",
@@ -59,7 +59,7 @@ export const cases = {
     "throwError(error) rethrows the JS error message": (testObject) => {
       const error = new Error("rethrowing a JS error from native!");
       expect(() => testObject.throwError(error)).to.throw(
-        `${testObject.name}.throwError(...):`,
+        `${testObject.constructor.name}.throwError(...):`,
       );
       // Native keeps the JS error's name, so `Error: ` is part of the message.
       expect(() => testObject.throwError(error)).to.throw(
@@ -99,7 +99,7 @@ export const cases = {
         const { method, call, message } = nativeErrors[0]!;
 
         expect(call).to.throw(
-          nativeErrorMessage(testObject.name, method, message),
+          nativeErrorMessage(testObject.constructor.name, method, message),
         );
       },
 
@@ -135,7 +135,7 @@ export const cases = {
         const { method, call, message } = nativeErrors[1]!;
 
         expect(call).to.throw(
-          nativeErrorMessage(testObject.name, method, message),
+          nativeErrorMessage(testObject.constructor.name, method, message),
         );
       },
 
@@ -171,7 +171,7 @@ export const cases = {
         const { method, call, message } = nativeErrors[2]!;
 
         expect(call).to.throw(
-          nativeErrorMessage(testObject.name, method, message),
+          nativeErrorMessage(testObject.constructor.name, method, message),
         );
       },
 
@@ -208,7 +208,7 @@ export const cases = {
       const { method, call, message } = nativeErrors[3]!;
 
       expect(call).to.throw(
-        nativeErrorMessage(testObject.name, method, message),
+        nativeErrorMessage(testObject.constructor.name, method, message),
       );
     },
 
@@ -238,7 +238,7 @@ export const cases = {
         testObject.throwError("not an error"),
       ).to.throw(
         firstLine(
-          `${testObject.name}.throwError(...): Value is a string, expected an Object`,
+          `${testObject.constructor.name}.throwError(...): Value is a string, expected an Object`,
         ),
       );
     },
@@ -251,7 +251,7 @@ export const cases = {
         testObject.throwError(),
       ).to.throw(
         exactly(
-          `\`${testObject.name}.throwError(...)\` expected 1 arguments, but received 0!`,
+          `\`${testObject.constructor.name}.throwError(...)\` expected 1 arguments, but received 0!`,
         ),
       );
     },
@@ -262,7 +262,7 @@ export const cases = {
         testObject.funcThatThrows(1),
       ).to.throw(
         exactly(
-          `\`${testObject.name}.funcThatThrows(...)\` expected 0 arguments, but received 1!`,
+          `\`${testObject.constructor.name}.funcThatThrows(...)\` expected 0 arguments, but received 1!`,
         ),
       );
     },

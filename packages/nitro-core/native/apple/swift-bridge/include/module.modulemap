@@ -1,0 +1,5 @@
+module NitroModulesSwiftBridge {
+  requires cplusplus
+  umbrella header "NitroModulesSwiftBridge.h"
+  export *
+}

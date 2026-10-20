@@ -1,24 +1,22 @@
 import type { Language } from '../../getPlatformSpecs.js'
+import { escapeCppName } from '../helpers.js'
 import { type SourceFile, type SourceImport } from '../SourceFile.js'
-import { ErrorType } from './ErrorType.js'
-import { FunctionType } from './FunctionType.js'
-import { NamedWrappingType } from './NamedWrappingType.js'
 import type { GetCodeOptions, Type, TypeKind } from './Type.js'
-import { VoidType } from './VoidType.js'
 
 export class PromiseType implements Type {
   readonly resultingType: Type
-  readonly errorType: Type
 
   constructor(resultingType: Type) {
     this.resultingType = resultingType
-    this.errorType = new ErrorType()
   }
 
-  get canBePassedByReference(): boolean {
-    // It's a future<..>, it cannot be copied.
-    return true
+  get specializationName(): string {
+    const resultingType = this.resultingType.getCode('c++', {
+      context: 'type-argument',
+    })
+    return `Promise_${escapeCppName(resultingType)}`
   }
+
   get kind(): TypeKind {
     return 'promise'
   }
@@ -26,29 +24,18 @@ export class PromiseType implements Type {
     return false
   }
 
-  get resolverFunction(): FunctionType {
-    if (this.resultingType.kind === 'void') {
-      return new FunctionType(new VoidType(), [])
-    } else {
-      return new FunctionType(new VoidType(), [
-        new NamedWrappingType('value', this.resultingType),
-      ])
-    }
-  }
-
-  get rejecterFunction(): FunctionType {
-    return new FunctionType(new VoidType(), [
-      new NamedWrappingType('error', this.errorType),
-    ])
-  }
-
-  getCode(language: Language, options?: GetCodeOptions): string {
-    const resultingCode = this.resultingType.getCode(language, options)
+  getCode(language: Language, options: GetCodeOptions): string {
+    const resultingCode = this.resultingType.getCode(language, {
+      ...options,
+      context: 'type-argument',
+    })
     switch (language) {
-      case 'c++':
-        return `std::shared_ptr<Promise<${resultingCode}>>`
+      case 'c++': {
+        const type = `Promise<${resultingCode}>`
+        return options.context === 'parameter' ? `const ${type}&` : type
+      }
       case 'swift':
-        return `Promise<${resultingCode}>`
+        return `any Promise<${resultingCode}>`
       case 'kotlin':
         return `Promise<${resultingCode}>`
       default:
@@ -66,23 +53,21 @@ export class PromiseType implements Type {
     switch (language) {
       case 'c++':
         imports.push({
-          language: 'c++',
-          name: 'NitroModules/Promise.hpp',
-          space: 'system',
+          language,
+          declaration: { name: 'NitroModules/Promise.hpp', space: 'system' },
         })
         break
       case 'swift':
         imports.push({
           name: 'NitroModules',
-          language: 'swift',
-          space: 'system',
+          language,
+          access: 'public',
         })
         break
       case 'kotlin':
         imports.push({
           name: 'com.margelo.nitro.core.Promise',
-          language: 'kotlin',
-          space: 'system',
+          language,
         })
         break
     }

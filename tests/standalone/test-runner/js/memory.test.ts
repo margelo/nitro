@@ -8,11 +8,9 @@ import {
   yieldToEventLoop,
 } from "./utils/cases";
 
-import { getNitroModules } from "nitro-core";
+import { NitroModules } from "nitro-core";
 
 import { type TestObject } from "./utils/testObjects";
-
-const NitroModules = getNitroModules();
 
 // 55k allocations verify that there are no memory leaks for two reasons;
 // 1) It's a lot of allocations and any VM (JS, JVM) will likely trigger GC

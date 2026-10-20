@@ -28,6 +28,8 @@ bun release 0.37.2
 
 `bun release VERSION [npm-tag]` uses the authenticated GitHub CLI (`gh`) to dispatch **Release Nitro** on `main`. Push the changes you want to release first; local changes and local-only commits are excluded.
 
+For a V1 alpha, select `v1` in GitHub Actions or run `RELEASE_BRANCH=v1 bun release 1.0.0-alpha.1`. The `v1` branch only accepts `1.x` alpha versions.
+
 Leave `npm-tag` empty to use `latest` for stable versions or the first prerelease identifier, such as `beta` or `rc`. Identifiers that do not start with a lowercase letter use `next`. You can choose a tag explicitly:
 
 ```sh
@@ -38,7 +40,7 @@ A new manual release must increase the current version. To retry an interrupted 
 
 ## Publish through GitHub Releases
 
-Publishing a GitHub release also starts the workflow. Its tag must be exactly `vVERSION` and already point to a commit on `main` whose package, JS, and native versions match `VERSION`. Prepare that commit with `bun version:set VERSION` and refresh `bun.lock` before creating the tag. The package build must leave the tagged checkout unchanged.
+Publishing a GitHub release also starts the workflow. Its tag must be exactly `vVERSION` and already point to a commit on `main`, or `v1` for a V1 alpha, whose package, JS, and native versions match `VERSION`. Prepare that commit with `bun version:set VERSION` and refresh `bun.lock` before creating the tag. The package build must leave the tagged checkout unchanged.
 
 This path builds and publishes the existing tag without moving it. The GitHub release is already public while npm publishing runs, so a failed run can leave a public GitHub release with incomplete npm publication. Rerun that workflow to finish it. **Run workflow** is the simpler path when you want CI to prepare the version commit and publish the GitHub release only after npm succeeds.
 
@@ -58,7 +60,7 @@ Nitrogen and the RN adapter pin `nitro-core` to the exact release version. Nativ
 
 The workflows use the same resolved commit throughout CI. A new manual release uses the commit selected when the workflow was dispatched. A retry with an existing tag validates that tag's commit. The publisher checks this identity again after resolving the release, including when it reuses saved tarballs.
 
-Main-branch CI runs once through the release workflow's dependencies. Pull requests retain their existing standalone workflows and path filters. Only the publishing job holds the release concurrency lock, so independent CI and later artifact builds can run concurrently.
+CI for pushes to `main` and `v1` runs once through the release workflow's dependencies. Pull requests retain their existing standalone workflows and path filters. Only the publishing job holds the release concurrency lock, so independent CI and later artifact builds can run concurrently.
 
 After package publication, the iOS and Android release-build workflows build the example from the release tag and attach the app artifacts to the same GitHub release. A failure in one of those jobs leaves the npm packages published; rerun the failed artifact job.
 
@@ -67,6 +69,8 @@ After package publication, the iOS and Android release-build workflows build the
 Each push to `main` starts a nightly for its final source commit. A push containing several commits produces one nightly. The version includes the workflow run number and source commit, for example `0.37.2-nightly.123.gabcdef012345`. A stable base of `0.37.1` advances to `0.37.2-nightly...`; a prerelease base of `0.38.0-beta.1` produces `0.38.0-nightly...`. Rerunning the same workflow preserves the version.
 
 Nightlies use the same validation and three-package publication process. CI creates a version commit and tag without advancing `main`, publishes to npm's `nightly` tag, and stores the artifacts on a GitHub prerelease. Stable package versions on `main` and npm's `latest` tag remain unchanged.
+
+Pushes to `v1` publish versions such as `1.0.0-alpha.nightly.123.gabcdef012345` under npm's `alpha-nightly` tag without advancing the branch. Retries validate and reuse the existing alpha-nightly tag.
 
 An older nightly that finishes after a newer one uses the npm tag `nightly-<release-commit-prefix>` so it cannot move `nightly` backwards. Publication is serialized; GitHub's queue limit still applies during bursts of pushes.
 

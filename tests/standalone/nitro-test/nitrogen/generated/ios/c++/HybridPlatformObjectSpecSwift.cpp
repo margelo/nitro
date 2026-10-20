@@ -5,7 +5,57 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridPlatformObjectSpecSwift.hpp"
+#include <NitroTest/private/HybridPlatformObjectSpecSwift.hpp>
+#include <NitroModules/SwiftConverter.hpp>
+#include <NitroModules/SwiftResult.hpp>
+#include <optional>
 
 namespace margelo::nitro::test {
+
+  std::string HybridPlatformObjectSpecSwift::toString() {
+    return SwiftConverter<std::string, swift::String>::fromSwift(_swiftPart.toString());
+  }
+
+  // Properties
+
+  // Methods
+
+  std::string HybridPlatformObjectSpecSwift::getOSVersion() {
+    auto __result = getOSVersion_Swift();
+    return SwiftConverter<std::string, swift::String>::fromSwift(__result);
+  }
+
+  swift::String HybridPlatformObjectSpecSwift::getOSVersion_Swift() {
+    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
+      return _swiftPart.getOSVersion(__outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  // Constructor
+
+  std::shared_ptr<HybridPlatformObjectSpec> HybridPlatformObjectSpecSwift::constructor() {
+    auto __result = constructor_Swift();
+    return SwiftConverter<std::shared_ptr<margelo::nitro::test::HybridPlatformObjectSpec>, NitroTest::HybridPlatformObjectSpec_cxx>::fromSwift(__result);
+  }
+
+  NitroTest::HybridPlatformObjectSpec_cxx HybridPlatformObjectSpecSwift::constructor_Swift() {
+    auto __result = NitroTest::HybridPlatformObjectSpec_cxx::constructor();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return NitroTest::HybridPlatformObjectSpec_cxx::fromUnsafe(__result.value());
+  }
+
+  const std::shared_ptr<const HybridClass>& HybridPlatformObjectSpecSwift::Class::get() {
+    static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
+      clazz.registerHybridMethod("getOSVersion", &HybridPlatformObjectSpecSwift::getOSVersion_Swift);
+      clazz.registerHybridConstructor(&HybridPlatformObjectSpecSwift::constructor_Swift);
+    });
+    return hybridClass;
+  }
+
 } // namespace margelo::nitro::test

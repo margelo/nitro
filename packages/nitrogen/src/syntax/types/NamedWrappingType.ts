@@ -21,10 +21,7 @@ export class NamedWrappingType<T extends Type> implements NamedType {
   get isEquatable(): boolean {
     return this.type.isEquatable
   }
-  get canBePassedByReference(): boolean {
-    return this.type.canBePassedByReference
-  }
-  getCode(language: Language, options?: GetCodeOptions): string {
+  getCode(language: Language, options: GetCodeOptions): string {
     return this.type.getCode(language, options)
   }
   getExtraFiles(): SourceFile[] {

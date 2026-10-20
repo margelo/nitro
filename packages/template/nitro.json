@@ -1,19 +1,13 @@
 {
   "$schema": "https://nitro.margelo.com/nitro.schema.json",
-  "cxxNamespace": [
-    "$$cxxNamespace$$"
-  ],
+  "environment": "react-native",
+  "cxxNamespace": ["$$cxxNamespace$$"],
   "ios": {
     "iosModuleName": "$$iosModuleName$$"
   },
   "android": {
-    "androidNamespace": [
-      "$$androidNamespace$$"
-    ],
+    "androidNamespace": ["$$androidNamespace$$"],
     "androidCxxLibName": "$$androidCxxLibName$$"
   },
-  "autolinking": {},
-  "ignorePaths": [
-    "**/node_modules"
-  ]
+  "ignorePaths": ["**/node_modules"]
 }

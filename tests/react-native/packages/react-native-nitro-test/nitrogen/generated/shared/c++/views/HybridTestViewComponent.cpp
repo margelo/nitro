@@ -5,7 +5,7 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridTestViewComponent.hpp"
+#include <NitroTest/private/views/HybridTestViewComponent.hpp>
 
 #include <NitroModules/NitroHash.hpp>
 #include <NitroModules/RawPropsCompat.hpp>
@@ -13,9 +13,10 @@
 
 namespace margelo::nitro::test::views {
 
+  using namespace margelo;
   using namespace facebook;
 
-  extern const char HybridTestViewComponentName[] = "TestView";
+  extern const char HybridTestViewComponentName[] = "test.TestView";
 
   HybridTestViewProps::HybridTestViewProps(const react::PropsParserContext& context,
                                            const HybridTestViewProps& sourceProps,
@@ -25,9 +26,9 @@ namespace margelo::nitro::test::views {
     hasBeenCalled(nitro::ReactProp<bool>::fromRawValue("TestView", "hasBeenCalled", rawProps, sourceProps.hasBeenCalled)),
     int64Value(nitro::ReactProp<int64_t>::fromRawValue("TestView", "int64Value", rawProps, sourceProps.int64Value)),
     colorScheme(nitro::ReactProp<ColorScheme>::fromRawValue("TestView", "colorScheme", rawProps, sourceProps.colorScheme)),
-    someCallback(nitro::ReactProp<std::function<void()>>::fromRawValue("TestView", "someCallback", rawProps, sourceProps.someCallback)),
+    someCallback(nitro::ReactProp<Callback<void()>>::fromRawValue("TestView", "someCallback", rawProps, sourceProps.someCallback)),
     nativeDefaultValue(nitro::ReactProp<std::optional<double>>::fromRawValue("TestView", "nativeDefaultValue", rawProps, sourceProps.nativeDefaultValue)),
-    hybridRef(nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridTestViewSpec>& /* ref */)>>>::fromRawValue("TestView", "hybridRef", rawProps, sourceProps.hybridRef)) {
+    hybridRef(nitro::ReactProp<std::optional<Callback<void(const std::shared_ptr<HybridTestViewSpec>& /* ref */)>>>::fromRawValue("TestView", "hybridRef", rawProps, sourceProps.hybridRef)) {
 #ifdef ANDROID
     nitro::RawPropsCompat::initializeDynamicProps(*this, sourceProps, rawProps, filterObjectKeys);
 #endif

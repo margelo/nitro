@@ -12,6 +12,7 @@ import {
   getRelease,
   git,
   isNightly,
+  nightlyNpmTag,
   nightlyVersion,
   npmTagFor,
   packPackage,
@@ -32,35 +33,44 @@ process.chdir(root)
 const repository = 'margelo/nitro'
 const automaticNightly = process.env.RELEASE_MODE === 'nightly'
 const releaseEventTag = process.env.RELEASE_EVENT_TAG || undefined
+const branch =
+  process.env.RELEASE_BRANCH ||
+  process.env.GITHUB_REF_NAME ||
+  git(['branch', '--show-current'])
+if (!['main', 'v1'].includes(branch)) throw new Error('Release from main or v1')
 let sourceCommit = git(['rev-parse', 'HEAD'])
 const version = automaticNightly
   ? nightlyVersion(
       readJSON('package.json').version,
       process.env.GITHUB_RUN_NUMBER,
-      sourceCommit
+      sourceCommit,
+      branch === 'v1' ? 'alpha-nightly' : 'nightly'
     )
   : releaseEventTag
     ? versionFromTag(releaseEventTag)
     : process.env.RELEASE_VERSION
-parseVersion(version)
+const parsedVersion = parseVersion(version)
+if (
+  branch === 'v1' &&
+  (parsedVersion.major !== 1 || parsedVersion.prerelease[0] !== 'alpha')
+)
+  throw new Error('The v1 branch only publishes 1.x alpha versions')
 const nightly = isNightly(version)
 const npmTag = npmTagFor(
   version,
-  automaticNightly ? 'nightly' : process.env.RELEASE_NPM_TAG
+  automaticNightly ? nightlyNpmTag(version) : process.env.RELEASE_NPM_TAG
 )
-if (nightly !== (npmTag === 'nightly'))
-  throw new Error('Nightly versions must use the nightly npm tag')
+if (
+  (nightly && npmTag !== nightlyNpmTag(version)) ||
+  (!nightly && ['nightly', 'alpha-nightly'].includes(npmTag))
+)
+  throw new Error('Nightly versions must use their matching nightly npm tag')
 const tag = `v${version}`
 const dryRun = process.env.RELEASE_DRY_RUN === 'true'
 function reportCompletedRelease() {
   if (!dryRun && process.env.GITHUB_OUTPUT)
     appendFileSync(process.env.GITHUB_OUTPUT, `tag=${tag}\n`)
 }
-const branch =
-  process.env.RELEASE_BRANCH ||
-  process.env.GITHUB_REF_NAME ||
-  git(['branch', '--show-current'])
-if (branch !== 'main') throw new Error('Release from main')
 if (!dryRun) assertCI(repository)
 assertClean()
 git(['fetch', 'origin', branch, '--tags'])
@@ -115,7 +125,7 @@ if (exists) {
     `origin/${branch}`,
   ])
   git(['checkout', '--detach', commit])
-  run('node', ['scripts/set-version.mjs', '--check'])
+  run('bun', ['run', 'check-versions'])
   if (readJSON('package.json').version !== version)
     throw new Error('Tagged version does not match input')
   if (release?.assets.some((asset) => asset.name === 'nitro-release.json')) {
@@ -137,14 +147,10 @@ if (exists) {
 } else {
   if (nightly && !automaticNightly)
     throw new Error(
-      'New nightlies are created by pushes to main; rerun their original workflow to retry'
+      'New nightlies are created by pushes to main or v1; rerun their original workflow to retry'
     )
-  if (
-    automaticNightly &&
-    !dryRun &&
-    (branch !== 'main' || sourceCommit !== process.env.GITHUB_SHA)
-  )
-    throw new Error('Nightlies must build the exact main push commit')
+  if (automaticNightly && !dryRun && sourceCommit !== process.env.GITHUB_SHA)
+    throw new Error('Nightlies must build the exact push commit')
   if (nightly)
     git(['merge-base', '--is-ancestor', sourceCommit, `origin/${branch}`])
   if (!nightly && sourceCommit !== git(['rev-parse', `origin/${branch}`]))
@@ -183,7 +189,7 @@ if (!dryRun)
     git(['rev-parse', 'HEAD']),
     process.env.RELEASE_VALIDATED_COMMIT
   )
-if (!exists) run('node', ['scripts/set-version.mjs', version])
+if (!exists) run('bun', ['run', 'version:set', version])
 
 if (!manifest) {
   run('bun', [

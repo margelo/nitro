@@ -9,97 +9,39 @@ import TabItem from '@theme/TabItem';
 The `JSIConverter<T>` is Nitro's implementation for converting JS values to native values, and back.
 It's implemented as a C++ template, which allows it to be extended with any custom type.
 
-For example, if you want to use `float` directly you can tell Nitro how to convert a `jsi::Value` to `float` by implementing `margelo::nitro::JSIConverter<float>`:
+For example, wrap a numeric temperature in a C++ struct:
 
-```cpp title="JSIConverter+Float.hpp"
+```cpp title="Temperature.hpp"
 #pragma once
-// ...
+#include <NitroModules/JSIConverter.hpp>
+
+namespace margelo::nitro::weather {
+  struct Temperature {
+    double celsius;
+  };
+}
+
 namespace margelo::nitro {
   template <>
-  struct JSIConverter<float> final {
-    static inline float fromJSI(jsi::Runtime&, const jsi::Value& arg) {
-      return static_cast<float>(arg.asNumber());
+  struct JSIConverter<weather::Temperature> {
+    static weather::Temperature fromJSI(jsi::Runtime& runtime,
+                                        const jsi::Value& value) {
+      return {.celsius = JSIConverter<double>::fromJSI(runtime, value)};
     }
-    static inline jsi::Value toJSI(jsi::Runtime&, float arg) {
-      return jsi::Value(arg);
+
+    static jsi::Value toJSI(jsi::Runtime& runtime, weather::Temperature value) {
+      return JSIConverter<double>::toJSI(runtime, value.celsius);
     }
-    static inline bool canConvert(jsi::Runtime&, const jsi::Value& value) {
-      return value.isNumber();
+
+    static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
+      return JSIConverter<double>::canConvert(runtime, value);
     }
   };
 }
 ```
-:::tip
-Make sure you overload `JSIConverter<...>` within the `margelo::nitro` namespace!
-:::
 
-Then just use it in your methods:
+The specialization belongs in `margelo::nitro`, even if the type itself belongs to another namespace. Make the header visible to the compiler wherever methods using this type are registered.
 
-<Tabs groupId="nitrogen-or-not">
-  <TabItem value="nitrogen" label="With Nitrogen ✨" default>
-
-    <div className="side-by-side-container">
-    <div className="side-by-side-block">
-
-    ```ts title="Math.nitro.ts"
-    type Float = CustomType<
-      number,
-      'float',
-      { include: 'JSIConverter+Float.hpp' }
-    >
-    interface Math
-      extends HybridObject<{ ios: 'c++' }> {
-      add(a: Float, b: Float): Float
-    }
-    ```
-
-    </div>
-    <div className="side-by-side-block">
-
-    ```cpp title="HybridMath.hpp"
-    class HybridMath: public HybridMathSpec {
-    public:
-      float add(float a, float b) override {
-        return a + b;
-      }
-    };
-    ```
-
-    </div>
-    </div>
-
-    :::info
-    Make sure the `JSIConverter+Float.hpp` header you wrote is included in your project's user-search-path so it can be included.
-    :::
-
-  </TabItem>
-  <TabItem value="manually" label="Manually">
-
-    ```cpp title="HybridMath.hpp"
-    #pragma once
-    #include "JSIConverter+Float.hpp"
-    // ...
-    class HybridMath : public HybridObject {
-    public:
-      float add(float a, float b) {
-        return a + b;
-      }
-
-      void loadHybridMethods() {
-        HybridObject::loadHybridMethods();
-        registerHybrids(this, [](Prototype& prototype) {
-          prototype.registerHybridMethod("add", &HybridMath::add);
-        });
-      }
-    }
-    ```
-
-    :::info
-    Make sure the compiler knows about `JSIConverter<float>` at the time when `HybridMath` is declared, so import your `JSIConverter+Float.hpp` in your Hybrid Object's header file as well!
-    :::
-
-  </TabItem>
-</Tabs>
 
 ## Foreign types (e.g. `react::ShadowNodeWrapper`)
 
@@ -147,10 +89,13 @@ Then just use the type in your methods:
       'std::shared_ptr<react::ShadowNodeWrapper>',
       { include: 'JSIConverter+ShadowNode.hpp' }
     >
-    interface MyHybrid
-      extends HybridObject<{ ios: 'c++' }> {
+
+    @iOS(...)
+    export declare class MyHybrid
+      extends HybridObject {
       doSomething(view: ShadowNode): void
     }
+    export * from '#nitro/MyHybrid'
     ```
 
     </div>

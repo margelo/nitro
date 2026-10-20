@@ -9,11 +9,6 @@ export class TupleType implements Type {
     this.itemTypes = itemTypes
   }
 
-  get canBePassedByReference(): boolean {
-    // It's a tuple<..> - heavy to copy
-    return true
-  }
-
   get kind(): TypeKind {
     return 'tuple'
   }
@@ -21,16 +16,18 @@ export class TupleType implements Type {
     return this.itemTypes.every((t) => t.isEquatable)
   }
 
-  getCode(language: Language, options?: GetCodeOptions): string {
-    const types = this.itemTypes.map((t) => t.getCode(language, options))
+  getCode(language: Language, options: GetCodeOptions): string {
+    const types = this.itemTypes.map((t) =>
+      t.getCode(language, { ...options, context: 'type-argument' })
+    )
 
     switch (language) {
-      case 'c++':
-        return `std::tuple<${types.join(', ')}>`
+      case 'c++': {
+        const type = `std::tuple<${types.join(', ')}>`
+        return options.context === 'parameter' ? `const ${type}&` : type
+      }
       case 'swift':
-        throw new Error(
-          `Tuple (${types.join(', ')}) is not yet supported in Swift due to a Swift bug! See https://github.com/swiftlang/swift/issues/75865`
-        )
+        return `(${types.join(', ')})`
       default:
         throw new Error(
           `Language ${language} is not yet supported for TupleType!`
@@ -44,12 +41,13 @@ export class TupleType implements Type {
     const imports = this.itemTypes.flatMap((t) =>
       t.getRequiredImports(language)
     )
-    if (language === 'c++') {
-      imports.push({
-        language: 'c++',
-        name: 'tuple',
-        space: 'system',
-      })
+    switch (language) {
+      case 'c++':
+        imports.push({
+          language,
+          declaration: { name: 'tuple', space: 'system' },
+        })
+        break
     }
     return imports
   }

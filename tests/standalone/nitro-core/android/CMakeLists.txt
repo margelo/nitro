@@ -9,8 +9,8 @@ find_package(fbjni REQUIRED CONFIG)
 find_package(hermes REQUIRED CONFIG)
 
 # Build every source in Nitro Core directly from the package.
-file(GLOB_RECURSE NITRO_CPP CONFIGURE_DEPENDS "${NITRO_NATIVE}/cpp/*.cpp")
-file(GLOB_RECURSE NITRO_ANDROID CONFIGURE_DEPENDS "${NITRO_NATIVE}/android/src/main/cpp/*.cpp")
+file(GLOB NITRO_CPP CONFIGURE_DEPENDS "${NITRO_NATIVE}/cpp/src/*.cpp")
+file(GLOB NITRO_ANDROID CONFIGURE_DEPENDS "${NITRO_NATIVE}/android/src/main/cpp/src/*.cpp")
 file(GLOB_RECURSE NITRO_HEADERS CONFIGURE_DEPENDS
   "${NITRO_NATIVE}/cpp/*.hpp"
   "${NITRO_NATIVE}/android/src/main/cpp/*.hpp")
@@ -26,7 +26,7 @@ add_library(NitroModules SHARED
   src/main/cpp/JNIOnLoad.cpp)
 target_compile_features(NitroModules PUBLIC cxx_std_20)
 target_compile_options(NitroModules PRIVATE -frtti -fexceptions -Wall -Wextra)
-target_include_directories(NitroModules PRIVATE ${NITRO_INCLUDE_DIRECTORIES})
+target_include_directories(NitroModules PRIVATE "${NITRO_NATIVE}/cpp/include" ${NITRO_INCLUDE_DIRECTORIES})
 target_link_libraries(NitroModules PUBLIC hermes::hermesvm fbjni::fbjni android log)
 
 include("${CMAKE_CURRENT_LIST_DIR}/../../test-runner/android/sanitizer.cmake")

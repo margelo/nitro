@@ -5,12 +5,13 @@ set (CMAKE_VERBOSE_MAKEFILE ON)
 set (CMAKE_CXX_STANDARD 20)
 
 # Find all C++ files (shared and platform specifics)
-file(GLOB_RECURSE shared_files RELATIVE ${CMAKE_SOURCE_DIR}
-     "../cpp/**.cpp"
+file(GLOB shared_files RELATIVE ${CMAKE_SOURCE_DIR}
+     "../cpp/core/src/*.cpp"
+     "../cpp/src/*.cpp"
 )
-file(GLOB_RECURSE android_files RELATIVE ${CMAKE_SOURCE_DIR}
-     "src/main/cpp/**.cpp"
-     "core/main/cpp/**.cpp"
+file(GLOB android_files RELATIVE ${CMAKE_SOURCE_DIR}
+     "src/main/cpp/src/*.cpp"
+     "core/main/cpp/src/*.cpp"
 )
 
 # Create library "NitroModules" and add all C++ files to it
@@ -21,27 +22,16 @@ add_library(NitroModules SHARED
 
 # Specifies a path to native header files.
 include_directories(
-  # Shared Nitro Core C++ includes
-  ../cpp/core/core
-  ../cpp/core/entrypoint
-  ../cpp/core/jsi
-  ../cpp/core/platform
-  ../cpp/core/registry
-  ../cpp/core/prototype
-  ../cpp/core/test-object
-  ../cpp/core/templates
-  ../cpp/core/threading
-  ../cpp/core/utils
+  # Shared Nitro Core public headers
+  ../cpp/core/include
   # React Native C++ includes
-  ../cpp/threading
-  ../cpp/views
+  ../include
   src/main/cpp/turbomodule
   src/main/cpp/views
   # Android-specific Nitro Core C++ includes
   core/main/cpp
   core/main/cpp/core
   core/main/cpp/registry
-  core/main/cpp/platform
   core/main/cpp/threading
   core/main/cpp/utils
 )
@@ -58,18 +48,5 @@ target_link_libraries(
         android                                   # <-- Android JNI core
         fbjni::fbjni                              # <-- Facebook C++ JNI helpers
         ReactAndroid::jsi                         # <-- RN: JSI
+        ReactAndroid::reactnative                 # <-- RN: TurboModules
 )
-
-# Link react-native (different prefab between RN 0.75 and RN 0.76)
-if(ReactAndroid_VERSION_MINOR GREATER_EQUAL 76)
-    target_link_libraries(
-        NitroModules
-        ReactAndroid::reactnative                 # <-- RN: Native Modules umbrella prefab
-    )
-else()
-    target_link_libraries(
-        NitroModules
-        ReactAndroid::react_nativemodule_core     # <-- RN: TurboModules Core
-        ReactAndroid::turbomodulejsijni           # <-- RN: TurboModules utils (e.g. CallInvokerHolder)
-    )
-endif()

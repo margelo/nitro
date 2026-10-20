@@ -175,7 +175,11 @@ const argumentsForTests = [
   "-jobs",
   String(jobs),
   "-parallel-testing-enabled",
-  "NO",
+  "YES",
+  // Swift Testing runs cases concurrently inside this one test process.
+  // RuntimeTests.swift bounds native execution to two workers.
+  "-parallel-testing-worker-count",
+  "1",
   "CODE_SIGNING_ALLOWED=NO",
   `ARCHS=${architecture}`,
   `IPHONEOS_DEPLOYMENT_TARGET=${defaults.deploymentTarget}`,

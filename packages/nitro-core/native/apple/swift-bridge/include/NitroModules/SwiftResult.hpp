@@ -1,0 +1,76 @@
+#pragma once
+
+#include <NitroModules/Result.hpp>
+#include <optional>
+#include <type_traits>
+
+// The consuming translation unit includes the compiler-generated Swift definitions.
+#ifndef SWIFT_SWIFT_H
+#error Include your generated -Swift.h header before SwiftResult.hpp.
+#endif
+
+namespace margelo::nitro {
+
+namespace detail {
+template <typename T>
+inline constexpr bool isSwiftResultStatus = false;
+
+template <typename OwnerTag>
+inline constexpr bool isSwiftResultStatus<Result<void, OwnerTag>> = true;
+
+template <typename T>
+inline constexpr bool isResult = false;
+
+template <typename T, typename OwnerTag>
+inline constexpr bool isResult<Result<T, OwnerTag>> = true;
+} // namespace detail
+
+/**
+ * Calls initializer with Swift-owned storage for T. The initializer returns
+ * Result<void, OwnerTag> and initializes T through the pointer only on success.
+ * On success, the initialized value is transferred into Result<T>.
+ */
+template <typename T, typename Initializer>
+  requires detail::isSwiftResultStatus<std::invoke_result_t<Initializer&, void*>>
+Result<T> withSwiftResult(Initializer&& initializer) {
+  using Status = std::invoke_result_t<Initializer&, void*>;
+  auto status = Status::withValue();
+  auto value = NitroModules::tryMakeSwiftValue<T>([&](void* storage) {
+    try {
+      status = initializer(storage);
+    } catch (...) {
+      // We have to catch & extract the C++ exception here because we're
+      // still in a Swift stack frame, and throwing here would crash as Swift
+      // cannot catch C++ exceptions yet.
+      status = Status::withError(std::current_exception());
+    }
+    return status.hasValue();
+  });
+  if (status.hasError()) [[unlikely]] {
+    return Result<T>::withError(status.error());
+  }
+  return Result<T>::withValue(value.get());
+}
+
+/**
+ * Calls body with a pointer to value's Swift representation and returns
+ * body's Result. The pointer is only valid during the call. C++ exceptions
+ * thrown by body become the Result's error, because they must not unwind
+ * through the Swift frame that borrows value.
+ */
+template <typename T, typename Body>
+  requires detail::isResult<std::invoke_result_t<Body&, const void*>>
+std::invoke_result_t<Body&, const void*> borrowSwiftValue(const T& value, Body&& body) {
+  using R = std::invoke_result_t<Body&, const void*>;
+  std::optional<R> result;
+  NitroModules::withSwiftValue(value, [&](const void* pointer) {
+    try {
+      result.emplace(body(pointer));
+    } catch (...) {
+      result.emplace(R::withError(std::current_exception()));
+    }
+  });
+  return std::move(*result);
+}
+
+} // namespace margelo::nitro

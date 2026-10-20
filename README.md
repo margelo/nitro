@@ -19,37 +19,47 @@ This repository contains:
 
 Declaration (TypeScript):
 ```ts
-export interface Math extends HybridObject<{ ios: 'c++' }> {
+import { iOS, type HybridObject } from 'nitro-core'
+
+@iOS({
+  language: 'c++',
+  implementation: { className: 'HybridMath', include: '"HybridMath.hpp"' }
+})
+export declare class Math extends HybridObject {
+  constructor()
   add(a: number, b: number): number
 }
+export * from '#nitro/Math'
 ```
 
 Implementation (C++, Swift or Kotlin):
 ```cpp
 class HybridMath: public HybridMathSpec {
 public:
-  HybridMath(): HybridObject(TAG) {}
+  HybridMath() = default;
   double add(double a, double b) override {
     return a + b;
   }
-}
+};
 ```
 
 Usage (TypeScript):
 ```ts
-import { NitroModules } from 'react-native-nitro-modules'
+import { Math } from './Math.nitro'
 
-const math = NitroModules.createHybridObject<Math>('Math')
+const math = new Math()
 const result = math.add(5, 3)
 ```
 
 ## Installation
 
-Install [react-native-nitro-modules](https://npmjs.org/react-native-nitro-modules) from npm:
+Nitro V1 requires React Native 0.88 or newer with the New Architecture. Install the alpha package in your app:
+
 ```sh
-npm i react-native-nitro-modules
-cd ios && pod install
+npm i react-native-nitro-modules@alpha
 ```
+
+For iOS, use Swift Package Manager and run `npx react-native spm` from the app directory. See the [installation guide](./packages/react-native-nitro-modules/README.md#installation) for existing CocoaPods projects.
 
 ## Documentation
 

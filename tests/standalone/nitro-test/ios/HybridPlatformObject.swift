@@ -5,6 +5,7 @@
 //  Created by Marc Rousavy on 27.10.25.
 //
 
+import NitroModules
 import UIKit
 
 class HybridPlatformObject: HybridPlatformObjectSpec {

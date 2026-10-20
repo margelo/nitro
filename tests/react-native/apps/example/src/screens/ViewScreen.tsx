@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { StyleSheet, View, Text, Button, Platform } from 'react-native'
-import { callback, NitroModules } from 'react-native-nitro-modules'
+import { NitroModules } from 'react-native-nitro-modules'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColors } from '../useColors'
 import { RecyclableTestView, TestView } from 'react-native-nitro-test'
@@ -22,15 +22,15 @@ export function ViewScreen() {
           return (
             <TestView
               key={i}
-              hybridRef={callback((ref) => {
+              hybridRef={(ref) => {
                 console.log(`Ref initialized!`)
                 ref.someMethod()
                 const isBlue = ref.getIsViewBlue(ref)
                 console.log(`Is View blue: ${isBlue}`)
-              })}
+              }}
               style={styles.view}
               isBlue={i % 2 === 0}
-              someCallback={callback(() => console.log(`Callback called!`))}
+              someCallback={() => console.log(`Callback called!`)}
               colorScheme="dark"
               hasBeenCalled={false}
               int64Value={0n}

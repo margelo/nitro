@@ -7,9 +7,12 @@ import { prettifyDirectory } from './prettifyDirectory.js'
 import { getFiles } from './getFiles.js'
 import { runNitrogen } from './nitrogen.js'
 import { promises as fs } from 'fs'
+import path from 'path'
 import { isValidLogLevel, setLogLevel } from './Logger.js'
 import { initNewNitroModule } from './init.js'
 import { NITROGEN_VERSION } from './config/nitrogenVersion.js'
+import { getHybridClassRuntimeDirectory } from './createHybridClassRuntime.js'
+import { getHybridClassManifestPath } from './hybridClassManifest.js'
 
 const commandName = 'nitrogen'
 
@@ -35,7 +38,7 @@ await yargs(hideBin(process.argv))
     '$0 [basePath]',
     `Usage: ${chalk.bold(`${commandName} <basePath> [options]`)}\n` +
       `Run the nitro code-generator on all ${chalk.underline('**/*.nitro.ts')} files found ` +
-      `in the current directory and generate C++, Swift or Kotlin outputs in ${chalk.underline('./nitrogen/generated')}.`,
+      `in the current directory and generate C++, Swift or Kotlin outputs and JavaScript runtime modules in ${chalk.underline('./nitrogen/generated')}.`,
     (y) =>
       y
         .positional('basePath', {
@@ -46,7 +49,8 @@ await yargs(hideBin(process.argv))
         .option('out', {
           type: 'string',
           description:
-            'Configures the output path of the generated C++, Swift or Kotlin files.',
+            'Configures the output path of the generated C++, Swift or Kotlin files and JavaScript runtime modules. ' +
+            `Map ${chalk.bold('#nitro/*')} to ${chalk.underline('<out>/shared/javascript/*.cjs')} in your package.json ${chalk.bold('imports')}.`,
           default: './nitrogen/generated',
         })
         .option('config', {
@@ -119,8 +123,18 @@ async function runNitrogenCommand(
   )
 
   // 3. Delete all old dangling files
-  const addedFiles = generatedFiles.filter((f) => !filesBefore.includes(f))
-  const removedFiles = filesBefore.filter((f) => !generatedFiles.includes(f))
+  const currentFiles = await getFiles(outputDirectory)
+  const danglingFiles = currentFiles.filter((f) => !generatedFiles.includes(f))
+  // Only native output changes require refreshing the native build's file list.
+  const runtimeDirectory = getHybridClassRuntimeDirectory(outputDirectory)
+  const manifestPath = getHybridClassManifestPath(outputDirectory)
+  const nativeFiles = currentFiles.filter(
+    (f) => !f.startsWith(runtimeDirectory + path.sep) && f !== manifestPath
+  )
+  const addedFiles = nativeFiles.filter(
+    (f) => generatedFiles.includes(f) && !filesBefore.includes(f)
+  )
+  const removedFiles = nativeFiles.filter((f) => !generatedFiles.includes(f))
   if (addedFiles.length > 0 || removedFiles.length > 0) {
     let text = ''
     const as = addedFiles.length > 1 ? 's' : ''
@@ -134,10 +148,10 @@ async function runNitrogenCommand(
     }
 
     console.log(
-      `‼️   ${text} - ${chalk.bold('you need to run `pod install`/sync gradle to update files!')}`
+      `‼️   ${text} - ${chalk.bold('refresh SwiftPM (`npx react-native spm` for React Native) or sync Gradle to update files!')}`
     )
   }
-  const promises = removedFiles.map(async (file) => {
+  const promises = danglingFiles.map(async (file) => {
     const stat = await fs.stat(file)
     if (stat.isFile()) {
       await fs.rm(file)

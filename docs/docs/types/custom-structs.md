@@ -9,13 +9,15 @@ Any custom `interface` or `type` that does **not** extend `HybridObject` will be
 <div className="side-by-side-block">
 
 ```ts title="Nitro.nitro.ts"
+import { type HybridObject, iOS } from 'nitro-core'
+
 interface Person {
   name: string
   age: number
 }
 
-interface Nitro
-  extends HybridObject<{ ios: 'swift' }> {
+@iOS(...)
+export declare class Nitro extends HybridObject {
   getAuthor(): Person
 }
 ```

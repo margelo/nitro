@@ -1,1 +1,3 @@
-// TODO: Export all HybridObjects here for the user
+import 'react-native-nitro-modules'
+
+export { Example } from './specs/Example.nitro'

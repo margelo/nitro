@@ -16,15 +16,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.time.Instant
 
 @Keep
 @DoNotStrip
 class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
   private var pendingPromise: Promise<Double>? = null
 
-  private companion object {
-    val promiseScope = CoroutineScope(Dispatchers.Default)
+  companion object {
+    val readonlyNumber: Double = 42.0
+
+    @Volatile var sharedNumber: Double = 0.0
+    private val promiseScope = CoroutineScope(Dispatchers.Default)
   }
 
   override var numberValue: Double = 0.0
@@ -127,6 +129,37 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     callback(array)
   }
 
+  override fun callEnumArrayCallback(
+    array: Array<Powertrain>, callback: (Array<Powertrain>) -> Array<Powertrain>,
+  ): Array<Powertrain> {
+    return callback(array)
+  }
+
+  override fun getEnumArrayCallback(): (Array<Powertrain>) -> Array<Powertrain> {
+    return { array -> array }
+  }
+
+  override fun callEnumArrayPromiseCallback(
+    callback: () -> Promise<Promise<Array<Powertrain>>>,
+  ): Promise<Array<Powertrain>> {
+    return Promise.async {
+      val promise = callback().await()
+      return@async promise.await()
+    }
+  }
+
+  override fun awaitEnumArrayPromise(promise: Promise<Array<Powertrain>>): Promise<Array<Powertrain>> {
+    return Promise.async {
+      return@async promise.await()
+    }
+  }
+
+  override fun callNestedStructCallback(
+    value: Array<Array<Person?>>, callback: (Array<Array<Person?>>) -> Array<Array<Person?>>,
+  ): Array<Array<Person?>> {
+    return callback(value)
+  }
+
   override fun bounceHybridObjects(array: Array<HybridChildSpec>): Array<HybridChildSpec> {
     return array
   }
@@ -162,14 +195,7 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return strings
   }
 
-  override fun currentDate(): java.time.Instant {
-    return Instant.now()
-  }
 
-  override fun add1Hour(date: Instant): Instant {
-    val oneHourInSeconds = 1L * 60 * 60
-    return date.plusSeconds(oneHourInSeconds)
-  }
 
   override fun createMap(): AnyMap {
     val map = AnyMap()
@@ -379,6 +405,14 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
 
   override fun callCallback(callback: () -> Unit) {
     callback()
+  }
+
+  override fun callInlineCallback(callback: () -> Unit) {
+    callback()
+  }
+
+  override fun callInlineCallbackWithValue(value: Double, callback: (Double) -> Double): Double {
+    return callback(value)
   }
 
   override fun callCallbackThatReturnsPromiseVoid(callback: () -> Promise<Promise<Unit>>): Promise<Unit> {

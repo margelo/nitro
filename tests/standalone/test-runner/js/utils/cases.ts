@@ -1,8 +1,5 @@
-import { getNitroModules } from "nitro-core";
-import type {
-  TestObjectCpp,
-  TestObjectSwiftKotlin,
-} from "nitro-test";
+import { NitroModules } from "nitro-core";
+import { TestObjectCpp, TestObjectSwiftKotlin } from "nitro-test";
 
 type Timeout = { timeoutMs?: number };
 export type TestCase = (() => void | Promise<void>) & Timeout;
@@ -34,7 +31,9 @@ export function casesForTestObjects<
       result[`${suite} / ${implementation} / ${name}`] = Object.assign(
         () =>
           test(
-            getNitroModules().createHybridObject<TestObject>(implementation),
+            implementation === "TestObjectCpp"
+              ? new TestObjectCpp()
+              : new TestObjectSwiftKotlin(),
           ),
         { timeoutMs: test.timeoutMs },
       );
@@ -71,8 +70,7 @@ export function recordCallback<
 
 /** Yield through the native dispatcher; this Hermes host has no JS timer APIs. */
 export async function delay<T = void>(ms: number, value?: T): Promise<T> {
-  const timer =
-    getNitroModules().createHybridObject<TestObjectCpp>("TestObjectCpp");
+  const timer = new TestObjectCpp();
   await timer.wait(ms / 1000);
   return value as T;
 }

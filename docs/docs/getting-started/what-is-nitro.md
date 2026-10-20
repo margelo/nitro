@@ -11,17 +11,20 @@ While Nitro's primary environment is React Native, it also works in any other en
 
 - A [**Nitro Module**](../concepts/nitro-modules) is a library built with Nitro. It contains one or more **Hybrid Objects**.
 - A [**Hybrid Object**](../concepts/hybrid-objects) is a native object in Nitro, implemented in either C++, Swift or Kotlin.
-- [**Nitrogen**](../concepts/nitrogen) is an optional code-generator library authors can use to generate native bindings from a TypeScript interface.
+- [**Nitrogen**](../concepts/nitrogen) is an optional code-generator library authors can use to generate native bindings from a TypeScript class.
 
 <div className="side-by-side-container">
 <div className="side-by-side-block">
 
 ```ts title="Math.nitro.ts"
-interface Math
-  extends HybridObject<{ ios: 'swift' }> {
-  readonly pi: number
-  add(a: number, b: number): number
+@iOS({
+  language: 'swift',
+  implementation: { className: 'HybridMath' }
+})
+export declare class Math extends HybridObject {
+  static add(a: number, b: number): number
 }
+export * from '#nitro/Math'
 ```
 
 </div>
@@ -29,10 +32,7 @@ interface Math
 
 ```swift title="HybridMath.swift"
 class HybridMath : HybridMathSpec {
-  var pi: Double {
-    return Double.pi
-  }
-  func add(a: Double, b: Double) -> Double {
+  static func add(a: Double, b: Double) -> Double {
     return a + b
   }
 }
@@ -44,10 +44,9 @@ class HybridMath : HybridMathSpec {
 This Hybrid Object can then be accessed directly from JS:
 
 ```ts
-import { NitroModules } from 'react-native-nitro-modules'
+import { Math } from './Math.nitro'
 
-const math = NitroModules.createHybridObject<Math>('Math')
-const result = math.add(5, 7)
+const result = Math.add(5, 7)
 ```
 
 ## Performance
@@ -100,10 +99,11 @@ If a function declares a `number`, you can only implement it on the native side 
 <div className="side-by-side-block">
 
 ```ts title="Math.nitro.ts"
-interface Math
-  extends HybridObject<{ ios: 'swift' }> {
-  add(a: number, b: number): number
+@iOS(...)
+export declare class Math extends HybridObject {
+  static add(a: number, b: number): number
 }
+export * from '#nitro/Math'
 ```
 
 </div>
@@ -111,7 +111,7 @@ interface Math
 
 ```swift title="HybridMath.swift"
 class HybridMath : HybridMathSpec {
-  func add(a: Double, b: Double) -> String {
+  static func add(a: Double, b: Double) -> String {
 // code-error
 //  Compile-error: Expected Double! ^
     return a + b
@@ -127,10 +127,12 @@ class HybridMath : HybridMathSpec {
 There is no way for a Nitro Module to return a type that is not expected in TypeScript, which also guarantees null-safety.
 
 ```ts
-interface Math extends HybridObject<{ … }> {
-  getValue(): number
-  getValueOrNull(): number | undefined
+@iOS(...)
+export declare class Math extends HybridObject {
+  static getValue(): number
+  static getValueOrNull(): number | undefined
 }
+export * from '#nitro/Math'
 ```
 
 ## Object-Oriented approach
@@ -138,16 +140,28 @@ interface Math extends HybridObject<{ … }> {
 Every Hybrid Object in Nitro is a native object, which can be created, passed around, and destroyed.
 
 ```ts
-interface Image extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Image extends HybridObject {
+  constructor(bytes: ArrayBuffer)
   readonly width: number
   readonly height: number
   saveToFile(path: string): Promise<void>
 }
+export * from '#nitro/Image'
 
-interface ImageEditor extends HybridObject<{ … }> {
-  loadImage(path: string): Promise<Image>
-  crop(image: Image, size: Size): Image
+@iOS(...)
+export declare class ImageEditor extends HybridObject {
+  static crop(image: Image, size: Size): Image
 }
+export * from '#nitro/ImageEditor'
+```
+
+The `Image`'s `constructor` allows construction from JS:
+```ts
+import { Image, ImageEditor } from './Image.nitro'
+
+const image = new Image(IMAGE_BYTES)
+const cropped = ImageEditor.crop(image, { width: 24, height: 24 })
 ```
 
 Functions (or "callbacks") are also first-class citizens of Nitro, which means they can safely be kept in memory, called as often as needed, and will automatically be cleaned up when no longer needed.
@@ -164,7 +178,7 @@ Nitro bridges to Swift directly using the new highly efficient [Swift &lt;&gt; C
 
 * **Protocols**: Every Hybrid Object's generated specification is a [Swift protocol](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols/).
 * **Properties**: A getter (and setter) property can be implemented using [Swift properties](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/properties/).
-* **Async**/**Await**: Asynchronous functions can use Swift's new [async/await syntax](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/) using the `Promise.async` API.
+* **Async**/**Await**: Asynchronous functions can use Swift's new [async/await syntax](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/) using `.async { ... }` on an `any Promise<T>` return type.
 * **No Objective-C**: Instead of bridging through Objective-C interfaces, Nitro bridges to Swift directly from C++.
 
 ### Kotlin

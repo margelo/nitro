@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "specs": "bun --cwd ../nitro-test-external specs && rm -rf nitrogen/generated && bun nitrogen",
+    "specs": "bun --filter nitro-test-external specs && rm -rf nitrogen/generated && bun nitrogen",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
@@ -14,5 +14,8 @@
   },
   "exports": {
     ".": "./src/index.ts"
+  },
+  "imports": {
+    "#nitro/*": "./nitrogen/generated/shared/javascript/*.cjs"
   }
 }

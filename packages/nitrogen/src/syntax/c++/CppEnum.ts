@@ -1,29 +1,9 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
 import { indent, toLowerCamelCase } from '../../utils.js'
-import type { SourceFile } from '../SourceFile.js'
+import type { SourceFile, SourceImport } from '../SourceFile.js'
 import { createFileMetadataString } from '../helpers.js'
 import type { EnumMember } from '../types/EnumType.js'
-import { includeNitroHeader } from './includeNitroHeader.js'
-
-function getEnumMinValue(enumMembers: EnumMember[]): number {
-  return Math.min(...enumMembers.map((m) => m.value))
-}
-function getEnumMaxValue(enumMembers: EnumMember[]): number {
-  return Math.max(...enumMembers.map((m) => m.value))
-}
-
-function isIncrementingEnum(enumMembers: EnumMember[]): boolean {
-  let lastValue = getEnumMinValue(enumMembers) - 1
-  for (const enumMember of enumMembers) {
-    if (enumMember.value !== lastValue + 1) {
-      // it is not just one higher than the last value!
-      return false
-    }
-    lastValue = enumMember.value
-  }
-  // all enum values were incrementing!
-  return true
-}
+import { getImportsCode } from '../getImportCode.js'
 
 /**
  * Creates a C++ enum that converts to a JS enum (aka just int)
@@ -46,26 +26,46 @@ export function createCppEnum(
     .join('\n')
   const cxxNamespace = NitroConfig.current.getCxxNamespace('c++')
 
-  let isInsideValidValues: string | undefined
-  if (isIncrementingEnum(enumMembers)) {
-    // It's just incrementing one after another, so we can simplify this to a bounds check
-    const minValue = getEnumMinValue(enumMembers)
-    const maxValue = getEnumMaxValue(enumMembers)
-    isInsideValidValues = `
-// Check if we are within the bounds of the enum.
-return integer >= ${minValue} && integer <= ${maxValue};
-    `.trim()
-  } else {
-    const cases = enumMembers.map(
-      (m) => `case ${m.value} /* ${m.name} */: return true;`
-    )
-    isInsideValidValues = `
-switch (integer) {
-  ${indent(cases.join('\n'), '  ')}
-  default: return false;
-}
-    `.trim()
+  // Aliases share a value, so only emit one case for each number.
+  const membersByValue = new Map<number, EnumMember>()
+  for (const member of enumMembers) {
+    membersByValue.set(member.value, member)
   }
+  const uniqueMembers = [...membersByValue.values()]
+  const fromJSICases = uniqueMembers.map((member) =>
+    `
+case ${member.value}: return ${fullyQualifiedTypename}::${member.name};
+    `.trim()
+  )
+  const canConvertCases = uniqueMembers.map((member) =>
+    `
+case ${member.value}: return true;
+    `.trim()
+  )
+
+  const imports: SourceImport[] = [
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/JSIConverter.hpp',
+        space: 'system',
+      },
+    },
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/NitroDefines.hpp',
+        space: 'system',
+      },
+    },
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/NumberUtils.hpp',
+        space: 'system',
+      },
+    },
+  ]
 
   // Create entire C++ file
   const cppCode = `
@@ -73,8 +73,7 @@ ${createFileMetadataString(`${typename}.hpp`)}
 
 #pragma once
 
-${includeNitroHeader('JSIConverter.hpp')}
-${includeNitroHeader('NitroDefines.hpp')}
+${getImportsCode(imports)}
 
 namespace ${cxxNamespace} {
 
@@ -93,8 +92,12 @@ namespace margelo::nitro {
   template <>
   struct JSIConverter<${fullyQualifiedTypename}> final {
     static inline ${fullyQualifiedTypename} fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
-      int enumValue = JSIConverter<int>::fromJSI(runtime, arg);
-      return static_cast<${fullyQualifiedTypename}>(enumValue);
+      int integer = doubleToInt(arg.asNumber());
+      switch (integer) {
+        ${indent(fromJSICases.join('\n'), '        ')}
+        default: [[unlikely]]
+          throw std::invalid_argument("Cannot convert " + arg.toString(runtime).utf8(runtime) + " to enum ${typename} - invalid value!");
+      }
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, ${fullyQualifiedTypename} arg) {
       int enumValue = static_cast<int>(arg);
@@ -104,19 +107,19 @@ namespace margelo::nitro {
       if (!value.isNumber()) {
         return false;
       }
-      double number = value.getNumber();
-      int integer = static_cast<int>(number);
-      if (number != integer) {
-        // The integer is not the same value as the double - we truncated floating points.
-        // Enums are all integers, so the input floating point number is obviously invalid.
+      auto integer = tryDoubleToInt(value.getNumber());
+      if (!integer.has_value()) {
         return false;
       }
-      ${indent(isInsideValidValues, '      ')}
+      switch (*integer) {
+        ${indent(canConvertCases.join('\n'), '        ')}
+        default: return false;
+      }
     }
   };
 
 } // namespace margelo::nitro
-        `
+        `.trim()
 
   return {
     content: cppCode,

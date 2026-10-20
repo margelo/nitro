@@ -1,0 +1,160 @@
+import { InstanceMethod } from '../InstanceMethod.js'
+import { Parameter } from '../Parameter.js'
+import type { Property } from '../Property.js'
+import {
+  createCppJniCallBody,
+  createKotlinForwarderBody,
+  prepareKotlinMethod,
+  type KotlinMethodBridge,
+  type KotlinMethodDefinition,
+  type KotlinMethodInfo,
+} from './KotlinMethodHelpers.js'
+import type { KotlinType } from './types/KotlinType.js'
+
+interface KotlinAccessor {
+  kind: 'getter' | 'setter'
+  property: Property
+}
+
+interface KotlinInstanceMethodOptions {
+  method: InstanceMethod
+  accessor?: KotlinAccessor
+}
+
+/**
+ * The Kotlin member that C++ calls through JNI.
+ * If values need conversion, this is a private `_cxx` forwarder;
+ * otherwise JNI calls the public abstract member directly.
+ */
+export class KotlinInstanceMethod extends InstanceMethod {
+  override readonly returnType: KotlinType
+  private readonly nativeMethod: InstanceMethod
+  private readonly accessor: KotlinAccessor | undefined
+  private readonly callable: KotlinMethodInfo
+
+  constructor({ method, accessor }: KotlinInstanceMethodOptions) {
+    const callable = prepareKotlinMethod(method)
+    let jvmName: string
+    switch (accessor?.kind) {
+      case 'getter':
+        jvmName = accessor.property.getGetterName('jvm')
+        break
+      case 'setter':
+        jvmName = accessor.property.getSetterName('jvm')
+        break
+      case undefined:
+        jvmName = method.name
+        break
+    }
+    let name: string
+    if (callable.needsKotlinConversion) {
+      name = `${jvmName}_cxx`
+    } else {
+      name = jvmName
+    }
+    let parameters: Parameter[]
+    if (accessor?.kind === 'setter') {
+      // Like Kotlin setters, name it `value`, which no conversion uses.
+      parameters = callable.parameters.map(
+        (parameter) => new Parameter('value', parameter.type)
+      )
+    } else {
+      parameters = callable.parameters.map((parameter) => parameter.kotlin)
+    }
+    super(name, callable.returnType, parameters, {
+      access: 'private',
+      doNotStrip: true,
+      generated: true,
+    })
+    this.returnType = callable.returnType
+    this.nativeMethod = method
+    this.accessor = accessor
+    this.callable = callable
+  }
+
+  /** Whether JNI calls a private forwarder instead of the public member. */
+  get needsKotlinForwarder(): boolean {
+    return this.callable.needsKotlinConversion
+  }
+
+  createBridge(): KotlinMethodBridge {
+    const nativeMethod = this.nativeMethod
+    const cppMethod = new InstanceMethod(
+      nativeMethod.name,
+      nativeMethod.returnType,
+      nativeMethod.parameters,
+      { override: true, generated: true }
+    )
+    const cppBody = createCppJniCallBody({
+      callable: this.callable,
+      jvmName: this.name,
+      jniMethodLookup: '_javaPart->javaClassStatic()->getMethod',
+      jniReceiver: '_javaPart',
+    })
+    const kotlinMethods: KotlinMethodDefinition[] = []
+    if (this.needsKotlinForwarder) {
+      kotlinMethods.push({ method: this, body: this.getKotlinForwarderBody() })
+    }
+    return {
+      kotlinMethods: kotlinMethods,
+      cppMethods: [{ method: cppMethod, body: cppBody }],
+    }
+  }
+
+  private getKotlinForwarderBody(): string {
+    if (this.accessor == null) {
+      return createKotlinForwarderBody({
+        callable: this.callable,
+        getKotlinInvocation: (args) =>
+          `${this.nativeMethod.name}(${args.join(', ')})`,
+      })
+    }
+    // Kotlin property accessors cannot be called like methods.
+    const propertyName = this.accessor.property.name
+    switch (this.accessor.kind) {
+      case 'getter': {
+        const kotlinValue = this.returnType.convert(`this.${propertyName}`, {
+          from: 'kotlin',
+          to: 'c++',
+          in: 'kotlin',
+        })
+        return `return ${kotlinValue}`
+      }
+      case 'setter': {
+        const [parameter] = this.callable.parameters
+        if (parameter == null) {
+          throw new Error(
+            'A Kotlin property setter requires a value parameter.'
+          )
+        }
+        const publicValue = parameter.type.convert('value', {
+          from: 'c++',
+          to: 'kotlin',
+          in: 'kotlin',
+        })
+        return `this.${propertyName} = ${publicValue}`
+      }
+    }
+  }
+}
+
+/** The JNI accessors C++ calls for a property. */
+export function getKotlinPropertyAccessors(
+  property: Property
+): KotlinInstanceMethod[] {
+  const accessors = [
+    new KotlinInstanceMethod({
+      method: property.cppGetter,
+      accessor: { kind: 'getter', property: property },
+    }),
+  ]
+  if (property.cppSetter != null) {
+    accessors.push(
+      new KotlinInstanceMethod({
+        method: property.cppSetter,
+        accessor: { kind: 'setter', property: property },
+      })
+    )
+  }
+  return accessors
+}

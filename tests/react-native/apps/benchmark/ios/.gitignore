@@ -1,0 +1,4 @@
+# Generated SwiftPM build files
+build/generated/
+build/xcframeworks/
+.build/

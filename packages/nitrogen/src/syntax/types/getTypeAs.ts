@@ -6,7 +6,7 @@ export function getTypeAs<T>(
   classReference: new (...args: any[]) => T
 ): T {
   if (type instanceof classReference) {
-    return type as unknown as T
+    return type
   } else if (type instanceof NamedWrappingType) {
     return getTypeAs(type.type, classReference)
   } else {

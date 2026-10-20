@@ -10,16 +10,20 @@ This means you can pass around instances of native `HybridObject`s between JS an
 <div className="side-by-side-block">
 
 ```ts title="Camera.nitro.ts"
-interface Image
-  extends HybridObject<{ ios: 'swift' }> {
+import { type HybridObject, iOS } from 'nitro-core'
+
+@iOS({ allowMultipleImplementations: true })
+export declare class Image extends HybridObject {
   readonly width: number
   readonly height: number
 }
+export * from '#nitro/Image'
 
-interface Camera
-  extends HybridObject<{ ios: 'swift' }> {
+@iOS(...)
+export declare class Camera extends HybridObject {
   takePhoto(): Image
 }
+export * from '#nitro/Camera'
 ```
 
 </div>
@@ -33,7 +37,7 @@ class HybridImage: HybridImageSpec {
 }
 
 class HybridCamera: HybridCameraSpec {
-  func takePhoto() -> HybridImageSpec {
+  func takePhoto() throws -> any HybridImageSpec {
     return HybridImage(uiImage: …)
   }
 }
@@ -44,7 +48,7 @@ class HybridCamera: HybridCameraSpec {
 
 ## Interface-level abstraction
 
-Since Hybrid Objects are declared as interfaces, `Image` could have different implementations...
+With [`allowMultipleImplementations: true`](../concepts/platform-decorators#multiple-implementations), `Image` can have different native implementations:
 
 ```swift
 class HybridUIImage: HybridImageSpec {
@@ -61,17 +65,21 @@ class HybridBufferImage: HybridImageSpec {
 }
 ```
 
-...but still be used exactly the same in other places, as it is all a `HybridImageSpec`.
+...but still be used exactly the same in other places, as it is all an `any HybridImageSpec`.
 Even if they use different implementations under the hood, they all share a common interface with properties like `width`, `height` and more:
 
 <div className="side-by-side-container">
 <div className="side-by-side-block">
 
 ```ts title="Cropper.nitro.ts"
-interface Cropper
-  extends HybridObject<{ ios: 'swift' }> {
+import { type HybridObject, iOS } from 'nitro-core'
+
+@iOS(...)
+export declare class Cropper
+  extends HybridObject {
   crop(image: Image, size: Size): Image
 }
+export * from '#nitro/Cropper'
 ```
 
 </div>
@@ -79,8 +87,8 @@ interface Cropper
 
 ```swift title="Cropper.swift"
 class HybridCropper: HybridCropperSpec {
-  func crop(image: HybridImageSpec,
-            size: Size) -> HybridImageSpec {
+  func crop(image: any HybridImageSpec,
+            size: Size) throws -> any HybridImageSpec {
     let data = image.data
     let croppedData = cropFunc(data, size)
     return HybridCGImage(data: croppedData)
@@ -101,14 +109,17 @@ This type only works in C++.
 
 ```ts title="Some.nitro.ts"
 import {
-  HybridObject,
-  AnyHybridObject
-} from 'react-native-nitro-modules'
+  type HybridObject,
+  type AnyHybridObject,
+  iOS
+} from 'nitro-core'
 
-interface Some
-  extends HybridObject<{ ios: 'c++' }> {
+@iOS(...)
+export declare class Some
+  extends HybridObject {
   something(obj: AnyHybridObject): void
 }
+export * from '#nitro/Some'
 ```
 
 </div>

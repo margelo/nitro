@@ -5,7 +5,117 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridRecyclableTestViewSpecSwift.hpp"
+#include <NitroTest/private/HybridRecyclableTestViewSpecSwift.hpp>
+#include <NitroModules/SwiftConverter.hpp>
+#include <NitroModules/SwiftResult.hpp>
+#include <optional>
 
 namespace margelo::nitro::test {
+
+  std::string HybridRecyclableTestViewSpecSwift::toString() {
+    return SwiftConverter<std::string, swift::String>::fromSwift(_swiftPart.toString());
+  }
+
+  // Properties
+
+  bool HybridRecyclableTestViewSpecSwift::getIsBlue() {
+    auto __result = getIsBlue_Swift();
+    return SwiftConverter<bool, bool>::fromSwift(__result);
+  }
+
+  bool HybridRecyclableTestViewSpecSwift::getIsBlue_Swift() {
+    return _swiftPart.getIsBlue();
+  }
+
+  void HybridRecyclableTestViewSpecSwift::setIsBlue(bool isBlue) {
+    setIsBlue_Swift(SwiftConverter<bool, bool>::toSwift(isBlue));
+  }
+
+  void HybridRecyclableTestViewSpecSwift::setIsBlue_Swift(bool isBlue) {
+    return _swiftPart.setIsBlue(isBlue);
+  }
+
+  std::optional<double> HybridRecyclableTestViewSpecSwift::getNativeDefaultValue() {
+    auto __result = getNativeDefaultValue_Swift();
+    return SwiftConverter<std::optional<double>, swift::Optional<double>>::fromSwift(__result);
+  }
+
+  swift::Optional<double> HybridRecyclableTestViewSpecSwift::getNativeDefaultValue_Swift() {
+    return _swiftPart.getNativeDefaultValue();
+  }
+
+  void HybridRecyclableTestViewSpecSwift::setNativeDefaultValue(const std::optional<double>& nativeDefaultValue) {
+    setNativeDefaultValue_Swift(SwiftConverter<std::optional<double>, swift::Optional<double>>::toSwift(nativeDefaultValue));
+  }
+
+  void HybridRecyclableTestViewSpecSwift::setNativeDefaultValue_Swift(const swift::Optional<double>& nativeDefaultValue) {
+    return _swiftPart.setNativeDefaultValue(nativeDefaultValue);
+  }
+
+  // Methods
+
+  double HybridRecyclableTestViewSpecSwift::getInvalidLifecycleOrderCount() {
+    auto __result = getInvalidLifecycleOrderCount_Swift();
+    return SwiftConverter<double, double>::fromSwift(__result);
+  }
+
+  double HybridRecyclableTestViewSpecSwift::getInvalidLifecycleOrderCount_Swift() {
+    auto __result = _swiftPart.getInvalidLifecycleOrderCount();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  double HybridRecyclableTestViewSpecSwift::getOnDropViewCount() {
+    auto __result = getOnDropViewCount_Swift();
+    return SwiftConverter<double, double>::fromSwift(__result);
+  }
+
+  double HybridRecyclableTestViewSpecSwift::getOnDropViewCount_Swift() {
+    auto __result = _swiftPart.getOnDropViewCount();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  double HybridRecyclableTestViewSpecSwift::getPrepareForRecycleCount() {
+    auto __result = getPrepareForRecycleCount_Swift();
+    return SwiftConverter<double, double>::fromSwift(__result);
+  }
+
+  double HybridRecyclableTestViewSpecSwift::getPrepareForRecycleCount_Swift() {
+    auto __result = _swiftPart.getPrepareForRecycleCount();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  double HybridRecyclableTestViewSpecSwift::getNativeDefaultValueSetterCallCount() {
+    auto __result = getNativeDefaultValueSetterCallCount_Swift();
+    return SwiftConverter<double, double>::fromSwift(__result);
+  }
+
+  double HybridRecyclableTestViewSpecSwift::getNativeDefaultValueSetterCallCount_Swift() {
+    auto __result = _swiftPart.getNativeDefaultValueSetterCallCount();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  const std::shared_ptr<const HybridClass>& HybridRecyclableTestViewSpecSwift::Class::get() {
+    static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
+      clazz.registerHybridProperty("isBlue", &HybridRecyclableTestViewSpecSwift::getIsBlue_Swift, &HybridRecyclableTestViewSpecSwift::setIsBlue_Swift);
+      clazz.registerHybridProperty("nativeDefaultValue", &HybridRecyclableTestViewSpecSwift::getNativeDefaultValue_Swift, &HybridRecyclableTestViewSpecSwift::setNativeDefaultValue_Swift);
+      clazz.registerHybridMethod("getInvalidLifecycleOrderCount", &HybridRecyclableTestViewSpecSwift::getInvalidLifecycleOrderCount_Swift);
+      clazz.registerHybridMethod("getOnDropViewCount", &HybridRecyclableTestViewSpecSwift::getOnDropViewCount_Swift);
+      clazz.registerHybridMethod("getPrepareForRecycleCount", &HybridRecyclableTestViewSpecSwift::getPrepareForRecycleCount_Swift);
+      clazz.registerHybridMethod("getNativeDefaultValueSetterCallCount", &HybridRecyclableTestViewSpecSwift::getNativeDefaultValueSetterCallCount_Swift);
+    });
+    return hybridClass;
+  }
+
 } // namespace margelo::nitro::test

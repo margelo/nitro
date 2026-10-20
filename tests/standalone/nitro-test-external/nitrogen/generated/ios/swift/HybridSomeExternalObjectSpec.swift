@@ -5,12 +5,12 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
 
 /// See ``HybridSomeExternalObjectSpec``
 public protocol HybridSomeExternalObjectSpec_protocol: HybridObject {
   // Properties
-  
+
 
   // Methods
   func getValue() throws -> String
@@ -28,7 +28,7 @@ public extension HybridSomeExternalObjectSpec_protocol {
 open class HybridSomeExternalObjectSpec_base {
   private weak var cxxWrapper: HybridSomeExternalObjectSpec_cxx? = nil
   public init() { }
-  public func getCxxWrapper() -> HybridSomeExternalObjectSpec_cxx {
+  public final func getCxxWrapper() -> HybridSomeExternalObjectSpec_cxx {
   #if DEBUG
     guard self is any HybridSomeExternalObjectSpec else {
       fatalError("`self` is not a `HybridSomeExternalObjectSpec`! Did you accidentally inherit from `HybridSomeExternalObjectSpec_base` instead of `HybridSomeExternalObjectSpec`?")

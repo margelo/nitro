@@ -6,7 +6,10 @@
 A Variant is a type of either one of the values defined in its declaration. Example:
 
 ```ts
-interface Math extends HybridObject<{ … }> {
+import { type HybridObject, iOS } from 'nitro-core'
+
+@iOS(...)
+export declare class Math extends HybridObject {
   distance(value: number | Point): number
 }
 ```
@@ -21,7 +24,10 @@ which comes with a tiny overhead compared to all other statically defined types.
 A variant can only consist of types, not of literal values.
 
 ```ts
-export interface Person extends HybridObject<{ … }> {
+import { type HybridObject, iOS } from 'nitro-core'
+
+@iOS(...)
+export declare class Person extends HybridObject {
   // diff-remove
   getGender(): 'male' | 'female'
 }
@@ -40,8 +46,11 @@ Since the generated names are hard to read, it is recommended to declare type-al
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
+import { type HybridObject, iOS } from 'nitro-core'
 
-interface Math extends HybridObject<{ … }> {
+
+@iOS(...)
+export declare class Math extends HybridObject {
   calculate(): string | number
 }
 ```
@@ -50,8 +59,11 @@ interface Math extends HybridObject<{ … }> {
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
+import { type HybridObject, iOS } from 'nitro-core'
+
 type MathOutput = string | number
-interface Math extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Math extends HybridObject {
   calculate(): MathOutput
 }
 ```
@@ -61,11 +73,11 @@ interface Math extends HybridObject<{ … }> {
 
 This will then use the easier-to-read type-alias name instead of `Variant_String_Double`:
 
-```swift title="nitrogen/generated/ios/HybridMathSpec.swift"
-public protocol HybridMathSpec: HybridObject {
+```swift title="HybridMath.swift"
+class HybridMath: HybridMathSpec {
   // diff-remove
-  func calculate() -> Variant_String_Double
+  func calculate() throws -> Variant_String_Double
   // diff-add
-  func calculate() -> MathOutput
+  func calculate() throws -> MathOutput
 }
 ```

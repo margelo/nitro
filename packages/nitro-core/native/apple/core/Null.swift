@@ -5,10 +5,9 @@
 //  Created by Marc Rousavy on 10.11.25
 //
 
-@frozen
-public enum NullType: Sendable, Equatable, Hashable {
-  /**
-   * Represents an explicit `null` from JS.
-   */
-  case null
-}
+public import NitroModulesAppleCxx
+
+/// Represents an explicit `null` from JS.
+public typealias NullType = margelo.nitro.NullType
+
+extension NullType: @unchecked Sendable {}

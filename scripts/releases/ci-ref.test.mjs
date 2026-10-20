@@ -14,17 +14,23 @@ import { test } from 'node:test'
 import { resolveCICommit } from './ci-ref.mjs'
 import { git, nightlyVersion, run } from './lib.mjs'
 
-function fixture(t) {
+function fixture(t, sourceVersion = '0.37.1', releaseVersion = '0.37.2') {
   const cwd = mkdtempSync(path.join(tmpdir(), 'nitro-release-ci-ref-'))
   t.after(() => rmSync(cwd, { recursive: true, force: true }))
   git(['init', '--quiet'], { cwd })
   git(['config', 'user.name', 'Marc Rousavy'], { cwd })
   git(['config', 'user.email', 'me@mrousavy.com'], { cwd })
-  writeFileSync(path.join(cwd, 'package.json'), '{"version":"0.37.1"}\n')
+  writeFileSync(
+    path.join(cwd, 'package.json'),
+    JSON.stringify({ version: sourceVersion }) + '\n'
+  )
   git(['add', 'package.json'], { cwd })
   git(['commit', '--quiet', '--no-gpg-sign', '--message', 'Source'], { cwd })
   const sourceCommit = git(['rev-parse', 'HEAD'], { cwd })
-  writeFileSync(path.join(cwd, 'package.json'), '{"version":"0.37.2"}\n')
+  writeFileSync(
+    path.join(cwd, 'package.json'),
+    JSON.stringify({ version: releaseVersion }) + '\n'
+  )
   git(['add', 'package.json'], { cwd })
   git(['commit', '--quiet', '--no-gpg-sign', '--message', 'Release'], { cwd })
   const releaseCommit = git(['rev-parse', 'HEAD'], { cwd })
@@ -67,6 +73,75 @@ test('nightly retries validate their existing tag instead of the event commit', 
   ]) {
     assert.equal(resolveCICommit({ cwd, env }), releaseCommit)
   }
+})
+
+test('fresh v1 nightlies validate the source and ignore the main nightly tag', (t) => {
+  const { cwd, sourceCommit, releaseCommit } = fixture(
+    t,
+    '1.0.0-alpha.0',
+    '1.0.0-alpha.1'
+  )
+  const mainVersion = nightlyVersion('1.0.0-alpha.0', '42', sourceCommit)
+  git(['tag', `v${mainVersion}`, releaseCommit], { cwd })
+  for (const branchEnv of [
+    { RELEASE_BRANCH: 'v1', GITHUB_REF_NAME: 'main' },
+    { GITHUB_REF_NAME: 'v1' },
+  ]) {
+    assert.equal(
+      resolveCICommit({
+        cwd,
+        env: { ...branchEnv, RELEASE_MODE: 'nightly', GITHUB_RUN_NUMBER: '42' },
+      }),
+      sourceCommit
+    )
+  }
+})
+
+test('v1 nightly retries validate the existing alpha-nightly release commit', (t) => {
+  const { cwd, sourceCommit, releaseCommit } = fixture(
+    t,
+    '1.0.0-alpha.0',
+    '1.0.0-alpha.1'
+  )
+  const version = nightlyVersion(
+    '1.0.0-alpha.0',
+    '42',
+    sourceCommit,
+    'alpha-nightly'
+  )
+  git(
+    ['tag', '--annotate', `v${version}`, releaseCommit, '--message', 'Release'],
+    {
+      cwd,
+    }
+  )
+  for (const env of [
+    { RELEASE_MODE: 'nightly', GITHUB_RUN_NUMBER: '42' },
+    { RELEASE_VERSION: version },
+    { RELEASE_EVENT_TAG: `v${version}` },
+  ]) {
+    assert.equal(
+      resolveCICommit({ cwd, env: { ...env, RELEASE_BRANCH: 'v1' } }),
+      releaseCommit
+    )
+    assert.equal(git(['rev-parse', 'HEAD'], { cwd }), sourceCommit)
+  }
+})
+
+test('v1 nightly CI rejects a base outside the alpha release line', (t) => {
+  const { cwd } = fixture(t)
+  assert.throws(
+    () =>
+      resolveCICommit({
+        cwd,
+        env: {
+          RELEASE_BRANCH: 'v1',
+          RELEASE_MODE: 'nightly',
+          GITHUB_RUN_NUMBER: '42',
+        },
+      }),
+    /V1 nightlies require a 1.x alpha base version/
+  )
 })
 
 test('invalid versions and missing release-event tags fail before selecting CI', (t) => {

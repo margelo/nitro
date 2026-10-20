@@ -5,14 +5,14 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-
+internal import NitroModules
 
 /**
- * An Swift enum with associated values representing a Variant/Union type.
+ * A Swift enum with associated values representing a Variant/Union type.
  * JS type: `hybrid-object | struct`
  */
 @frozen
-public indirect enum Variant__any_HybridBaseSpec__OptionalWrapper {
+public enum Variant__any_HybridBaseSpec__OptionalWrapper {
   case first((any HybridBaseSpec))
   case second(OptionalWrapper)
 }
@@ -26,5 +26,44 @@ public extension Variant__any_HybridBaseSpec__OptionalWrapper {
   }
   func isType<T>(_ type: T.Type = T.self) -> Bool {
     return self.asType(type) != nil
+  }
+}
+
+// Raw Swift storage keeps associated values containing imported C++ types exportable.
+@_expose(Cxx)
+public struct Variant__any_HybridBaseSpec__OptionalWrapper_cxx {
+  let value: Variant__any_HybridBaseSpec__OptionalWrapper
+
+  init(_ value: Variant__any_HybridBaseSpec__OptionalWrapper) {
+    self.value = value
+  }
+
+  public var index: Int {
+    switch value {
+      case .first: return 0
+      case .second: return 1
+    }
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeFirst(_ payload: HybridBaseSpec_cxx, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: Variant__any_HybridBaseSpec__OptionalWrapper_cxx.self).initialize(to: Self(.first(payload.getHybridBaseSpec())))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getFirst() -> HybridBaseSpec_cxx {
+    guard case .first(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload.getCxxWrapper()
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeSecond(_ payload: OptionalWrapper, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: Variant__any_HybridBaseSpec__OptionalWrapper_cxx.self).initialize(to: Self(.second(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getSecond() -> OptionalWrapper {
+    guard case .second(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload
   }
 }

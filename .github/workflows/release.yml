@@ -2,13 +2,13 @@ name: Release Nitro
 
 on:
   push:
-    branches: [main]
+    branches: [main, v1]
   release:
     types: [published]
   workflow_dispatch:
     inputs:
       version:
-        description: 'Exact version, for example 0.37.2 or 0.38.0-beta.1'
+        description: 'Exact version, for example 0.37.2 or 1.0.0-alpha.1'
         required: true
         type: string
       npm-tag:
@@ -28,7 +28,7 @@ jobs:
     if: >-
       github.repository == 'margelo/nitro' && !github.event.deleted &&
       ((github.event_name == 'release' && startsWith(github.ref, 'refs/tags/')) ||
-       ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'))
+       ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/v1')))
     runs-on: ubuntu-latest
     outputs:
       commit: ${{ steps.resolve.outputs.commit }}
@@ -43,6 +43,7 @@ jobs:
       - name: Resolve release source
         id: resolve
         env:
+          RELEASE_BRANCH: ${{ github.event_name == 'release' && (startsWith(github.event.release.tag_name, 'v1.') && contains(github.event.release.tag_name, '-alpha.') && 'v1' || 'main') || github.ref_name }}
           RELEASE_MODE: ${{ github.event_name == 'push' && 'nightly' || 'manual' }}
           RELEASE_VERSION: ${{ inputs.version }}
           RELEASE_EVENT_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
@@ -183,14 +184,14 @@ jobs:
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_BRANCH: main
+          RELEASE_BRANCH: ${{ github.event_name == 'release' && (startsWith(github.event.release.tag_name, 'v1.') && contains(github.event.release.tag_name, '-alpha.') && 'v1' || 'main') || github.ref_name }}
           RELEASE_MODE: ${{ github.event_name == 'push' && 'nightly' || 'manual' }}
           RELEASE_VERSION: ${{ inputs.version }}
           RELEASE_NPM_TAG: ${{ inputs.npm-tag }}
           RELEASE_DRY_RUN: ${{ inputs.dry-run }}
           RELEASE_EVENT_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
           RELEASE_VALIDATED_COMMIT: ${{ needs.resolve.outputs.commit }}
-        run: node scripts/releases/core.mjs
+        run: bun release:ci
 
   # Releases created with GITHUB_TOKEN do not trigger other release workflows.
   ios-artifacts:

@@ -17,8 +17,8 @@ target_compile_features(NitroTestExternal PRIVATE cxx_std_20)
 target_compile_options(NitroTestExternal PRIVATE -frtti -fexceptions -Wall -Wextra)
 target_compile_definitions(NitroTestExternal PRIVATE BUILDING_NITROTESTEXTERNAL_WITH_GENERATED_CMAKE_PROJECT)
 target_include_directories(NitroTestExternal PRIVATE
-  "${GENERATED}/shared/c++"
-  "${GENERATED}/android/c++"
+  "${GENERATED}/shared/c++/include"
+  "${GENERATED}/android/c++/include"
   "${GENERATED}/android")
 target_link_libraries(NitroTestExternal PUBLIC nitro-core::NitroModules hermes::hermesvm fbjni::fbjni android log)
 

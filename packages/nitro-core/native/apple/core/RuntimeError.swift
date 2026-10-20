@@ -5,19 +5,20 @@
 //  Created by Marc Rousavy on 17.07.24.
 //
 
-import Foundation
+public import CxxStdlib
+public import Foundation
+internal import NitroModulesAppleCxx
 
-/// Represents an error that occured at any point during the application's runtime.
+/// Represents an error that occurred at any point during the application's runtime.
 ///
 /// Throw this error in Nitro Modules to provide clear and concise error messages to JS.
 @frozen
-public enum RuntimeError: LocalizedError, CustomStringConvertible {
-  case error(withMessage: String)
+public struct RuntimeError: LocalizedError, CustomStringConvertible {
+  /// The message describing this error.
+  public let message: String
 
   public var description: String {
-    switch self {
-    case .error(let message): return message
-    }
+    return message
   }
 
   public var errorDescription: String? {
@@ -28,7 +29,7 @@ public enum RuntimeError: LocalizedError, CustomStringConvertible {
    * Creates a new `RuntimeError` with the given `message`.
    */
   public init(_ message: String) {
-    self = .error(withMessage: message)
+    self.message = message
   }
 
   /**
@@ -36,7 +37,7 @@ public enum RuntimeError: LocalizedError, CustomStringConvertible {
    */
   public static func from(cppError: std.exception_ptr) -> RuntimeError {
     let message = margelo.nitro.getExceptionMessage(cppError)
-    return .error(withMessage: String(message))
+    return RuntimeError(String(message))
   }
 }
 

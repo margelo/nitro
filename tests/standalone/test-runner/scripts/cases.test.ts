@@ -1,16 +1,30 @@
-import { afterEach, expect, test } from "bun:test";
+import { afterEach, expect, mock, test } from "bun:test";
 import { registerTests } from "../js/index";
-import {
-  casesForTestObjects,
-  namedCases,
-  withTestTimeout,
-} from "../js/utils/cases";
+const created: string[] = [];
+mock.module("nitro-core", () => ({ NitroModules: {} }));
+mock.module("nitro-test", () => ({
+  TestObjectCpp: class TestObjectCpp {
+    constructor() {
+      created.push("TestObjectCpp");
+    }
+  },
+  TestObjectSwiftKotlin: class TestObjectSwiftKotlin {
+    constructor() {
+      created.push("TestObjectSwiftKotlin");
+    }
+  },
+  Child: class Child {},
+}));
+mock.module("nitro-test-external", () => ({
+  SomeExternalObject: class SomeExternalObject {},
+}));
+const { casesForTestObjects, namedCases, withTestTimeout } =
+  await import("../js/utils/cases");
 
-const originalProxy = globalThis.NitroModulesProxy;
 const originalRun = globalThis.runNitroTest;
 const originalTimeout = globalThis.getNitroTestTimeoutMs;
 afterEach(() => {
-  globalThis.NitroModulesProxy = originalProxy;
+  created.length = 0;
   globalThis.runNitroTest = originalRun;
   globalThis.getNitroTestTimeoutMs = originalTimeout;
 });
@@ -28,17 +42,10 @@ test("unannotated cases leave the native default unchanged", async () => {
 });
 
 test("fixture binding preserves timeouts without allocating the fixture", async () => {
-  const created: string[] = [];
   const received: string[] = [];
-  globalThis.NitroModulesProxy = {
-    createHybridObject: (name: string) => {
-      created.push(name);
-      return { name };
-    },
-  };
   const cases = casesForTestObjects("Memory", {
-    allocate: withTestTimeout(150_000, (object: { name: string }) => {
-      received.push(object.name);
+    allocate: withTestTimeout(150_000, (object) => {
+      received.push(object.constructor.name);
     }),
     ordinary: () => {},
   });
@@ -75,7 +82,6 @@ test("timeout lookup rejects unknown and inherited case names", () => {
 });
 
 test("only the four allocation stress cases receive a longer budget", async () => {
-  globalThis.NitroModulesProxy = {};
   const { cases } = await import("../js/memory.test");
   registerTests(cases);
   const overrides = Object.keys(cases).filter(

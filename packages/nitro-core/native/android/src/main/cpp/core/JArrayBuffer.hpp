@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "ArrayBuffer.hpp"
+#include <NitroModules/ArrayBuffer.hpp>
 #include "ByteBufferArrayBuffer.hpp"
 #include "HardwareBufferArrayBuffer.hpp"
 #include <android/hardware_buffer.h>

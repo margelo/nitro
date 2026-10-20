@@ -16,9 +16,13 @@ bun run build
 bun typecheck
 ```
 
+Shared repository commands live in the private `@nitro/scripts` workspace. Call them with `bun --filter @nitro/scripts <command>` from other packages, and use workspace filters for cross-package builds instead of relative paths. The root keeps shortcuts such as `bun sync-core` and `bun build:core`.
+
 `packages/nitro-core/` owns the shared native sources and JS/TS API. `packages/react-native-nitro-modules/` owns the RN entry point and build configuration. `bun sync-core` stages local Core native sources into the RN package before builds and packing. Those staged directories are ignored; edit the authoritative sources in Core.
 
 For Core-only iteration, install with `bun install --frozen-lockfile --ignore-scripts` and run `bun run build:core`. This avoids building the RN JavaScript packages.
+
+The V1 Apple targets require Swift 6.4. React Native apps use Swift Package Manager; `bun example spm` and `bun benchmark spm` resolve their native dependencies.
 
 ## Tests and generated bindings
 
@@ -73,3 +77,5 @@ Run `bun docs start`, `bun docs typecheck`, or `bun docs build` for the Docusaur
 - Build, typecheck, and run the relevant linters and native tests.
 - Commit generated bindings and report checks that could not run.
 - Use Conventional Commit messages such as `fix:`, `feat:`, `docs:`, `chore:`, or `perf:`.
+
+The React Native CLI still uses the two comment-only Podfiles and library podspec metadata for iOS discovery. Native dependencies build with SwiftPM; no CocoaPods install is required.

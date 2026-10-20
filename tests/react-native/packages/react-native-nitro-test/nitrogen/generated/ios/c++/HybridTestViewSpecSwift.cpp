@@ -5,7 +5,201 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridTestViewSpecSwift.hpp"
+#include <NitroTest/private/HybridTestViewSpecSwift.hpp>
+#include <NitroModules/SwiftConverter.hpp>
+#include <NitroModules/SwiftResult.hpp>
+#include <optional>
 
 namespace margelo::nitro::test {
+
+  std::string HybridTestViewSpecSwift::toString() {
+    return SwiftConverter<std::string, swift::String>::fromSwift(_swiftPart.toString());
+  }
+
+  // Properties
+
+  bool HybridTestViewSpecSwift::getIsBlue() {
+    auto __result = getIsBlue_Swift();
+    return SwiftConverter<bool, bool>::fromSwift(__result);
+  }
+
+  bool HybridTestViewSpecSwift::getIsBlue_Swift() {
+    return _swiftPart.getIsBlue();
+  }
+
+  void HybridTestViewSpecSwift::setIsBlue(bool isBlue) {
+    setIsBlue_Swift(SwiftConverter<bool, bool>::toSwift(isBlue));
+  }
+
+  void HybridTestViewSpecSwift::setIsBlue_Swift(bool isBlue) {
+    return _swiftPart.setIsBlue(isBlue);
+  }
+
+  bool HybridTestViewSpecSwift::getHasBeenCalled() {
+    auto __result = getHasBeenCalled_Swift();
+    return SwiftConverter<bool, bool>::fromSwift(__result);
+  }
+
+  bool HybridTestViewSpecSwift::getHasBeenCalled_Swift() {
+    return _swiftPart.getHasBeenCalled();
+  }
+
+  void HybridTestViewSpecSwift::setHasBeenCalled(bool hasBeenCalled) {
+    setHasBeenCalled_Swift(SwiftConverter<bool, bool>::toSwift(hasBeenCalled));
+  }
+
+  void HybridTestViewSpecSwift::setHasBeenCalled_Swift(bool hasBeenCalled) {
+    return _swiftPart.setHasBeenCalled(hasBeenCalled);
+  }
+
+  int64_t HybridTestViewSpecSwift::getInt64Value() {
+    auto __result = getInt64Value_Swift();
+    return SwiftConverter<int64_t, int64_t>::fromSwift(__result);
+  }
+
+  int64_t HybridTestViewSpecSwift::getInt64Value_Swift() {
+    return _swiftPart.getInt64Value();
+  }
+
+  void HybridTestViewSpecSwift::setInt64Value(int64_t int64Value) {
+    setInt64Value_Swift(SwiftConverter<int64_t, int64_t>::toSwift(int64Value));
+  }
+
+  void HybridTestViewSpecSwift::setInt64Value_Swift(int64_t int64Value) {
+    return _swiftPart.setInt64Value(int64Value);
+  }
+
+  ColorScheme HybridTestViewSpecSwift::getColorScheme() {
+    auto __result = getColorScheme_Swift();
+    return SwiftConverter<margelo::nitro::test::ColorScheme, NitroTest::ColorScheme>::fromSwift(__result);
+  }
+
+  NitroTest::ColorScheme HybridTestViewSpecSwift::getColorScheme_Swift() {
+    return _swiftPart.getColorScheme();
+  }
+
+  void HybridTestViewSpecSwift::setColorScheme(ColorScheme colorScheme) {
+    setColorScheme_Swift(SwiftConverter<margelo::nitro::test::ColorScheme, NitroTest::ColorScheme>::toSwift(colorScheme));
+  }
+
+  void HybridTestViewSpecSwift::setColorScheme_Swift(NitroTest::ColorScheme colorScheme) {
+    return _swiftPart.setColorScheme(colorScheme);
+  }
+
+  Callback<void()> HybridTestViewSpecSwift::getSomeCallback() {
+    auto __result = getSomeCallback_Swift();
+    return SwiftConverter<Callback<void()>, Callback<void()>>::fromSwift(__result);
+  }
+
+  Callback<void()> HybridTestViewSpecSwift::getSomeCallback_Swift() {
+    return _swiftPart.getSomeCallback();
+  }
+
+  void HybridTestViewSpecSwift::setSomeCallback(const Callback<void()>& someCallback) {
+    setSomeCallback_Swift(SwiftConverter<Callback<void()>, Callback<void()>>::toSwift(someCallback));
+  }
+
+  void HybridTestViewSpecSwift::setSomeCallback_Swift(const Callback<void()>& someCallback) {
+    return _swiftPart.setSomeCallback(someCallback);
+  }
+
+  std::optional<double> HybridTestViewSpecSwift::getNativeDefaultValue() {
+    auto __result = getNativeDefaultValue_Swift();
+    return SwiftConverter<std::optional<double>, swift::Optional<double>>::fromSwift(__result);
+  }
+
+  swift::Optional<double> HybridTestViewSpecSwift::getNativeDefaultValue_Swift() {
+    return _swiftPart.getNativeDefaultValue();
+  }
+
+  void HybridTestViewSpecSwift::setNativeDefaultValue(const std::optional<double>& nativeDefaultValue) {
+    setNativeDefaultValue_Swift(SwiftConverter<std::optional<double>, swift::Optional<double>>::toSwift(nativeDefaultValue));
+  }
+
+  void HybridTestViewSpecSwift::setNativeDefaultValue_Swift(const swift::Optional<double>& nativeDefaultValue) {
+    return _swiftPart.setNativeDefaultValue(nativeDefaultValue);
+  }
+
+  // Methods
+
+  bool HybridTestViewSpecSwift::getIsViewBlue(const std::shared_ptr<HybridTestViewSpec>& view) {
+    auto __result = getIsViewBlue_Swift(SwiftConverter<std::shared_ptr<margelo::nitro::test::HybridTestViewSpec>, NitroTest::HybridTestViewSpec_cxx>::toSwift(view));
+    return SwiftConverter<bool, bool>::fromSwift(__result);
+  }
+
+  bool HybridTestViewSpecSwift::getIsViewBlue_Swift(const NitroTest::HybridTestViewSpec_cxx& view) {
+    auto __result = _swiftPart.getIsViewBlue(view);
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  double HybridTestViewSpecSwift::getOnDropViewCount() {
+    auto __result = getOnDropViewCount_Swift();
+    return SwiftConverter<double, double>::fromSwift(__result);
+  }
+
+  double HybridTestViewSpecSwift::getOnDropViewCount_Swift() {
+    auto __result = _swiftPart.getOnDropViewCount();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  double HybridTestViewSpecSwift::getIsBlueSetterCallCount() {
+    auto __result = getIsBlueSetterCallCount_Swift();
+    return SwiftConverter<double, double>::fromSwift(__result);
+  }
+
+  double HybridTestViewSpecSwift::getIsBlueSetterCallCount_Swift() {
+    auto __result = _swiftPart.getIsBlueSetterCallCount();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  double HybridTestViewSpecSwift::getNativeDefaultValueSetterCallCount() {
+    auto __result = getNativeDefaultValueSetterCallCount_Swift();
+    return SwiftConverter<double, double>::fromSwift(__result);
+  }
+
+  double HybridTestViewSpecSwift::getNativeDefaultValueSetterCallCount_Swift() {
+    auto __result = _swiftPart.getNativeDefaultValueSetterCallCount();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  void HybridTestViewSpecSwift::someMethod() {
+    someMethod_Swift();
+  }
+
+  void HybridTestViewSpecSwift::someMethod_Swift() {
+    auto __result = _swiftPart.someMethod();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+  }
+
+  const std::shared_ptr<const HybridClass>& HybridTestViewSpecSwift::Class::get() {
+    static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
+      clazz.registerHybridProperty("isBlue", &HybridTestViewSpecSwift::getIsBlue_Swift, &HybridTestViewSpecSwift::setIsBlue_Swift);
+      clazz.registerHybridProperty("hasBeenCalled", &HybridTestViewSpecSwift::getHasBeenCalled_Swift, &HybridTestViewSpecSwift::setHasBeenCalled_Swift);
+      clazz.registerHybridProperty("int64Value", &HybridTestViewSpecSwift::getInt64Value_Swift, &HybridTestViewSpecSwift::setInt64Value_Swift);
+      clazz.registerHybridProperty("colorScheme", &HybridTestViewSpecSwift::getColorScheme_Swift, &HybridTestViewSpecSwift::setColorScheme_Swift);
+      clazz.registerHybridProperty("someCallback", &HybridTestViewSpecSwift::getSomeCallback_Swift, &HybridTestViewSpecSwift::setSomeCallback_Swift);
+      clazz.registerHybridProperty("nativeDefaultValue", &HybridTestViewSpecSwift::getNativeDefaultValue_Swift, &HybridTestViewSpecSwift::setNativeDefaultValue_Swift);
+      clazz.registerHybridMethod("getIsViewBlue", &HybridTestViewSpecSwift::getIsViewBlue_Swift);
+      clazz.registerHybridMethod("getOnDropViewCount", &HybridTestViewSpecSwift::getOnDropViewCount_Swift);
+      clazz.registerHybridMethod("getIsBlueSetterCallCount", &HybridTestViewSpecSwift::getIsBlueSetterCallCount_Swift);
+      clazz.registerHybridMethod("getNativeDefaultValueSetterCallCount", &HybridTestViewSpecSwift::getNativeDefaultValueSetterCallCount_Swift);
+      clazz.registerHybridMethod("someMethod", &HybridTestViewSpecSwift::someMethod_Swift);
+    });
+    return hybridClass;
+  }
+
 } // namespace margelo::nitro::test

@@ -1,7 +1,6 @@
 import type { SourceFile } from './syntax/SourceFile.js'
 import path from 'path'
 import fs from 'fs'
-import type { SwiftCxxHelper } from './syntax/swift/SwiftCxxTypeHelper.js'
 import type { Type } from 'ts-morph'
 import { isNotDuplicate } from './syntax/helpers.js'
 import { readUserConfig } from './config/getConfig.js'
@@ -38,7 +37,12 @@ export function errorToString(error: unknown): string {
   if (error instanceof Error) {
     let message = `${error.name}: ${error.message}`
     if (error.cause != null) {
-      message += ` (cause: ${JSON.stringify(error.cause)})`
+      // JSON.stringify() turns an Error into `{}`.
+      const cause =
+        error.cause instanceof Error
+          ? errorToString(error.cause)
+          : JSON.stringify(error.cause)
+      message += ` (cause: ${cause})`
     }
     return message
   }
@@ -59,6 +63,19 @@ const HAS_UNIX_PATHS = path.join('a', 'b').includes('/')
 export function toUnixPath(p: string): string {
   if (HAS_UNIX_PATHS) return p
   return p.replaceAll('\\', '/')
+}
+
+/**
+ * Resolves symlinks in `filePath`, which may not exist yet. A missing part is
+ * appended to the real path of its nearest existing parent.
+ */
+export function getRealPath(filePath: string): string {
+  const absolutePath = path.resolve(filePath)
+  const parentPath = path.dirname(absolutePath)
+  if (fs.existsSync(absolutePath) || parentPath === absolutePath) {
+    return fs.realpathSync(absolutePath)
+  }
+  return path.join(getRealPath(parentPath), path.basename(absolutePath))
 }
 
 const sep = path.sep
@@ -92,17 +109,6 @@ export function deduplicateFiles(files: SourceFile[]): SourceFile[] {
   return [...map.values()]
 }
 
-export function filterDuplicateHelperBridges(
-  bridge: SwiftCxxHelper,
-  i: number,
-  array: SwiftCxxHelper[]
-): boolean {
-  const otherIndex = array.findIndex(
-    (f2) => bridge.specializationName === f2.specializationName
-  )
-  return otherIndex === i
-}
-
 export function toLowerCamelCase(string: string): string {
   const parts = string.split('_').filter((part) => part !== '')
 
@@ -117,14 +123,13 @@ export function toLowerCamelCase(string: string): string {
   return camelCaseString + camelCased.join('')
 }
 
-export function getBaseTypes(type: Type): Type[] {
+export function getDirectBaseTypes(type: Type): Type[] {
   const baseTypes = type.getBaseTypes()
   const symbol = type.getSymbol()
   if (symbol != null) {
     baseTypes.push(...symbol.getDeclaredType().getBaseTypes())
   }
-  const recursive = baseTypes.flatMap((b) => [b, ...getBaseTypes(b)])
-  return recursive.filter(isNotDuplicate)
+  return baseTypes.filter(isNotDuplicate)
 }
 
 export function getHybridObjectNitroModuleConfig(
@@ -138,23 +143,30 @@ export function getHybridObjectNitroModuleConfig(
   if (!declarations) return undefined
 
   const sourceFile = declarations.getSourceFile()
-  let filePath: string = sourceFile.getFilePath()
+  const directory = getNitroModuleDirectory(sourceFile.getFilePath())
+  if (directory == null) return undefined
+
+  const config = readUserConfig(path.join(directory, 'nitro.json'))
+  return new NitroConfig(config)
+}
+
+/** Returns the directory of the nitro.json that configures the given file. */
+export function getNitroModuleDirectory(filePath: string): string | undefined {
+  let directory = filePath
 
   while (true) {
     // go up one dir
-    const newFilePath = path.resolve(path.join(filePath, '..'))
-    if (filePath === newFilePath) {
+    const parentDirectory = path.resolve(path.join(directory, '..'))
+    if (directory === parentDirectory) {
       // going 'cd ..' in that path didn't change a thing - so we
       // reached the root directory. we didn't find a nitro.json anywhere.
       return undefined
     }
-    filePath = newFilePath
+    directory = parentDirectory
+    // An installed package's nitro.json is inside the package, never above its node_modules.
+    if (path.basename(directory) === 'node_modules') return undefined
 
-    const nitroJsonPath = path.join(filePath, 'nitro.json')
-    const hasNitroJson = fs.existsSync(nitroJsonPath)
-    if (hasNitroJson) {
-      const config = readUserConfig(nitroJsonPath)
-      return new NitroConfig(config)
-    }
+    const hasNitroJson = fs.existsSync(path.join(directory, 'nitro.json'))
+    if (hasNitroJson) return directory
   }
 }

@@ -5,6 +5,6 @@ import type { HybridObject } from './HybridObject.js'
  * HybridObjects inherit from.
  * This is not type-checked to an actual `HybridObject` (boxed).
  */
-export interface AnyHybridObject extends HybridObject<{}> {
+export interface AnyHybridObject extends HybridObject {
   __anyHybridObjectTag?: never
 }

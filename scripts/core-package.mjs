@@ -23,7 +23,7 @@ export function readCoreVersion(root) {
     "utf8",
   ).match(/^export const version = '([^']+)'$/m)?.[1];
   const nativeVersion = readFileSync(
-    path.join(paths.corePath, "native/cpp/utils/NitroDefines.hpp"),
+    path.join(paths.corePath, "native/cpp/include/NitroModules/NitroDefines.hpp"),
     "utf8",
   ).match(/#define NITRO_VERSION "([^"]+)"/)?.[1];
   if (

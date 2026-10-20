@@ -4,143 +4,17 @@ import { z } from 'zod'
 const safeNamePattern = /^[a-zA-Z_][a-zA-Z0-9_]*$/
 
 const isNotReservedKeyword = (val: string) =>
-  !['core', 'nitro', 'NitroModules'].includes(val)
+  !['nitro', 'NitroModules'].includes(val)
 const isReservedKeywordError = {
   message: `This value is reserved and cannot be used!`,
 }
 
-const autolinkingLanguageSchema = z.enum(['c++', 'swift', 'kotlin'])
-
-const autolinkingAllImplementationSchema = z.object({
-  language: z.literal('c++'),
-  implementationClassName: z.string(),
-})
-
-const autolinkingIOSImplementationSchema = z.object({
-  language: z.enum(['c++', 'swift']),
-  implementationClassName: z.string(),
-})
-
-const autolinkingAndroidImplementationSchema = z.object({
-  language: z.enum(['c++', 'kotlin']),
-  implementationClassName: z.string(),
-})
-
-const autolinkingPlatformImplementationSchema = z.object({
-  language: autolinkingLanguageSchema,
-  implementationClassName: z.string(),
-})
-
-const autolinkingModernHybridObjectSchema = z
-  .object({
-    all: autolinkingAllImplementationSchema.optional(),
-    ios: autolinkingIOSImplementationSchema.optional(),
-    android: autolinkingAndroidImplementationSchema.optional(),
-  })
-  .catchall(autolinkingPlatformImplementationSchema)
-  .superRefine((value, ctx) => {
-    const hasAll = value.all != null
-    const platformCount = Object.keys(value).filter(
-      (key) => key !== 'all'
-    ).length
-
-    if (hasAll && platformCount > 0) {
-      ctx.addIssue({
-        code: 'custom',
-        message: '"all" cannot be combined with platform-specific entries.',
-      })
-    }
-
-    if (!hasAll && platformCount === 0) {
-      ctx.addIssue({
-        code: 'custom',
-        message:
-          'Each autolinking entry must declare either "all" or at least one platform.',
-      })
-    }
-  })
-
-const autolinkingLegacyHybridObjectSchema = z
-  .object({
-    cpp: z.string().optional(),
-    swift: z.string().optional(),
-    kotlin: z.string().optional(),
-  })
-  .strict()
-  .superRefine((value, ctx) => {
-    const hasCpp = value.cpp != null
-    const hasSwift = value.swift != null
-    const hasKotlin = value.kotlin != null
-
-    if (!hasCpp && !hasSwift && !hasKotlin) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'Each autolinking entry must declare at least one implementation.',
-      })
-    }
-
-    if (hasCpp && (hasSwift || hasKotlin)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'Legacy autolinking entries cannot mix "cpp" with "swift"/"kotlin".',
-      })
-    }
-  })
-
-function normalizeLegacyAutolinkingHybridObject(
-  value: z.infer<typeof autolinkingLegacyHybridObjectSchema>
-): z.infer<typeof autolinkingModernHybridObjectSchema> {
-  if (value.cpp != null) {
-    return {
-      all: {
-        language: 'c++',
-        implementationClassName: value.cpp,
-      },
-    }
-  }
-
-  const normalized: z.infer<typeof autolinkingModernHybridObjectSchema> = {}
-  if (value.swift != null) {
-    normalized.ios = {
-      language: 'swift',
-      implementationClassName: value.swift,
-    }
-  }
-  if (value.kotlin != null) {
-    normalized.android = {
-      language: 'kotlin',
-      implementationClassName: value.kotlin,
-    }
-  }
-  return normalized
-}
-
-const autolinkingHybridObjectSchema = z.union([
-  autolinkingModernHybridObjectSchema,
-  autolinkingLegacyHybridObjectSchema.transform(
-    normalizeLegacyAutolinkingHybridObject
-  ),
-])
-
-export type AutolinkingAllImplementation = z.infer<
-  typeof autolinkingAllImplementationSchema
->
-export type AutolinkingIOSImplementation = z.infer<
-  typeof autolinkingIOSImplementationSchema
->
-export type AutolinkingAndroidImplementation = z.infer<
-  typeof autolinkingAndroidImplementationSchema
->
-export type AutolinkingPlatformImplementation = z.infer<
-  typeof autolinkingPlatformImplementationSchema
->
-export type AutolinkingHybridObject = z.infer<
-  typeof autolinkingHybridObjectSchema
->
-
 export const NitroUserConfigSchema = z.object({
+  /**
+   * Selects the package imported by generated JavaScript runtime modules.
+   * React Native uses `react-native-nitro-modules`; bare uses `nitro-core`.
+   */
+  environment: z.enum(['react-native', 'bare']).default('react-native'),
   /**
    * Represents the C++ namespace of the module that will be generated.
    *
@@ -164,7 +38,7 @@ export const NitroUserConfigSchema = z.object({
      *
      * This will be used to generate Swift bridges, as those are always namespaced within the clang module.
      *
-     * If you are using CocoaPods, this should be the Pod name defined in the `.podspec`.
+     * Use the same name in the library's `swiftpmConfig` in package.json.
      * @example `NitroTest`
      */
     iosModuleName: z
@@ -202,18 +76,17 @@ export const NitroUserConfigSchema = z.object({
       .refine(isNotReservedKeyword, isReservedKeywordError),
   }),
   /**
-   * Configures the code that gets generated for autolinking (registering)
-   * Hybrid Object constructors.
-   *
-   * Each class listed here needs to have a default constructor/initializer
-   * that takes zero arguments.
-   */
-  autolinking: z.record(z.string(), autolinkingHybridObjectSchema),
-  /**
    * A list of paths relative to the project directory that should be ignored by nitrogen.
-   * Nitrogen will not look for `.nitro.ts` files in these directories.
+   * Nitrogen will not look for `.nitro.ts` specs in these paths.
    */
   ignorePaths: z.array(z.string()).optional(),
+  /** Removed in favor of implementation and constructor declarations in .nitro.ts. */
+  autolinking: z
+    .never({
+      error:
+        'autolinking has moved to .nitro.ts: declare implementation in each platform and a public constructor to enable new.',
+    })
+    .optional(),
 })
 
 /**

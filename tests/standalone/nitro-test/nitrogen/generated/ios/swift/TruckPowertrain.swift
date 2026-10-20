@@ -5,10 +5,22 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
+
+
 /**
- * Represents the JS union `TruckPowertrain`, backed by a C++ enum.
+ * Represents the JS union `TruckPowertrain`.
  */
-public typealias TruckPowertrain = margelo.nitro.test.TruckPowertrain
+@_expose(Cxx)
+public enum TruckPowertrain: Int32, CaseIterable, Sendable, CustomStringConvertible {
+  case `electric` = 0
+  case `gas` = 1
+  case `hybrid` = 2
+  case `diesel` = 3
+
+  public static func fromRawValue(_ value: Int32) -> Self {
+    return Self(rawValue: value)!
+  }
+}
 
 public extension TruckPowertrain {
   /**
@@ -44,5 +56,9 @@ public extension TruckPowertrain {
       case .diesel:
         return "diesel"
     }
+  }
+
+  var description: String {
+    return stringValue
   }
 }

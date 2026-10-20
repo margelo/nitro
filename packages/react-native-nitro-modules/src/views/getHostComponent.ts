@@ -1,150 +1,24 @@
-import { Platform, type HostComponent, type ViewProps } from 'react-native'
-import type {
-  HybridView,
-  HybridViewMethods,
-  HybridViewProps,
-} from './HybridView'
+import { NativeComponentRegistry, type HostComponent } from 'react-native'
 
-// Keep the runtime import compatible with React Native < 0.82. The public
-// TypeScript export was added in 0.83; use it because RN 0.88 no longer exposes
-// declarations at the deep-import path.
-// TODO: Migrate to the official export of `NativeComponentRegistry` from `react-native` once react-native 0.83.0 becomes more established as this is deprecated
-const NativeComponentRegistry =
-  // eslint-disable-next-line @react-native/no-deep-imports
-  require('react-native/Libraries/NativeComponent/NativeComponentRegistry') as typeof import('react-native').NativeComponentRegistry
-
-type AttributeValue<T, V = T> =
-  | boolean
-  | {
-      diff?: (arg1: T, arg2: T) => boolean
-      process?: (arg1: V) => T
-    }
-
-export interface ViewConfig<Props> {
-  uiViewClassName: string
-  supportsRawText?: boolean
-  bubblingEventTypes: Record<string, unknown>
-  directEventTypes: Record<string, unknown>
-  validAttributes: {
-    [K in keyof Props]: AttributeValue<Props[K]>
-  }
-}
-type ReactNativeViewConfig = ReturnType<
-  Parameters<typeof NativeComponentRegistry.get>[1]
->
-
-function typesafe<Props>(config: ViewConfig<Props>): ReactNativeViewConfig {
-  // TODO: Remove this unsafe cast and make it safe
-  return config as ReactNativeViewConfig
+/** Shared attribute configuration for generated Nitro view props. */
+export const NitroViewProp = {
+  // Compare opaque native objects and callbacks by identity.
+  diff(previous: unknown, next: unknown): boolean {
+    return previous !== next
+  },
+  // React Native otherwise converts function props to event-marker booleans.
+  process(value: unknown): unknown {
+    return value
+  },
 }
 
-/**
- * Represents all default props a Nitro HybridView has.
- */
-interface DefaultHybridViewProps<RefType> {
-  /**
-   * A `ref` to the {@linkcode HybridObject} this Hybrid View is rendering.
-   *
-   * The `hybridRef` property expects a stable Ref object received from `useRef` or `createRef`.
-   * @example
-   * ```jsx
-   * function App() {
-   *   return (
-   *     <HybridScrollView
-   *       hybridRef={callback((ref) => {
-   *         ref.current.scrollTo(400)
-   *       })}
-   *     />
-   *   )
-   * }
-   * ```
-   * @note If you're wondering about the `callback(...)` syntax, see
-   * ["Callbacks have to be wrapped"](https://nitro.margelo.com/docs/guides/view-components#callbacks-have-to-be-wrapped).
-   */
-  hybridRef?: (ref: RefType) => void
-}
-
-/**
- * Wraps a callback function in a Nitro-compatible object format.
- *
- * @note Due to a React limitation, functions cannot be passed to native directly
- * because RN converts them to booleans (`true`). As a workaround,
- * Nitro requires you to wrap each function using `callback(...)`,
- * which bypasses React Native's conversion.
- * Please see the [Callbacks have to be wrapped](https://nitro.margelo.com/docs/guides/view-components#callbacks-have-to-be-wrapped) section for more information.
- *
- * @type {Object} NitroViewWrappedCallback
- * @property {T} f - The wrapped callback function
- */
-export type NitroViewWrappedCallback<T extends Function | undefined> = { f: T }
-
-// Due to a React limitation, functions cannot be passed to native directly
-// because RN converts them to booleans (`true`). Nitro knows this and just
-// wraps functions as objects - the original function is stored in `f`.
-type WrapFunctionsInObjects<Props> = {
-  [K in keyof Props]: Props[K] extends Function
-    ? NitroViewWrappedCallback<Props[K]>
-    : Props[K] extends Function | undefined
-      ? NitroViewWrappedCallback<Props[K]>
-      : Props[K]
-}
-
-/**
- * Represents a React Native view, implemented as a Nitro View, with the given props and methods.
- *
- * @note Every React Native view has a {@linkcode DefaultHybridViewProps.hybridRef hybridRef} which can be used to gain access
- *       to the underlying Nitro {@linkcode HybridView}.
- * @note Every function/callback is wrapped as a `{ f: … }` object. Use {@linkcode callback | callback(...)} for this.
- * @note Every method can be called on the Ref. Including setting properties directly.
- */
-export type ReactNativeView<
-  Props extends HybridViewProps,
-  Methods extends HybridViewMethods,
-> = HostComponent<
-  WrapFunctionsInObjects<
-    DefaultHybridViewProps<HybridView<Props, Methods>> & Props
-  > &
-    ViewProps
->
-
-type ValidAttributes<Props> = ViewConfig<Props>['validAttributes']
-/**
- * Wraps all valid attributes of {@linkcode TProps} using Nitro's
- * default `diff` and `process` functions.
- */
-function wrapValidAttributes<TProps>(
-  attributes: ValidAttributes<TProps>
-): ValidAttributes<TProps> {
-  const keys = Object.keys(attributes) as (keyof ValidAttributes<TProps>)[]
-  for (const key of keys) {
-    attributes[key] = {
-      diff: (a, b) => a !== b,
-      process: (i) => i,
-    }
-  }
-  return attributes
-}
-
-/**
- * Finds and returns a native view (aka "HostComponent") via the given {@linkcode name}.
- *
- * The view is bridged to a native Hybrid Object using Nitro Views.
- */
-export function getHostComponent<
-  Props extends HybridViewProps,
-  Methods extends HybridViewMethods,
->(
+/** Registers a native view with its generated Fabric attributes. */
+export function getHostComponent<Props extends object>(
   name: string,
-  getViewConfig: () => ViewConfig<Props>
-): ReactNativeView<Props, Methods> {
-  if (NativeComponentRegistry == null) {
-    throw new Error(
-      `NativeComponentRegistry is not available on ${Platform.OS}!`
-    )
-  }
-  return NativeComponentRegistry.get(name, () => {
-    const config = getViewConfig()
-    config.validAttributes = wrapValidAttributes(config.validAttributes)
-    return typesafe(config)
-  })
+  validAttributes: Readonly<Record<string, typeof NitroViewProp>>
+): HostComponent<Props> {
+  return NativeComponentRegistry.get(name, () => ({
+    uiViewClassName: name,
+    validAttributes: validAttributes,
+  }))
 }

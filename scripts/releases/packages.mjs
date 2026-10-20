@@ -9,12 +9,13 @@ export const versionedManifests = [
   'package.json',
   ...releasePackages.map((name) => `packages/${name}/package.json`),
   'tests/react-native/packages/react-native-nitro-test/package.json',
+  'tests/react-native/packages/react-native-nitro-test-external/package.json',
   'tests/react-native/apps/example/package.json',
   'tests/react-native/apps/benchmark/package.json',
 ]
 
 export const versionedSources = [
-  'packages/nitro-core/native/cpp/utils/NitroDefines.hpp',
+  'packages/nitro-core/native/cpp/include/NitroModules/NitroDefines.hpp',
   'packages/nitro-core/js/src/version.ts',
 ]
 

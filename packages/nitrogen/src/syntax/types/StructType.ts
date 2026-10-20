@@ -1,7 +1,6 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
 import type { Language } from '../../getPlatformSpecs.js'
 import { createCppStruct } from '../c++/CppStruct.js'
-import { getForwardDeclaration } from '../c++/getForwardDeclaration.js'
 import {
   type FileWithReferencedTypes,
   type SourceFile,
@@ -13,11 +12,17 @@ export class StructType implements Type {
   readonly structName: string
   readonly properties: NamedType[]
   readonly declarationFile: FileWithReferencedTypes
+  readonly implementationFile: SourceFile
 
   constructor(structName: string, properties: NamedType[]) {
     this.structName = structName
     this.properties = properties
-    this.declarationFile = createCppStruct(structName, properties)
+    const [declarationFile, implementationFile] = createCppStruct(
+      structName,
+      properties
+    )
+    this.declarationFile = declarationFile
+    this.implementationFile = implementationFile
 
     if (this.structName.startsWith('__')) {
       throw new Error(
@@ -31,10 +36,6 @@ export class StructType implements Type {
     }
   }
 
-  get canBePassedByReference(): boolean {
-    // It's a struct, heavy to copy.
-    return true
-  }
   get kind(): TypeKind {
     return 'struct'
   }
@@ -42,14 +43,18 @@ export class StructType implements Type {
     return this.properties.every((p) => p.isEquatable)
   }
 
-  getCode(language: Language, { fullyQualified }: GetCodeOptions = {}): string {
+  getCode(
+    language: Language,
+    { fullyQualified, context }: GetCodeOptions
+  ): string {
     switch (language) {
-      case 'c++':
+      case 'c++': {
+        let type = this.structName
         if (fullyQualified) {
-          return NitroConfig.current.getCxxNamespace('c++', this.structName)
-        } else {
-          return this.structName
+          type = NitroConfig.current.getCxxNamespace('c++', this.structName)
         }
+        return context === 'parameter' ? `const ${type}&` : type
+      }
       case 'swift':
         return this.structName
       case 'kotlin':
@@ -64,22 +69,19 @@ export class StructType implements Type {
     const referencedTypes = this.declarationFile.referencedTypes.flatMap((r) =>
       r.getExtraFiles()
     )
-    return [this.declarationFile, ...referencedTypes]
+    return [this.declarationFile, this.implementationFile, ...referencedTypes]
   }
   getRequiredImports(language: Language): SourceImport[] {
     const imports: SourceImport[] = []
-    if (language === 'c++') {
-      const cxxNamespace = NitroConfig.current.getCxxNamespace('c++')
-      imports.push({
-        name: this.declarationFile.name,
-        language: this.declarationFile.language,
-        forwardDeclaration: getForwardDeclaration(
-          'struct',
-          this.structName,
-          cxxNamespace
-        ),
-        space: 'user',
-      })
+    switch (language) {
+      case 'c++':
+        imports.push({
+          language,
+          declaration: NitroConfig.current.getCxxHeader(
+            this.declarationFile.name
+          ),
+        })
+        break
     }
     return imports
   }

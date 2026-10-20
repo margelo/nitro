@@ -8,7 +8,7 @@
 #pragma once
 
 #include "HybridBase.hpp"
-#include "HybridChildSpec.hpp"
+#include <NitroTest/HybridChildSpec.hpp>
 
 namespace margelo::nitro::test {
 
@@ -16,7 +16,7 @@ using namespace facebook;
 
 class HybridChild : public virtual HybridChildSpec, public virtual HybridBase {
 public:
-  explicit HybridChild() : HybridObject(HybridChildSpec::TAG) {}
+  explicit HybridChild() = default;
 
 public:
   double getBaseValue() override {
@@ -28,6 +28,10 @@ public:
 
   std::variant<std::string, Car> bounceVariant(const std::variant<std::string, Car>& variant) override {
     return variant;
+  }
+
+  const std::shared_ptr<const HybridClass>& getHybridClass() override {
+    return HybridChildSpec::Class::get();
   }
 
   std::string toString() override {

@@ -1,5 +1,10 @@
 #include "TestRuntime.hpp"
 
+#ifdef __APPLE__
+#include <NitroTest/NitroTestAutolinking.hpp>
+#include <NitroTestExternal/NitroTestExternalAutolinking.hpp>
+#endif
+
 #include <NitroModules/Dispatcher.hpp>
 #include <NitroModules/InstallNitro.hpp>
 #include <chrono>
@@ -22,6 +27,10 @@ namespace {
   // tick() runs them on that same caller thread between microtask drains.
   class TestDispatcher final : public Dispatcher {
   public:
+    bool isOnDispatcher() override {
+      return std::this_thread::get_id() == owner;
+    }
+
     void runSync(std::function<void()>&& function) override {
       if (std::this_thread::get_id() == owner) {
         function();
@@ -97,9 +106,11 @@ namespace {
       std::string source;
       std::shared_ptr<const jsi::PreparedJavaScript> script;
     };
-    // runTest's mutex serializes access. Prepared bytecode can be shared across
+    // Only compilation and cache replacement are serialized. Bytecode is shared across
     // Hermes runtimes; globals and native objects still belong to each runtime.
     static PreparedBundle cached;
+    static std::mutex cacheMutex;
+    std::lock_guard lock(cacheMutex);
     if (!cached.script || cached.source != source) {
       auto script = runtime.prepareJavaScript(std::make_shared<jsi::StringBuffer>(source), "runtime-tests.js");
       cached = {source, std::move(script)};
@@ -121,7 +132,7 @@ namespace {
     return static_cast<uint32_t>(timeout.getNumber());
   }
 
-  std::string execute(const std::string& bundle, const std::string& name, uint32_t timeoutMs) {
+  std::string execute(const std::string& bundle, const std::string& name, uint32_t timeoutMs, const std::function<void()>& onTestStarted) {
     auto dispatcher = std::make_shared<TestDispatcher>();
     auto config = ::hermes::vm::RuntimeConfig::Builder()
                       .withMicrotaskQueue(true)
@@ -149,6 +160,10 @@ namespace {
       const auto timeoutMessage = "Timed out after " + std::to_string(timeoutMs) + "ms";
       const auto bundleDeadline = Clock::now() + timeout;
       runtime->watchTimeLimit(timeoutMs);
+#ifdef __APPLE__
+      margelo::nitro::test::external::registerHybridClasses();
+      margelo::nitro::test::registerHybridClasses();
+#endif
       install(*runtime, dispatcher);
       // Expose platform information and explicit garbage collection to the tests.
 #ifdef __ANDROID__
@@ -199,6 +214,8 @@ namespace {
       if (Clock::now() >= bundleDeadline)
         throw std::runtime_error(timeoutMessage);
 
+      if (onTestStarted)
+        onTestStarted();
       phase = "running JS test";
       const auto testTimeoutMessage = "Timed out after " + std::to_string(testTimeoutMs) + "ms";
       const auto deadline = Clock::now() + std::chrono::milliseconds(testTimeoutMs);
@@ -226,12 +243,9 @@ namespace {
   }
 } // namespace
 
-std::string runTest(const std::string& bundle, const std::string& name, uint32_t timeoutMs) {
-  // Nitro's process-wide registries/caches currently assume serialized runtimes.
-  static std::mutex runtimeMutex;
-  std::lock_guard lock(runtimeMutex);
+std::string runTest(const std::string& bundle, const std::string& name, uint32_t timeoutMs, const std::function<void()>& onTestStarted) {
   try {
-    auto error = execute(bundle, name, timeoutMs);
+    auto error = execute(bundle, name, timeoutMs, onTestStarted);
     return error.empty() ? "" : name + ": " + error;
   } catch (const std::exception& error) {
     return name + ": " + error.what();

@@ -12,7 +12,10 @@ Arrays are represented with the most common and efficient native data structures
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    interface Contacts extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Contacts extends HybridObject {
       getAllUsers(): User[]
     }
     ```
@@ -20,22 +23,22 @@ Arrays are represented with the most common and efficient native data structures
   <TabItem value="swift" label="Swift">
     ```swift
     class HybridContacts: HybridContactsSpec {
-      fun getAllUsers() -> Array<User>
+      func getAllUsers() throws -> [User]
     }
     ```
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
     class HybridContacts: HybridContactsSpec() {
-      fun getAllUsers(): Array<User>
+      override fun getAllUsers(): Array<User>
     }
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp
-    class HybridContacts : public HybridContactsSpec {
-      std::vector<User> getAllUsers();
-    }
+    class HybridContacts: public HybridContactsSpec {
+      std::vector<User> getAllUsers() override;
+    };
     ```
   </TabItem>
 </Tabs>

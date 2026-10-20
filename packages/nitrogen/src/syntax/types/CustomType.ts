@@ -1,7 +1,7 @@
 import type { CustomTypeConfig } from 'nitro-core'
 import type { Language } from '../../getPlatformSpecs.js'
 import type { SourceFile, SourceImport } from '../SourceFile.js'
-import type { Type, TypeKind } from './Type.js'
+import type { GetCodeOptions, Type, TypeKind } from './Type.js'
 
 export class CustomType implements Type {
   typeConfig: CustomTypeConfig
@@ -12,10 +12,6 @@ export class CustomType implements Type {
     this.typeConfig = typeConfig
   }
 
-  get canBePassedByReference() {
-    return this.typeConfig.canBePassedByReference ?? false
-  }
-
   get kind(): TypeKind {
     return 'custom-type'
   }
@@ -23,10 +19,13 @@ export class CustomType implements Type {
     return false
   }
 
-  getCode(language: Language): string {
+  getCode(language: Language, options: GetCodeOptions): string {
     switch (language) {
       case 'c++':
-        return this.typeName
+        return options.context === 'parameter' &&
+          this.typeConfig.canBePassedByReference
+          ? `const ${this.typeName}&`
+          : this.typeName
       default:
         throw new Error(
           `Language ${language} is not yet supported for CustomType "${this.typeName}"!`
@@ -38,12 +37,13 @@ export class CustomType implements Type {
   }
   getRequiredImports(language: Language): SourceImport[] {
     const imports: SourceImport[] = []
-    if (language === 'c++') {
-      imports.push({
-        name: this.typeConfig.include,
-        language: 'c++',
-        space: 'user',
-      })
+    switch (language) {
+      case 'c++':
+        imports.push({
+          language,
+          declaration: { name: this.typeConfig.include, space: 'user' },
+        })
+        break
     }
     return imports
   }

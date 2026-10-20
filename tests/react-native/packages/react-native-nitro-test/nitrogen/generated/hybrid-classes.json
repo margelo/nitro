@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "classes": {
+    "BenchmarkObjectCpp": {
+      "ios": {
+        "implementation": {
+          "className": "HybridBenchmarkObjectCpp",
+          "include": "\"HybridBenchmarkObjectCpp.hpp\""
+        },
+        "language": "c++"
+      }
+    },
+    "BenchmarkObjectSwiftKotlin": {
+      "ios": {
+        "implementation": {
+          "className": "HybridBenchmarkObjectSwift"
+        },
+        "language": "swift"
+      }
+    },
+    "RecyclableTestView": {
+      "ios": {
+        "implementation": {
+          "className": "HybridRecyclableTestView"
+        },
+        "language": "swift"
+      }
+    },
+    "TestView": {
+      "ios": {
+        "implementation": {
+          "className": "HybridTestView"
+        },
+        "language": "swift"
+      }
+    }
+  }
+}

@@ -7,7 +7,7 @@
 
 #if canImport(UIKit)
 
-  import UIKit
+  public import UIKit
 
   /// A base protocol for all Swift-based Hybrid Views.
   public protocol HybridView: HybridObject {

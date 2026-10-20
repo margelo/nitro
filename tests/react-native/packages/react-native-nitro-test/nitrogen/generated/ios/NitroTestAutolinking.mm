@@ -6,54 +6,19 @@
 ///
 
 #import <Foundation/Foundation.h>
-#import <NitroModules/HybridObjectRegistry.hpp>
-#import "NitroTest-Swift-Cxx-Umbrella.hpp"
-#import <type_traits>
+#include <NitroTest/NitroTestAutolinking.hpp>
 
-#include "HybridBenchmarkObjectCpp.hpp"
-#include "HybridBenchmarkObjectSwiftKotlinSpecSwift.hpp"
-#include "HybridTestViewSpecSwift.hpp"
-#include "HybridRecyclableTestViewSpecSwift.hpp"
-
+/**
+ * Registers all HybridObject classes of NitroTest
+ * when the app loads, so JS can look them up by name.
+ */
 @interface NitroTestAutolinking : NSObject
 @end
 
 @implementation NitroTestAutolinking
 
-+ (void) load {
-  using namespace margelo::nitro;
-  using namespace margelo::nitro::test;
-
-  HybridObjectRegistry::registerHybridObjectConstructor(
-    "BenchmarkObjectCpp",
-    []() -> std::shared_ptr<HybridObject> {
-      static_assert(std::is_default_constructible_v<HybridBenchmarkObjectCpp>,
-                    "The HybridObject \"HybridBenchmarkObjectCpp\" is not default-constructible! "
-                    "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
-      return std::make_shared<HybridBenchmarkObjectCpp>();
-    }
-  );
-  HybridObjectRegistry::registerHybridObjectConstructor(
-    "BenchmarkObjectSwiftKotlin",
-    []() -> std::shared_ptr<HybridObject> {
-      std::shared_ptr<HybridBenchmarkObjectSwiftKotlinSpec> hybridObject = NitroTest::NitroTestAutolinking::createBenchmarkObjectSwiftKotlin();
-      return hybridObject;
-    }
-  );
-  HybridObjectRegistry::registerHybridObjectConstructor(
-    "TestView",
-    []() -> std::shared_ptr<HybridObject> {
-      std::shared_ptr<HybridTestViewSpec> hybridObject = NitroTest::NitroTestAutolinking::createTestView();
-      return hybridObject;
-    }
-  );
-  HybridObjectRegistry::registerHybridObjectConstructor(
-    "RecyclableTestView",
-    []() -> std::shared_ptr<HybridObject> {
-      std::shared_ptr<HybridRecyclableTestViewSpec> hybridObject = NitroTest::NitroTestAutolinking::createRecyclableTestView();
-      return hybridObject;
-    }
-  );
++ (void)load {
+  margelo::nitro::test::registerHybridClasses();
 }
 
 @end

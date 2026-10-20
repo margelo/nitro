@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "NitroDefines.hpp"
-#include "NitroTypeInfo.hpp"
+#include <NitroModules/NitroDefines.hpp>
+#include <NitroModules/NitroTypeInfo.hpp>
 #include <fbjni/fbjni.h>
 #include <memory>
 

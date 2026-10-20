@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "classes": {
+    "Base": {
+      "ios": {
+        "allowInheritance": true,
+        "allowMultipleImplementations": true,
+        "implementation": {
+          "className": "HybridBase"
+        },
+        "language": "swift"
+      }
+    },
+    "Child": {
+      "ios": {
+        "implementation": {
+          "className": "HybridChild"
+        },
+        "language": "swift"
+      }
+    },
+    "PlatformObject": {
+      "ios": {
+        "implementation": {
+          "className": "HybridPlatformObject"
+        },
+        "language": "swift"
+      }
+    },
+    "TestObjectCpp": {
+      "ios": {
+        "implementation": {
+          "className": "HybridTestObjectCpp",
+          "include": "\"HybridTestObjectCpp.hpp\""
+        },
+        "language": "c++"
+      }
+    },
+    "TestObjectSwiftKotlin": {
+      "ios": {
+        "implementation": {
+          "className": "HybridTestObjectSwift"
+        },
+        "language": "swift"
+      }
+    }
+  }
+}

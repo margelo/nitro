@@ -5,65 +5,24 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
+internal import CxxStdlib
 
-/**
- * Represents an instance of `OptionalCallback`, backed by a C++ struct.
- */
-public typealias OptionalCallback = margelo.nitro.test.OptionalCallback
+@_expose(Cxx)
+public struct OptionalCallback {
+  public let callback: Variant_any_Callback_____Void__Double?
 
-public extension OptionalCallback {
-  private typealias bridge = margelo.nitro.test.bridge.swift
-
-  /**
-   * Create a new instance of `OptionalCallback`.
-   */
-  init(callback: Variant_______Void_Double?) {
-    self.init({ () -> bridge.std__optional_std__variant_std__function_void_____double__ in
-      if let __unwrappedValue = callback {
-        return bridge.create_std__optional_std__variant_std__function_void_____double__({ () -> bridge.std__variant_std__function_void_____double_ in
-          switch __unwrappedValue {
-            case .first(let __value):
-              return bridge.create_std__variant_std__function_void_____double_({ () -> bridge.Func_void in
-                let __closureWrapper = Func_void(__value)
-                return bridge.create_Func_void(__closureWrapper.toUnsafe())
-              }())
-            case .second(let __value):
-              return bridge.create_std__variant_std__function_void_____double_(__value)
-          }
-        }().variant)
-      } else {
-        return .init()
-      }
-    }())
+  public init(callback: Variant_any_Callback_____Void__Double?) {
+    self.callback = callback
   }
 
-  @inline(__always)
-  var callback: Variant_______Void_Double? {
-    return { () -> Variant_______Void_Double? in
-      if bridge.has_value_std__optional_std__variant_std__function_void_____double__(self.__callback) {
-        let __unwrapped = bridge.get_std__optional_std__variant_std__function_void_____double__(self.__callback)
-        return { () -> Variant_______Void_Double in
-          let __variant = bridge.std__variant_std__function_void_____double_(__unwrapped)
-          switch __variant.index() {
-            case 0:
-              let __actual = __variant.get_0()
-              return .first({ () -> () -> Void in
-                let __wrappedFunction = bridge.wrap_Func_void(__actual)
-                return { () -> Void in
-                  __wrappedFunction.call()
-                }
-              }())
-            case 1:
-              let __actual = __variant.get_1()
-              return .second(__actual)
-            default:
-              fatalError("Variant can never have index \(__variant.index())!")
-          }
-        }()
-      } else {
-        return nil
-      }
-    }()
+  @_spi(NitroCxx)
+  public static func init_cxx(_ callback: Variant_any_Callback_____Void__Double_cxx?) -> Self {
+    return Self(callback: callback.map { $0.value })
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getCallback_cxx() -> Variant_any_Callback_____Void__Double_cxx? {
+    return self.callback.map { Variant_any_Callback_____Void__Double_cxx($0) }
   }
 }

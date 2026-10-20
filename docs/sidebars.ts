@@ -30,6 +30,7 @@ const sidebars: SidebarsConfig = {
         'concepts/hybrid-objects',
         'concepts/hybrid-views',
         'concepts/nitrogen',
+        'concepts/platform-decorators',
       ]
     },
     {
@@ -62,9 +63,8 @@ const sidebars: SidebarsConfig = {
         'types/callbacks',
         'types/tuples',
         'types/variants',
-        'types/dates',
         'types/typed-maps',
-        'types/untyped-maps',
+        'types/any-json',
         'types/hybrid-objects',
         'types/custom-structs',
         'types/custom-enums',

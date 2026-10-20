@@ -5,34 +5,10 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridBenchmarkObjectSwiftKotlinSpec.hpp"
+#include <NitroTest/HybridBenchmarkObjectSwiftKotlinSpec.hpp>
 
 namespace margelo::nitro::test {
 
-  void HybridBenchmarkObjectSwiftKotlinSpec::loadHybridMethods() {
-    // load base methods/properties
-    HybridObject::loadHybridMethods();
-    // load custom methods/properties
-    registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("thisObject", &HybridBenchmarkObjectSwiftKotlinSpec::getThisObject);
-      prototype.registerHybridGetter("numberValue", &HybridBenchmarkObjectSwiftKotlinSpec::getNumberValue);
-      prototype.registerHybridSetter("numberValue", &HybridBenchmarkObjectSwiftKotlinSpec::setNumberValue);
-      prototype.registerHybridMethod("newBenchmarkObject", &HybridBenchmarkObjectSwiftKotlinSpec::newBenchmarkObject);
-      prototype.registerHybridMethod("simpleFunc", &HybridBenchmarkObjectSwiftKotlinSpec::simpleFunc);
-      prototype.registerHybridMethod("addNumbers", &HybridBenchmarkObjectSwiftKotlinSpec::addNumbers);
-      prototype.registerHybridMethod("addStrings", &HybridBenchmarkObjectSwiftKotlinSpec::addStrings);
-      prototype.registerHybridMethod("bounceNumbers", &HybridBenchmarkObjectSwiftKotlinSpec::bounceNumbers);
-      prototype.registerHybridMethod("bounceCar", &HybridBenchmarkObjectSwiftKotlinSpec::bounceCar);
-      prototype.registerHybridMethod("bounceSimpleMap", &HybridBenchmarkObjectSwiftKotlinSpec::bounceSimpleMap);
-      prototype.registerHybridMethod("tryOptionalParams", &HybridBenchmarkObjectSwiftKotlinSpec::tryOptionalParams);
-      prototype.registerHybridMethod("passVariant", &HybridBenchmarkObjectSwiftKotlinSpec::passVariant);
-      prototype.registerHybridMethod("bounceArrayBuffer", &HybridBenchmarkObjectSwiftKotlinSpec::bounceArrayBuffer);
-      prototype.registerHybridMethod("copyBuffer", &HybridBenchmarkObjectSwiftKotlinSpec::copyBuffer);
-      prototype.registerHybridMethod("callbackSync", &HybridBenchmarkObjectSwiftKotlinSpec::callbackSync);
-      prototype.registerHybridMethod("promiseReturnsInstantly", &HybridBenchmarkObjectSwiftKotlinSpec::promiseReturnsInstantly);
-      prototype.registerHybridMethod("createPendingPromise", &HybridBenchmarkObjectSwiftKotlinSpec::createPendingPromise);
-      prototype.registerHybridMethod("resolvePendingPromiseOnWorker", &HybridBenchmarkObjectSwiftKotlinSpec::resolvePendingPromiseOnWorker);
-    });
-  }
+  HybridBenchmarkObjectSwiftKotlinSpec::~HybridBenchmarkObjectSwiftKotlinSpec() = default;
 
 } // namespace margelo::nitro::test

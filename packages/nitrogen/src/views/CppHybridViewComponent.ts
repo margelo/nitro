@@ -1,20 +1,33 @@
 import type { SourceFile } from '../syntax/SourceFile.js'
 import type { HybridObjectSpec } from '../syntax/HybridObjectSpec.js'
 import { createIndentation, indent } from '../utils.js'
-import {
-  createFileMetadataString,
-  escapeCppName,
-  isNotDuplicate,
-} from '../syntax/helpers.js'
+import { createFileMetadataString, escapeCppName } from '../syntax/helpers.js'
 import { getHybridObjectName } from '../syntax/getHybridObjectName.js'
-import { includeHeader } from '../syntax/c++/includeNitroHeader.js'
-import { createHostComponentJs } from './createHostComponentJs.js'
+import { getImportsCode } from '../syntax/getImportCode.js'
 import { Property } from '../syntax/Property.js'
-import { FunctionType } from '../syntax/types/FunctionType.js'
+import { CallbackType } from '../syntax/types/CallbackType.js'
 import { VoidType } from '../syntax/types/VoidType.js'
 import { HybridObjectType } from '../syntax/types/HybridObjectType.js'
 import { NamedWrappingType } from '../syntax/types/NamedWrappingType.js'
 import { OptionalType } from '../syntax/types/OptionalType.js'
+
+export function getHybridViewComponentName(spec: HybridObjectSpec): string {
+  return spec.config.getHybridClassRegistryName(spec.name)
+}
+
+/** Properties inherited from view bases are also React props. */
+export function getHybridViewProperties(spec: HybridObjectSpec): Property[] {
+  const properties = new Map<string, Property>()
+  for (const base of spec.baseTypes) {
+    for (const property of getHybridViewProperties(base)) {
+      properties.set(property.name, property)
+    }
+  }
+  for (const property of spec.properties) {
+    properties.set(property.name, property)
+  }
+  return [...properties.values()].filter((property) => !property.isReadonly)
+}
 
 interface ViewComponentNames {
   propsClassName: `${string}Props`
@@ -43,7 +56,7 @@ export function getViewComponentNames(
 
 function getHybridRefProperty(spec: HybridObjectSpec): Property {
   const hybrid = new HybridObjectType(spec)
-  const type = new FunctionType(new VoidType(), [
+  const type = new CallbackType(new VoidType(), [
     new NamedWrappingType('ref', hybrid),
   ])
   return new Property('hybridRef', new OptionalType(type), false)
@@ -58,7 +71,7 @@ export function createViewComponentShadowNodeFiles(
     )
   }
 
-  const { T, HybridT } = getHybridObjectName(spec.name)
+  const { HybridT } = getHybridObjectName(spec.name)
   const {
     propsClassName,
     stateClassName,
@@ -70,10 +83,10 @@ export function createViewComponentShadowNodeFiles(
 
   const namespace = spec.config.getCxxNamespace('c++', 'views')
 
-  const props = [...spec.properties, getHybridRefProperty(spec)]
+  const props = [...getHybridViewProperties(spec), getHybridRefProperty(spec)]
   const properties = props.map(
     (p) =>
-      `nitro::ReactProp<${p.type.getCode('c++')}> ${escapeCppName(p.name)};`
+      `nitro::ReactProp<${p.type.getCode('c++', { context: 'property' })}> ${escapeCppName(p.name)};`
   )
   const filterCases = props.map(
     (prop) => `case hashString("${prop.name}"): return true;`
@@ -86,11 +99,22 @@ export function createViewComponentShadowNodeFiles(
     const name = escapeCppName(prop.name)
     return `${name}.isProvided()`
   })
-  const includes = props
-    .flatMap((p) =>
-      p.getRequiredImports('c++').map((i) => includeHeader(i, true))
-    )
-    .filter(isNotDuplicate)
+  const imports = props.flatMap((property) =>
+    property.getRequiredImports('c++')
+  )
+  const includes = getImportsCode(imports, 'implementation')
+  const componentHeaderImport = getImportsCode([
+    {
+      language: 'c++',
+      declaration: spec.config.getCxxHeader(
+        `views/${component}.hpp`,
+        'private'
+      ),
+    },
+  ])
+  const componentName = getHybridViewComponentName(spec)
+  const comparisonsCode = comparisons.join(' &&\n             ')
+  const providedChecksCode = providedChecks.join(' ||\n             ')
 
   // .hpp code
   const shadowIndent = createIndentation(shadowNodeClassName.length)
@@ -109,10 +133,11 @@ ${createFileMetadataString(`${component}.hpp`)}
 
 #include <string>
 
-${includes.join('\n')}
+${includes}
 
 namespace ${namespace} {
 
+  using namespace margelo;
   using namespace facebook;
 
   /**
@@ -135,12 +160,12 @@ namespace ${namespace} {
 
     [[nodiscard]]
     bool hasSameProps(const ${propsClassName}& other) const noexcept {
-      return ${comparisons.join(' &&\n             ')};
+      return ${comparisonsCode};
     }
 
     [[nodiscard]]
     bool hasAnyProvidedProps() const noexcept {
-      return ${providedChecks.join(' ||\n             ')};
+      return ${providedChecksCode};
     }
 
   private:
@@ -174,7 +199,7 @@ namespace ${namespace} {
     'react::ViewProps(context, sourceProps, rawProps, filterObjectKeys)',
     ...props.map((prop) => {
       const name = escapeCppName(prop.name)
-      const type = prop.type.getCode('c++')
+      const type = prop.type.getCode('c++', { context: 'property' })
       return `${name}(nitro::ReactProp<${type}>::fromRawValue("${spec.name}", "${prop.name}", rawProps, sourceProps.${name}))`
     }),
   ]
@@ -182,7 +207,7 @@ namespace ${namespace} {
   const componentCode = `
 ${createFileMetadataString(`${component}.cpp`)}
 
-#include "${component}.hpp"
+${componentHeaderImport}
 
 #include <NitroModules/NitroHash.hpp>
 #include <NitroModules/RawPropsCompat.hpp>
@@ -190,9 +215,10 @@ ${createFileMetadataString(`${component}.cpp`)}
 
 namespace ${namespace} {
 
+  using namespace margelo;
   using namespace facebook;
 
-  extern const char ${nameVariable}[] = "${T}";
+  extern const char ${nameVariable}[] = "${componentName}";
 
   ${propsClassName}::${propsClassName}(const react::PropsParserContext& context,
   ${ctorIndent}   const ${propsClassName}& sourceProps,
@@ -215,11 +241,12 @@ namespace ${namespace} {
 
   const files: SourceFile[] = [
     {
-      name: `${component}.hpp`,
+      name: `views/${component}.hpp`,
       content: componentHeaderCode,
       language: 'c++',
       platform: 'shared',
-      subdirectory: ['views'],
+      subdirectory: [],
+      headerVisibility: 'private',
     },
     {
       name: `${component}.cpp`,
@@ -229,7 +256,5 @@ namespace ${namespace} {
       subdirectory: ['views'],
     },
   ]
-  const jsFiles = createHostComponentJs(spec)
-  files.push(...(jsFiles as unknown as SourceFile[]))
   return files
 }

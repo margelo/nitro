@@ -14,7 +14,9 @@ You can use a Nitro [Hybrid Object](../concepts/hybrid-objects) on the default R
 <Tabs groupId="worklet-library">
   <TabItem value="rnw" label="react-native-worklets (Reanimated)" default>
   ```ts
-  const math = NitroModules.createHybridObject<Math>('Math')
+  import { Math } from './Math.nitro'
+
+  const math = new Math()
   runOnUI(() => {
     'worklet'
     const result = math.add(5, 3)
@@ -24,7 +26,9 @@ You can use a Nitro [Hybrid Object](../concepts/hybrid-objects) on the default R
   </TabItem>
   <TabItem value="rnwc" label="react-native-worklets-core (Margelo)">
   ```ts
-  const math = NitroModules.createHybridObject<Math>('Math')
+  import { Math } from './Math.nitro'
+
+  const math = new Math()
   const boxed = NitroModules.box(math)
 
   const context = Worklets.createContext('DummyContext')
@@ -43,7 +47,7 @@ You can use a Nitro [Hybrid Object](../concepts/hybrid-objects) on the default R
 All synchronous APIs of Nitro work ✨ automagically ✨ on any runtime, but asynchronous APIs (Promises and callbacks) require a `Dispatcher`.
 If you call an asynchronous API on a runtime that Nitro doesn't know, it likely doesn't have a `Dispatcher`, so it doesn't know how to call back to the JS Thread after the asynchronous operation has finished (Promise resolve or callback call).
 
-If **you** created that `jsi::Runtime`, you need to create a `Dispatcher` for it and implement `runSync` and `runAsync`:
+If **you** created that `jsi::Runtime`, you need to create a `Dispatcher` for it and implement `runSync`, `runAsync`, and `isOnDispatcher`:
 
 ```cpp
 #include <NitroModules/Dispatcher.hpp>
@@ -53,6 +57,7 @@ class MyRuntimeDispatcher: public Dispatcher {
 public:
   void runSync(std::function<void()>&& function) override;
   void runAsync(std::function<void()>&& function) override;
+  bool isOnDispatcher() override;
 };
 ```
 
@@ -65,7 +70,7 @@ Dispatcher::installRuntimeGlobalDispatcher(myRuntime, myDispatcher);
 
 This needs to be done once, ideally immediately after creating the `jsi::Runtime`.
 
-Your `runSync` and `runAsync` implementations must run the given `function` on the same Thread that the `jsi::Runtime` was created on - see [`CallInvokerDispatcher.hpp`](https://github.com/margelo/nitro/blob/main/packages/react-native-nitro-modules/cpp/threading/CallInvokerDispatcher.hpp) for an example.
+Your `runSync` and `runAsync` implementations must run the given `function` on the same Thread that the `jsi::Runtime` was created on - see [`CallInvokerDispatcher.hpp`](https://github.com/margelo/nitro/blob/v1/packages/react-native-nitro-modules/include/NitroModulesReactNative/detail/CallInvokerDispatcher.hpp) for an example.
 
 ## Boxing
 
@@ -73,11 +78,13 @@ A [Hybrid Object](../concepts/hybrid-objects) is a JS object with `jsi::NativeSt
 If you need to interop with legacy APIs or APIs that can't deal with `jsi::NativeState` yet, you can _box_ the Hybrid Object into a `jsi::HostObject`:
 
 ```ts
-const math = NitroModules.createHybridObject<Math>('Math')
+import { Math } from './Math.nitro'
+
+const math = new Math()
 const boxed = NitroModules.box(math) // <-- jsi::HostObject
 ```
 
-The `boxed` object is a simple `jsi::HostObject` (see [`BoxedHybridObject.hpp`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/BoxedHybridObject.hpp)), which can later be _unboxed_ again:
+The `boxed` object is a simple `jsi::HostObject` (see [`BoxedHybridObject.hpp`](https://github.com/margelo/nitro/blob/v1/packages/nitro-core/native/cpp/include/NitroModules/BoxedHybridObject.hpp)), which can later be _unboxed_ again:
 
 ```ts
 const unboxed = boxed.unbox()    // <-- Math

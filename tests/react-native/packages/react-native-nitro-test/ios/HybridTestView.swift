@@ -26,7 +26,7 @@ class HybridTestView: HybridTestViewSpec {
   var hasBeenCalled: Bool = false
   var int64Value: Int64 = 0
   var colorScheme: ColorScheme = .light
-  var someCallback: () -> Void = {}
+  var someCallback: any Callback<(), Void> = .native {}
   var nativeDefaultValue: Double? = 42 {
     didSet {
       nativeDefaultValueSetterCallCount += 1

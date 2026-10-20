@@ -11,7 +11,10 @@ Optional or undefined values can be declared with the question mark operator (`?
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    interface Math extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Math extends HybridObject {
       a?: number
       b: number | undefined
     }
@@ -28,16 +31,18 @@ Optional or undefined values can be declared with the question mark operator (`?
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
     class HybridMath: HybridMathSpec() {
-      override var a: Double?
-      override var b: Double?
+      override var a: Double? = null
+      override var b: Double? = null
     }
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp
     class HybridMath: public HybridMathSpec {
-      std::optional<double> a;
-      std::optional<double> b;
+      std::optional<double> getA() override;
+      void setA(const std::optional<double>& value) override;
+      std::optional<double> getB() override;
+      void setB(const std::optional<double>& value) override;
     };
     ```
   </TabItem>

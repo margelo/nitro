@@ -1,21 +1,19 @@
-import type {
-  HybridView as HybridViewAlias,
-  HybridViewMethods,
-  HybridViewProps,
-  Int64,
-} from 'react-native-nitro-modules'
+import { iOS, type HybridView, type Int64 } from 'react-native-nitro-modules'
 
 export type ColorScheme = 'light' | 'dark'
 
-export interface TestViewProps extends HybridViewProps {
+@iOS({
+  language: 'swift',
+  implementation: { className: 'HybridTestView' },
+})
+export declare class TestView extends HybridView {
   isBlue: boolean
   hasBeenCalled: boolean
   int64Value: Int64
   colorScheme: ColorScheme
   someCallback: () => void
   nativeDefaultValue?: number
-}
-export interface TestViewMethods extends HybridViewMethods {
+
   getIsViewBlue(view: TestView): boolean
   getOnDropViewCount(): number
   getIsBlueSetterCallCount(): number
@@ -23,4 +21,4 @@ export interface TestViewMethods extends HybridViewMethods {
   someMethod(): void
 }
 
-export type TestView = HybridViewAlias<TestViewProps, TestViewMethods>
+export * from '#nitro/TestView'

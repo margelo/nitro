@@ -5,316 +5,143 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
 
-/**
- * Represents an instance of `OptionalEnumWrapper`, backed by a C++ struct.
- */
-public typealias OptionalEnumWrapper = margelo.nitro.test.OptionalEnumWrapper
+@_expose(Cxx)
+public struct OptionalEnumWrapper: Equatable, Hashable, Sendable {
+  public let count: Double?
+  public let weight: Double?
+  public let ttl: Double?
+  public let jitter: Double?
+  public let retries: Double?
+  public let delayMs: Double?
+  public let timeoutMs: Double?
+  public let ratio: Double?
+  public let threshold: Double?
+  public let enabled: Bool?
+  public let active: Bool?
+  public let shouldBuffer: Bool?
+  public let shouldRetry: Bool?
+  public let verbose: Bool?
+  public let tier: Powertrain?
+  public let region: Powertrain?
+  public let stage: Powertrain?
+  public let tone: Powertrain?
 
-public extension OptionalEnumWrapper {
-  private typealias bridge = margelo.nitro.test.bridge.swift
-
-  /**
-   * Create a new instance of `OptionalEnumWrapper`.
-   */
-  init(count: Double?, weight: Double?, ttl: Double?, jitter: Double?, retries: Double?, delayMs: Double?, timeoutMs: Double?, ratio: Double?, threshold: Double?, enabled: Bool?, active: Bool?, shouldBuffer: Bool?, shouldRetry: Bool?, verbose: Bool?, tier: Powertrain?, region: Powertrain?, stage: Powertrain?, tone: Powertrain?) {
-    self.init({ () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = count {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = weight {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = ttl {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = jitter {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = retries {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = delayMs {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = timeoutMs {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = ratio {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = threshold {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_bool_ in
-      if let __unwrappedValue = enabled {
-        return bridge.create_std__optional_bool_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_bool_ in
-      if let __unwrappedValue = active {
-        return bridge.create_std__optional_bool_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_bool_ in
-      if let __unwrappedValue = shouldBuffer {
-        return bridge.create_std__optional_bool_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_bool_ in
-      if let __unwrappedValue = shouldRetry {
-        return bridge.create_std__optional_bool_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_bool_ in
-      if let __unwrappedValue = verbose {
-        return bridge.create_std__optional_bool_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_Powertrain_ in
-      if let __unwrappedValue = tier {
-        return bridge.create_std__optional_Powertrain_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_Powertrain_ in
-      if let __unwrappedValue = region {
-        return bridge.create_std__optional_Powertrain_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_Powertrain_ in
-      if let __unwrappedValue = stage {
-        return bridge.create_std__optional_Powertrain_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_Powertrain_ in
-      if let __unwrappedValue = tone {
-        return bridge.create_std__optional_Powertrain_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }())
+  public init(count: Double?, weight: Double?, ttl: Double?, jitter: Double?, retries: Double?, delayMs: Double?, timeoutMs: Double?, ratio: Double?, threshold: Double?, enabled: Bool?, active: Bool?, shouldBuffer: Bool?, shouldRetry: Bool?, verbose: Bool?, tier: Powertrain?, region: Powertrain?, stage: Powertrain?, tone: Powertrain?) {
+    self.count = count
+    self.weight = weight
+    self.ttl = ttl
+    self.jitter = jitter
+    self.retries = retries
+    self.delayMs = delayMs
+    self.timeoutMs = timeoutMs
+    self.ratio = ratio
+    self.threshold = threshold
+    self.enabled = enabled
+    self.active = active
+    self.shouldBuffer = shouldBuffer
+    self.shouldRetry = shouldRetry
+    self.verbose = verbose
+    self.tier = tier
+    self.region = region
+    self.stage = stage
+    self.tone = tone
   }
 
-  @inline(__always)
-  var count: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__count) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__count)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+  @_spi(NitroCxx)
+  public static func init_cxx(_ count: Double?, _ weight: Double?, _ ttl: Double?, _ jitter: Double?, _ retries: Double?, _ delayMs: Double?, _ timeoutMs: Double?, _ ratio: Double?, _ threshold: Double?, _ enabled: Bool?, _ active: Bool?, _ shouldBuffer: Bool?, _ shouldRetry: Bool?, _ verbose: Bool?, _ tier: Powertrain?, _ region: Powertrain?, _ stage: Powertrain?, _ tone: Powertrain?) -> Self {
+    return Self(count: count, weight: weight, ttl: ttl, jitter: jitter, retries: retries, delayMs: delayMs, timeoutMs: timeoutMs, ratio: ratio, threshold: threshold, enabled: enabled, active: active, shouldBuffer: shouldBuffer, shouldRetry: shouldRetry, verbose: verbose, tier: tier, region: region, stage: stage, tone: tone)
   }
-  
-  @inline(__always)
-  var weight: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__weight) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__weight)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getCount_cxx() -> Double? {
+    return self.count
   }
-  
-  @inline(__always)
-  var ttl: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__ttl) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__ttl)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getWeight_cxx() -> Double? {
+    return self.weight
   }
-  
-  @inline(__always)
-  var jitter: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__jitter) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__jitter)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getTtl_cxx() -> Double? {
+    return self.ttl
   }
-  
-  @inline(__always)
-  var retries: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__retries) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__retries)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getJitter_cxx() -> Double? {
+    return self.jitter
   }
-  
-  @inline(__always)
-  var delayMs: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__delayMs) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__delayMs)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getRetries_cxx() -> Double? {
+    return self.retries
   }
-  
-  @inline(__always)
-  var timeoutMs: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__timeoutMs) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__timeoutMs)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getDelayMs_cxx() -> Double? {
+    return self.delayMs
   }
-  
-  @inline(__always)
-  var ratio: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__ratio) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__ratio)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getTimeoutMs_cxx() -> Double? {
+    return self.timeoutMs
   }
-  
-  @inline(__always)
-  var threshold: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__threshold) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__threshold)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getRatio_cxx() -> Double? {
+    return self.ratio
   }
-  
-  @inline(__always)
-  var enabled: Bool? {
-    return { () -> Bool? in
-      if bridge.has_value_std__optional_bool_(self.__enabled) {
-        let __unwrapped = bridge.get_std__optional_bool_(self.__enabled)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getThreshold_cxx() -> Double? {
+    return self.threshold
   }
-  
-  @inline(__always)
-  var active: Bool? {
-    return { () -> Bool? in
-      if bridge.has_value_std__optional_bool_(self.__active) {
-        let __unwrapped = bridge.get_std__optional_bool_(self.__active)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getEnabled_cxx() -> Bool? {
+    return self.enabled
   }
-  
-  @inline(__always)
-  var shouldBuffer: Bool? {
-    return { () -> Bool? in
-      if bridge.has_value_std__optional_bool_(self.__shouldBuffer) {
-        let __unwrapped = bridge.get_std__optional_bool_(self.__shouldBuffer)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getActive_cxx() -> Bool? {
+    return self.active
   }
-  
-  @inline(__always)
-  var shouldRetry: Bool? {
-    return { () -> Bool? in
-      if bridge.has_value_std__optional_bool_(self.__shouldRetry) {
-        let __unwrapped = bridge.get_std__optional_bool_(self.__shouldRetry)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getShouldBuffer_cxx() -> Bool? {
+    return self.shouldBuffer
   }
-  
-  @inline(__always)
-  var verbose: Bool? {
-    return { () -> Bool? in
-      if bridge.has_value_std__optional_bool_(self.__verbose) {
-        let __unwrapped = bridge.get_std__optional_bool_(self.__verbose)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getShouldRetry_cxx() -> Bool? {
+    return self.shouldRetry
   }
-  
-  @inline(__always)
-  var tier: Powertrain? {
-    return self.__tier.value
+
+  @_spi(NitroCxx)
+  public borrowing func getVerbose_cxx() -> Bool? {
+    return self.verbose
   }
-  
-  @inline(__always)
-  var region: Powertrain? {
-    return self.__region.value
+
+  @_spi(NitroCxx)
+  public borrowing func getTier_cxx() -> Powertrain? {
+    return self.tier
   }
-  
-  @inline(__always)
-  var stage: Powertrain? {
-    return self.__stage.value
+
+  @_spi(NitroCxx)
+  public borrowing func getRegion_cxx() -> Powertrain? {
+    return self.region
   }
-  
-  @inline(__always)
-  var tone: Powertrain? {
-    return self.__tone.value
+
+  @_spi(NitroCxx)
+  public borrowing func getStage_cxx() -> Powertrain? {
+    return self.stage
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getTone_cxx() -> Powertrain? {
+    return self.tone
   }
 }

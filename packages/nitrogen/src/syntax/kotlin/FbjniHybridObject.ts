@@ -1,16 +1,17 @@
 import { indent } from '../../utils.js'
-import { getForwardDeclaration } from '../c++/getForwardDeclaration.js'
-import { includeHeader } from '../c++/includeNitroHeader.js'
 import { getAllTypes } from '../getAllTypes.js'
 import { getHybridObjectName } from '../getHybridObjectName.js'
-import { createFileMetadataString, isNotDuplicate } from '../helpers.js'
+import { createFileMetadataString } from '../helpers.js'
 import type { HybridObjectSpec } from '../HybridObjectSpec.js'
-import { Method } from '../Method.js'
-import type { Property } from '../Property.js'
 import type { SourceFile, SourceImport } from '../SourceFile.js'
 import type { Type } from '../types/Type.js'
 import { addJNINativeRegistration } from './JNINativeRegistrations.js'
-import { KotlinCxxBridgedType } from './KotlinCxxBridgedType.js'
+import {
+  getKotlinPropertyAccessors,
+  KotlinInstanceMethod,
+} from './KotlinInstanceMethod.js'
+import { wrapKotlinType } from './wrapKotlinType.js'
+import { getImportsCode } from '../getImportCode.js'
 
 export function createFbjniHybridObject(spec: HybridObjectSpec): SourceFile[] {
   const name = getHybridObjectName(spec.name)
@@ -23,13 +24,23 @@ export function createFbjniHybridObject(spec: HybridObjectSpec): SourceFile[] {
     ...spec.properties,
     ...spec.baseTypes.flatMap((b) => b.properties),
   ]
-  const methods = [...spec.methods, ...spec.baseTypes.flatMap((b) => b.methods)]
+  const nativeMethods = [
+    ...spec.methods,
+    ...spec.baseTypes.flatMap((base) => base.methods),
+  ]
+  const propertyDefinitions = properties
+    .flatMap(getKotlinPropertyAccessors)
+    .flatMap((accessor) => accessor.createBridge().cppMethods)
+  const methodDefinitions = nativeMethods.flatMap(
+    (method) =>
+      new KotlinInstanceMethod({ method: method }).createBridge().cppMethods
+  )
 
-  const propertiesDecl = properties
-    .map((p) => p.getCode('c++', { override: true }))
+  const propertiesDecl = propertyDefinitions
+    .map(({ method }) => method.getDeclaration('c++'))
     .join('\n')
-  const methodsDecl = methods
-    .map((p) => p.getCode('c++', { override: true }))
+  const methodsDecl = methodDefinitions
+    .map(({ method }) => method.getDeclaration('c++'))
     .join('\n')
   const jniClassDescriptor = spec.config.getAndroidPackage(
     'c++/jni',
@@ -41,10 +52,7 @@ export function createFbjniHybridObject(spec: HybridObjectSpec): SourceFile[] {
   let cppBaseClass = 'JHybridObject'
   let javaPartBaseClass = 'JHybridObject::JavaPart'
   let cxxPartBaseClass = 'JHybridObject::CxxPart'
-  const constructorCalls = [
-    `HybridObject(${name.HybridTSpec}::TAG)`,
-    `JHybridObject(javaPart)`,
-  ]
+  const constructorCalls = ['JHybridObject(javaPart)']
   if (spec.baseTypes.length > 0) {
     if (spec.baseTypes.length > 1) {
       throw new Error(
@@ -62,22 +70,18 @@ export function createFbjniHybridObject(spec: HybridObjectSpec): SourceFile[] {
     cxxPartBaseClass = `${baseTypename}::CxxPart`
     constructorCalls.push(`${baseTypename}(javaPart)`)
   }
-  const cppImports: SourceImport[] = []
+  const cppImports: SourceImport<'c++'>[] = [
+    {
+      language: 'c++',
+      declaration: spec.config.getCxxHeader(`${name.HybridTSpec}.hpp`),
+    },
+  ]
   for (const base of spec.baseTypes) {
     const { JHybridTSpec } = getHybridObjectName(base.name)
 
-    const headerName = base.config.isExternalConfig
-      ? `${base.config.getAndroidCxxLibName()}/${JHybridTSpec}.hpp`
-      : `${JHybridTSpec}.hpp`
     cppImports.push({
       language: 'c++',
-      name: headerName,
-      space: base.config.isExternalConfig ? 'system' : 'user',
-      forwardDeclaration: getForwardDeclaration(
-        'class',
-        JHybridTSpec,
-        base.config.getCxxNamespace('c++')
-      ),
+      declaration: base.config.getCxxHeader(`${JHybridTSpec}.hpp`, 'private'),
     })
   }
 
@@ -88,25 +92,19 @@ ${createFileMetadataString(`${name.HybridTSpec}.hpp`)}
 
 #include <NitroModules/JHybridObject.hpp>
 #include <fbjni/fbjni.h>
-#include "${name.HybridTSpec}.hpp"
-
-${cppImports
-  .map((i) => i.forwardDeclaration)
-  .filter((f) => f != null)
-  .join('\n')}
-${cppImports.map((i) => includeHeader(i)).join('\n')}
+${getImportsCode(cppImports, 'declaration')}
 
 namespace ${cxxNamespace} {
 
   using namespace facebook;
 
-  class ${name.JHybridTSpec}: public virtual ${name.HybridTSpec}, public virtual ${cppBaseClass} {
+  class ${name.JHybridTSpec} : public virtual ${name.HybridTSpec}, public virtual ${cppBaseClass} {
   public:
-    struct JavaPart: public jni::JavaClass<JavaPart, ${javaPartBaseClass}> {
+    struct JavaPart : public jni::JavaClass<JavaPart, ${javaPartBaseClass}> {
       static constexpr auto kJavaDescriptor = "L${jniClassDescriptor};";
       std::shared_ptr<${name.JHybridTSpec}> get${name.JHybridTSpec}();
     };
-    struct CxxPart: public jni::HybridClass<CxxPart, ${cxxPartBaseClass}> {
+    struct CxxPart : public jni::HybridClass<CxxPart, ${cxxPartBaseClass}> {
       static constexpr auto kJavaDescriptor = "L${cxxPartJniClassDescriptor};";
       static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
       static void registerNatives();
@@ -149,40 +147,55 @@ namespace ${cxxNamespace} {
     namespace: cxxNamespace,
     className: `${name.JHybridTSpec}::CxxPart`,
     import: {
-      name: `${name.JHybridTSpec}.hpp`,
-      space: 'user',
       language: 'c++',
+      declaration: spec.config.getCxxHeader(
+        `${name.JHybridTSpec}.hpp`,
+        'private'
+      ),
     },
   })
 
-  const propertiesImpl = properties
-    .map((m) => getFbjniPropertyForwardImplementation(spec, m))
+  const propertiesImpl = propertyDefinitions
+    .map(({ method, body }) =>
+      method.getDefinition('c++', {
+        placement: 'out-of-class',
+        className: name.JHybridTSpec,
+        body: body,
+      })
+    )
     .join('\n')
-  const methodsImpl = methods
-    .map((m) => getFbjniMethodForwardImplementation(spec, m, m.name))
+  const methodsImpl = methodDefinitions
+    .map(({ method, body }) =>
+      method.getDefinition('c++', {
+        placement: 'out-of-class',
+        className: name.JHybridTSpec,
+        body: body,
+      })
+    )
     .join('\n')
   const allTypes = getAllTypes(spec)
   allTypes.push(...getAllBaseTypes(spec)) // <-- remember, we copy all base methods & properties over too
   const jniImports = allTypes
-    .map((t) => new KotlinCxxBridgedType(t))
+    .map((type) => wrapKotlinType(type))
     .flatMap((t) => t.getRequiredImports('c++'))
-    .filter((i) => i != null)
-  const cppIncludes = jniImports
-    .map((i) => includeHeader(i))
-    .filter(isNotDuplicate)
-  const cppForwardDeclarations = jniImports
-    .map((i) => i.forwardDeclaration)
-    .filter((d) => d != null)
-    .filter(isNotDuplicate)
+  const cppImplementationIncludes = getImportsCode(
+    [
+      {
+        language: 'c++',
+        declaration: spec.config.getCxxHeader(
+          `${name.JHybridTSpec}.hpp`,
+          'private'
+        ),
+      },
+      ...jniImports,
+    ],
+    'implementation'
+  )
 
   const cppImplCode = `
 ${createFileMetadataString(`${name.JHybridTSpec}.cpp`)}
 
-#include "${name.JHybridTSpec}.hpp"
-
-${cppForwardDeclarations.join('\n')}
-
-${cppIncludes.join('\n')}
+${cppImplementationIncludes}
 
 namespace ${cxxNamespace} {
 
@@ -238,89 +251,6 @@ namespace ${cxxNamespace} {
     platform: 'android',
   })
   return files
-}
-
-function getFbjniMethodForwardImplementation(
-  spec: HybridObjectSpec,
-  method: Method,
-  jniMethodName: string
-): string {
-  const name = getHybridObjectName(spec.name)
-
-  const returnJNI = new KotlinCxxBridgedType(method.returnType)
-  const requiresBridge =
-    returnJNI.needsSpecialHandling ||
-    method.parameters.some((p) => {
-      const bridged = new KotlinCxxBridgedType(p.type)
-      return bridged.needsSpecialHandling
-    })
-  const methodName = requiresBridge ? `${jniMethodName}_cxx` : jniMethodName
-
-  const returnType = returnJNI.asJniReferenceType('local')
-  const paramsTypes = method.parameters
-    .map((p) => {
-      const bridge = new KotlinCxxBridgedType(p.type)
-      return `${bridge.asJniReferenceType('alias')} /* ${p.name} */`
-    })
-    .join(', ')
-  const cxxSignature = `${returnType}(${paramsTypes})`
-
-  const paramsForward = method.parameters.map((p) => {
-    const bridged = new KotlinCxxBridgedType(p.type)
-    return bridged.parse(p.name, 'c++', 'kotlin', 'c++')
-  })
-  paramsForward.unshift('_javaPart') // <-- first param is always Java `this`
-
-  let body: string
-  if (returnJNI.hasType) {
-    // return something - we need to parse it
-    body = `
-static const auto method = _javaPart->javaClassStatic()->getMethod<${cxxSignature}>("${methodName}");
-auto __result = method(${paramsForward.join(', ')});
-return ${returnJNI.parse('__result', 'kotlin', 'c++', 'c++')};
-    `
-  } else {
-    // void method. no return
-    body = `
-static const auto method = _javaPart->javaClassStatic()->getMethod<${cxxSignature}>("${methodName}");
-method(${paramsForward.join(', ')});
-   `
-  }
-  const code = method.getCode(
-    'c++',
-    {
-      classDefinitionName: name.JHybridTSpec,
-    },
-    body.trim()
-  )
-  return code
-}
-
-function getFbjniPropertyForwardImplementation(
-  spec: HybridObjectSpec,
-  property: Property
-): string {
-  const methods: string[] = []
-
-  // getter
-  const getter = getFbjniMethodForwardImplementation(
-    spec,
-    property.cppGetter,
-    property.getGetterName('jvm')
-  )
-  methods.push(getter)
-
-  if (property.cppSetter != null) {
-    // setter
-    const setter = getFbjniMethodForwardImplementation(
-      spec,
-      property.cppSetter,
-      property.getSetterName('jvm')
-    )
-    methods.push(setter)
-  }
-
-  return methods.join('\n')
 }
 
 function getAllBaseTypes(spec: HybridObjectSpec): Type[] {

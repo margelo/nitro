@@ -17,7 +17,7 @@ parseVersion(version)
 
 const sourceVersions = [
   {
-    path: 'packages/nitro-core/native/cpp/utils/NitroDefines.hpp',
+    path: 'packages/nitro-core/native/cpp/include/NitroModules/NitroDefines.hpp',
     pattern: /^#define NITRO_VERSION "([^"]+)"$/m,
     line: `#define NITRO_VERSION "${version}"`,
   },

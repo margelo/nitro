@@ -3,6 +3,7 @@ import type { HybridObjectSpec } from '../../syntax/HybridObjectSpec.js'
 import {
   createViewComponentShadowNodeFiles,
   getViewComponentNames,
+  getHybridViewProperties,
 } from '../CppHybridViewComponent.js'
 import {
   createFileMetadataString,
@@ -10,56 +11,64 @@ import {
 } from '../../syntax/helpers.js'
 import { getUmbrellaHeaderName } from '../../autolinking/ios/createSwiftUmbrellaHeader.js'
 import { getHybridObjectName } from '../../syntax/getHybridObjectName.js'
-import {
-  getHybridObjectConstructorCall,
-  getIsRecyclableCall,
-} from '../../syntax/swift/SwiftHybridObjectRegistration.js'
 import { indent } from '../../utils.js'
-import { SwiftCxxBridgedType } from '../../syntax/swift/SwiftCxxBridgedType.js'
+import { getImportsCode } from '../../syntax/getImportCode.js'
 
 export function createSwiftHybridViewManager(
-  spec: HybridObjectSpec
+  spec: HybridObjectSpec<'swift'>
 ): SourceFile[] {
   const cppFiles = createViewComponentShadowNodeFiles(spec)
   const namespace = spec.config.getCxxNamespace('c++')
   const swiftNamespace = spec.config.getIosModuleName()
-  const { HybridTSpec, HybridTSpecSwift, HybridTSpecCxx } = getHybridObjectName(
-    spec.name
-  )
+  const { HybridTSpecSwift, HybridTSpecCxx } = getHybridObjectName(spec.name)
   const {
     component,
     descriptorClassName,
     propsClassName,
     shadowNodeClassName,
   } = getViewComponentNames(spec)
-  const implementation = spec.config.getIosAutolinkedImplementation(spec.name)
-  if (implementation?.language !== 'swift') {
+  if (spec.implementation == null) {
     throw new Error(
-      `Cannot create Swift HybridView ViewManager for ${spec.name} - it must be autolinked with a Swift iOS implementation in nitro.json!`
+      `Cannot create Swift HybridView ViewManager for ${spec.name} without an iOS implementation class.`
     )
   }
-
-  const propAssignments = spec.properties.map((p) => {
-    const name = escapeCppName(p.name)
-    const setter = p.getSetterName('swift')
-    const bridge = new SwiftCxxBridgedType(p.type, false)
-    const parse = bridge.parseFromCppToSwift(
-      `newViewProps.${name}.get()`,
-      'c++'
-    )
+  const imports = getImportsCode([
+    {
+      language: 'c++',
+      declaration: spec.config.getCxxHeader(
+        `views/${component}.hpp`,
+        'private'
+      ),
+    },
+    {
+      language: 'c++',
+      declaration: spec.config.getCxxHeader(
+        `${HybridTSpecSwift}.hpp`,
+        'private'
+      ),
+    },
+    {
+      language: 'c++',
+      declaration: spec.config.getCxxHeader(getUmbrellaHeaderName(), 'private'),
+    },
+  ])
+  const objcComponentName = `${swiftNamespace}_${component}`
+  const propAssignments = getHybridViewProperties(spec).map((property) => {
+    const name = escapeCppName(property.name)
+    const setter = property.getSetterName('other')
     return `
-// ${p.jsSignature}
+// ${property.jsSignature}
 if (oldViewProps == nullptr
       ? newViewProps.${name}.isProvided()
       : !newViewProps.${name}.hasSameValue(oldViewProps->${name})) {
-  swiftPart.${setter}(${indent(parse, '  ')});
+  _hybridView->${setter}(newViewProps.${name}.get());
 }
 `.trim()
   })
   const mmFile = `
 ${createFileMetadataString(`${component}.mm`)}
 
-#import "${component}.hpp"
+${imports}
 #import <memory>
 #import <react/renderer/componentregistry/ComponentDescriptorProvider.h>
 #import <React/RCTViewComponentView.h>
@@ -68,8 +77,6 @@ ${createFileMetadataString(`${component}.mm`)}
 #import <NitroModules/NitroDefines.hpp>
 #import <UIKit/UIKit.h>
 
-#import "${HybridTSpecSwift}.hpp"
-#import "${getUmbrellaHeaderName()}"
 
 #if __has_include(<cxxreact/ReactNativeVersion.h>)
 #include <cxxreact/ReactNativeVersion.h>
@@ -78,6 +85,7 @@ ${createFileMetadataString(`${component}.mm`)}
 #endif
 #endif
 
+using namespace margelo;
 using namespace facebook;
 using namespace ${namespace};
 using namespace ${namespace}::views;
@@ -85,18 +93,18 @@ using namespace ${namespace}::views;
 /**
  * Represents the React Native View holder for the Nitro "${spec.name}" HybridView.
  */
-@interface ${component}: RCTViewComponentView
+@interface ${objcComponentName}: RCTViewComponentView
 + (BOOL)shouldBeRecycled;
 @end
 
-@implementation ${component} {
+@implementation ${objcComponentName} {
   std::shared_ptr<${HybridTSpecSwift}> _hybridView;
   BOOL _didDropView;
 }
 
 + (void) load {
   [super load];
-  [RCTComponentViewFactory.currentComponentViewFactory registerComponentViewClass:[${component} class]];
+  [RCTComponentViewFactory.currentComponentViewFactory registerComponentViewClass:[${objcComponentName} class]];
 }
 
 + (react::ComponentDescriptorProvider) componentDescriptorProvider {
@@ -106,7 +114,7 @@ using namespace ${namespace}::views;
 - (instancetype) init {
   if (self = [super init]) {
     _props = ${shadowNodeClassName}::defaultSharedProps();
-    std::shared_ptr<${HybridTSpec}> hybridView = ${getHybridObjectConstructorCall(spec.name)}
+    auto hybridView = ${swiftNamespace}::${HybridTSpecCxx}::create${spec.name}View();
     _hybridView = std::dynamic_pointer_cast<${HybridTSpecSwift}>(hybridView);
     [self updateView];
   }
@@ -161,7 +169,7 @@ using namespace ${namespace}::views;
       // hybridRef changed - call it with new this
       const auto& maybeFunc = newViewProps.hybridRef.get();
       if (maybeFunc.has_value()) {
-        maybeFunc.value()(_hybridView);
+        maybeFunc.value().callAsync(_hybridView);
       }
     }
 
@@ -173,7 +181,7 @@ using namespace ${namespace}::views;
 }
 
 + (BOOL)shouldBeRecycled {
-  return ${getIsRecyclableCall(spec.name)}
+  return ${swiftNamespace}::${HybridTSpecCxx}::is${spec.name}Recyclable();
 }
 
 - (void)prepareForRecycle {
@@ -191,7 +199,7 @@ using namespace ${namespace}::views;
 #endif
 
 @end
-  `
+  `.trim()
 
   return [
     ...cppFiles,

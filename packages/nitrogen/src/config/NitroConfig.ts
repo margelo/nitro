@@ -1,14 +1,8 @@
 import chalk from 'chalk'
 import { readUserConfig } from './getConfig.js'
-import type {
-  AutolinkingAndroidImplementation,
-  AutolinkingIOSImplementation,
-  AutolinkingPlatformImplementation,
-  NitroUserConfig,
-} from './NitroUserConfig.js'
-
-const CXX_BASE_NAMESPACE = ['margelo', 'nitro']
-const ANDROID_BASE_NAMESPACE = ['com', 'margelo', 'nitro']
+import { ANDROID_BASE_NAMESPACE, CXX_BASE_NAMESPACE } from './namespaces.js'
+import type { NitroUserConfig } from './NitroUserConfig.js'
+import type { CxxHeaderVisibility } from '../syntax/SourceFile.js'
 
 /**
  * Represents the properly parsed `nitro.json` config of the current executing directory.
@@ -33,6 +27,13 @@ export class NitroConfig {
     return this.singleton
   }
 
+  /** Returns the package to import Nitro's JavaScript runtime from. */
+  getRuntimePackageName(): string {
+    return this.config.environment === 'react-native'
+      ? 'react-native-nitro-modules'
+      : 'nitro-core'
+  }
+
   /**
    * Returns the name of the Android C++ library (aka name in CMakeLists.txt `add_library(..)`).
    * This will be loaded via `System.loadLibrary(...)`.
@@ -48,6 +49,11 @@ export class NitroConfig {
    */
   getIosModuleName(): string {
     return this.config.ios.iosModuleName
+  }
+
+  /** Returns the registry key for a HybridObject in this module. */
+  getHybridClassRegistryName(name: string): string {
+    return [...this.config.cxxNamespace, name].join('.')
   }
 
   /**
@@ -107,59 +113,8 @@ export class NitroConfig {
   }
 
   /**
-   * Get the autolinking configuration of all HybridObjects.
-   * Those will be generated and default-constructed.
-   */
-  getAutolinkedHybridObjects(): NitroUserConfig['autolinking'] {
-    return this.config.autolinking
-  }
-
-  getPlatformAutolinkedImplementation(
-    hybridObjectName: string,
-    platform: string
-  ): AutolinkingPlatformImplementation | undefined {
-    const objectConfig = this.config.autolinking[hybridObjectName]
-    if (objectConfig == null) {
-      return undefined
-    }
-
-    // "all" applies to every platform and should automatically include
-    // future platforms without having to expand explicit key lists here.
-    if (objectConfig.all != null) {
-      return objectConfig.all
-    }
-    return objectConfig[platform]
-  }
-
-  getIosAutolinkedImplementation(
-    hybridObjectName: string
-  ): AutolinkingIOSImplementation | undefined {
-    const objectConfig = this.config.autolinking[hybridObjectName]
-    if (objectConfig == null) {
-      return undefined
-    }
-    if (objectConfig.all != null) {
-      return objectConfig.all
-    }
-    return objectConfig.ios
-  }
-
-  getAndroidAutolinkedImplementation(
-    hybridObjectName: string
-  ): AutolinkingAndroidImplementation | undefined {
-    const objectConfig = this.config.autolinking[hybridObjectName]
-    if (objectConfig == null) {
-      return undefined
-    }
-    if (objectConfig.all != null) {
-      return objectConfig.all
-    }
-    return objectConfig.android
-  }
-
-  /**
    * Get the paths that will be ignored when loading the TypeScript project.
-   * In most cases, this just contains `node_modules/`.
+   * `node_modules` is always ignored, so it doesn't need to be listed here.
    */
   getIgnorePaths(): string[] {
     return this.config.ignorePaths ?? []
@@ -172,12 +127,48 @@ export class NitroConfig {
     )
   }
 
-  getSwiftBridgeHeaderName(): string {
+  /**
+   * Get the include of a generated C++ header that belongs to this module.
+   */
+  getCxxHeader(
+    fileName: string,
+    visibility: CxxHeaderVisibility = 'public'
+  ): { name: string; space: 'system' } {
+    const directory = this.getCxxHeaderDirectory(visibility).slice(1)
+    return {
+      name: [...directory, fileName].join('/'),
+      space: 'system',
+    }
+  }
+
+  /** Get the directory where this module's C++ headers are generated. */
+  getCxxHeaderDirectory(visibility: CxxHeaderVisibility): string[] {
+    const directory = ['include', this.getIosModuleName()]
+    if (visibility === 'private') {
+      directory.push('private')
+    }
+    return directory
+  }
+
+  getAppleCxxTargetName(): string {
+    return `${this.getIosModuleName()}AppleCxx`
+  }
+
+  /** Get the public C++ bridge declarations that this module exposes to Swift. */
+  getAppleCxxHeader(): { name: string; space: 'system' } {
+    const targetName = this.getAppleCxxTargetName()
+    return {
+      name: `${targetName}/${targetName}.h`,
+      space: 'system',
+    }
+  }
+
+  getSwiftBridgeSourceName(): string {
     const moduleName = this.getIosModuleName()
-    return `${moduleName}-Swift-Cxx-Bridge`
+    return `${moduleName}-Swift-Cxx-Bridge.cpp`
   }
 
   getSwiftBridgeNamespace(language: 'c++' | 'swift'): string {
-    return this.getCxxNamespace(language, 'bridge', 'swift')
+    return this.getCxxNamespace(language, 'swift_bridge')
   }
 }

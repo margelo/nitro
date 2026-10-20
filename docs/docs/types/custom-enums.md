@@ -10,11 +10,14 @@ There's two different types of enums - [enums](#typescript-enums) and [unions](#
 A [TypeScript enum](https://www.typescriptlang.org/docs/handbook/enums.html) is essentially just an object where each key is backed by ascending integer values. Nitrogen will generate a C++ enum natively, which bridges to JS as a simple integer:
 
 ```ts
+import { type HybridObject, iOS } from 'nitro-core'
+
 enum Gender {
   MALE,
   FEMALE
 }
-interface Person extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Person extends HybridObject {
   getGender(): Gender
 }
 ```
@@ -26,8 +29,11 @@ This is efficient because `MALE` is the number `0`, `FEMALE` is the number `1`, 
 A [TypeScript union](https://www.typescriptlang.org/docs/handbook/unions-and-intersections.html#intersection-types) is essentially just a variant of literal strings, which is only "typed" via TypeScript.
 
 ```ts
+import { type HybridObject, iOS } from 'nitro-core'
+
 type Gender = 'male' | 'female'
-interface Person extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Person extends HybridObject {
   getGender(): Gender
 }
 ```
@@ -42,8 +48,11 @@ A TypeScript union consisting of only literal strings needs to be aliased to a s
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
+import { type HybridObject, iOS } from 'nitro-core'
 
-interface Person extends HybridObject<{ … }> {
+
+@iOS(...)
+export declare class Person extends HybridObject {
   getGender(): 'male' | 'female'
 }
 ```
@@ -52,8 +61,11 @@ interface Person extends HybridObject<{ … }> {
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
+import { type HybridObject, iOS } from 'nitro-core'
+
 type Gender = 'male' | 'female'
-interface Person extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Person extends HybridObject {
   getGender(): Gender
 }
 ```

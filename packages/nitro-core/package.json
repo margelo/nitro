@@ -1,6 +1,6 @@
 {
   "name": "nitro-core",
-  "version": "0.37.1",
+  "version": "1.0.0-alpha.0",
   "description": "Nitro's shared native runtime, JavaScript API, and TypeScript definitions.",
   "main": "./js/lib/commonjs/index.js",
   "module": "./js/lib/module/index.js",
@@ -51,11 +51,11 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "node js/build.mjs",
+    "build": "bun js/build.mjs",
     "typecheck": "tsc -p js/tsconfig.json",
     "lint": "eslint \"js/src/**/*.ts\" --fix",
     "lint-ci": "eslint \"js/src/**/*.ts\" -f @jamesacarr/github-actions --max-warnings 0",
-    "prepack": "bun --cwd ../.. check-versions 1>&2 && bun run build 1>&2",
+    "prepack": "bun --filter @nitro/scripts check-versions 1>&2 && bun run build 1>&2",
     "clean": "rm -rf js/lib"
   }
 }

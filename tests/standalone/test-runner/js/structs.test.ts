@@ -1,10 +1,7 @@
 import { expect } from "chai";
 import { casesForTestObjects, recordCallback, waitFor } from "./utils/cases";
 
-import {
-  type Car,
-  type OptionalWrapper,
-} from "nitro-test";
+import { type Car, type OptionalWrapper } from "nitro-test";
 
 import {
   sumUpAllPassengers,
@@ -140,7 +137,7 @@ export const cases = {
         year: 2018,
         make: "Lamborghini",
         model:
-          testObject.name === "TestObjectCpp"
+          testObject.constructor.name === "TestObjectCpp"
             ? "Huracan Performante"
             : "Huracán",
         power: 640,
@@ -447,14 +444,14 @@ export const cases = {
     "bounceCar(...) rejects a number": (testObject) => {
       // @ts-expect-error passing a number instead of a Car
       expect(() => testObject.bounceCar(5)).to.throw(
-        `${testObject.name}.bounceCar(...): Value is a number, expected an Object`,
+        `${testObject.constructor.name}.bounceCar(...): Value is a number, expected an Object`,
       );
     },
 
     "bounceCar(...) rejects null": (testObject) => {
       // @ts-expect-error passing null instead of a Car
       expect(() => testObject.bounceCar(null)).to.throw(
-        `${testObject.name}.bounceCar(...): Value is null, expected an Object`,
+        `${testObject.constructor.name}.bounceCar(...): Value is null, expected an Object`,
       );
     },
 
@@ -462,7 +459,7 @@ export const cases = {
       const car = withoutKey(TEST_CAR, "make");
       // @ts-expect-error passing a Car without a make
       expect(() => testObject.bounceCar(car)).to.throw(
-        `${testObject.name}.bounceCar(...): Value is undefined, expected a String`,
+        `${testObject.constructor.name}.bounceCar(...): Value is undefined, expected a String`,
       );
     },
 
@@ -470,7 +467,7 @@ export const cases = {
       const car = withoutKey(TEST_CAR, "year");
       // @ts-expect-error passing a Car without a year
       expect(() => testObject.bounceCar(car)).to.throw(
-        `${testObject.name}.bounceCar(...): Value is undefined, expected a number`,
+        `${testObject.constructor.name}.bounceCar(...): Value is undefined, expected a number`,
       );
     },
 
@@ -478,7 +475,7 @@ export const cases = {
       const car = withoutKey(TEST_CAR, "passengers");
       // @ts-expect-error passing a Car without passengers
       expect(() => testObject.bounceCar(car)).to.throw(
-        `${testObject.name}.bounceCar(...): Value is undefined, expected an Object`,
+        `${testObject.constructor.name}.bounceCar(...): Value is undefined, expected an Object`,
       );
     },
 
@@ -487,7 +484,7 @@ export const cases = {
         // @ts-expect-error passing a string power
         testObject.bounceCar({ ...TEST_CAR, power: "640" }),
       ).to.throw(
-        `${testObject.name}.bounceCar(...): Value is a string, expected a number`,
+        `${testObject.constructor.name}.bounceCar(...): Value is a string, expected a number`,
       );
     },
 
@@ -496,7 +493,7 @@ export const cases = {
         // @ts-expect-error passing a string isFast
         testObject.bounceCar({ ...TEST_CAR, isFast: "yes" }),
       ).to.throw(
-        `${testObject.name}.bounceCar(...): Value is a string, expected a boolean`,
+        `${testObject.constructor.name}.bounceCar(...): Value is a string, expected a boolean`,
       );
     },
 
@@ -505,7 +502,33 @@ export const cases = {
         // @ts-expect-error passing an unknown Powertrain
         testObject.bounceCar({ ...TEST_CAR, powertrain: "diesel" }),
       ).to.throw(
-        `${testObject.name}.bounceCar(...): Cannot convert "diesel" to enum Powertrain - invalid value!`,
+        `${testObject.constructor.name}.bounceCar(...): Cannot convert "diesel" to enum Powertrain - invalid value!`,
+      );
+    },
+
+    "bounceCar(...) rejects a missing powertrain": (testObject) => {
+      const car = withoutKey(TEST_CAR, "powertrain");
+      // @ts-expect-error passing a Car without its required enum field
+      expect(() => testObject.bounceCar(car)).to.throw(
+        `${testObject.constructor.name}.bounceCar(...): Value is undefined, expected a String`,
+      );
+    },
+
+    "bounceCar(...) rejects a null powertrain": (testObject) => {
+      expect(() =>
+        // @ts-expect-error passing null instead of a Powertrain
+        testObject.bounceCar({ ...TEST_CAR, powertrain: null }),
+      ).to.throw(
+        `${testObject.constructor.name}.bounceCar(...): Value is null, expected a String`,
+      );
+    },
+
+    "bounceCar(...) rejects a numeric powertrain": (testObject) => {
+      expect(() =>
+        // @ts-expect-error passing a number instead of a Powertrain
+        testObject.bounceCar({ ...TEST_CAR, powertrain: 55 }),
+      ).to.throw(
+        `${testObject.constructor.name}.bounceCar(...): Value is a number, expected a String`,
       );
     },
 
@@ -514,7 +537,7 @@ export const cases = {
         // @ts-expect-error passing null where only undefined is optional
         testObject.bounceCar({ ...TEST_CAR, driver: null }),
       ).to.throw(
-        `${testObject.name}.bounceCar(...): Value is null, expected an Object`,
+        `${testObject.constructor.name}.bounceCar(...): Value is null, expected an Object`,
       );
     },
 
@@ -522,7 +545,7 @@ export const cases = {
       const driver = withoutKey(TEST_PERSON, "age");
       // @ts-expect-error passing a driver without an age
       expect(() => testObject.bounceCar({ ...TEST_CAR, driver })).to.throw(
-        `${testObject.name}.bounceCar(...): Value is undefined, expected a number`,
+        `${testObject.constructor.name}.bounceCar(...): Value is undefined, expected a number`,
       );
     },
 
@@ -530,7 +553,7 @@ export const cases = {
       const passengers = [{ name: 5, age: 18 }];
       // @ts-expect-error passing a number as the passenger name
       expect(() => testObject.bounceCar({ ...TEST_CAR, passengers })).to.throw(
-        `${testObject.name}.bounceCar(...): Value is a number, expected a String`,
+        `${testObject.constructor.name}.bounceCar(...): Value is a number, expected a String`,
       );
     },
 
@@ -538,7 +561,7 @@ export const cases = {
       const car = { ...TEST_CAR, performanceScores: [100, "0"] };
       // @ts-expect-error passing a string performance score
       expect(() => testObject.bounceCar(car)).to.throw(
-        `${testObject.name}.bounceCar(...): Value is a string, expected a number`,
+        `${testObject.constructor.name}.bounceCar(...): Value is a string, expected a number`,
       );
     },
 
@@ -546,14 +569,14 @@ export const cases = {
       const car = { ...TEST_CAR, someVariant: true };
       // @ts-expect-error passing a boolean someVariant
       expect(() => testObject.bounceCar(car)).to.throw(
-        `${testObject.name}.bounceCar(...): Cannot convert "true" to any type in variant<`,
+        `${testObject.constructor.name}.bounceCar(...): Cannot convert "true" to any type in variant<`,
       );
     },
 
     "bouncePartialStruct(...) rejects a number name": (testObject) => {
       // @ts-expect-error passing a number name
       expect(() => testObject.bouncePartialStruct({ name: 5 })).to.throw(
-        `${testObject.name}.bouncePartialStruct(...): Value is a number, expected a String`,
+        `${testObject.constructor.name}.bouncePartialStruct(...): Value is a number, expected a String`,
       );
     },
 
@@ -563,7 +586,25 @@ export const cases = {
       const wrapper = { tier: "diesel" };
       // @ts-expect-error passing an unknown Powertrain
       expect(() => testObject.bounceOptionalEnumStruct(wrapper)).to.throw(
-        `${testObject.name}.bounceOptionalEnumStruct(...): Cannot convert "diesel" to enum Powertrain - invalid value!`,
+        `${testObject.constructor.name}.bounceOptionalEnumStruct(...): Cannot convert "diesel" to enum Powertrain - invalid value!`,
+      );
+    },
+
+    "bounceOptionalEnumStruct(...) rejects a null enum field": (testObject) => {
+      expect(() =>
+        // @ts-expect-error optional enum fields accept undefined, not null
+        testObject.bounceOptionalEnumStruct({ tier: null }),
+      ).to.throw(
+        `${testObject.constructor.name}.bounceOptionalEnumStruct(...): Value is null, expected a String`,
+      );
+    },
+
+    "bounceOptionalEnumStruct(...) rejects a numeric enum field": (
+      testObject,
+    ) => {
+      // @ts-expect-error passing a number instead of an optional Powertrain
+      expect(() => testObject.bounceOptionalEnumStruct({ tier: 55 })).to.throw(
+        `${testObject.constructor.name}.bounceOptionalEnumStruct(...): Value is a number, expected a String`,
       );
     },
 
@@ -574,7 +615,7 @@ export const cases = {
         // @ts-expect-error passing a JsStyleStruct without onChanged
         testObject.jsStyleObjectAsParameters({ value: 55 }),
       ).to.throw(
-        `${testObject.name}.jsStyleObjectAsParameters(...): Value is undefined, expected an Object`,
+        `${testObject.constructor.name}.jsStyleObjectAsParameters(...): Value is undefined, expected an Object`,
       );
     },
   }),

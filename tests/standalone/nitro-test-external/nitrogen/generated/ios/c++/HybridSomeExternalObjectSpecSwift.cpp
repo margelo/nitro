@@ -5,7 +5,73 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridSomeExternalObjectSpecSwift.hpp"
+#include <NitroTestExternal/private/HybridSomeExternalObjectSpecSwift.hpp>
+#include <NitroModules/SwiftConverter.hpp>
+#include <NitroModules/SwiftResult.hpp>
+#include <optional>
 
 namespace margelo::nitro::test::external {
+
+  std::string HybridSomeExternalObjectSpecSwift::toString() {
+    return SwiftConverter<std::string, swift::String>::fromSwift(_swiftPart.toString());
+  }
+
+  // Properties
+
+  // Methods
+
+  std::string HybridSomeExternalObjectSpecSwift::getValue() {
+    auto __result = getValue_Swift();
+    return SwiftConverter<std::string, swift::String>::fromSwift(__result);
+  }
+
+  swift::String HybridSomeExternalObjectSpecSwift::getValue_Swift() {
+    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
+      return _swiftPart.getValue(__outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  OptionalPrimitivesHolder HybridSomeExternalObjectSpecSwift::createOptionalPrimitivesHolder(const std::optional<double>& optionalNumber, const std::optional<bool>& optionalBoolean, const std::optional<uint64_t>& optionalUInt64, const std::optional<int64_t>& optionalInt64) {
+    auto __result = createOptionalPrimitivesHolder_Swift(SwiftConverter<std::optional<double>, swift::Optional<double>>::toSwift(optionalNumber), SwiftConverter<std::optional<bool>, swift::Optional<bool>>::toSwift(optionalBoolean), SwiftConverter<std::optional<uint64_t>, swift::Optional<uint64_t>>::toSwift(optionalUInt64), SwiftConverter<std::optional<int64_t>, swift::Optional<int64_t>>::toSwift(optionalInt64));
+    return SwiftConverter<margelo::nitro::test::external::OptionalPrimitivesHolder, NitroTestExternal::OptionalPrimitivesHolder>::fromSwift(__result);
+  }
+
+  NitroTestExternal::OptionalPrimitivesHolder HybridSomeExternalObjectSpecSwift::createOptionalPrimitivesHolder_Swift(const swift::Optional<double>& optionalNumber, const swift::Optional<bool>& optionalBoolean, const swift::Optional<uint64_t>& optionalUInt64, const swift::Optional<int64_t>& optionalInt64) {
+    auto __result = withSwiftResult<NitroTestExternal::OptionalPrimitivesHolder>([&](void* __outResult) {
+      return _swiftPart.createOptionalPrimitivesHolder(optionalNumber, optionalBoolean, optionalUInt64, optionalInt64, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  // Constructor
+
+  std::shared_ptr<HybridSomeExternalObjectSpec> HybridSomeExternalObjectSpecSwift::constructor() {
+    auto __result = constructor_Swift();
+    return SwiftConverter<std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>, NitroTestExternal::HybridSomeExternalObjectSpec_cxx>::fromSwift(__result);
+  }
+
+  NitroTestExternal::HybridSomeExternalObjectSpec_cxx HybridSomeExternalObjectSpecSwift::constructor_Swift() {
+    auto __result = NitroTestExternal::HybridSomeExternalObjectSpec_cxx::constructor();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return NitroTestExternal::HybridSomeExternalObjectSpec_cxx::fromUnsafe(__result.value());
+  }
+
+  const std::shared_ptr<const HybridClass>& HybridSomeExternalObjectSpecSwift::Class::get() {
+    static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
+      clazz.registerHybridMethod("getValue", &HybridSomeExternalObjectSpecSwift::getValue_Swift);
+      clazz.registerHybridMethod("createOptionalPrimitivesHolder", &HybridSomeExternalObjectSpecSwift::createOptionalPrimitivesHolder_Swift);
+      clazz.registerHybridConstructor(&HybridSomeExternalObjectSpecSwift::constructor_Swift);
+    });
+    return hybridClass;
+  }
+
 } // namespace margelo::nitro::test::external

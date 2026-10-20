@@ -10,6 +10,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build-ios.yml'
+      - 'Package.swift'
+      - 'Package.resolved'
       - 'packages/nitro-core/**'
       - 'packages/nitrogen/**'
       - 'packages/react-native-nitro-modules/**'
@@ -24,20 +26,13 @@ on:
       - 'config/**'
 
 env:
-  XCODE_VERSION: '26.5'
+  XCODE_VERSION: '27.1'
   IOS_SIMULATOR_DESTINATION: 'generic/platform=iOS Simulator'
 
 jobs:
   build:
     name: Build iOS Example App
-    runs-on: macOS-26
-    strategy:
-      matrix:
-        include:
-          - name: static_frameworks
-            use_frameworks: static
-          - name: no_frameworks
-            use_frameworks: ""   # intentionally unset
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v7
         with:
@@ -45,10 +40,6 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: package.json
-
-      - name: Set USE_FRAMEWORKS
-        if: matrix.use_frameworks != ''
-        run: echo "USE_FRAMEWORKS=${{ matrix.use_frameworks }}" >> "$GITHUB_ENV"
 
       - name: Install npm dependencies (bun)
         run: bun install --frozen-lockfile
@@ -60,7 +51,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           max-size: 1.5G
-          key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.XCODE_VERSION }}-${{ matrix.use_frameworks }}-ccache-example-ios
+          key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.XCODE_VERSION }}-spm-ccache-example-ios
       - name: Setup ccache behavior
         run: |
           {
@@ -70,34 +61,23 @@ jobs:
             echo "CCACHE_INODECACHE=true"
           } >> "$GITHUB_ENV"
 
-      - name: Setup Ruby (bundle)
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.7.2
-          bundler-cache: true
-          working-directory: tests/react-native/apps/example
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s "/Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer"
+          xcodebuild -version
+          xcrun swift --version
 
-      - name: Select Xcode ${{ env.XCODE_VERSION }}
-        run: sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer"
-
-      - name: Restore Pods cache
-        uses: actions/cache@v6
-        with:
-          path: tests/react-native/apps/example/ios/Pods
-          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-pods-${{ hashFiles('bun.lock', 'tests/react-native/apps/example/Gemfile.lock', 'tests/react-native/apps/example/ios/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-pods-
-      - name: Install Pods
+      - name: Resolve Swift packages
         working-directory: tests/react-native/apps/example
-        run: bun pods
+        run: bun spm
 
       - name: Restore DerivedData cache
         uses: actions/cache@v6
         with:
           path: tests/react-native/apps/example/ios/build
-          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-xcode${{ env.XCODE_VERSION }}-dd-${{ hashFiles('bun.lock', 'tests/react-native/apps/example/Gemfile.lock', 'tests/react-native/apps/example/ios/Podfile.lock') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-spm-xcode${{ env.XCODE_VERSION }}-dd-${{ hashFiles('bun.lock', '**/Package.swift', '**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-xcode${{ env.XCODE_VERSION }}-dd-
+            ${{ runner.os }}-${{ runner.arch }}-spm-xcode${{ env.XCODE_VERSION }}-dd-
 
       - name: Build App
         working-directory: tests/react-native/apps/example/ios
@@ -107,7 +87,7 @@ jobs:
             C_COMPILER_LAUNCHER="$(command -v ccache)" \
             CLANG_ENABLE_EXPLICIT_MODULES_WITH_COMPILER_LAUNCHER=YES \
             -derivedDataPath build -UseModernBuildSystem=YES \
-            -workspace NitroExample.xcworkspace \
+            -project NitroExample.xcodeproj \
             -scheme NitroExample \
             -sdk iphonesimulator \
             -configuration Debug \

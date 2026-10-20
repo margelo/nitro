@@ -1,5 +1,5 @@
 import { ArrayType } from './types/ArrayType.js'
-import { FunctionType } from './types/FunctionType.js'
+import { CallbackType } from './types/CallbackType.js'
 import { getTypeAs } from './types/getTypeAs.js'
 import { OptionalType } from './types/OptionalType.js'
 import { PromiseType } from './types/PromiseType.js'
@@ -15,12 +15,12 @@ export function getReferencedTypes(type: Type): Type[] {
       const array = getTypeAs(type, ArrayType)
       return [type, ...getReferencedTypes(array.itemType)]
 
-    case 'function':
-      const func = getTypeAs(type, FunctionType)
+    case 'callback':
+      const callback = getTypeAs(type, CallbackType)
       return [
         type,
-        ...getReferencedTypes(func.returnType),
-        ...func.parameters.flatMap((t) => getReferencedTypes(t)),
+        ...getReferencedTypes(callback.returnType),
+        ...callback.parameters.flatMap((t) => getReferencedTypes(t)),
       ]
 
     case 'optional':

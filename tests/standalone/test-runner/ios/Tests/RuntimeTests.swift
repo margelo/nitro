@@ -1,16 +1,30 @@
 import Foundation
+import NitroTestRunnerBridge
 import Testing
 
 private final class TestBundle: NSObject {}
 
-private let runtimeQueue = DispatchQueue(label: "com.margelo.nitro.tests.runtime")
+private var testResources: Bundle {
+  #if SWIFT_PACKAGE
+    return Bundle.module
+  #else
+    return Bundle(for: TestBundle.self)
+  #endif
+}
+
+private let runtimeQueue: OperationQueue = {
+  let queue = OperationQueue()
+  queue.name = "com.margelo.nitro.tests.runtime"
+  queue.maxConcurrentOperationCount = 2
+  return queue
+}()
 
 private func runNitroTest(_ source: String, _ name: String, _ timeoutMs: UInt32) async -> String? {
   // The native runner blocks until JS settles. Swift Promise.async fixtures need
   // the cooperative executor to remain free while the runner pumps callbacks.
   await withCheckedContinuation { continuation in
-    runtimeQueue.async {
-      continuation.resume(returning: NitroRunTest(source, name, timeoutMs))
+    runtimeQueue.addOperation {
+      continuation.resume(returning: NitroRunTest(source, name, timeoutMs, nil))
     }
   }
 }
@@ -19,10 +33,12 @@ private struct JavaScriptFailure: Error, CustomStringConvertible {
   let description: String
 }
 
-@Suite(.serialized)
+@Suite
 struct RuntimeTests {
-  private static func testNames(skipped: Bool = false) throws -> [String] {
-    let resources = Bundle(for: TestBundle.self)
+  private static func testNames(
+    skipped: Bool = false, sharedStaticState: Bool? = nil
+  ) throws -> [String] {
+    let resources = testResources
     guard let url = resources.url(forResource: "runtime-tests", withExtension: "json") else {
       throw JavaScriptFailure(
         description:
@@ -60,6 +76,11 @@ struct RuntimeTests {
         description: "Invalid test exclusion metadata in runtime-test-skips.json.")
     }
     return names.filter { name in
+      if let sharedStaticState,
+        name.hasPrefix("static-properties.") != sharedStaticState
+      {
+        return false
+      }
       var reason = skips[name]?["ios"]
       #if !DEBUG
         reason = reason ?? skips[name]?["release"]
@@ -68,17 +89,27 @@ struct RuntimeTests {
     }
   }
 
-  private func run(_ name: String) async throws {
-    let resources = Bundle(for: TestBundle.self)
+  private static let bundleSource = Result {
+    let resources = testResources
     let url = try #require(resources.url(forResource: "runtime-tests", withExtension: "js"))
-    let source = try String(contentsOf: url, encoding: .utf8)
-    if let failure = await runNitroTest(source, name, 10_000) {
+    return try String(contentsOf: url, encoding: .utf8)
+  }
+
+  private func run(_ name: String) async throws {
+    if let failure = await runNitroTest(try Self.bundleSource.get(), name, 10_000) {
       throw JavaScriptFailure(description: failure)
     }
   }
 
-  @Test(arguments: try RuntimeTests.testNames())
+  @Test(arguments: try RuntimeTests.testNames(sharedStaticState: false))
   func javaScript(_ name: String) async throws {
+    try await run(name)
+  }
+
+  // These cases write process-wide native storage. Fresh JS runtimes do not
+  // isolate their write/assert/restore sequences from each other.
+  @Test(.serialized, arguments: try RuntimeTests.testNames(sharedStaticState: true))
+  func staticProperties(_ name: String) async throws {
     try await run(name)
   }
 
@@ -110,7 +141,8 @@ struct RuntimeTests {
   @Test func swiftTasksCanCompleteDuringNativeRun() async throws {
     let source = """
       globalThis.runNitroTest = async () => {
-        const object = NitroModulesProxy.createHybridObject('TestObjectSwiftKotlin');
+        const TestObject = NitroModulesProxy.getHybridClass('test.TestObjectSwiftKotlin');
+        const object = new TestObject();
         const value = await object.calculateFibonacciAsync(10);
         if (value !== 55n) throw new Error('Unexpected Fibonacci result');
       };
@@ -131,6 +163,41 @@ struct RuntimeTests {
       let failure = await runNitroTest(source, "runtime-isolation-contract", 1000)
       #expect(failure == nil)
     }
+  }
+
+  @Test func parallelRuntimesOverlapAndStayIsolated() async {
+    let source = """
+      globalThis.executionCount = (globalThis.executionCount ?? 0) + 1;
+      globalThis.runNitroTest = async () => {
+        if (globalThis.executionCount !== 1) throw new Error('runtime was reused');
+        globalThis.executionCount++;
+        const TestObject = NitroModulesProxy.getHybridClass('test.TestObjectSwiftKotlin');
+        const object = new TestObject();
+        const value = await object.calculateFibonacciAsync(10);
+        if (value !== 55n) throw new Error('callback reached the wrong runtime');
+      };
+      """
+    let runs = ConcurrentRuns()
+    await withCheckedContinuation { continuation in
+      let operations = (0..<3).map { index in
+        let operation = BlockOperation {
+          let failure = NitroRunTest(source, "parallel-runtime-\(index)", 10_000) {
+            runs.started(index)
+          }
+          if runs.finished(index, failure: failure) {
+            continuation.resume()
+          }
+        }
+        // Keep the rendezvous pair together ahead of the behavior-test backlog.
+        operation.queuePriority = .veryHigh
+        return operation
+      }
+      runtimeQueue.addOperations(operations, waitUntilFinished: false)
+    }
+    let result = runs.result
+    #expect(result.overlapped, "Two initialized Hermes runtimes must meet before either test runs")
+    #expect(result.peak == 2, "The third native test must wait for a worker")
+    #expect(result.failures.isEmpty, "\(result.failures)")
   }
 
   @Test func changedBundleReplacesPreparedSource() async throws {
@@ -231,5 +298,48 @@ struct RuntimeTests {
     let failure = try #require(await runNitroTest(source, "microtask-timeout-contract", 1000))
     #expect(failure.localizedCaseInsensitiveContains("timed out"))
     #expect(failure.contains("running JS test"))
+  }
+}
+
+// Protect observations shared by the two native workers. The deadline only
+// makes a serialization regression fail instead of hanging the test process.
+private final class ConcurrentRuns: @unchecked Sendable {
+  private let condition = NSCondition()
+  private var active: Set<Int> = []
+  private var startedCount = 0
+  private var finishedCount = 0
+  private var peak = 0
+  private var overlapped = true
+  private var failures: [String] = []
+
+  func started(_ index: Int) {
+    condition.lock()
+    defer { condition.unlock() }
+    active.insert(index)
+    startedCount += 1
+    peak = max(peak, active.count)
+    condition.broadcast()
+    let deadline = Date().addingTimeInterval(10)
+    while startedCount < 2 {
+      if !condition.wait(until: deadline) {
+        overlapped = false
+        break
+      }
+    }
+  }
+
+  func finished(_ index: Int, failure: String?) -> Bool {
+    condition.lock()
+    defer { condition.unlock() }
+    active.remove(index)
+    finishedCount += 1
+    if let failure { failures.append(failure) }
+    return finishedCount == 3
+  }
+
+  var result: (overlapped: Bool, peak: Int, failures: [String]) {
+    condition.lock()
+    defer { condition.unlock() }
+    return (overlapped && startedCount == 3, peak, failures)
   }
 }

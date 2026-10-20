@@ -1,6 +1,8 @@
 import type { Language, Platform } from '../getPlatformSpecs.js'
 import type { Type } from './types/Type.js'
 
+export type CxxHeaderVisibility = 'public' | 'private'
+
 /**
  * Represents a file with source code, in a specific programming language.
  */
@@ -25,6 +27,11 @@ export interface SourceFile {
    * The platform this file can be used on or is created for. (e.g. `ios`)
    */
   platform: Platform | 'shared'
+  /**
+   * The include directory for a C++ header. Shared headers default to public;
+   * platform bridge headers default to private.
+   */
+  headerVisibility?: CxxHeaderVisibility
 }
 
 /**
@@ -38,36 +45,27 @@ export interface FileWithReferencedTypes extends SourceFile {
   referencedTypes: Type[]
 }
 
-/**
- * Represents an import for a specific header or module.
- *
- * E.g. `include "Image.hpp"`, or `import NitroModules`
- */
-export interface SourceImport {
-  /**
-   * The name of the header or module to import (e.g. `Image.hpp`)
-   */
-  name: string
-  /**
-   * If this is a C++ import, it could also be forward-declared.
-   * @example
-   * ```cpp
-   * namespace NitroTest {
-   *   class HybridImage;
-   * }
-   * ```
-   */
-  forwardDeclaration?: string
-  /**
-   * The language this file is written in (e.g. `c++`)
-   */
-  language: Language
-  /**
-   * Whether the import is a user-defined header (something local, like `"MyObject.hpp"`)
-   * or a shared system header (like `<NitroModules/HybridObject.hpp>`)
-   */
-  space: 'user' | 'system'
-}
+export type SourceImport<L extends Language = Language> = L extends 'c++'
+  ? {
+      language: L
+      /** Code required wherever this type is declared. */
+      declaration:
+        | { forwardDeclaration: string }
+        | { name: string; space: 'user' | 'system' }
+      /**
+       * A definition needed by implementations using this type.
+       * Defaults to the declaration if it is an include.
+       */
+      implementation?: { name: string; space: 'user' | 'system' }
+    }
+  : L extends 'swift'
+    ? {
+        language: L
+        name: string
+        /** The widest declaration visibility that may reference this module. */
+        access: 'private' | 'internal' | 'public'
+      }
+    : { language: L; name: string }
 
 type GroupedFiles = Record<SourceFile['platform'], SourceFile[]>
 

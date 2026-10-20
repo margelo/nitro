@@ -9,6 +9,15 @@
     "autolinking"
   ],
   "properties": {
+    "environment": {
+      "type": "string",
+      "enum": [
+        "react-native",
+        "bare"
+      ],
+      "default": "react-native",
+      "description": "Selects the package imported by generated JavaScript runtime modules: react-native-nitro-modules for react-native, or nitro-core for bare."
+    },
     "cxxNamespace": {
       "type": "array",
       "items": {

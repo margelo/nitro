@@ -5,24 +5,10 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridRecyclableTestViewSpec.hpp"
+#include <NitroTest/HybridRecyclableTestViewSpec.hpp>
 
 namespace margelo::nitro::test {
 
-  void HybridRecyclableTestViewSpec::loadHybridMethods() {
-    // load base methods/properties
-    HybridObject::loadHybridMethods();
-    // load custom methods/properties
-    registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("isBlue", &HybridRecyclableTestViewSpec::getIsBlue);
-      prototype.registerHybridSetter("isBlue", &HybridRecyclableTestViewSpec::setIsBlue);
-      prototype.registerHybridGetter("nativeDefaultValue", &HybridRecyclableTestViewSpec::getNativeDefaultValue);
-      prototype.registerHybridSetter("nativeDefaultValue", &HybridRecyclableTestViewSpec::setNativeDefaultValue);
-      prototype.registerHybridMethod("getInvalidLifecycleOrderCount", &HybridRecyclableTestViewSpec::getInvalidLifecycleOrderCount);
-      prototype.registerHybridMethod("getOnDropViewCount", &HybridRecyclableTestViewSpec::getOnDropViewCount);
-      prototype.registerHybridMethod("getPrepareForRecycleCount", &HybridRecyclableTestViewSpec::getPrepareForRecycleCount);
-      prototype.registerHybridMethod("getNativeDefaultValueSetterCallCount", &HybridRecyclableTestViewSpec::getNativeDefaultValueSetterCallCount);
-    });
-  }
+  HybridRecyclableTestViewSpec::~HybridRecyclableTestViewSpec() = default;
 
 } // namespace margelo::nitro::test

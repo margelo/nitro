@@ -9,8 +9,7 @@ Nitro is built on top of JSI - while the primary target is React Native, Nitro e
 
 In React Native apps, Nitro makes use of the [autolinking functionality](https://github.com/react-native-community/cli/blob/main/docs/autolinking.md) provided by RN CLI.
 
-Nitro itself is a react-native library - either a Native Module (old arch) or a Turbo Module (new arch) - with a single native method: `install()`.
-This native method will be called from JS when importing `react-native-nitro-modules`, so it will always happen before trying to use the `NitroModules` JS object.
+Nitro V1 requires React Native 0.88 or newer with the New Architecture. Importing `react-native-nitro-modules` resolves its TurboModule. React Native then calls the native JSI bindings hook with the runtime and CallInvoker, which Nitro uses to install its proxy and dispatcher before initializing the JavaScript API.
 
 ## Manually registering Nitro
 
@@ -28,7 +27,7 @@ std::shared_ptr<Dispatcher> dispatcher = ...
 margelo::nitro::install(runtime, dispatcher);
 ```
 
-Your `Dispatcher` implementation must properly implement `runAsync` and `runSync` to schedule calls on a Thread that can safely access the `jsi::Runtime`.
+Your `Dispatcher` must implement `runAsync` and `runSync` to schedule calls on the runtime's thread, and `isOnDispatcher` to report whether the current thread can access that runtime.
 
 :::tip
 If your Runtime can be accessed from any Thread, you can also skip Thread-hops here and just call the functions directly in your Dispatcher.
@@ -46,4 +45,4 @@ jsi::Runtime& runtime = ...
 margelo::nitro::install(runtime);
 ```
 
-In this case, all synchronous methods and properties remain in-tact, but any asynchronous hybrid methods (`Promise`) or callbacks will throw an error that Nitro does not have a `Dispatcher` to get back to the JS Thread.
+Synchronous methods, properties, and borrowed `Inline` callbacks still work. Passing an owning JavaScript `Callback` to native or returning a pending native `Promise` requires a `Dispatcher`. Already-settled native promises can be converted immediately.

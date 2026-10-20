@@ -1,50 +1,19 @@
 {
   "$schema": "https://nitro.margelo.com/nitro.schema.json",
-  "cxxNamespace": ["test"],
+  "environment": "react-native",
+  "cxxNamespace": [
+    "test"
+  ],
   "ios": {
     "iosModuleName": "NitroTest"
   },
   "android": {
-    "androidNamespace": ["test"],
+    "androidNamespace": [
+      "test"
+    ],
     "androidCxxLibName": "NitroTest"
   },
-  "autolinking": {
-    "BenchmarkObjectCpp": {
-      "all": {
-        "language": "c++",
-        "implementationClassName": "HybridBenchmarkObjectCpp"
-      }
-    },
-    "BenchmarkObjectSwiftKotlin": {
-      "ios": {
-        "language": "swift",
-        "implementationClassName": "HybridBenchmarkObjectSwift"
-      },
-      "android": {
-        "language": "kotlin",
-        "implementationClassName": "HybridBenchmarkObjectKotlin"
-      }
-    },
-    "TestView": {
-      "ios": {
-        "language": "swift",
-        "implementationClassName": "HybridTestView"
-      },
-      "android": {
-        "language": "kotlin",
-        "implementationClassName": "HybridTestView"
-      }
-    },
-    "RecyclableTestView": {
-      "ios": {
-        "language": "swift",
-        "implementationClassName": "HybridRecyclableTestView"
-      },
-      "android": {
-        "language": "kotlin",
-        "implementationClassName": "HybridRecyclableTestView"
-      }
-    }
-  },
-  "ignorePaths": ["**/node_modules"]
+  "ignorePaths": [
+    "**/node_modules"
+  ]
 }

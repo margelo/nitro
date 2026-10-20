@@ -14,17 +14,17 @@ Here are some tips to make your library even faster.
 
 Any dynamic types require runtime type checking, and cannot be optimized as good as statically known types (compile-time).
 
-### Untyped Maps
+### JSON values (`AnyJSON`)
 
-An [untyped map](../types/untyped-maps) (`AnyMap`) is not only untyped, but also in-efficient. If you can, avoid untyped maps:
+An [AnyJSON value](../types/any-json) is serialized as JSON when crossing the JS/native boundary. Use a typed struct when you know its fields:
 
 <div className="side-by-side-container">
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-interface BadDatabase
-  extends HybridObject<{ … }> {
-  getUser(): AnyMap
+@iOS(...)
+export declare class BadDatabase extends HybridObject {
+  getUser(): AnyJSON
 }
 ```
 
@@ -36,8 +36,8 @@ interface User {
   name: string
   age: number
 }
-interface GoodDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class GoodDatabase extends HybridObject {
   getUser(): User
 }
 ```
@@ -57,8 +57,8 @@ Those type-checks are very efficient so this is considered a micro-optimization,
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-interface BadDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class BadDatabase extends HybridObject {
   set(value: number | string): void
 }
 ```
@@ -67,8 +67,8 @@ interface BadDatabase
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-interface GoodDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class GoodDatabase extends HybridObject {
   setNumber(value: number): void
   setString(value: string): void
 }
@@ -94,8 +94,8 @@ interface SetPayload {
   value: string
   onCompleted: () => void
 }
-interface BadDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class BadDatabase extends HybridObject {
   set(payload: SetPayload): void
 }
 ```
@@ -104,8 +104,8 @@ interface BadDatabase
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-interface GoodDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class GoodDatabase extends HybridObject {
   set(key: string,
       value: string,
       onCompleted: () => void): void
@@ -114,6 +114,118 @@ interface GoodDatabase
 
 </div>
 </div>
+
+## Use inline callbacks when possible
+
+If a callback is only used during the current native call, mark it as [`Inline<...>`](../types/callbacks#inline-callbacks):
+
+<div className="side-by-side-container">
+<div className="side-by-side-block">
+
+```ts title="Bad ❌"
+import { type HybridObject, iOS } from 'nitro-core'
+
+@iOS(...)
+export declare class BadDatabase extends HybridObject {
+  forEachRow(callback: (row: Row) => void): void
+}
+```
+
+</div>
+<div className="side-by-side-block">
+
+```ts title="Good ✅"
+import { type HybridObject, type Inline, iOS } from 'nitro-core'
+
+@iOS(...)
+export declare class GoodDatabase extends HybridObject {
+  forEachRow(callback: Inline<(row: Row) => void>): void
+}
+```
+
+</div>
+</div>
+
+In Swift and C++, this lets Nitro borrow the JS function for the duration of the call, avoiding the allocations needed to keep an ordinary `Callback` alive for later. Calling it inline also skips the Dispatcher and calls JS directly.
+
+This only makes sense if you actually execute the callback inline, before the native method returns and on the calling JS Runtime's Thread.
+If you need to store it or call it from another Thread, use an ordinary callback or call `escape()` first. Escaping creates an owning `Callback` again, so always escaping an `Inline<...>` callback loses this optimization.
+
+## Use static methods for stateless functions
+
+If a method does not need any instance state, make it `static`:
+
+<div className="side-by-side-container">
+<div className="side-by-side-block">
+
+```ts title="Bad ❌"
+@iOS(...)
+export declare class BadHasher extends HybridObject {
+  constructor()
+  hash(data: ArrayBuffer): string
+}
+export * from '#nitro/BadHasher'
+
+const hasher = new BadHasher()
+const hash = hasher.hash(data)
+```
+
+</div>
+<div className="side-by-side-block">
+
+```ts title="Good ✅"
+@iOS(...)
+export declare class GoodHasher extends HybridObject {
+  static hash(data: ArrayBuffer): string
+}
+export * from '#nitro/GoodHasher'
+
+const hash = GoodHasher.hash(data)
+```
+
+</div>
+</div>
+
+Every instance call has to look up the native object behind `this`, check its type, and keep it alive for the duration of the call.
+Static methods skip that work. You also avoid creating a Hybrid Object just to call a stateless function.
+
+This reduces the overhead of the call itself - it does not make the actual hashing code faster. Keep instance methods when your object has state, like an open database connection or a configured image decoder.
+Static methods require a concrete [`implementation`](../concepts/platform-decorators#concrete-implementations) in the platform decorators.
+
+## Use concrete implementations and disable inheritance
+
+If your Hybrid Object has one known native implementation, specify it in the platform decorator. Only enable inheritance or multiple implementations when you actually need them:
+
+```ts title="Image.nitro.ts"
+import { type HybridObject, iOS } from 'nitro-core'
+
+@iOS({
+  language: 'swift',
+  implementation: { className: 'HybridImage' },
+  allowInheritance: false
+})
+export declare class Image extends HybridObject {
+  readonly width: number
+  readonly height: number
+}
+export * from '#nitro/Image'
+```
+
+In Swift, a concrete `implementation` lets the bridge hold `HybridImage` directly, instead of going through an `any HybridImageSpec` protocol value on each call. This gives the compiler more opportunities to optimize calls to your implementation.
+
+With `allowInheritance: false`, Nitrogen also generates final Swift and C++ bridge classes. Nitro can then check the receiver's exact type instead of searching its inheritance hierarchy when calling an instance method.
+`allowInheritance` is already `false` by default, so you can also just omit it.
+
+These are small optimizations that matter most for methods called very often. Benchmark your code to see how much they affect your library.
+
+## Avoid repeated native downcasts
+
+If you do need multiple implementations, you might find yourself repeatedly downcasting a Hybrid Object to access its native properties - for example, `image as? HybridImage` to get its underlying `UIImage`.
+
+Put those shared native properties in a Swift protocol or Kotlin interface, and add it through `protocolConformances` or `implementedInterfaces`.
+Now every implementation has to provide those properties, and your native code can access them directly without checking which concrete class it received.
+
+See [Additional native interface/protocol conformances](../concepts/platform-decorators#additional-native-interfaceprotocol-conformances) for an example.
 
 ## Use Threading/Asynchronous Promises
 
@@ -126,8 +238,8 @@ In such cases, mark your function asynchronous by returning a [`Promise`](../typ
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-interface BadDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class BadDatabase extends HybridObject {
   writeLargeData(data: string): void
 }
 ```
@@ -136,8 +248,8 @@ interface BadDatabase
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-interface GoodDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class GoodDatabase extends HybridObject {
   writeLargeData(data: string): Promise<void>
 }
 ```
@@ -158,8 +270,8 @@ For example, to return a large list of numbers we could use [array buffers](../t
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-interface BadDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class BadDatabase extends HybridObject {
   getAsBlob(): number[]
 }
 ```
@@ -168,8 +280,8 @@ interface BadDatabase
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-interface GoodDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class GoodDatabase extends HybridObject {
   getAsBlob(): ArrayBuffer
 }
 ```
@@ -192,8 +304,8 @@ interface AllData {
 }
 
 
-interface BadDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class BadDatabase extends HybridObject {
   getAllData(): AllData
 }
 
@@ -207,13 +319,13 @@ const row = data.rows
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-interface AllData
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class AllData extends HybridObject {
   findRowWithName(name: string): DataRow
 }
 
-interface GoodDatabase
-  extends HybridObject<{ … }> {
+@iOS(...)
+export declare class GoodDatabase extends HybridObject {
   getAllData(): AllData
 }
 
@@ -232,14 +344,19 @@ The **Good** example is significantly faster than **Bad** because the result of 
 ## Properly use `memorySize`
 
 Since Hybrid Objects are implemented in native code, the JS runtime does not know the memory size of such objects.
-To let the JavaScript runtime know about a Hybrid Object's actual size in memory, Nitro exposes a `memorySize` (or `getExternalMemoryPressure()`) API which you can use to give a rough estimation on the native object's memory size (including any heap allocations you perform):
+To let the JavaScript runtime know about a Hybrid Object's actual size in memory, Nitro exposes a `memorySize` (or `getExternalMemorySize()` in C++) API which you can use to estimate the native object's memory size, including any heap allocations you perform:
 
 ```swift
 class HybridImage : HybridImageSpec {
-  private var cgImage: CGImage
+  private let cgImage: CGImage
+
+  init(cgImage: CGImage) {
+    self.cgImage = cgImage
+    super.init()
+  }
+
   var memorySize: Int {
-    let imageSize = cgImage.width * cgImage.height * cgImage.bytesPerPixel
-    return imageSize
+    return cgImage.bytesPerRow * cgImage.height
   }
 }
 ```

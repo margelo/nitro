@@ -1,6 +1,6 @@
 export interface HybridObjectName {
   /**
-   * The raw name of the Hybrid Object (same as the TS interface name).
+   * The raw name of the Hybrid Object (same as the TypeScript class name).
    * @example "Image"
    */
   T: string

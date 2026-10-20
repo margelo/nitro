@@ -36,8 +36,6 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - name: Test React Native wrapper
-        run: bun nitro-rn test --runInBand
       - name: Test performance tooling
         run: bun test scripts/performance
       - name: Pack Nitro core
@@ -50,4 +48,4 @@ jobs:
         working-directory: packages/react-native-nitro-modules
         run: npm pack --pack-destination "$RUNNER_TEMP"
       - name: Validate packed packages outside the workspace
-        run: node scripts/releases/check-consumer.mjs "$RUNNER_TEMP"/nitro-core-*.tgz "$RUNNER_TEMP"/nitrogen-*.tgz "$RUNNER_TEMP"/react-native-nitro-modules-*.tgz
+        run: bun check-consumer "$RUNNER_TEMP"/nitro-core-*.tgz "$RUNNER_TEMP"/nitrogen-*.tgz "$RUNNER_TEMP"/react-native-nitro-modules-*.tgz

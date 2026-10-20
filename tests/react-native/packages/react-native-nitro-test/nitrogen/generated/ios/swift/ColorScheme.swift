@@ -5,10 +5,20 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
+
+
 /**
- * Represents the JS union `ColorScheme`, backed by a C++ enum.
+ * Represents the JS union `ColorScheme`.
  */
-public typealias ColorScheme = margelo.nitro.test.ColorScheme
+@_expose(Cxx)
+public enum ColorScheme: Int32, CaseIterable, Sendable, CustomStringConvertible {
+  case `light` = 0
+  case `dark` = 1
+
+  public static func fromRawValue(_ value: Int32) -> Self {
+    return Self(rawValue: value)!
+  }
+}
 
 public extension ColorScheme {
   /**
@@ -36,5 +46,9 @@ public extension ColorScheme {
       case .dark:
         return "dark"
     }
+  }
+
+  var description: String {
+    return stringValue
   }
 }

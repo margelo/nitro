@@ -1,30 +1,31 @@
 {
   "name": "react-native-nitro-example",
-  "version": "0.37.1",
+  "version": "1.0.0-alpha.0",
   "private": true,
   "scripts": {
-    "start": "node ../../../../scripts/sync-core.mjs && react-native start --client-logs",
-    "android": "node ../../../../scripts/sync-core.mjs && react-native run-android",
-    "ios": "node ../../../../scripts/sync-core.mjs && react-native run-ios",
+    "sync-core": "bun --filter @nitro/scripts sync-core",
+    "start": "bun sync-core && react-native start --client-logs",
+    "android": "bun sync-core && react-native run-android",
+    "ios": "bun sync-core && react-native run-ios",
     "clean": "rm -rf android/build node_modules/**/android/build lib",
     "typescript": "tsc",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
     "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions --max-warnings 0",
-    "bundle-install": "bundle install",
-    "pods": "node ../../../../scripts/sync-core.mjs && cd ios && bundle exec pod install",
-    "build:android": "node ../../../../scripts/sync-core.mjs && cd android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
-    "build:android-release": "node ../../../../scripts/sync-core.mjs && cd android && ./gradlew assembleRelease --no-daemon",
-    "build:ios": "node ../../../../scripts/sync-core.mjs && cd ios && xcodebuild -workspace NitroExample.xcworkspace -scheme NitroExample -configuration Debug -sdk iphonesimulator GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
-    "test:harness": "node ../../../../scripts/sync-core.mjs && react-native-harness"
+    "build:android": "bun sync-core && cd android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
+    "build:android-release": "bun sync-core && cd android && ./gradlew assembleRelease --no-daemon",
+    "build:ios": "bun sync-core && cd ios && xcodebuild -project NitroExample.xcodeproj -scheme NitroExample -configuration Debug -sdk iphonesimulator GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
+    "test:harness": "bun sync-core && react-native-harness",
+    "spm": "bun sync-core && react-native spm"
   },
   "dependencies": {
     "react": "19.3.0",
     "react-native": "0.88.0",
     "react-native-nitro-test": "workspace:*",
-    "react-native-nitro-modules": "0.37.1",
+    "react-native-nitro-modules": "1.0.0-alpha.0",
     "react-native-safe-area-context": "^5.10.1",
-    "nitro-core": "0.37.1"
+    "nitro-core": "1.0.0-alpha.0",
+    "react-native-nitro-test-external": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^8.0.7",
@@ -42,7 +43,7 @@
     "@react-native-harness/ui": "1.5.0",
     "@types/upng-js": "2.1.5",
     "babel-plugin-module-resolver": "^5.0.3",
-    "nitrogen": "0.37.1",
+    "nitrogen": "1.0.0-alpha.0",
     "react-native-harness": "1.5.0",
     "upng-js": "2.1.0"
   },

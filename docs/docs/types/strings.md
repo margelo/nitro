@@ -12,30 +12,33 @@ In C++, a `string` is represented using a UTF-8 `std::string`.
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    interface MyHybrid extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class MyHybrid extends HybridObject {
       concat(a: string, b: string): string
     }
     ```
   </TabItem>
   <TabItem value="swift" label="Swift">
     ```swift
-    class MyHybrid: MyHybridSpec {
-      func concat(a: String, b: String) -> String
+    class MyHybrid: HybridMyHybridSpec {
+      func concat(a: String, b: String) throws -> String
     }
     ```
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
-    class MyHybrid: MyHybridSpec() {
-      fun concat(a: String, b: String): String
+    class MyHybrid: HybridMyHybridSpec() {
+      override fun concat(a: String, b: String): String
     }
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp
-    class MyHybrid : public MyHybridSpec {
-      std::string concat(const std::string& a, const std::string& b);
-    }
+    class MyHybrid: public HybridMyHybridSpec {
+      std::string concat(const std::string& a, const std::string& b) override;
+    };
     ```
   </TabItem>
 </Tabs>

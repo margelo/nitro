@@ -4,44 +4,42 @@
 /// https://github.com/margelo/nitro
 /// Copyright © Marc Rousavy @ Margelo
 ///
-
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
+public import NitroTestAppleCxx
 
 /**
  * A class implementation that bridges HybridPlatformObjectSpec over to C++.
  * In C++, we cannot use Swift protocols - so we need to wrap it in a class to make it strongly defined.
- *
- * Also, some Swift types need to be bridged with special handling:
- * - Enums need to be wrapped in Structs, otherwise they cannot be accessed bi-directionally (Swift bug: https://github.com/swiftlang/swift/issues/75330)
- * - Other HybridObjects need to be wrapped/unwrapped from the Swift TCxx wrapper
- * - Throwing methods need to be wrapped with a Result<T, Error> type, as exceptions cannot be propagated to C++
  */
-open class HybridPlatformObjectSpec_cxx {
+@_expose(Cxx)
+public final class HybridPlatformObjectSpec_cxx {
   /**
-   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::bridge::swift`)
-   * from `NitroTest-Swift-Cxx-Bridge.hpp`.
+   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::swift_bridge`)
+   * from `NitroTestAppleCxx/NitroTestAppleCxx.h`.
    * This contains specialized C++ templates, and C++ helper functions that can be accessed from Swift.
    */
-  public typealias bridge = margelo.nitro.test.bridge.swift
+  public typealias bridge = margelo.nitro.test.swift_bridge
 
   /**
-   * Holds an instance of the `HybridPlatformObjectSpec` Swift protocol.
+   * Holds the Swift implementation of `HybridPlatformObjectSpec`.
    */
-  private let __implementation: any HybridPlatformObjectSpec
+  private let __implementation: HybridPlatformObject
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.
    */
-  private var __cxxPart: bridge.std__weak_ptr_HybridPlatformObjectSpec_
+  private var __cxxPart: bridge.std__weak_ptr_HybridPlatformObjectSpec_ = .init()
 
   /**
    * Create a new `HybridPlatformObjectSpec_cxx` that wraps the given `HybridPlatformObjectSpec`.
-   * All properties and methods bridge to C++ types.
    */
   public init(_ implementation: any HybridPlatformObjectSpec) {
+    guard let implementation = implementation as? HybridPlatformObject else {
+      preconditionFailure("PlatformObject selects HybridPlatformObject as its Swift implementation. Every instance must inherit HybridPlatformObject.")
+    }
     self.__implementation = implementation
-    self.__cxxPart = .init()
-    /* no base class */
+
   }
 
   /**
@@ -65,7 +63,7 @@ open class HybridPlatformObjectSpec_cxx {
    * The pointer has to be a retained opaque `Unmanaged<HybridPlatformObjectSpec_cxx>`.
    * This removes one strong reference from the object!
    */
-  public class func fromUnsafe(_ pointer: UnsafeMutableRawPointer) -> HybridPlatformObjectSpec_cxx {
+  public class func fromUnsafe(pointer: UnsafeMutableRawPointer) -> HybridPlatformObjectSpec_cxx {
     return Unmanaged<HybridPlatformObjectSpec_cxx>.fromOpaque(pointer).takeRetainedValue()
   }
 
@@ -74,17 +72,23 @@ open class HybridPlatformObjectSpec_cxx {
    * The C++ part is a `std::shared_ptr<HybridPlatformObjectSpec>`.
    */
   public func getCxxPart() -> bridge.std__shared_ptr_HybridPlatformObjectSpec_ {
-    let cachedCxxPart = self.__cxxPart.lock()
-    if cachedCxxPart.use_count() > 0 {
-      return cachedCxxPart
-    } else {
-      let newCxxPart = bridge.create_std__shared_ptr_HybridPlatformObjectSpec_(self.toUnsafe())
-      __cxxPart = bridge.weakify_std__shared_ptr_HybridPlatformObjectSpec_(newCxxPart)
-      return newCxxPart
+    let cached = __cxxPart.lock()
+    if cached.use_count() > 0 {
+      return cached
     }
+    let value = bridge.create_std__shared_ptr_HybridPlatformObjectSpec_(self.toUnsafe())
+    __cxxPart = bridge.weakify_std__shared_ptr_HybridPlatformObjectSpec_(value)
+    return value
   }
 
-  
+
+  // A static borrowing accessor lets C++ pass a const reference without copying it.
+  // TODO: Remove this adapter and call the instance method directly once
+  // https://github.com/swiftlang/swift/pull/92862 is merged and supported by our Swift toolchain.
+  @_spi(NitroCxx)
+  public static func getCxxPart(_ value: borrowing HybridPlatformObjectSpec_cxx) -> bridge.std__shared_ptr_HybridPlatformObjectSpec_ {
+    return value.getCxxPart()
+  }
 
   /**
    * Get the memory size of the Swift class (plus size of any other allocations)
@@ -92,7 +96,7 @@ open class HybridPlatformObjectSpec_cxx {
    */
   @inline(__always)
   public var memorySize: Int {
-    return MemoryHelper.getSizeOf(self.__implementation) + self.__implementation.memorySize
+    return MemoryHelper.getSizeOf(__implementation) + __implementation.memorySize
   }
 
   /**
@@ -100,7 +104,7 @@ open class HybridPlatformObjectSpec_cxx {
    */
   @inline(__always)
   public func equals(other: HybridPlatformObjectSpec_cxx) -> Bool {
-    return self.__implementation === other.__implementation
+    return __implementation === other.__implementation
   }
 
   /**
@@ -109,7 +113,7 @@ open class HybridPlatformObjectSpec_cxx {
    */
   @inline(__always)
   public func dispose() {
-    self.__implementation.dispose()
+    __implementation.dispose()
   }
 
   /**
@@ -117,22 +121,31 @@ open class HybridPlatformObjectSpec_cxx {
    */
   @inline(__always)
   public func toString() -> String {
-    return self.__implementation.toString()
+    return __implementation.toString()
   }
 
   // Properties
-  
 
   // Methods
-  @inline(__always)
-  public final func getOSVersion() -> bridge.Result_std__string_ {
+
+  public final func getOSVersion(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.getOSVersion()
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
+      let value = try __implementation.getOSVersion()
+      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  // Constructor
+
+  public class func constructor() -> bridge.Result_void_ {
+    do {
+      let value = try HybridPlatformObject()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
     }
   }
 }

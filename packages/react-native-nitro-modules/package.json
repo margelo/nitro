@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-modules",
-  "version": "0.37.1",
+  "version": "1.0.0-alpha.0",
   "description": "Fast, type-safe native modules for React Native with statically compiled JSI bindings.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -9,7 +9,6 @@
   "source": "src/index",
   "files": [
     "src",
-    "!src/__tests__",
     "react-native.config.js",
     "lib/commonjs",
     "lib/module",
@@ -22,10 +21,11 @@
     "android/core/",
     "apple/",
     "cpp/",
+    "include/",
+    "Package.swift",
     "README.md",
     "NitroModules.podspec",
-    "LICENSE",
-    "!lib/typescript/__tests__"
+    "LICENSE"
   ],
   "keywords": [
     "react-native",
@@ -67,17 +67,13 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
     "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions --max-warnings 0",
-    "test": "jest",
     "clean": "rm -rf android/build node_modules/**/android/build lib",
-    "release": "../../scripts/release.sh",
-    "sync-core": "node ../../scripts/sync-core.mjs",
-    "prepack": "bun run --cwd ../.. check-versions 1>&2 && bun run --cwd ../nitro-core build 1>&2 && bun run build 1>&2 && node ../../scripts/sync-core.mjs --check 1>&2"
+    "release": "bun --filter @nitro/scripts release",
+    "sync-core": "bun --filter @nitro/scripts sync-core",
+    "prepack": "bun --filter @nitro/scripts check-versions 1>&2 && bun --filter nitro-core build 1>&2 && bun run build 1>&2 && bun sync-core --check 1>&2"
   },
   "devDependencies": {
-    "@types/jest": "*",
     "@types/react": "^19.3.0",
-    "jest": "*",
-    "@react-native/jest-preset": "0.88.0",
     "react": "19.3.0",
     "react-native": "0.88.0",
     "react-native-builder-bob": "^0.41.0",
@@ -85,7 +81,7 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": ">=0.88.0"
   },
   "codegenConfig": {
     "name": "NitroModulesSpec",
@@ -93,14 +89,12 @@
     "jsSrcsDir": "./src",
     "android": {
       "javaPackageName": "com.margelo.nitro"
+    },
+    "ios": {
+      "modulesProvider": {
+        "NitroModules": "NativeNitroModules"
+      }
     }
-  },
-  "jest": {
-    "preset": "@react-native/jest-preset",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
-    ]
   },
   "react-native-builder-bob": {
     "source": "src",
@@ -111,13 +105,15 @@
       [
         "typescript",
         {
-          "project": "tsconfig.build.json",
-          "tsc": "../../node_modules/typescript/bin/tsc"
+          "project": "tsconfig.build.json"
         }
       ]
     ]
   },
   "dependencies": {
-    "nitro-core": "0.37.1"
+    "nitro-core": "1.0.0-alpha.0"
+  },
+  "swiftpmConfig": {
+    "name": "NitroModules"
   }
 }

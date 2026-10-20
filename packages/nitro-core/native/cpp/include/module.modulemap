@@ -1,0 +1,7 @@
+module NitroModulesCxx {
+  requires cplusplus
+  umbrella header "NitroModulesCxx.h"
+  exclude header "NitroModules/detail/HybridNitroModulesProxy.hpp"
+  exclude header "NitroModules/detail/RuntimeData.hpp"
+  export *
+}

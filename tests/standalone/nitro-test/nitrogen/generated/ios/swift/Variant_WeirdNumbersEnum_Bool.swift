@@ -5,14 +5,14 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-
+internal import NitroModules
 
 /**
- * An Swift enum with associated values representing a Variant/Union type.
+ * A Swift enum with associated values representing a Variant/Union type.
  * JS type: `enum | boolean`
  */
 @frozen
-public indirect enum Variant_WeirdNumbersEnum_Bool {
+public enum Variant_WeirdNumbersEnum_Bool: Equatable, Hashable, Sendable {
   case first(WeirdNumbersEnum)
   case second(Bool)
 }
@@ -26,5 +26,44 @@ public extension Variant_WeirdNumbersEnum_Bool {
   }
   func isType<T>(_ type: T.Type = T.self) -> Bool {
     return self.asType(type) != nil
+  }
+}
+
+// Raw Swift storage keeps associated values containing imported C++ types exportable.
+@_expose(Cxx)
+public struct Variant_WeirdNumbersEnum_Bool_cxx: Equatable, Hashable, Sendable {
+  let value: Variant_WeirdNumbersEnum_Bool
+
+  init(_ value: Variant_WeirdNumbersEnum_Bool) {
+    self.value = value
+  }
+
+  public var index: Int {
+    switch value {
+      case .first: return 0
+      case .second: return 1
+    }
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeFirst(_ payload: WeirdNumbersEnum, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: Variant_WeirdNumbersEnum_Bool_cxx.self).initialize(to: Self(.first(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getFirst() -> WeirdNumbersEnum {
+    guard case .first(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeSecond(_ payload: Bool, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: Variant_WeirdNumbersEnum_Bool_cxx.self).initialize(to: Self(.second(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getSecond() -> Bool {
+    guard case .second(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload
   }
 }

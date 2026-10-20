@@ -1,10 +1,5 @@
 import { NativeModules, Platform } from 'react-native'
 
-declare global {
-  // A react-native internal from TurboModuleRegistry.js
-  var __turboModuleProxy: unknown | undefined
-}
-
 const BULLET_POINT = '\n* '
 
 function messageWithSuggestions(
@@ -41,15 +36,15 @@ export class ModuleNotFoundError extends Error {
     }
 
     const message =
-      'Failed to get NitroModules: The native "NitroModules" Turbo/Native-Module could not be found.'
+      'Failed to get NitroModules: The native "NitroModules" TurboModule could not be found.'
     const suggestions: string[] = []
     suggestions.push(
       'Make sure react-native-nitro-modules/NitroModules is correctly autolinked (run `npx react-native config` to verify)'
     )
     suggestions.push(
-      'Make sure you enabled the new architecture (TurboModules) and CodeGen properly generated the "NativeNitroModules"/NitroModules specs. See https://github.com/reactwg/react-native-new-architecture/blob/main/docs/enable-apps.md'
+      'Make sure React Native Codegen generated the "NativeNitroModules" specs.'
     )
-    suggestions.push('Make sure you are using react-native 0.75.0 or higher.')
+    suggestions.push('Make sure you are using react-native 0.88.0 or higher.')
     suggestions.push('Make sure you rebuilt the app.')
     if (framework === 'expo') {
       suggestions.push('Make sure you ran `expo prebuild`.')
@@ -58,7 +53,7 @@ export class ModuleNotFoundError extends Error {
       case 'ios':
       case 'macos':
         suggestions.push(
-          'Make sure you ran `pod install` in the ios/ directory.'
+          'Make sure you ran `npx react-native spm` in your app directory.'
         )
         break
       case 'android':

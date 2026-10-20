@@ -1,12 +1,12 @@
 #pragma once
 
-#include "HybridBenchmarkObjectCppSpec.hpp"
+#include <NitroTest/HybridBenchmarkObjectCppSpec.hpp>
 
 namespace margelo::nitro::test {
 
 class HybridBenchmarkObjectCpp : public HybridBenchmarkObjectCppSpec {
 public:
-  HybridBenchmarkObjectCpp() : HybridObject(TAG) {}
+  HybridBenchmarkObjectCpp() = default;
 
   double getNumberValue() override;
   void setNumberValue(double numberValue) override;
@@ -21,16 +21,16 @@ public:
   std::variant<double, std::string>
   passVariant(const std::variant<bool, std::vector<double>, std::vector<std::string>, double, std::string>& either) override;
   std::shared_ptr<HybridBenchmarkObjectCppSpec> newBenchmarkObject() override;
-  std::shared_ptr<ArrayBuffer> bounceArrayBuffer(const std::shared_ptr<ArrayBuffer>& buffer) override;
-  std::shared_ptr<ArrayBuffer> copyBuffer(const std::shared_ptr<ArrayBuffer>& buffer) override;
-  double callbackSync(const std::function<double()>& callback) override;
-  std::shared_ptr<Promise<double>> promiseReturnsInstantly() override;
-  std::shared_ptr<Promise<double>> createPendingPromise() override;
+  ArrayBuffer bounceArrayBuffer(const ArrayBuffer& buffer) override;
+  ArrayBuffer copyBuffer(const ArrayBuffer& buffer) override;
+  double callbackSync(const Callback<double()>& callback) override;
+  Promise<double> promiseReturnsInstantly() override;
+  Promise<double> createPendingPromise() override;
   void resolvePendingPromiseOnWorker() override;
 
 private:
   double _number = 0.0;
-  std::shared_ptr<Promise<double>> _pendingPromise;
+  std::optional<Promise<double>> _pendingPromise;
 };
 
 } // namespace margelo::nitro::test

@@ -16,21 +16,23 @@ on:
       device_model:
         description: "iOS Simulator device model"
         required: false
-        default: "iPhone 17 Pro"
+        default: "iPhone 18 Pro"
         type: string
       ios_version:
         description: "iOS version"
         required: false
-        default: "26.5"
+        default: "27.0"
         type: string
       xcode_version:
-        description: "Xcode version"
+        description: "Xcode version, or default for the selected Xcode"
         required: false
-        default: "26.5"
+        default: "27.1"
         type: string
   pull_request:
     paths:
       - '.github/workflows/harness-ios.yml'
+      - 'Package.swift'
+      - 'Package.resolved'
       - 'packages/nitro-core/**'
       - 'packages/nitrogen/**'
       - 'packages/react-native-nitro-modules/**'
@@ -46,16 +48,15 @@ on:
 
 env:
   # Device configuration - can be overridden by workflow_dispatch inputs
-  DEVICE_MODEL: ${{ github.event.inputs.device_model || 'iPhone 17 Pro' }}
-  IOS_VERSION: ${{ github.event.inputs.ios_version || '26.5' }}
-  XCODE_VERSION: ${{ github.event.inputs.xcode_version || '26.5' }}
-  DEVELOPER_DIR: /Applications/Xcode_${{ github.event.inputs.xcode_version || '26.5' }}.app/Contents/Developer
+  DEVICE_MODEL: ${{ github.event.inputs.device_model || 'iPhone 18 Pro' }}
+  IOS_VERSION: ${{ github.event.inputs.ios_version || '27.0' }}
+  XCODE_VERSION: ${{ github.event.inputs.xcode_version || '27.1' }}
   HARNESS_DEBUG: 1
 
 jobs:
   harness_ios_new:
     name: Harness iOS
-    runs-on: macOS-26
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v7
         with:
@@ -86,32 +87,25 @@ jobs:
             echo "CCACHE_INODECACHE=true"
           } >> "$GITHUB_ENV"
 
-      - name: Setup Ruby (bundle)
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.7.2
-          bundler-cache: true
-          working-directory: tests/react-native/apps/example
+      - name: Select Xcode
+        run: |
+          if [ "$XCODE_VERSION" = "default" ]; then
+            sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          else
+            sudo xcode-select -s "/Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer"
+          fi
+          xcodebuild -version
+          xcrun swift --version
 
-      - name: Select Xcode ${{ env.XCODE_VERSION }}
-        run: sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer"
-
-      - name: Restore Pods cache
-        uses: actions/cache@v6
-        with:
-          path: tests/react-native/apps/example/ios/Pods
-          key: ${{ runner.os }}-${{ runner.arch }}-pods-${{ hashFiles('bun.lock', 'tests/react-native/apps/example/Gemfile.lock', 'tests/react-native/apps/example/ios/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-pods-
-      - name: Install Pods
+      - name: Resolve Swift packages
         working-directory: tests/react-native/apps/example
-        run: bun pods
+        run: bun spm
 
       - name: Restore DerivedData cache
         uses: actions/cache@v6
         with:
           path: tests/react-native/apps/example/ios/build
-          key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.XCODE_VERSION }}-Default-dd-${{ hashFiles('bun.lock', 'tests/react-native/apps/example/Gemfile.lock', 'tests/react-native/apps/example/ios/Podfile.lock') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.XCODE_VERSION }}-Default-dd-${{ hashFiles('bun.lock', '**/Package.swift', '**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.XCODE_VERSION }}-Default-dd-
 
@@ -123,7 +117,7 @@ jobs:
             C_COMPILER_LAUNCHER="$(command -v ccache)" \
             CLANG_ENABLE_EXPLICIT_MODULES_WITH_COMPILER_LAUNCHER=YES \
             -derivedDataPath build -UseModernBuildSystem=YES \
-            -workspace NitroExample.xcworkspace \
+            -project NitroExample.xcodeproj \
             -scheme NitroExample \
             -sdk iphonesimulator \
             -configuration Debug \

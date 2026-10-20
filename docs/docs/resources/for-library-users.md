@@ -9,33 +9,37 @@ import TabItem from '@theme/TabItem';
 
 # For library users
 
-If you are using a library that is built with Nitro, all you need to do is install the Nitro Modules core package:
+Nitro V1 requires React Native 0.88 or newer with the New Architecture. Install the Nitro alpha package alongside libraries built for V1:
 
 <Tabs groupId="package-manager">
   <TabItem value="npm" label="npm" default>
     ```sh
-    npm i react-native-nitro-modules
-    cd ios && pod install
+    npm i react-native-nitro-modules@alpha
     ```
   </TabItem>
   <TabItem value="yarn" label="yarn">
     ```sh
-    yarn add react-native-nitro-modules
-    cd ios && pod install
+    yarn add react-native-nitro-modules@alpha
     ```
   </TabItem>
   <TabItem value="pnpm" label="pnpm">
     ```sh
-    pnpm add react-native-nitro-modules
-    cd ios && pod install
+    pnpm add react-native-nitro-modules@alpha
     ```
   </TabItem>
   <TabItem value="bun" label="bun">
     ```sh
-    bun i react-native-nitro-modules
-    cd ios && pod install
+    bun i react-native-nitro-modules@alpha
     ```
   </TabItem>
 </Tabs>
 
-Nitro Modules are lightweight, yet powerful native bindings to native code, so thank the library author for choosing Nitro to make your app faster! 😄
+For iOS, use Xcode with Swift 6.4 or newer and set up Swift Package Manager from your app directory:
+
+```sh
+npx react-native spm
+```
+
+If your project already uses CocoaPods, convert it with `npx react-native spm add --deintegrate` first. The conversion needs CocoaPods to remove its existing integration. Open the app's `.xcodeproj` in Xcode after setup.
+
+Keep Nitro and the libraries' generated bindings on matching V1 versions. The [minimum requirements](../getting-started/minimum-requirements) describe the supported native toolchains.

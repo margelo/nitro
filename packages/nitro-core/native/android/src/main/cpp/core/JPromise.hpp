@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Promise.hpp"
+#include <NitroModules/Promise.hpp>
 #include <fbjni/fbjni.h>
 #include <mutex>
 #include <variant>

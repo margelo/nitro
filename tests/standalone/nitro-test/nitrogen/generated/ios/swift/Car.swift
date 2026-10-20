@@ -5,151 +5,94 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
 
-/**
- * Represents an instance of `Car`, backed by a C++ struct.
- */
-public typealias Car = margelo.nitro.test.Car
+@_expose(Cxx)
+public struct Car: Equatable, Hashable, Sendable {
+  public let year: Double
+  public let make: String
+  public let model: String
+  public let power: Double
+  public let powertrain: Powertrain
+  public let driver: Person?
+  public let passengers: [Person]
+  public let isFast: Bool?
+  public let favouriteTrack: String?
+  public let performanceScores: [Double]
+  public let someVariant: Variant_Double_String?
 
-public extension Car {
-  private typealias bridge = margelo.nitro.test.bridge.swift
-
-  /**
-   * Create a new instance of `Car`.
-   */
-  init(year: Double, make: String, model: String, power: Double, powertrain: Powertrain, driver: Person?, passengers: [Person], isFast: Bool?, favouriteTrack: String?, performanceScores: [Double], someVariant: Variant_Double_String?) {
-    self.init(year, std.string(make), std.string(model), power, powertrain, { () -> bridge.std__optional_Person_ in
-      if let __unwrappedValue = driver {
-        return bridge.create_std__optional_Person_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__vector_Person_ in
-      var __vector = bridge.create_std__vector_Person_(passengers.count)
-      for __item in passengers {
-        __vector.push_back(__item)
-      }
-      return __vector
-    }(), { () -> bridge.std__optional_bool_ in
-      if let __unwrappedValue = isFast {
-        return bridge.create_std__optional_bool_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_std__string_ in
-      if let __unwrappedValue = favouriteTrack {
-        return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__vector_double_ in
-      var __vector = bridge.create_std__vector_double_(performanceScores.count)
-      for __item in performanceScores {
-        __vector.push_back(__item)
-      }
-      return __vector
-    }(), { () -> bridge.std__optional_std__variant_double__std__string__ in
-      if let __unwrappedValue = someVariant {
-        return bridge.create_std__optional_std__variant_double__std__string__({ () -> bridge.std__variant_double__std__string_ in
-          switch __unwrappedValue {
-            case .first(let __value):
-              return bridge.create_std__variant_double__std__string_(__value)
-            case .second(let __value):
-              return bridge.create_std__variant_double__std__string_(std.string(__value))
-          }
-        }().variant)
-      } else {
-        return .init()
-      }
-    }())
+  public init(year: Double, make: String, model: String, power: Double, powertrain: Powertrain, driver: Person?, passengers: [Person], isFast: Bool?, favouriteTrack: String?, performanceScores: [Double], someVariant: Variant_Double_String?) {
+    self.year = year
+    self.make = make
+    self.model = model
+    self.power = power
+    self.powertrain = powertrain
+    self.driver = driver
+    self.passengers = passengers
+    self.isFast = isFast
+    self.favouriteTrack = favouriteTrack
+    self.performanceScores = performanceScores
+    self.someVariant = someVariant
   }
 
-  @inline(__always)
-  var year: Double {
-    return self.__year
+  @_spi(NitroCxx)
+  public static func init_cxx(_ year: Double, _ make: String, _ model: String, _ power: Double, _ powertrain: Powertrain, _ driver: Person?, _ passengers: [Person], _ isFast: Bool?, _ favouriteTrack: String?, _ performanceScores: [Double], _ someVariant: Variant_Double_String_cxx?) -> Self {
+    return Self(year: year, make: make, model: model, power: power, powertrain: powertrain, driver: driver, passengers: passengers, isFast: isFast, favouriteTrack: favouriteTrack, performanceScores: performanceScores, someVariant: someVariant.map { $0.value })
   }
-  
-  @inline(__always)
-  var make: String {
-    return String(self.__make)
+
+  @_spi(NitroCxx)
+  public borrowing func getYear_cxx() -> Double {
+    return self.year
   }
-  
-  @inline(__always)
-  var model: String {
-    return String(self.__model)
+
+  @_spi(NitroCxx)
+  public borrowing func getMake_cxx() -> String {
+    return self.make
   }
-  
-  @inline(__always)
-  var power: Double {
-    return self.__power
+
+  @_spi(NitroCxx)
+  public borrowing func getModel_cxx() -> String {
+    return self.model
   }
-  
-  @inline(__always)
-  var powertrain: Powertrain {
-    return self.__powertrain
+
+  @_spi(NitroCxx)
+  public borrowing func getPower_cxx() -> Double {
+    return self.power
   }
-  
-  @inline(__always)
-  var driver: Person? {
-    return self.__driver.value
+
+  @_spi(NitroCxx)
+  public borrowing func getPowertrain_cxx() -> Powertrain {
+    return self.powertrain
   }
-  
-  @inline(__always)
-  var passengers: [Person] {
-    return self.__passengers.map({ __item in __item })
+
+  @_spi(NitroCxx)
+  public borrowing func getDriver_cxx() -> Person? {
+    return self.driver
   }
-  
-  @inline(__always)
-  var isFast: Bool? {
-    return { () -> Bool? in
-      if bridge.has_value_std__optional_bool_(self.__isFast) {
-        let __unwrapped = bridge.get_std__optional_bool_(self.__isFast)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getPassengers_cxx() -> [Person] {
+    return self.passengers
   }
-  
-  @inline(__always)
-  var favouriteTrack: String? {
-    return { () -> String? in
-      if bridge.has_value_std__optional_std__string_(self.__favouriteTrack) {
-        let __unwrapped = bridge.get_std__optional_std__string_(self.__favouriteTrack)
-        return String(__unwrapped)
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getIsFast_cxx() -> Bool? {
+    return self.isFast
   }
-  
-  @inline(__always)
-  var performanceScores: [Double] {
-    return self.__performanceScores.map({ __item in __item })
+
+  @_spi(NitroCxx)
+  public borrowing func getFavouriteTrack_cxx() -> String? {
+    return self.favouriteTrack
   }
-  
-  @inline(__always)
-  var someVariant: Variant_Double_String? {
-    return { () -> Variant_Double_String? in
-      if bridge.has_value_std__optional_std__variant_double__std__string__(self.__someVariant) {
-        let __unwrapped = bridge.get_std__optional_std__variant_double__std__string__(self.__someVariant)
-        return { () -> Variant_Double_String in
-          let __variant = bridge.std__variant_double__std__string_(__unwrapped)
-          switch __variant.index() {
-            case 0:
-              let __actual = __variant.get_0()
-              return .first(__actual)
-            case 1:
-              let __actual = __variant.get_1()
-              return .second(String(__actual))
-            default:
-              fatalError("Variant can never have index \(__variant.index())!")
-          }
-        }()
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getPerformanceScores_cxx() -> [Double] {
+    return self.performanceScores
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getSomeVariant_cxx() -> Variant_Double_String_cxx? {
+    return self.someVariant.map { Variant_Double_String_cxx($0) }
   }
 }

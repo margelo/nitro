@@ -5,7 +5,67 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridChildSpecSwift.hpp"
+#include <NitroTest/private/HybridChildSpecSwift.hpp>
+#include <NitroModules/SwiftConverter.hpp>
+#include <NitroModules/SwiftResult.hpp>
+#include <optional>
 
 namespace margelo::nitro::test {
+
+  std::string HybridChildSpecSwift::toString() {
+    return SwiftConverter<std::string, swift::String>::fromSwift(_swiftPart.toString());
+  }
+
+  // Properties
+
+  double HybridChildSpecSwift::getChildValue() {
+    auto __result = getChildValue_Swift();
+    return SwiftConverter<double, double>::fromSwift(__result);
+  }
+
+  double HybridChildSpecSwift::getChildValue_Swift() {
+    return _swiftPart.getChildValue();
+  }
+
+  // Methods
+
+  std::variant<std::string, Car> HybridChildSpecSwift::bounceVariant(const std::variant<std::string, Car>& variant) {
+    auto __result = bounceVariant_Swift(SwiftConverter<std::variant<std::string, margelo::nitro::test::Car>, NitroTest::NamedVariant_cxx>::toSwift(variant));
+    return SwiftConverter<std::variant<std::string, margelo::nitro::test::Car>, NitroTest::NamedVariant_cxx>::fromSwift(__result);
+  }
+
+  NitroTest::NamedVariant_cxx HybridChildSpecSwift::bounceVariant_Swift(const NitroTest::NamedVariant_cxx& variant) {
+    auto __result = withSwiftResult<NitroTest::NamedVariant_cxx>([&](void* __outResult) {
+      return _swiftPart.bounceVariant(variant, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  // Constructor
+
+  std::shared_ptr<HybridChildSpec> HybridChildSpecSwift::constructor() {
+    auto __result = constructor_Swift();
+    return SwiftConverter<std::shared_ptr<margelo::nitro::test::HybridChildSpec>, NitroTest::HybridChildSpec_cxx>::fromSwift(__result);
+  }
+
+  NitroTest::HybridChildSpec_cxx HybridChildSpecSwift::constructor_Swift() {
+    auto __result = NitroTest::HybridChildSpec_cxx::constructor();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return NitroTest::HybridChildSpec_cxx::fromUnsafe(__result.value());
+  }
+
+  const std::shared_ptr<const HybridClass>& HybridChildSpecSwift::Class::get() {
+    static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
+      clazz.registerHybridProperty("childValue", &HybridChildSpecSwift::getChildValue_Swift);
+      clazz.registerHybridMethod("bounceVariant", &HybridChildSpecSwift::bounceVariant_Swift);
+      clazz.registerHybridConstructor(&HybridChildSpecSwift::constructor_Swift);
+    });
+    return hybridClass;
+  }
+
 } // namespace margelo::nitro::test

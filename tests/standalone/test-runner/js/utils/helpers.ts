@@ -1,4 +1,4 @@
-import { getNitroModules } from "nitro-core";
+import { NitroModules } from "nitro-core";
 
 export interface Deferred<T> {
   promise: Promise<T>;
@@ -25,5 +25,5 @@ export function deferred<T>(): Deferred<T> {
  * C++ type names in error messages are only included in debug builds.
  */
 export function debugOnly(string: string): string {
-  return getNitroModules().buildType === "debug" ? string : "";
+  return NitroModules.buildType === "debug" ? string : "";
 }

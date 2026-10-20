@@ -1,12 +1,16 @@
 import { expect } from "chai";
 import { casesForTestObjects, namedCases, recordCallback } from "./utils/cases";
 
-import { getNitroModules } from "nitro-core";
+import { NitroModules } from "nitro-core";
+import { Base, SizeUnit, type Size } from "nitro-test";
+import {
+  Base as ExternalBase,
+  SizeUnit as ExternalSizeUnit,
+  type Size as ExternalSize,
+} from "nitro-test-external";
 import { HybridSomeExternalObject } from "./utils/testObjects";
 
 import { debugOnly } from "./utils/helpers";
-
-const NitroModules = getNitroModules();
 
 const INT64_MIN = -(2n ** 63n);
 
@@ -14,7 +18,108 @@ const INT64_MAX = 2n ** 63n - 1n;
 
 const UINT64_MAX = 2n ** 64n - 1n;
 
+const LOCAL_SIZE: Size = {
+  width: 640,
+  height: 480,
+  unit: SizeUnit.Pixels,
+};
+
+const EXTERNAL_SIZE: ExternalSize = {
+  width: 1920,
+  height: 1080,
+  unit: ExternalSizeUnit.Pixels,
+  scale: 2,
+};
+
 export const cases = {
+  ...namedCases("Namespaced HybridObjects", {
+    "same-named exports construct their own native implementations": () => {
+      expect(Base).not.to.equal(ExternalBase);
+      expect(new Base().baseValue).to.equal(10);
+      expect(new ExternalBase().baseValue).to.equal(20);
+    },
+
+    "registry lookups return each package's exported constructor": () => {
+      expect(NitroModules.getHybridClass<typeof Base>("test.Base")).to.equal(
+        Base,
+      );
+      expect(
+        NitroModules.getHybridClass<typeof ExternalBase>("test.external.Base"),
+      ).to.equal(ExternalBase);
+      expect(NitroModules.hasHybridClass("Base")).to.equal(false);
+    },
+
+    "same-named classes have independent prototypes": () => {
+      const local = new Base();
+      const external = new ExternalBase();
+      expect(local).to.be.instanceOf(Base);
+      expect(local).not.to.be.instanceOf(ExternalBase);
+      expect(external).to.be.instanceOf(ExternalBase);
+      expect(external).not.to.be.instanceOf(Base);
+    },
+
+    "constructor names and object descriptions stay unqualified": () => {
+      expect(Base.name).to.equal("Base");
+      expect(ExternalBase.name).to.equal("Base");
+      for (const object of [new Base(), new ExternalBase()]) {
+        expect(object.constructor.name).to.equal("Base");
+        expect(object.toString()).to.equal("[HybridObject Base]");
+      }
+    },
+  }),
+  ...namedCases("Namespaced custom types", {
+    "same-named structs preserve each module's fields": () => {
+      expect(new Base().bounceSize(LOCAL_SIZE)).to.deep.equal(LOCAL_SIZE);
+      expect(new ExternalBase().bounceSize(EXTERNAL_SIZE)).to.deep.equal(
+        EXTERNAL_SIZE,
+      );
+    },
+
+    "same-named enums preserve each module's members and values": () => {
+      const local = new Base();
+      const external = new ExternalBase();
+      expect(local.bounceSizeUnit(SizeUnit.Points)).to.equal(SizeUnit.Points);
+      expect(local.bounceSizeUnit(SizeUnit.Pixels)).to.equal(SizeUnit.Pixels);
+      expect(external.bounceSizeUnit(ExternalSizeUnit.Pixels)).to.equal(
+        ExternalSizeUnit.Pixels,
+      );
+      expect(external.bounceSizeUnit(ExternalSizeUnit.Normalized)).to.equal(
+        ExternalSizeUnit.Normalized,
+      );
+    },
+
+    "callbacks and promises use their module's struct and enum": async () => {
+      let localCalls = 0;
+      let externalCalls = 0;
+      const localResult: Size = {
+        width: 320,
+        height: 240,
+        unit: SizeUnit.Points,
+      };
+      const externalResult: ExternalSize = {
+        width: 1,
+        height: 1,
+        unit: ExternalSizeUnit.Normalized,
+        scale: 3,
+      };
+      const [local, external] = await Promise.all([
+        new Base().mapSize(LOCAL_SIZE, (size) => {
+          localCalls += 1;
+          expect(size).to.deep.equal(LOCAL_SIZE);
+          return localResult;
+        }),
+        new ExternalBase().mapSize(EXTERNAL_SIZE, (size) => {
+          externalCalls += 1;
+          expect(size).to.deep.equal(EXTERNAL_SIZE);
+          return externalResult;
+        }),
+      ]);
+      expect(localCalls).to.equal(1);
+      expect(externalCalls).to.equal(1);
+      expect(local).to.deep.equal(localResult);
+      expect(external).to.deep.equal(externalResult);
+    },
+  }),
   ...namedCases("SomeExternalObject optional primitives", {
     "createOptionalPrimitivesHolder(5) only sets optionalNumber": () => {
       expect(
@@ -121,7 +226,10 @@ export const cases = {
 
     'name is "SomeExternalObject"': () => {
       expect(
-        Object.is(HybridSomeExternalObject.name, "SomeExternalObject"),
+        Object.is(
+          HybridSomeExternalObject.constructor.name,
+          "SomeExternalObject",
+        ),
       ).to.equal(true);
     },
 
@@ -194,7 +302,10 @@ export const cases = {
   ...casesForTestObjects("External HybridObject subclasses", {
     'createInternalObject() is named "SomeExternalObject"': (testObject) => {
       expect(
-        Object.is(testObject.createInternalObject().name, "SomeExternalObject"),
+        Object.is(
+          testObject.createInternalObject().constructor.name,
+          "SomeExternalObject",
+        ),
       ).to.equal(true);
     },
 
@@ -275,14 +386,14 @@ export const cases = {
     "bounceExternalVariant(number) throws": (testObject) => {
       // @ts-expect-error - a number is neither a string nor a SomeExternalObject
       expect(() => testObject.bounceExternalVariant(55)).to.throw(
-        `${testObject.name}.bounceExternalVariant(...): Cannot convert "55" to any type in variant<${debugOnly("std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>, std::string>!")}`,
+        `${testObject.constructor.name}.bounceExternalVariant(...): Cannot convert "55" to any type in variant<${debugOnly("std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>, std::string>!")}`,
       );
     },
 
     "bounceExternalVariant(another HybridObject type) throws": (testObject) => {
       // @ts-expect-error - a TestObject is not a SomeExternalObject
       expect(() => testObject.bounceExternalVariant(testObject)).to.throw(
-        `Cannot convert "[HybridObject ${testObject.name}]" to any type in variant<`,
+        `Cannot convert "[HybridObject ${testObject.constructor.name}]" to any type in variant<`,
       );
     },
 
@@ -299,7 +410,7 @@ export const cases = {
       // @ts-expect-error - a plain object is not a SomeExternalObject
       const bouncePlainObject = () => testObject.bounceExternalHybrid({});
       expect(bouncePlainObject).to.throw(
-        `${testObject.name}.bounceExternalHybrid(...)`,
+        `${testObject.constructor.name}.bounceExternalHybrid(...)`,
       );
       expect(bouncePlainObject).to.throw("It does not have a NativeState!");
     },

@@ -1,0 +1,73 @@
+diff --git a/node_modules/@react-native-harness/ui/.bun-tag-212fb8c23b9fbf8c b/.bun-tag-212fb8c23b9fbf8c
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/@react-native-harness/ui/Package.swift b/Package.swift
+new file mode 100644
+index 0000000000000000000000000000000000000000..a87f73e50202faf8c16f689039b454bb43a76844
+--- /dev/null
++++ b/Package.swift
+@@ -0,0 +1,36 @@
++// swift-tools-version: 6.0
++// React Native resolves these paths from build/generated/autolinking/libs/HarnessUI.
++
++import PackageDescription
++
++let package = Package(
++    name: "HarnessUI",
++    platforms: [.iOS("15.1")],
++    products: [
++        .library(name: "HarnessUI", targets: ["HarnessUI"]),
++    ],
++    dependencies: [
++        .package(name: "ReactNative", path: "../../../../xcframeworks"),
++        .package(name: "React-GeneratedCode", path: "../../../ios"),
++    ],
++    targets: [
++        .target(
++            name: "HarnessUI",
++            dependencies: [.product(name: "ReactHeaders", package: "ReactNative"), .product(name: "ReactNativeHeaders", package: "ReactNative"), .product(name: "ReactNativeDependenciesHeaders", package: "ReactNative"), .product(name: "ReactAppHeaders", package: "React-GeneratedCode")],
++            path: ".",
++            sources: [
++                "ios/HarnessUI.h",
++                "ios/HarnessUI.mm",
++                "ios/ViewQueryHelper.h",
++                "ios/ViewQueryHelper.mm",
++                "ios/ViewRegistry.h",
++                "ios/ViewRegistry.mm",
++            ],
++            publicHeadersPath: "ios",
++            cSettings: [.headerSearchPath("ios"), .headerSearchPath("."), .unsafeFlags(["-include", "react-native-spm-prefix.h"])],
++            cxxSettings: [.headerSearchPath("ios"), .headerSearchPath("."), .unsafeFlags(["-include", "react-native-spm-prefix.h"]), .define("DEBUG", .when(configuration: .debug)), .define("NDEBUG", .when(configuration: .release))],
++            linkerSettings: [.linkedFramework("UIKit"), .linkedFramework("Foundation"), .linkedFramework("CoreGraphics")]
++        ),
++    ],
++    cxxLanguageStandard: .cxx20
++)
+diff --git a/package.json b/package.json
+index ffe4b8d36e64e78f6df8247c60f9954670882f2d..f9c3c287fb9261c369e08ec09aa882b19564189e 100644
+--- a/package.json
++++ b/package.json
+@@ -61,5 +61,8 @@
+     "type": "git",
+     "url": "https://github.com/callstackincubator/react-native-harness.git"
+   },
+-  "license": "MIT"
++  "license": "MIT",
++  "swiftpmConfig": {
++    "name": "HarnessUI"
++  }
+ }
+\ No newline at end of file
+diff --git a/node_modules/@react-native-harness/ui/react-native-spm-prefix.h b/react-native-spm-prefix.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..8b91f1b32f54e6136d715ac194bb4fb91b3c4b0e
+--- /dev/null
++++ b/react-native-spm-prefix.h
+@@ -0,0 +1,7 @@
++// Foundation and UIKit declarations used by the existing Objective-C sources.
++#ifdef __OBJC__
++#import <Foundation/Foundation.h>
++#if __has_include(<UIKit/UIKit.h>)
++#import <UIKit/UIKit.h>
++#endif
++#endif

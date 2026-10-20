@@ -5,18 +5,10 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridSomeExternalObjectSpec.hpp"
+#include <NitroTestExternal/HybridSomeExternalObjectSpec.hpp>
 
 namespace margelo::nitro::test::external {
 
-  void HybridSomeExternalObjectSpec::loadHybridMethods() {
-    // load base methods/properties
-    HybridObject::loadHybridMethods();
-    // load custom methods/properties
-    registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridMethod("getValue", &HybridSomeExternalObjectSpec::getValue);
-      prototype.registerHybridMethod("createOptionalPrimitivesHolder", &HybridSomeExternalObjectSpec::createOptionalPrimitivesHolder);
-    });
-  }
+  HybridSomeExternalObjectSpec::~HybridSomeExternalObjectSpec() = default;
 
 } // namespace margelo::nitro::test::external

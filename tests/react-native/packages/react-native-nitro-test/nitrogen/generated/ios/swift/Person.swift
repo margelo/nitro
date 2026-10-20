@@ -5,30 +5,31 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
 
-/**
- * Represents an instance of `Person`, backed by a C++ struct.
- */
-public typealias Person = margelo.nitro.test.Person
+@_expose(Cxx)
+public struct Person: Equatable, Hashable, Sendable {
+  public let name: String
+  public let age: Double
 
-public extension Person {
-  private typealias bridge = margelo.nitro.test.bridge.swift
-
-  /**
-   * Create a new instance of `Person`.
-   */
-  init(name: String, age: Double) {
-    self.init(std.string(name), age)
+  public init(name: String, age: Double) {
+    self.name = name
+    self.age = age
   }
 
-  @inline(__always)
-  var name: String {
-    return String(self.__name)
+  @_spi(NitroCxx)
+  public static func init_cxx(_ name: String, _ age: Double) -> Self {
+    return Self(name: name, age: age)
   }
-  
-  @inline(__always)
-  var age: Double {
-    return self.__age
+
+  @_spi(NitroCxx)
+  public borrowing func getName_cxx() -> String {
+    return self.name
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getAge_cxx() -> Double {
+    return self.age
   }
 }

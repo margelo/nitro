@@ -1,15 +1,19 @@
-import type { FileWithReferencedTypes } from '../SourceFile.js'
+import type {
+  FileWithReferencedTypes,
+  SourceFile,
+  SourceImport,
+} from '../SourceFile.js'
 import { indent } from '../../utils.js'
-import { createFileMetadataString, isNotDuplicate } from '../helpers.js'
+import { createFileMetadataString } from '../helpers.js'
 import type { NamedType } from '../types/Type.js'
-import { includeHeader, includeNitroHeader } from './includeNitroHeader.js'
 import { NitroConfig } from '../../config/NitroConfig.js'
-import type { GetFunctionCodeOptions } from '../types/FunctionType.js'
+import type { GetCallbackCodeOptions } from '../types/CallbackType.js'
+import { getImportsCode } from '../getImportCode.js'
 
 export function createCppStruct(
   typename: string,
   properties: NamedType[]
-): FileWithReferencedTypes {
+): [header: FileWithReferencedTypes, implementation: SourceFile] {
   // Namespace typename
   const fullyQualifiedTypename = NitroConfig.current.getCxxNamespace(
     'c++',
@@ -17,16 +21,32 @@ export function createCppStruct(
   )
   // Get C++ code for all struct members
   const cppStructProps = properties
-    .map((p) => `${p.getCode('c++')} ${p.escapedName}     SWIFT_PRIVATE;`)
+    .map(
+      (p) =>
+        `${p.getCode('c++', { context: 'property' })} ${p.escapedName}     SWIFT_PRIVATE;`
+    )
     .join('\n')
   const cppConstructorParams = properties
-    .map((p) => `${p.getCode('c++')} ${p.escapedName}`)
+    .map((p) => `${p.getCode('c++', { context: 'value' })} ${p.escapedName}`)
     .join(', ')
+  // Parameters are taken by value, so move the ones that are expensive to copy
+  // (the types that other signatures pass by `const&`) into the members.
+  const movedProperties = properties.filter(
+    (p) =>
+      p.getCode('c++', { context: 'parameter' }) !==
+      p.getCode('c++', { context: 'value' })
+  )
   const cppInitializerParams = properties
-    .map((p) => `${p.escapedName}(${p.escapedName})`)
+    .map((p) => {
+      if (movedProperties.includes(p)) {
+        return `${p.escapedName}(std::move(${p.escapedName}))`
+      }
+      return `${p.escapedName}(${p.escapedName})`
+    })
     .join(', ')
   // Get C++ code for converting each member from a jsi::Value
-  const codeOptions: GetFunctionCodeOptions = {
+  const codeOptions: GetCallbackCodeOptions = {
+    context: 'type-argument',
     fullyQualified: true,
     includeNameInfo: false,
   }
@@ -65,13 +85,58 @@ export function createCppStruct(
 
   // Get C++ includes for each extra-file we need to include
   const includedTypes = properties.flatMap((r) => r.getRequiredImports('c++'))
-  const cppForwardDeclarations = includedTypes
-    .map((i) => i.forwardDeclaration)
-    .filter((v) => v != null)
-    .filter(isNotDuplicate)
-  const cppExtraIncludes = includedTypes
-    .map((i) => includeHeader(i))
-    .filter(isNotDuplicate)
+  const declarationImports: SourceImport[] = [
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/JSIConverter.hpp',
+        space: 'system',
+      },
+    },
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/NitroDefines.hpp',
+        space: 'system',
+      },
+    },
+    ...includedTypes,
+  ]
+  if (movedProperties.length > 0) {
+    declarationImports.push({
+      language: 'c++',
+      declaration: { name: 'utility', space: 'system' },
+    })
+  }
+  const implementationImports: SourceImport[] = [
+    {
+      language: 'c++',
+      declaration: NitroConfig.current.getCxxHeader(`${typename}.hpp`),
+    },
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/JSIHelpers.hpp',
+        space: 'system',
+      },
+    },
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/PropNameIDCache.hpp',
+        space: 'system',
+      },
+    },
+    ...includedTypes,
+  ]
+  const cppDeclarationIncludes = getImportsCode(
+    declarationImports,
+    'declaration'
+  )
+  const cppImplementationIncludes = getImportsCode(
+    implementationImports,
+    'implementation'
+  )
   const cxxNamespace = NitroConfig.current.getCxxNamespace('c++')
 
   const cppCode = `
@@ -79,14 +144,7 @@ ${createFileMetadataString(`${typename}.hpp`)}
 
 #pragma once
 
-${includeNitroHeader('JSIConverter.hpp')}
-${includeNitroHeader('NitroDefines.hpp')}
-${includeNitroHeader('JSIHelpers.hpp')}
-${includeNitroHeader('PropNameIDCache.hpp')}
-
-${cppForwardDeclarations.join('\n')}
-
-${cppExtraIncludes.join('\n')}
+${cppDeclarationIncludes}
 
 namespace ${cxxNamespace} {
 
@@ -112,38 +170,62 @@ namespace margelo::nitro {
   // C++ ${typename} <> JS ${typename} (object)
   template <>
   struct JSIConverter<${fullyQualifiedTypename}> final {
-    static inline ${fullyQualifiedTypename} fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
-      jsi::Object obj = arg.asObject(runtime);
-      return ${fullyQualifiedTypename}(
-        ${indent(cppFromJsiParams, '        ')}
-      );
-    }
-    static inline jsi::Value toJSI(jsi::Runtime& runtime, const ${fullyQualifiedTypename}& arg) {
-      jsi::Object obj(runtime);
-      ${indent(cppToJsiCalls, '      ')}
-      return obj;
-    }
-    static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
-      if (!value.isObject()) {
-        return false;
-      }
-      jsi::Object obj = value.getObject(runtime);
-      if (!nitro::isPlainObject(runtime, obj)) {
-        return false;
-      }
-      ${indent(cppCanConvertCalls, '      ')}
-      return true;
-    }
+    static ${fullyQualifiedTypename} fromJSI(jsi::Runtime& runtime, const jsi::Value& arg);
+    static jsi::Value toJSI(jsi::Runtime& runtime, const ${fullyQualifiedTypename}& arg);
+    static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
   };
 
 } // namespace margelo::nitro
   `
-  return {
-    content: cppCode,
-    name: `${typename}.hpp`,
-    subdirectory: [],
-    language: 'c++',
-    referencedTypes: properties,
-    platform: 'shared',
+  const cppImplementationCode = `
+${createFileMetadataString(`${typename}.cpp`)}
+
+${cppImplementationIncludes}
+
+namespace margelo::nitro {
+
+  ${fullyQualifiedTypename} JSIConverter<${fullyQualifiedTypename}>::fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+    jsi::Object obj = arg.asObject(runtime);
+    return ${fullyQualifiedTypename}(
+      ${indent(cppFromJsiParams, '      ')}
+    );
   }
+
+  jsi::Value JSIConverter<${fullyQualifiedTypename}>::toJSI(jsi::Runtime& runtime, const ${fullyQualifiedTypename}& arg) {
+    jsi::Object obj(runtime);
+    ${indent(cppToJsiCalls, '    ')}
+    return obj;
+  }
+
+  bool JSIConverter<${fullyQualifiedTypename}>::canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) {
+      return false;
+    }
+    jsi::Object obj = value.getObject(runtime);
+    if (!nitro::isPlainObject(runtime, obj)) {
+      return false;
+    }
+    ${indent(cppCanConvertCalls, '    ')}
+    return true;
+  }
+
+} // namespace margelo::nitro
+  `
+  return [
+    {
+      content: cppCode,
+      name: `${typename}.hpp`,
+      subdirectory: [],
+      language: 'c++',
+      referencedTypes: properties,
+      platform: 'shared',
+    },
+    {
+      content: cppImplementationCode,
+      name: `${typename}.cpp`,
+      subdirectory: [],
+      language: 'c++',
+      platform: 'shared',
+    },
+  ]
 }

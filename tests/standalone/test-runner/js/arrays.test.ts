@@ -403,14 +403,14 @@ export const cases = {
     "bounceNumbers(...) rejects a number": (testObject) => {
       // @ts-expect-error passing a number instead of an array
       expect(() => testObject.bounceNumbers(5)).to.throw(
-        `${testObject.name}.bounceNumbers(...): Value is a number, expected an Object`,
+        `${testObject.constructor.name}.bounceNumbers(...): Value is a number, expected an Object`,
       );
     },
 
     "bounceNumbers(...) rejects undefined": (testObject) => {
       // @ts-expect-error passing undefined instead of an array
       expect(() => testObject.bounceNumbers(undefined)).to.throw(
-        `${testObject.name}.bounceNumbers(...): Value is undefined, expected an Object`,
+        `${testObject.constructor.name}.bounceNumbers(...): Value is undefined, expected an Object`,
       );
     },
 
@@ -418,7 +418,7 @@ export const cases = {
       const arrayLike = { length: 2, 0: 1, 1: 2 };
       // @ts-expect-error passing an array-like object instead of an array
       expect(() => testObject.bounceNumbers(arrayLike)).to.throw(
-        `${testObject.name}.bounceNumbers(...): Object is an object, expected an array`,
+        `${testObject.constructor.name}.bounceNumbers(...): Object is an object, expected an array`,
       );
     },
 
@@ -426,42 +426,49 @@ export const cases = {
       const typedArray = new Float64Array([1, 2]);
       // @ts-expect-error passing a Float64Array instead of an array
       expect(() => testObject.bounceNumbers(typedArray)).to.throw(
-        `${testObject.name}.bounceNumbers(...): Object is an object, expected an array`,
+        `${testObject.constructor.name}.bounceNumbers(...): Object is an object, expected an array`,
       );
     },
 
     "bounceNumbers(...) rejects a string element": (testObject) => {
       // @ts-expect-error passing a string element
       expect(() => testObject.bounceNumbers([1, "2"])).to.throw(
-        `${testObject.name}.bounceNumbers(...): Value is a string, expected a number`,
+        `${testObject.constructor.name}.bounceNumbers(...): Value is a string, expected a number`,
       );
     },
 
     "bounceNumbers(...) rejects a bigint element": (testObject) => {
       // @ts-expect-error passing a bigint element
       expect(() => testObject.bounceNumbers([1, 2n])).to.throw(
-        `${testObject.name}.bounceNumbers(...): Value is a bigint, expected a number`,
+        `${testObject.constructor.name}.bounceNumbers(...): Value is a bigint, expected a number`,
       );
     },
 
     "bounceStrings(...) rejects a number element": (testObject) => {
       // @ts-expect-error passing a number element
       expect(() => testObject.bounceStrings(["a", 5])).to.throw(
-        `${testObject.name}.bounceStrings(...): Value is a number, expected a String`,
+        `${testObject.constructor.name}.bounceStrings(...): Value is a number, expected a String`,
       );
     },
 
     "bounceStrings(...) rejects a null element": (testObject) => {
       // @ts-expect-error passing a null element
       expect(() => testObject.bounceStrings(["a", null])).to.throw(
-        `${testObject.name}.bounceStrings(...): Value is null, expected a String`,
+        `${testObject.constructor.name}.bounceStrings(...): Value is null, expected a String`,
       );
     },
 
     "bounceEnums(...) rejects an unknown enum value": (testObject) => {
       // @ts-expect-error passing an unknown Powertrain
       expect(() => testObject.bounceEnums(["gas", "diesel"])).to.throw(
-        `${testObject.name}.bounceEnums(...): Cannot convert "diesel" to enum Powertrain - invalid value!`,
+        `${testObject.constructor.name}.bounceEnums(...): Cannot convert "diesel" to enum Powertrain - invalid value!`,
+      );
+    },
+
+    "bounceEnums(...) rejects a number element": (testObject) => {
+      // @ts-expect-error passing a number instead of a Powertrain
+      expect(() => testObject.bounceEnums(["gas", 1])).to.throw(
+        `${testObject.constructor.name}.bounceEnums(...): Value is a number, expected a String`,
       );
     },
 
@@ -470,14 +477,14 @@ export const cases = {
     ) => {
       // @ts-expect-error passing a Person without an age
       expect(() => testObject.bounceStructs([{ name: "Marc" }])).to.throw(
-        `${testObject.name}.bounceStructs(...): Value is undefined, expected a number`,
+        `${testObject.constructor.name}.bounceStructs(...): Value is undefined, expected a number`,
       );
     },
 
     "bounceStructs(...) rejects a non-object element": (testObject) => {
       // @ts-expect-error passing a string instead of a Person
       expect(() => testObject.bounceStructs(["Marc"])).to.throw(
-        `${testObject.name}.bounceStructs(...): Value is a string, expected an Object`,
+        `${testObject.constructor.name}.bounceStructs(...): Value is a string, expected an Object`,
       );
     },
 
@@ -487,35 +494,35 @@ export const cases = {
       const person = { name: "Marc", age: 24 };
       // @ts-expect-error passing a Person instead of Person[]
       expect(() => testObject.bounceNestedArray([[person], person])).to.throw(
-        `${testObject.name}.bounceNestedArray(...): Object is an object, expected an array`,
+        `${testObject.constructor.name}.bounceNestedArray(...): Object is an object, expected an array`,
       );
     },
 
     "bounceOptionals(...) rejects null elements": (testObject) => {
       // @ts-expect-error passing null where only undefined is optional
       expect(() => testObject.bounceOptionals(["a", null], [])).to.throw(
-        `${testObject.name}.bounceOptionals(...): Value is null, expected a String`,
+        `${testObject.constructor.name}.bounceOptionals(...): Value is null, expected a String`,
       );
     },
 
     "bounceNulls(...) rejects undefined elements": (testObject) => {
       // @ts-expect-error passing undefined where only null is allowed
       expect(() => testObject.bounceNulls(["a", undefined])).to.throw(
-        `${testObject.name}.bounceNulls(...): Cannot convert "undefined" to any type in variant<`,
+        `${testObject.constructor.name}.bounceNulls(...): Cannot convert "undefined" to any type in variant<`,
       );
     },
 
     "bounceOptionalNulls(...) rejects a number element": (testObject) => {
       // @ts-expect-error passing a number element
       expect(() => testObject.bounceOptionalNulls(["a", 5])).to.throw(
-        `${testObject.name}.bounceOptionalNulls(...): Cannot convert "5" to any type in variant<`,
+        `${testObject.constructor.name}.bounceOptionalNulls(...): Cannot convert "5" to any type in variant<`,
       );
     },
 
     "bounceFunctions(...) rejects a non-function element": (testObject) => {
       // @ts-expect-error passing an object instead of a function
       expect(() => testObject.bounceFunctions([() => {}, {}])).to.throw(
-        `${testObject.name}.bounceFunctions(...): Object is an object, expected a function`,
+        `${testObject.constructor.name}.bounceFunctions(...): Object is an object, expected a function`,
       );
     },
   }),

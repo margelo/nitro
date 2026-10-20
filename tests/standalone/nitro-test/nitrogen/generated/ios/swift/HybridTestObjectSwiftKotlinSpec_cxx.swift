@@ -4,45 +4,43 @@
 /// https://github.com/margelo/nitro
 /// Copyright © Marc Rousavy @ Margelo
 ///
-
-import NitroModules
-import NitroTestExternal
+public import NitroModules
+public import CxxStdlib
+public import NitroTestAppleCxx
+public import NitroTestExternal
 
 /**
  * A class implementation that bridges HybridTestObjectSwiftKotlinSpec over to C++.
  * In C++, we cannot use Swift protocols - so we need to wrap it in a class to make it strongly defined.
- *
- * Also, some Swift types need to be bridged with special handling:
- * - Enums need to be wrapped in Structs, otherwise they cannot be accessed bi-directionally (Swift bug: https://github.com/swiftlang/swift/issues/75330)
- * - Other HybridObjects need to be wrapped/unwrapped from the Swift TCxx wrapper
- * - Throwing methods need to be wrapped with a Result<T, Error> type, as exceptions cannot be propagated to C++
  */
-open class HybridTestObjectSwiftKotlinSpec_cxx {
+@_expose(Cxx)
+public final class HybridTestObjectSwiftKotlinSpec_cxx {
   /**
-   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::bridge::swift`)
-   * from `NitroTest-Swift-Cxx-Bridge.hpp`.
+   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::swift_bridge`)
+   * from `NitroTestAppleCxx/NitroTestAppleCxx.h`.
    * This contains specialized C++ templates, and C++ helper functions that can be accessed from Swift.
    */
-  public typealias bridge = margelo.nitro.test.bridge.swift
+  public typealias bridge = margelo.nitro.test.swift_bridge
 
   /**
-   * Holds an instance of the `HybridTestObjectSwiftKotlinSpec` Swift protocol.
+   * Holds the Swift implementation of `HybridTestObjectSwiftKotlinSpec`.
    */
-  private let __implementation: any HybridTestObjectSwiftKotlinSpec
+  private let __implementation: HybridTestObjectSwift
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.
    */
-  private var __cxxPart: bridge.std__weak_ptr_HybridTestObjectSwiftKotlinSpec_
+  private var __cxxPart: bridge.std__weak_ptr_HybridTestObjectSwiftKotlinSpec_ = .init()
 
   /**
    * Create a new `HybridTestObjectSwiftKotlinSpec_cxx` that wraps the given `HybridTestObjectSwiftKotlinSpec`.
-   * All properties and methods bridge to C++ types.
    */
   public init(_ implementation: any HybridTestObjectSwiftKotlinSpec) {
+    guard let implementation = implementation as? HybridTestObjectSwift else {
+      preconditionFailure("TestObjectSwiftKotlin selects HybridTestObjectSwift as its Swift implementation. Every instance must inherit HybridTestObjectSwift.")
+    }
     self.__implementation = implementation
-    self.__cxxPart = .init()
-    /* no base class */
+
   }
 
   /**
@@ -66,7 +64,7 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
    * The pointer has to be a retained opaque `Unmanaged<HybridTestObjectSwiftKotlinSpec_cxx>`.
    * This removes one strong reference from the object!
    */
-  public class func fromUnsafe(_ pointer: UnsafeMutableRawPointer) -> HybridTestObjectSwiftKotlinSpec_cxx {
+  public class func fromUnsafe(pointer: UnsafeMutableRawPointer) -> HybridTestObjectSwiftKotlinSpec_cxx {
     return Unmanaged<HybridTestObjectSwiftKotlinSpec_cxx>.fromOpaque(pointer).takeRetainedValue()
   }
 
@@ -75,17 +73,23 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
    * The C++ part is a `std::shared_ptr<HybridTestObjectSwiftKotlinSpec>`.
    */
   public func getCxxPart() -> bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ {
-    let cachedCxxPart = self.__cxxPart.lock()
-    if cachedCxxPart.use_count() > 0 {
-      return cachedCxxPart
-    } else {
-      let newCxxPart = bridge.create_std__shared_ptr_HybridTestObjectSwiftKotlinSpec_(self.toUnsafe())
-      __cxxPart = bridge.weakify_std__shared_ptr_HybridTestObjectSwiftKotlinSpec_(newCxxPart)
-      return newCxxPart
+    let cached = __cxxPart.lock()
+    if cached.use_count() > 0 {
+      return cached
     }
+    let value = bridge.create_std__shared_ptr_HybridTestObjectSwiftKotlinSpec_(self.toUnsafe())
+    __cxxPart = bridge.weakify_std__shared_ptr_HybridTestObjectSwiftKotlinSpec_(value)
+    return value
   }
 
-  
+
+  // A static borrowing accessor lets C++ pass a const reference without copying it.
+  // TODO: Remove this adapter and call the instance method directly once
+  // https://github.com/swiftlang/swift/pull/92862 is merged and supported by our Swift toolchain.
+  @_spi(NitroCxx)
+  public static func getCxxPart(_ value: borrowing HybridTestObjectSwiftKotlinSpec_cxx) -> bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ {
+    return value.getCxxPart()
+  }
 
   /**
    * Get the memory size of the Swift class (plus size of any other allocations)
@@ -93,7 +97,7 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
    */
   @inline(__always)
   public var memorySize: Int {
-    return MemoryHelper.getSizeOf(self.__implementation) + self.__implementation.memorySize
+    return MemoryHelper.getSizeOf(__implementation) + __implementation.memorySize
   }
 
   /**
@@ -101,7 +105,7 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
    */
   @inline(__always)
   public func equals(other: HybridTestObjectSwiftKotlinSpec_cxx) -> Bool {
-    return self.__implementation === other.__implementation
+    return __implementation === other.__implementation
   }
 
   /**
@@ -110,7 +114,7 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
    */
   @inline(__always)
   public func dispose() {
-    self.__implementation.dispose()
+    __implementation.dispose()
   }
 
   /**
@@ -118,2953 +122,1335 @@ open class HybridTestObjectSwiftKotlinSpec_cxx {
    */
   @inline(__always)
   public func toString() -> String {
-    return self.__implementation.toString()
+    return __implementation.toString()
   }
 
   // Properties
-  public final var thisObject: bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ in
-        let __cxxWrapped = self.__implementation.thisObject.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-    }
+
+  public final func getNumberValue() -> Double {
+    let value = __implementation.numberValue
+    return value
   }
-  
-  public final var optionalHybrid: bridge.std__optional_std__shared_ptr_HybridTestObjectSwiftKotlinSpec__ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_std__shared_ptr_HybridTestObjectSwiftKotlinSpec__ in
-        if let __unwrappedValue = self.__implementation.optionalHybrid {
-          return bridge.create_std__optional_std__shared_ptr_HybridTestObjectSwiftKotlinSpec__({ () -> bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ in
-            let __cxxWrapped = __unwrappedValue.getCxxWrapper()
-            return __cxxWrapped.getCxxPart()
-          }())
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.optionalHybrid = { () -> (any HybridTestObjectSwiftKotlinSpec)? in
-        if bridge.has_value_std__optional_std__shared_ptr_HybridTestObjectSwiftKotlinSpec__(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__shared_ptr_HybridTestObjectSwiftKotlinSpec__(newValue)
-          return { () -> any HybridTestObjectSwiftKotlinSpec in
-            let __unsafePointer = bridge.get_std__shared_ptr_HybridTestObjectSwiftKotlinSpec_(__unwrapped)
-            let __instance = HybridTestObjectSwiftKotlinSpec_cxx.fromUnsafe(__unsafePointer)
-            return __instance.getHybridTestObjectSwiftKotlinSpec()
-          }()
-        } else {
-          return nil
-        }
-      }()
-    }
+
+  public final func setNumberValue(numberValue: Double) -> Void {
+    __implementation.numberValue = numberValue
   }
-  
-  public final var numberValue: Double {
-    @inline(__always)
-    get {
-      return self.__implementation.numberValue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.numberValue = newValue
-    }
+
+  public final func getBoolValue() -> Bool {
+    let value = __implementation.boolValue
+    return value
   }
-  
-  public final var boolValue: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.boolValue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.boolValue = newValue
-    }
+
+  public final func setBoolValue(boolValue: Bool) -> Void {
+    __implementation.boolValue = boolValue
   }
-  
-  public final var stringValue: std.string {
-    @inline(__always)
-    get {
-      return std.string(self.__implementation.stringValue)
-    }
-    @inline(__always)
-    set {
-      self.__implementation.stringValue = String(newValue)
-    }
+
+  public final func getStringValue() -> String {
+    let value = __implementation.stringValue
+    return value
   }
-  
-  public final var int64Value: Int64 {
-    @inline(__always)
-    get {
-      return self.__implementation.int64Value
-    }
-    @inline(__always)
-    set {
-      self.__implementation.int64Value = newValue
-    }
+
+  public final func setStringValue(stringValue: String) -> Void {
+    __implementation.stringValue = stringValue
   }
-  
-  public final var uint64Value: UInt64 {
-    @inline(__always)
-    get {
-      return self.__implementation.uint64Value
-    }
-    @inline(__always)
-    set {
-      self.__implementation.uint64Value = newValue
-    }
+
+  public final func getInt64Value() -> Int64 {
+    let value = __implementation.int64Value
+    return value
   }
-  
-  public final var nullValue: margelo.nitro.NullType {
-    @inline(__always)
-    get {
-      return margelo.nitro.NullType.null
-    }
-    @inline(__always)
-    set {
-      self.__implementation.nullValue = NullType.null
-    }
+
+  public final func setInt64Value(int64Value: Int64) -> Void {
+    __implementation.int64Value = int64Value
   }
-  
-  public final var optionalString: bridge.std__optional_std__string_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_std__string_ in
-        if let __unwrappedValue = self.__implementation.optionalString {
-          return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.optionalString = { () -> String? in
-        if bridge.has_value_std__optional_std__string_(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__string_(newValue)
-          return String(__unwrapped)
-        } else {
-          return nil
-        }
-      }()
-    }
+
+  public final func getUint64Value() -> UInt64 {
+    let value = __implementation.uint64Value
+    return value
   }
-  
-  public final var stringOrUndefined: bridge.std__optional_std__string_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_std__string_ in
-        if let __unwrappedValue = self.__implementation.stringOrUndefined {
-          return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.stringOrUndefined = { () -> String? in
-        if bridge.has_value_std__optional_std__string_(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__string_(newValue)
-          return String(__unwrapped)
-        } else {
-          return nil
-        }
-      }()
-    }
+
+  public final func setUint64Value(uint64Value: UInt64) -> Void {
+    __implementation.uint64Value = uint64Value
   }
-  
-  public final var stringOrNull: bridge.std__variant_nitro__NullType__std__string_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__variant_nitro__NullType__std__string_ in
-        switch self.__implementation.stringOrNull {
-          case .first(let __value):
-            return bridge.create_std__variant_nitro__NullType__std__string_(margelo.nitro.NullType.null)
-          case .second(let __value):
-            return bridge.create_std__variant_nitro__NullType__std__string_(std.string(__value))
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.stringOrNull = { () -> Variant_NullType_String in
-        let __variant = newValue
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(NullType.null)
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(String(__actual))
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }()
-    }
+
+  public final func getNullValue() -> NullType {
+    let value = __implementation.nullValue
+    return value
   }
-  
-  public final var optionalArray: bridge.std__optional_std__vector_std__string__ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_std__vector_std__string__ in
-        if let __unwrappedValue = self.__implementation.optionalArray {
-          return bridge.create_std__optional_std__vector_std__string__({ () -> bridge.std__vector_std__string_ in
-            var __vector = bridge.create_std__vector_std__string_(__unwrappedValue.count)
-            for __item in __unwrappedValue {
-              __vector.push_back(std.string(__item))
-            }
-            return __vector
-          }())
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.optionalArray = { () -> [String]? in
-        if bridge.has_value_std__optional_std__vector_std__string__(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__vector_std__string__(newValue)
-          return __unwrapped.map({ __item in String(__item) })
-        } else {
-          return nil
-        }
-      }()
-    }
+
+  public final func setNullValue(nullValue: NullType) -> Void {
+    __implementation.nullValue = nullValue
   }
-  
-  public final var optionalEnum: bridge.std__optional_Powertrain_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_Powertrain_ in
-        if let __unwrappedValue = self.__implementation.optionalEnum {
-          return bridge.create_std__optional_Powertrain_(__unwrappedValue)
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.optionalEnum = newValue.value
-    }
+
+  public final func getOptionalString() -> String? {
+    let value = __implementation.optionalString
+    return value
   }
-  
-  public final var optionalOldEnum: bridge.std__optional_OldEnum_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_OldEnum_ in
-        if let __unwrappedValue = self.__implementation.optionalOldEnum {
-          return bridge.create_std__optional_OldEnum_(__unwrappedValue)
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.optionalOldEnum = newValue.has_value() ? newValue.pointee : nil
-    }
+
+  public final func setOptionalString(optionalString: String?) -> Void {
+    __implementation.optionalString = optionalString
   }
-  
-  public final var optionalEnumPlusOne: bridge.std__optional_TruckPowertrain_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_TruckPowertrain_ in
-        if let __unwrappedValue = self.__implementation.optionalEnumPlusOne {
-          return bridge.create_std__optional_TruckPowertrain_(__unwrappedValue)
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.optionalEnumPlusOne = newValue.value
-    }
+
+  public final func getStringOrUndefined() -> String? {
+    let value = __implementation.stringOrUndefined
+    return value
   }
-  
-  public final var optionalCallback: bridge.std__optional_std__function_void_double____value______ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_std__function_void_double____value______ in
-        if let __unwrappedValue = self.__implementation.optionalCallback {
-          return bridge.create_std__optional_std__function_void_double____value______({ () -> bridge.Func_void_double in
-            let __closureWrapper = Func_void_double(__unwrappedValue)
-            return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-          }())
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.optionalCallback = { () -> ((_ value: Double) -> Void)? in
-        if bridge.has_value_std__optional_std__function_void_double____value______(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__function_void_double____value______(newValue)
-          return { () -> (Double) -> Void in
-            let __wrappedFunction = bridge.wrap_Func_void_double(__unwrapped)
-            return { (__value: Double) -> Void in
-              __wrappedFunction.call(__value)
-            }
-          }()
-        } else {
-          return nil
-        }
-      }()
-    }
+
+  public final func setStringOrUndefined(stringOrUndefined: String?) -> Void {
+    __implementation.stringOrUndefined = stringOrUndefined
   }
-  
-  public final var hasBoolean: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.hasBoolean
-    }
+
+  public final func getStringOrNull() -> Variant_NullType_String_cxx {
+    let value = __implementation.stringOrNull
+    return Variant_NullType_String_cxx(value)
   }
-  
-  public final var isBoolean: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.isBoolean
-    }
+
+  public final func setStringOrNull(stringOrNull: Variant_NullType_String_cxx) -> Void {
+    __implementation.stringOrNull = stringOrNull.value
   }
-  
-  public final var hasBooleanWritable: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.hasBooleanWritable
-    }
-    @inline(__always)
-    set {
-      self.__implementation.hasBooleanWritable = newValue
-    }
+
+  public final func getOptionalArray() -> [String]? {
+    let value = __implementation.optionalArray
+    return value
   }
-  
-  public final var isBooleanWritable: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.isBooleanWritable
-    }
-    @inline(__always)
-    set {
-      self.__implementation.isBooleanWritable = newValue
-    }
+
+  public final func setOptionalArray(optionalArray: [String]?) -> Void {
+    __implementation.optionalArray = optionalArray
   }
-  
-  public final var isolatedBoolean: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.isolatedBoolean
-    }
-    @inline(__always)
-    set {
-      self.__implementation.isolatedBoolean = newValue
-    }
+
+  public final func getOptionalEnum() -> Powertrain? {
+    let value = __implementation.optionalEnum
+    return value
   }
-  
-  public final var isTextValue: std.string {
-    @inline(__always)
-    get {
-      return std.string(self.__implementation.isTextValue)
-    }
-    @inline(__always)
-    set {
-      self.__implementation.isTextValue = String(newValue)
-    }
+
+  public final func setOptionalEnum(optionalEnum: Powertrain?) -> Void {
+    __implementation.optionalEnum = optionalEnum
   }
-  
-  public final var someVariant: bridge.std__variant_double__std__string_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__variant_double__std__string_ in
-        switch self.__implementation.someVariant {
-          case .first(let __value):
-            return bridge.create_std__variant_double__std__string_(__value)
-          case .second(let __value):
-            return bridge.create_std__variant_double__std__string_(std.string(__value))
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.someVariant = { () -> Variant_Double_String in
-        let __variant = newValue
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(__actual)
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(String(__actual))
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }()
-    }
+
+  public final func getOptionalOldEnum() -> OldEnum? {
+    let value = __implementation.optionalOldEnum
+    return value
+  }
+
+  public final func setOptionalOldEnum(optionalOldEnum: OldEnum?) -> Void {
+    __implementation.optionalOldEnum = optionalOldEnum
+  }
+
+  public final func getOptionalEnumPlusOne() -> TruckPowertrain? {
+    let value = __implementation.optionalEnumPlusOne
+    return value
+  }
+
+  public final func setOptionalEnumPlusOne(optionalEnumPlusOne: TruckPowertrain?) -> Void {
+    __implementation.optionalEnumPlusOne = optionalEnumPlusOne
+  }
+
+  public final func getOptionalCallback() -> (margelo.nitro.test.swift_bridge.Callback_void_double)? {
+    let value = __implementation.optionalCallback
+    return value.map { $0.toCpp() }
+  }
+
+  public final func setOptionalCallback(optionalCallback: (margelo.nitro.test.swift_bridge.Callback_void_double)?) -> Void {
+    __implementation.optionalCallback = optionalCallback.map { $0 }
+  }
+
+  public final func getHasBoolean() -> Bool {
+    let value = __implementation.hasBoolean
+    return value
+  }
+
+  public final func getIsBoolean() -> Bool {
+    let value = __implementation.isBoolean
+    return value
+  }
+
+  public final func getHasBooleanWritable() -> Bool {
+    let value = __implementation.hasBooleanWritable
+    return value
+  }
+
+  public final func setHasBooleanWritable(hasBooleanWritable: Bool) -> Void {
+    __implementation.hasBooleanWritable = hasBooleanWritable
+  }
+
+  public final func getIsBooleanWritable() -> Bool {
+    let value = __implementation.isBooleanWritable
+    return value
+  }
+
+  public final func setIsBooleanWritable(isBooleanWritable: Bool) -> Void {
+    __implementation.isBooleanWritable = isBooleanWritable
+  }
+
+  public final func getIsolatedBoolean() -> Bool {
+    let value = __implementation.isolatedBoolean
+    return value
+  }
+
+  public final func setIsolatedBoolean(isolatedBoolean: Bool) -> Void {
+    __implementation.isolatedBoolean = isolatedBoolean
+  }
+
+  public final func getIsTextValue() -> String {
+    let value = __implementation.isTextValue
+    return value
+  }
+
+  public final func setIsTextValue(isTextValue: String) -> Void {
+    __implementation.isTextValue = isTextValue
+  }
+
+  public final func getSomeVariant() -> Variant_Double_String_cxx {
+    let value = __implementation.someVariant
+    return Variant_Double_String_cxx(value)
+  }
+
+  public final func setSomeVariant(someVariant: Variant_Double_String_cxx) -> Void {
+    __implementation.someVariant = someVariant.value
+  }
+
+  public final func getThisObject() -> HybridTestObjectSwiftKotlinSpec_cxx {
+    let value = __implementation.thisObject
+    return value.getCxxWrapper()
+  }
+
+  public final func getOptionalHybrid() -> HybridTestObjectSwiftKotlinSpec_cxx? {
+    let value = __implementation.optionalHybrid
+    return value.map { $0.getCxxWrapper() }
+  }
+
+  public final func setOptionalHybrid(optionalHybrid: HybridTestObjectSwiftKotlinSpec_cxx?) -> Void {
+    __implementation.optionalHybrid = optionalHybrid.map { $0.getHybridTestObjectSwiftKotlinSpec() }
   }
 
   // Methods
-  @inline(__always)
-  public final func newTestObject() -> bridge.Result_std__shared_ptr_HybridTestObjectSwiftKotlinSpec__ {
-    do {
-      let __result = try self.__implementation.newTestObject()
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridTestObjectSwiftKotlinSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridTestObjectSwiftKotlinSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func newTestObjectAsync() -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridTestObjectSwiftKotlinSpec____ {
-    do {
-      let __result = try self.__implementation.newTestObjectAsync()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ in
-              let __cxxWrapped = __result.getCxxWrapper()
-              return __cxxWrapped.getCxxPart()
-            }()) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridTestObjectSwiftKotlinSpec____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridTestObjectSwiftKotlinSpec____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getVariantHybrid(variant: bridge.std__variant_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___Person_) -> bridge.Result_std__variant_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___Person__ {
-    do {
-      let __result = try self.__implementation.getVariantHybrid(variant: { () -> Variant__any_HybridTestObjectSwiftKotlinSpec__Person in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first({ () -> any HybridTestObjectSwiftKotlinSpec in
-              let __unsafePointer = bridge.get_std__shared_ptr_HybridTestObjectSwiftKotlinSpec_(__actual)
-              let __instance = HybridTestObjectSwiftKotlinSpec_cxx.fromUnsafe(__unsafePointer)
-              return __instance.getHybridTestObjectSwiftKotlinSpec()
-            }())
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual)
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___Person_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___Person_({ () -> bridge.std__shared_ptr_HybridTestObjectSwiftKotlinSpec_ in
-              let __cxxWrapped = __value.getCxxWrapper()
-              return __cxxWrapped.getCxxPart()
-            }())
-          case .second(let __value):
-            return bridge.create_std__variant_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___Person_(__value)
-        }
-      }().variant
-      return bridge.create_Result_std__variant_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___Person__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_std__shared_ptr_HybridTestObjectSwiftKotlinSpec___Person__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func simpleFunc() -> bridge.Result_void_ {
-    do {
-      try self.__implementation.simpleFunc()
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func addNumbers(a: Double, b: Double) -> bridge.Result_double_ {
-    do {
-      let __result = try self.__implementation.addNumbers(a: a, b: b)
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func addStrings(a: std.string, b: std.string) -> bridge.Result_std__string_ {
-    do {
-      let __result = try self.__implementation.addStrings(a: String(a), b: String(b))
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func multipleArguments(num: Double, str: std.string, boo: Bool) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.multipleArguments(num: num, str: String(str), boo: boo)
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceNull(value: margelo.nitro.NullType) -> bridge.Result_nitro__NullType_ {
-    do {
-      let __result = try self.__implementation.bounceNull(value: NullType.null)
-      let __resultCpp = margelo.nitro.NullType.null
-      return bridge.create_Result_nitro__NullType_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_nitro__NullType_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceStrings(array: bridge.std__vector_std__string_) -> bridge.Result_std__vector_std__string__ {
-    do {
-      let __result = try self.__implementation.bounceStrings(array: array.map({ __item in String(__item) }))
-      let __resultCpp = { () -> bridge.std__vector_std__string_ in
-        var __vector = bridge.create_std__vector_std__string_(__result.count)
-        for __item in __result {
-          __vector.push_back(std.string(__item))
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__string__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__string__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceNumbers(array: bridge.std__vector_double_) -> bridge.Result_std__vector_double__ {
-    do {
-      let __result = try self.__implementation.bounceNumbers(array: array.map({ __item in __item }))
-      let __resultCpp = { () -> bridge.std__vector_double_ in
-        var __vector = bridge.create_std__vector_double_(__result.count)
-        for __item in __result {
-          __vector.push_back(__item)
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_double__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_double__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceStructs(array: bridge.std__vector_Person_) -> bridge.Result_std__vector_Person__ {
-    do {
-      let __result = try self.__implementation.bounceStructs(array: array.map({ __item in __item }))
-      let __resultCpp = { () -> bridge.std__vector_Person_ in
-        var __vector = bridge.create_std__vector_Person_(__result.count)
-        for __item in __result {
-          __vector.push_back(__item)
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_Person__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_Person__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceNestedArray(array: bridge.std__vector_std__vector_Person__) -> bridge.Result_std__vector_std__vector_Person___ {
-    do {
-      let __result = try self.__implementation.bounceNestedArray(array: array.map({ __item in __item.map({ __item in __item }) }))
-      let __resultCpp = { () -> bridge.std__vector_std__vector_Person__ in
-        var __vector = bridge.create_std__vector_std__vector_Person__(__result.count)
-        for __item in __result {
-          __vector.push_back({ () -> bridge.std__vector_Person_ in
-            var __vector = bridge.create_std__vector_Person_(__item.count)
-            for __item in __item {
-              __vector.push_back(__item)
-            }
-            return __vector
-          }())
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__vector_Person___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__vector_Person___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bouncePartialStruct(person: PartialPerson) -> bridge.Result_PartialPerson_ {
-    do {
-      let __result = try self.__implementation.bouncePartialStruct(person: person)
-      let __resultCpp = __result
-      return bridge.create_Result_PartialPerson_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_PartialPerson_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func sumUpAllPassengers(cars: bridge.std__vector_Car_) -> bridge.Result_std__string_ {
-    do {
-      let __result = try self.__implementation.sumUpAllPassengers(cars: cars.map({ __item in __item }))
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceEnums(array: bridge.std__vector_Powertrain_) -> bridge.Result_std__vector_Powertrain__ {
-    do {
-      let __result = try self.__implementation.bounceEnums(array: array.map({ __item in __item }))
-      let __resultCpp = { () -> bridge.std__vector_Powertrain_ in
-        var __vector = bridge.create_std__vector_Powertrain_(__result.count)
-        for __item in __result {
-          __vector.push_back(__item)
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_Powertrain__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_Powertrain__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func complexEnumCallback(array: bridge.std__vector_Powertrain_, callback: bridge.Func_void_std__vector_Powertrain_) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.complexEnumCallback(array: array.map({ __item in __item }), callback: { () -> ([Powertrain]) -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void_std__vector_Powertrain_(callback)
-        return { (__array: [Powertrain]) -> Void in
-          __wrappedFunction.call({ () -> bridge.std__vector_Powertrain_ in
-            var __vector = bridge.create_std__vector_Powertrain_(__array.count)
-            for __item in __array {
-              __vector.push_back(__item)
-            }
-            return __vector
-          }())
-        }
-      }())
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceHybridObjects(array: bridge.std__vector_std__shared_ptr_HybridChildSpec__) -> bridge.Result_std__vector_std__shared_ptr_HybridChildSpec___ {
-    do {
-      let __result = try self.__implementation.bounceHybridObjects(array: array.map({ __item in { () -> any HybridChildSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridChildSpec_(__item)
-        let __instance = HybridChildSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridChildSpec()
-      }() }))
-      let __resultCpp = { () -> bridge.std__vector_std__shared_ptr_HybridChildSpec__ in
-        var __vector = bridge.create_std__vector_std__shared_ptr_HybridChildSpec__(__result.count)
-        for __item in __result {
-          __vector.push_back({ () -> bridge.std__shared_ptr_HybridChildSpec_ in
-            let __cxxWrapped = __item.getCxxWrapper()
-            return __cxxWrapped.getCxxPart()
-          }())
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__shared_ptr_HybridChildSpec___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__shared_ptr_HybridChildSpec___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceFunctions(functions: bridge.std__vector_std__function_void____) -> bridge.Result_std__vector_std__function_void_____ {
-    do {
-      let __result = try self.__implementation.bounceFunctions(functions: functions.map({ __item in { () -> () -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void(__item)
-        return { () -> Void in
-          __wrappedFunction.call()
-        }
-      }() }))
-      let __resultCpp = { () -> bridge.std__vector_std__function_void____ in
-        var __vector = bridge.create_std__vector_std__function_void____(__result.count)
-        for __item in __result {
-          __vector.push_back({ () -> bridge.Func_void in
-            let __closureWrapper = Func_void(__item)
-            return bridge.create_Func_void(__closureWrapper.toUnsafe())
-          }())
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__function_void_____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__function_void_____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceMaps(maps: bridge.std__vector_std__shared_ptr_AnyMap__) -> bridge.Result_std__vector_std__shared_ptr_AnyMap___ {
-    do {
-      let __result = try self.__implementation.bounceMaps(maps: maps.map({ __item in AnyMap(withCppPart: __item) }))
-      let __resultCpp = { () -> bridge.std__vector_std__shared_ptr_AnyMap__ in
-        var __vector = bridge.create_std__vector_std__shared_ptr_AnyMap__(__result.count)
-        for __item in __result {
-          __vector.push_back(__item.cppPart)
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__shared_ptr_AnyMap___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__shared_ptr_AnyMap___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bouncePromises(promises: bridge.std__vector_std__shared_ptr_Promise_double___) -> bridge.Result_std__vector_std__shared_ptr_Promise_double____ {
-    do {
-      let __result = try self.__implementation.bouncePromises(promises: promises.map({ __item in { () -> Promise<Double> in
-        let __promise = Promise<Double>()
-        let __resolver = { (__result: Double) in
-          __promise.resolve(withResult: __result)
-        }
-        let __rejecter = { (__error: Error) in
-          __promise.reject(withError: __error)
-        }
-        let __resolverCpp = { () -> bridge.Func_void_double in
-          let __closureWrapper = Func_void_double(__resolver)
-          return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-        }()
-        let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-          let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-          return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-        }()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__item)
-        __promiseHolder.addOnResolvedListenerCopy(__resolverCpp)
-        __promiseHolder.addOnRejectedListener(__rejecterCpp)
-        return __promise
-      }() }))
-      let __resultCpp = { () -> bridge.std__vector_std__shared_ptr_Promise_double___ in
-        var __vector = bridge.create_std__vector_std__shared_ptr_Promise_double___(__result.count)
-        for __item in __result {
-          __vector.push_back({ () -> bridge.std__shared_ptr_Promise_double__ in
-            let __promise = bridge.create_std__shared_ptr_Promise_double__()
-            let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-            __item
-              .then({ __result in __promiseHolder.resolve(__result) })
-              .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-            return __promise
-          }())
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__shared_ptr_Promise_double____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__shared_ptr_Promise_double____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceArrayBuffers(arrayBuffers: bridge.std__vector_std__shared_ptr_ArrayBuffer__) -> bridge.Result_std__vector_std__shared_ptr_ArrayBuffer___ {
-    do {
-      let __result = try self.__implementation.bounceArrayBuffers(arrayBuffers: arrayBuffers.map({ __item in ArrayBuffer(__item) }))
-      let __resultCpp = { () -> bridge.std__vector_std__shared_ptr_ArrayBuffer__ in
-        var __vector = bridge.create_std__vector_std__shared_ptr_ArrayBuffer__(__result.count)
-        for __item in __result {
-          __vector.push_back(__item.getArrayBuffer())
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__shared_ptr_ArrayBuffer___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__shared_ptr_ArrayBuffer___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceOptionals(strings: bridge.std__vector_std__optional_std__string__, arrayBuffers: bridge.std__vector_std__optional_std__shared_ptr_ArrayBuffer___) -> bridge.Result_std__vector_std__optional_std__string___ {
-    do {
-      let __result = try self.__implementation.bounceOptionals(strings: strings.map({ __item in { () -> String? in
-        if bridge.has_value_std__optional_std__string_(__item) {
-          let __unwrapped = bridge.get_std__optional_std__string_(__item)
-          return String(__unwrapped)
-        } else {
-          return nil
-        }
-      }() }), arrayBuffers: arrayBuffers.map({ __item in { () -> ArrayBuffer? in
-        if bridge.has_value_std__optional_std__shared_ptr_ArrayBuffer__(__item) {
-          let __unwrapped = bridge.get_std__optional_std__shared_ptr_ArrayBuffer__(__item)
-          return ArrayBuffer(__unwrapped)
-        } else {
-          return nil
-        }
-      }() }))
-      let __resultCpp = { () -> bridge.std__vector_std__optional_std__string__ in
-        var __vector = bridge.create_std__vector_std__optional_std__string__(__result.count)
-        for __item in __result {
-          __vector.push_back({ () -> bridge.std__optional_std__string_ in
-            if let __unwrappedValue = __item {
-              return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
-            } else {
-              return .init()
-            }
-          }())
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__optional_std__string___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__optional_std__string___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceNulls(strings: bridge.std__vector_std__variant_nitro__NullType__std__string__) -> bridge.Result_std__vector_std__variant_nitro__NullType__std__string___ {
-    do {
-      let __result = try self.__implementation.bounceNulls(strings: strings.map({ __item in { () -> Variant_NullType_String in
-        let __variant = bridge.std__variant_nitro__NullType__std__string_(__item)
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(NullType.null)
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(String(__actual))
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }() }))
-      let __resultCpp = { () -> bridge.std__vector_std__variant_nitro__NullType__std__string__ in
-        var __vector = bridge.create_std__vector_std__variant_nitro__NullType__std__string__(__result.count)
-        for __item in __result {
-          __vector.push_back({ () -> bridge.std__variant_nitro__NullType__std__string_ in
-            switch __item {
-              case .first(let __value):
-                return bridge.create_std__variant_nitro__NullType__std__string_(margelo.nitro.NullType.null)
-              case .second(let __value):
-                return bridge.create_std__variant_nitro__NullType__std__string_(std.string(__value))
-            }
-          }().variant)
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__variant_nitro__NullType__std__string___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__variant_nitro__NullType__std__string___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceOptionalNulls(strings: bridge.std__vector_std__optional_std__variant_nitro__NullType__std__string___) -> bridge.Result_std__vector_std__optional_std__variant_nitro__NullType__std__string____ {
-    do {
-      let __result = try self.__implementation.bounceOptionalNulls(strings: strings.map({ __item in { () -> Variant_NullType_String? in
-        if bridge.has_value_std__optional_std__variant_nitro__NullType__std__string__(__item) {
-          let __unwrapped = bridge.get_std__optional_std__variant_nitro__NullType__std__string__(__item)
-          return { () -> Variant_NullType_String in
-            let __variant = bridge.std__variant_nitro__NullType__std__string_(__unwrapped)
-            switch __variant.index() {
-              case 0:
-                let __actual = __variant.get_0()
-                return .first(NullType.null)
-              case 1:
-                let __actual = __variant.get_1()
-                return .second(String(__actual))
-              default:
-                fatalError("Variant can never have index \(__variant.index())!")
-            }
-          }()
-        } else {
-          return nil
-        }
-      }() }))
-      let __resultCpp = { () -> bridge.std__vector_std__optional_std__variant_nitro__NullType__std__string___ in
-        var __vector = bridge.create_std__vector_std__optional_std__variant_nitro__NullType__std__string___(__result.count)
-        for __item in __result {
-          __vector.push_back({ () -> bridge.std__optional_std__variant_nitro__NullType__std__string__ in
-            if let __unwrappedValue = __item {
-              return bridge.create_std__optional_std__variant_nitro__NullType__std__string__({ () -> bridge.std__variant_nitro__NullType__std__string_ in
-                switch __unwrappedValue {
-                  case .first(let __value):
-                    return bridge.create_std__variant_nitro__NullType__std__string_(margelo.nitro.NullType.null)
-                  case .second(let __value):
-                    return bridge.create_std__variant_nitro__NullType__std__string_(std.string(__value))
-                }
-              }().variant)
-            } else {
-              return .init()
-            }
-          }())
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__optional_std__variant_nitro__NullType__std__string____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__optional_std__variant_nitro__NullType__std__string____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createMap() -> bridge.Result_std__shared_ptr_AnyMap__ {
-    do {
-      let __result = try self.__implementation.createMap()
-      let __resultCpp = __result.cppPart
-      return bridge.create_Result_std__shared_ptr_AnyMap__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_AnyMap__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func mapRoundtrip(map: margelo.nitro.SharedAnyMap) -> bridge.Result_std__shared_ptr_AnyMap__ {
-    do {
-      let __result = try self.__implementation.mapRoundtrip(map: AnyMap(withCppPart: map))
-      let __resultCpp = __result.cppPart
-      return bridge.create_Result_std__shared_ptr_AnyMap__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_AnyMap__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getMapKeys(map: margelo.nitro.SharedAnyMap) -> bridge.Result_std__vector_std__string__ {
-    do {
-      let __result = try self.__implementation.getMapKeys(map: AnyMap(withCppPart: map))
-      let __resultCpp = { () -> bridge.std__vector_std__string_ in
-        var __vector = bridge.create_std__vector_std__string_(__result.count)
-        for __item in __result {
-          __vector.push_back(std.string(__item))
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_std__string__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_std__string__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func mergeMaps(a: margelo.nitro.SharedAnyMap, b: margelo.nitro.SharedAnyMap) -> bridge.Result_std__shared_ptr_AnyMap__ {
-    do {
-      let __result = try self.__implementation.mergeMaps(a: AnyMap(withCppPart: a), b: AnyMap(withCppPart: b))
-      let __resultCpp = __result.cppPart
-      return bridge.create_Result_std__shared_ptr_AnyMap__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_AnyMap__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func copyAnyMap(map: margelo.nitro.SharedAnyMap) -> bridge.Result_std__shared_ptr_AnyMap__ {
-    do {
-      let __result = try self.__implementation.copyAnyMap(map: AnyMap(withCppPart: map))
-      let __resultCpp = __result.cppPart
-      return bridge.create_Result_std__shared_ptr_AnyMap__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_AnyMap__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceMap(map: bridge.std__unordered_map_std__string__std__variant_bool__double__) -> bridge.Result_std__unordered_map_std__string__std__variant_bool__double___ {
-    do {
-      let __result = try self.__implementation.bounceMap(map: { () -> Dictionary<String, Variant_Bool_Double> in
-        var __dictionary = Dictionary<String, Variant_Bool_Double>(minimumCapacity: map.size())
-        let __keys = bridge.get_std__unordered_map_std__string__std__variant_bool__double___keys(map)
-        for __key in __keys {
-          let __value = bridge.get_std__unordered_map_std__string__std__variant_bool__double___value(map, __key)
-          __dictionary[String(__key)] = { () -> Variant_Bool_Double in
-            let __variant = bridge.std__variant_bool__double_(__value)
-            switch __variant.index() {
-              case 0:
-                let __actual = __variant.get_0()
-                return .first(__actual)
-              case 1:
-                let __actual = __variant.get_1()
-                return .second(__actual)
-              default:
-                fatalError("Variant can never have index \(__variant.index())!")
-            }
-          }()
-        }
-        return __dictionary
-      }())
-      let __resultCpp = { () -> bridge.std__unordered_map_std__string__std__variant_bool__double__ in
-        var __map = bridge.create_std__unordered_map_std__string__std__variant_bool__double__(__result.count)
-        for (__k, __v) in __result {
-          bridge.emplace_std__unordered_map_std__string__std__variant_bool__double__(&__map, std.string(__k), { () -> bridge.std__variant_bool__double_ in
-            switch __v {
-              case .first(let __value):
-                return bridge.create_std__variant_bool__double_(__value)
-              case .second(let __value):
-                return bridge.create_std__variant_bool__double_(__value)
-            }
-          }().variant)
-        }
-        return __map
-      }()
-      return bridge.create_Result_std__unordered_map_std__string__std__variant_bool__double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__unordered_map_std__string__std__variant_bool__double___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceSimpleMap(map: bridge.std__unordered_map_std__string__double_) -> bridge.Result_std__unordered_map_std__string__double__ {
-    do {
-      let __result = try self.__implementation.bounceSimpleMap(map: { () -> Dictionary<String, Double> in
-        var __dictionary = Dictionary<String, Double>(minimumCapacity: map.size())
-        let __keys = bridge.get_std__unordered_map_std__string__double__keys(map)
-        for __key in __keys {
-          let __value = bridge.get_std__unordered_map_std__string__double__value(map, __key)
-          __dictionary[String(__key)] = __value
-        }
-        return __dictionary
-      }())
-      let __resultCpp = { () -> bridge.std__unordered_map_std__string__double_ in
-        var __map = bridge.create_std__unordered_map_std__string__double_(__result.count)
-        for (__k, __v) in __result {
-          bridge.emplace_std__unordered_map_std__string__double_(&__map, std.string(__k), __v)
-        }
-        return __map
-      }()
-      return bridge.create_Result_std__unordered_map_std__string__double__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__unordered_map_std__string__double__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceOptionalMap(map: bridge.std__unordered_map_std__string__std__optional_std__string__) -> bridge.Result_std__unordered_map_std__string__std__optional_std__string___ {
-    do {
-      let __result = try self.__implementation.bounceOptionalMap(map: { () -> Dictionary<String, String?> in
-        var __dictionary = Dictionary<String, String?>(minimumCapacity: map.size())
-        let __keys = bridge.get_std__unordered_map_std__string__std__optional_std__string___keys(map)
-        for __key in __keys {
-          let __value = bridge.get_std__unordered_map_std__string__std__optional_std__string___value(map, __key)
-          __dictionary[String(__key)] = { () -> String? in
-            if bridge.has_value_std__optional_std__string_(__value) {
-              let __unwrapped = bridge.get_std__optional_std__string_(__value)
-              return String(__unwrapped)
-            } else {
-              return nil
-            }
-          }()
-        }
-        return __dictionary
-      }())
-      let __resultCpp = { () -> bridge.std__unordered_map_std__string__std__optional_std__string__ in
-        var __map = bridge.create_std__unordered_map_std__string__std__optional_std__string__(__result.count)
-        for (__k, __v) in __result {
-          bridge.emplace_std__unordered_map_std__string__std__optional_std__string__(&__map, std.string(__k), { () -> bridge.std__optional_std__string_ in
-            if let __unwrappedValue = __v {
-              return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
-            } else {
-              return .init()
-            }
-          }())
-        }
-        return __map
-      }()
-      return bridge.create_Result_std__unordered_map_std__string__std__optional_std__string___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__unordered_map_std__string__std__optional_std__string___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceNullMap(map: bridge.std__unordered_map_std__string__std__variant_nitro__NullType__std__string__) -> bridge.Result_std__unordered_map_std__string__std__variant_nitro__NullType__std__string___ {
-    do {
-      let __result = try self.__implementation.bounceNullMap(map: { () -> Dictionary<String, Variant_NullType_String> in
-        var __dictionary = Dictionary<String, Variant_NullType_String>(minimumCapacity: map.size())
-        let __keys = bridge.get_std__unordered_map_std__string__std__variant_nitro__NullType__std__string___keys(map)
-        for __key in __keys {
-          let __value = bridge.get_std__unordered_map_std__string__std__variant_nitro__NullType__std__string___value(map, __key)
-          __dictionary[String(__key)] = { () -> Variant_NullType_String in
-            let __variant = bridge.std__variant_nitro__NullType__std__string_(__value)
-            switch __variant.index() {
-              case 0:
-                let __actual = __variant.get_0()
-                return .first(NullType.null)
-              case 1:
-                let __actual = __variant.get_1()
-                return .second(String(__actual))
-              default:
-                fatalError("Variant can never have index \(__variant.index())!")
-            }
-          }()
-        }
-        return __dictionary
-      }())
-      let __resultCpp = { () -> bridge.std__unordered_map_std__string__std__variant_nitro__NullType__std__string__ in
-        var __map = bridge.create_std__unordered_map_std__string__std__variant_nitro__NullType__std__string__(__result.count)
-        for (__k, __v) in __result {
-          bridge.emplace_std__unordered_map_std__string__std__variant_nitro__NullType__std__string__(&__map, std.string(__k), { () -> bridge.std__variant_nitro__NullType__std__string_ in
-            switch __v {
-              case .first(let __value):
-                return bridge.create_std__variant_nitro__NullType__std__string_(margelo.nitro.NullType.null)
-              case .second(let __value):
-                return bridge.create_std__variant_nitro__NullType__std__string_(std.string(__value))
-            }
-          }().variant)
-        }
-        return __map
-      }()
-      return bridge.create_Result_std__unordered_map_std__string__std__variant_nitro__NullType__std__string___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__unordered_map_std__string__std__variant_nitro__NullType__std__string___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceOptionalNullMap(map: bridge.std__unordered_map_std__string__std__optional_std__variant_nitro__NullType__std__string___) -> bridge.Result_std__unordered_map_std__string__std__optional_std__variant_nitro__NullType__std__string____ {
-    do {
-      let __result = try self.__implementation.bounceOptionalNullMap(map: { () -> Dictionary<String, Variant_NullType_String?> in
-        var __dictionary = Dictionary<String, Variant_NullType_String?>(minimumCapacity: map.size())
-        let __keys = bridge.get_std__unordered_map_std__string__std__optional_std__variant_nitro__NullType__std__string____keys(map)
-        for __key in __keys {
-          let __value = bridge.get_std__unordered_map_std__string__std__optional_std__variant_nitro__NullType__std__string____value(map, __key)
-          __dictionary[String(__key)] = { () -> Variant_NullType_String? in
-            if bridge.has_value_std__optional_std__variant_nitro__NullType__std__string__(__value) {
-              let __unwrapped = bridge.get_std__optional_std__variant_nitro__NullType__std__string__(__value)
-              return { () -> Variant_NullType_String in
-                let __variant = bridge.std__variant_nitro__NullType__std__string_(__unwrapped)
-                switch __variant.index() {
-                  case 0:
-                    let __actual = __variant.get_0()
-                    return .first(NullType.null)
-                  case 1:
-                    let __actual = __variant.get_1()
-                    return .second(String(__actual))
-                  default:
-                    fatalError("Variant can never have index \(__variant.index())!")
-                }
-              }()
-            } else {
-              return nil
-            }
-          }()
-        }
-        return __dictionary
-      }())
-      let __resultCpp = { () -> bridge.std__unordered_map_std__string__std__optional_std__variant_nitro__NullType__std__string___ in
-        var __map = bridge.create_std__unordered_map_std__string__std__optional_std__variant_nitro__NullType__std__string___(__result.count)
-        for (__k, __v) in __result {
-          bridge.emplace_std__unordered_map_std__string__std__optional_std__variant_nitro__NullType__std__string___(&__map, std.string(__k), { () -> bridge.std__optional_std__variant_nitro__NullType__std__string__ in
-            if let __unwrappedValue = __v {
-              return bridge.create_std__optional_std__variant_nitro__NullType__std__string__({ () -> bridge.std__variant_nitro__NullType__std__string_ in
-                switch __unwrappedValue {
-                  case .first(let __value):
-                    return bridge.create_std__variant_nitro__NullType__std__string_(margelo.nitro.NullType.null)
-                  case .second(let __value):
-                    return bridge.create_std__variant_nitro__NullType__std__string_(std.string(__value))
-                }
-              }().variant)
-            } else {
-              return .init()
-            }
-          }())
-        }
-        return __map
-      }()
-      return bridge.create_Result_std__unordered_map_std__string__std__optional_std__variant_nitro__NullType__std__string____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__unordered_map_std__string__std__optional_std__variant_nitro__NullType__std__string____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func extractMap(mapWrapper: MapWrapper) -> bridge.Result_std__unordered_map_std__string__std__string__ {
-    do {
-      let __result = try self.__implementation.extractMap(mapWrapper: mapWrapper)
-      let __resultCpp = { () -> bridge.std__unordered_map_std__string__std__string_ in
-        var __map = bridge.create_std__unordered_map_std__string__std__string_(__result.count)
-        for (__k, __v) in __result {
-          bridge.emplace_std__unordered_map_std__string__std__string_(&__map, std.string(__k), std.string(__v))
-        }
-        return __map
-      }()
-      return bridge.create_Result_std__unordered_map_std__string__std__string__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__unordered_map_std__string__std__string__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func funcThatThrows() -> bridge.Result_double_ {
-    do {
-      let __result = try self.__implementation.funcThatThrows()
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func funcThatThrowsBeforePromise() -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.funcThatThrowsBeforePromise()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func throwError(error: std.exception_ptr) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.throwError(error: RuntimeError.from(cppError: error))
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func tryOptionalParams(num: Double, boo: Bool, str: bridge.std__optional_std__string_) -> bridge.Result_std__string_ {
-    do {
-      let __result = try self.__implementation.tryOptionalParams(num: num, boo: boo, str: { () -> String? in
-        if bridge.has_value_std__optional_std__string_(str) {
-          let __unwrapped = bridge.get_std__optional_std__string_(str)
-          return String(__unwrapped)
-        } else {
-          return nil
-        }
-      }())
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func tryMiddleParam(num: Double, boo: bridge.std__optional_bool_, str: std.string) -> bridge.Result_std__string_ {
-    do {
-      let __result = try self.__implementation.tryMiddleParam(num: num, boo: { () -> Bool? in
-        if bridge.has_value_std__optional_bool_(boo) {
-          let __unwrapped = bridge.get_std__optional_bool_(boo)
-          return __unwrapped
-        } else {
-          return nil
-        }
-      }(), str: String(str))
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func tryOptionalEnum(value: bridge.std__optional_Powertrain_) -> bridge.Result_std__optional_Powertrain__ {
-    do {
-      let __result = try self.__implementation.tryOptionalEnum(value: value.value)
-      let __resultCpp = { () -> bridge.std__optional_Powertrain_ in
-        if let __unwrappedValue = __result {
-          return bridge.create_std__optional_Powertrain_(__unwrappedValue)
-        } else {
-          return .init()
-        }
-      }()
-      return bridge.create_Result_std__optional_Powertrain__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__optional_Powertrain__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func tryTrailingOptional(num: Double, str: std.string, boo: bridge.std__optional_bool_) -> bridge.Result_bool_ {
-    do {
-      let __result = try self.__implementation.tryTrailingOptional(num: num, str: String(str), boo: { () -> Bool? in
-        if bridge.has_value_std__optional_bool_(boo) {
-          let __unwrapped = bridge.get_std__optional_bool_(boo)
-          return __unwrapped
-        } else {
-          return nil
-        }
-      }())
-      let __resultCpp = __result
-      return bridge.create_Result_bool_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_bool_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func add1Hour(date: margelo.nitro.chrono_time) -> bridge.Result_std__chrono__system_clock__time_point_ {
-    do {
-      let __result = try self.__implementation.add1Hour(date: Date(fromChrono: date))
-      let __resultCpp = __result.toCpp()
-      return bridge.create_Result_std__chrono__system_clock__time_point_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__chrono__system_clock__time_point_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func currentDate() -> bridge.Result_std__chrono__system_clock__time_point_ {
-    do {
-      let __result = try self.__implementation.currentDate()
-      let __resultCpp = __result.toCpp()
-      return bridge.create_Result_std__chrono__system_clock__time_point_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__chrono__system_clock__time_point_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func calculateFibonacciSync(value: Double) -> bridge.Result_int64_t_ {
-    do {
-      let __result = try self.__implementation.calculateFibonacciSync(value: value)
-      let __resultCpp = __result
-      return bridge.create_Result_int64_t_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_int64_t_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func calculateFibonacciAsync(value: Double) -> bridge.Result_std__shared_ptr_Promise_int64_t___ {
-    do {
-      let __result = try self.__implementation.calculateFibonacciAsync(value: value)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_int64_t__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_int64_t__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_int64_t__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_int64_t___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_int64_t___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func wait(seconds: Double) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.wait(seconds: seconds)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func promiseThrows() -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.promiseThrows()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func promiseReturnsInstantly() -> bridge.Result_std__shared_ptr_Promise_double___ {
-    do {
-      let __result = try self.__implementation.promiseReturnsInstantly()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_double__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_double__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func promiseReturnsInstantlyAsync() -> bridge.Result_std__shared_ptr_Promise_double___ {
-    do {
-      let __result = try self.__implementation.promiseReturnsInstantlyAsync()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_double__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_double__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createPendingPromise() -> bridge.Result_std__shared_ptr_Promise_double___ {
-    do {
-      let __result = try self.__implementation.createPendingPromise()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_double__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_double__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func resolvePendingPromiseOnWorker() -> bridge.Result_void_ {
-    do {
-      try self.__implementation.resolvePendingPromiseOnWorker()
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func promiseThatResolvesVoidInstantly() -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.promiseThatResolvesVoidInstantly()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func promiseThatResolvesToUndefined() -> bridge.Result_std__shared_ptr_Promise_std__optional_double____ {
-    do {
-      let __result = try self.__implementation.promiseThatResolvesToUndefined()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__optional_double___ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__optional_double___()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__optional_double___(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__optional_double_ in
-              if let __unwrappedValue = __result {
-                return bridge.create_std__optional_double_(__unwrappedValue)
-              } else {
-                return .init()
-              }
-            }()) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__optional_double____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__optional_double____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func awaitNullablePromise() -> bridge.Result_std__shared_ptr_Promise_std__optional_double____ {
-    do {
-      let __result = try self.__implementation.awaitNullablePromise()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__optional_double___ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__optional_double___()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__optional_double___(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__optional_double_ in
-              if let __unwrappedValue = __result {
-                return bridge.create_std__optional_double_(__unwrappedValue)
-              } else {
-                return .init()
-              }
-            }()) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__optional_double____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__optional_double____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func awaitAndGetPromise(promise: bridge.std__shared_ptr_Promise_double__) -> bridge.Result_std__shared_ptr_Promise_double___ {
-    do {
-      let __result = try self.__implementation.awaitAndGetPromise(promise: { () -> Promise<Double> in
-        let __promise = Promise<Double>()
-        let __resolver = { (__result: Double) in
-          __promise.resolve(withResult: __result)
-        }
-        let __rejecter = { (__error: Error) in
-          __promise.reject(withError: __error)
-        }
-        let __resolverCpp = { () -> bridge.Func_void_double in
-          let __closureWrapper = Func_void_double(__resolver)
-          return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-        }()
-        let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-          let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-          return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-        }()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(promise)
-        __promiseHolder.addOnResolvedListenerCopy(__resolverCpp)
-        __promiseHolder.addOnRejectedListener(__rejecterCpp)
-        return __promise
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_double__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_double__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func awaitAndGetComplexPromise(promise: bridge.std__shared_ptr_Promise_Car__) -> bridge.Result_std__shared_ptr_Promise_Car___ {
-    do {
-      let __result = try self.__implementation.awaitAndGetComplexPromise(promise: { () -> Promise<Car> in
-        let __promise = Promise<Car>()
-        let __resolver = { (__result: Car) in
-          __promise.resolve(withResult: __result)
-        }
-        let __rejecter = { (__error: Error) in
-          __promise.reject(withError: __error)
-        }
-        let __resolverCpp = { () -> bridge.Func_void_Car in
-          let __closureWrapper = Func_void_Car(__resolver)
-          return bridge.create_Func_void_Car(__closureWrapper.toUnsafe())
-        }()
-        let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-          let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-          return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-        }()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_Car__(promise)
-        __promiseHolder.addOnResolvedListener(__resolverCpp)
-        __promiseHolder.addOnRejectedListener(__rejecterCpp)
-        return __promise
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_Car__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_Car__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_Car__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_Car___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_Car___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func awaitPromise(promise: bridge.std__shared_ptr_Promise_void__) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.awaitPromise(promise: { () -> Promise<Void> in
-        let __promise = Promise<Void>()
-        let __resolver = { __promise.resolve(withResult: ()) }
-        let __rejecter = { (__error: Error) in
-          __promise.reject(withError: __error)
-        }
-        let __resolverCpp = { () -> bridge.Func_void in
-          let __closureWrapper = Func_void(__resolver)
-          return bridge.create_Func_void(__closureWrapper.toUnsafe())
-        }()
-        let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-          let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-          return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-        }()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(promise)
-        __promiseHolder.addOnResolvedListener(__resolverCpp)
-        __promiseHolder.addOnRejectedListener(__rejecterCpp)
-        return __promise
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func callCallback(callback: bridge.Func_void) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.callCallback(callback: { () -> () -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void(callback)
-        return { () -> Void in
-          __wrappedFunction.call()
-        }
-      }())
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func callCallbackThatReturnsPromiseVoid(callback: bridge.Func_std__shared_ptr_Promise_std__shared_ptr_Promise_void____) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.callCallbackThatReturnsPromiseVoid(callback: { () -> () -> Promise<Promise<Void>> in
-        let __wrappedFunction = bridge.wrap_Func_std__shared_ptr_Promise_std__shared_ptr_Promise_void____(callback)
-        return { () -> Promise<Promise<Void>> in
-          let __result = __wrappedFunction.call()
-          return { () -> Promise<Promise<Void>> in
-            let __promise = Promise<Promise<Void>>()
-            let __resolver = { (__result: Promise<Void>) in
-              __promise.resolve(withResult: __result)
-            }
-            let __rejecter = { (__error: Error) in
-              __promise.reject(withError: __error)
-            }
-            let __resolverCpp = { () -> bridge.Func_void_std__shared_ptr_Promise_void__ in
-              let __closureWrapper = Func_void_std__shared_ptr_Promise_void__(__resolver)
-              return bridge.create_Func_void_std__shared_ptr_Promise_void__(__closureWrapper.toUnsafe())
-            }()
-            let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-              let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-              return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-            }()
-            let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_Promise_void____(__result)
-            __promiseHolder.addOnResolvedListener(__resolverCpp)
-            __promiseHolder.addOnRejectedListener(__rejecterCpp)
-            return __promise
-          }()
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func callAll(first: bridge.Func_void, second: bridge.Func_void, third: bridge.Func_void) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.callAll(first: { () -> () -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void(first)
-        return { () -> Void in
-          __wrappedFunction.call()
-        }
-      }(), second: { () -> () -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void(second)
-        return { () -> Void in
-          __wrappedFunction.call()
-        }
-      }(), third: { () -> () -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void(third)
-        return { () -> Void in
-          __wrappedFunction.call()
-        }
-      }())
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func callWithOptional(value: bridge.std__optional_double_, callback: bridge.Func_void_std__optional_double_) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.callWithOptional(value: { () -> Double? in
-        if bridge.has_value_std__optional_double_(value) {
-          let __unwrapped = bridge.get_std__optional_double_(value)
-          return __unwrapped
-        } else {
-          return nil
-        }
-      }(), callback: { () -> (Double?) -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void_std__optional_double_(callback)
-        return { (__maybe: Double?) -> Void in
-          __wrappedFunction.call({ () -> bridge.std__optional_double_ in
-            if let __unwrappedValue = __maybe {
-              return bridge.create_std__optional_double_(__unwrappedValue)
-            } else {
-              return .init()
-            }
-          }())
-        }
-      }())
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func callSumUpNTimes(callback: bridge.Func_std__shared_ptr_Promise_double__, n: Double) -> bridge.Result_std__shared_ptr_Promise_double___ {
-    do {
-      let __result = try self.__implementation.callSumUpNTimes(callback: { () -> () -> Promise<Double> in
-        let __wrappedFunction = bridge.wrap_Func_std__shared_ptr_Promise_double__(callback)
-        return { () -> Promise<Double> in
-          let __result = __wrappedFunction.call()
-          return { () -> Promise<Double> in
-            let __promise = Promise<Double>()
-            let __resolver = { (__result: Double) in
-              __promise.resolve(withResult: __result)
-            }
-            let __rejecter = { (__error: Error) in
-              __promise.reject(withError: __error)
-            }
-            let __resolverCpp = { () -> bridge.Func_void_double in
-              let __closureWrapper = Func_void_double(__resolver)
-              return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-            }()
-            let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-              let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-              return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-            }()
-            let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__result)
-            __promiseHolder.addOnResolvedListenerCopy(__resolverCpp)
-            __promiseHolder.addOnRejectedListener(__rejecterCpp)
-            return __promise
-          }()
-        }
-      }(), n: n)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_double__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_double__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func callbackAsyncPromise(callback: bridge.Func_std__shared_ptr_Promise_std__shared_ptr_Promise_double____) -> bridge.Result_std__shared_ptr_Promise_double___ {
-    do {
-      let __result = try self.__implementation.callbackAsyncPromise(callback: { () -> () -> Promise<Promise<Double>> in
-        let __wrappedFunction = bridge.wrap_Func_std__shared_ptr_Promise_std__shared_ptr_Promise_double____(callback)
-        return { () -> Promise<Promise<Double>> in
-          let __result = __wrappedFunction.call()
-          return { () -> Promise<Promise<Double>> in
-            let __promise = Promise<Promise<Double>>()
-            let __resolver = { (__result: Promise<Double>) in
-              __promise.resolve(withResult: __result)
-            }
-            let __rejecter = { (__error: Error) in
-              __promise.reject(withError: __error)
-            }
-            let __resolverCpp = { () -> bridge.Func_void_std__shared_ptr_Promise_double__ in
-              let __closureWrapper = Func_void_std__shared_ptr_Promise_double__(__resolver)
-              return bridge.create_Func_void_std__shared_ptr_Promise_double__(__closureWrapper.toUnsafe())
-            }()
-            let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-              let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-              return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-            }()
-            let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_Promise_double____(__result)
-            __promiseHolder.addOnResolvedListener(__resolverCpp)
-            __promiseHolder.addOnRejectedListener(__rejecterCpp)
-            return __promise
-          }()
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_double__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_double__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func callbackAsyncPromiseBuffer(callback: bridge.Func_std__shared_ptr_Promise_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer_____) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer____ {
-    do {
-      let __result = try self.__implementation.callbackAsyncPromiseBuffer(callback: { () -> () -> Promise<Promise<ArrayBuffer>> in
-        let __wrappedFunction = bridge.wrap_Func_std__shared_ptr_Promise_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer_____(callback)
-        return { () -> Promise<Promise<ArrayBuffer>> in
-          let __result = __wrappedFunction.call()
-          return { () -> Promise<Promise<ArrayBuffer>> in
-            let __promise = Promise<Promise<ArrayBuffer>>()
-            let __resolver = { (__result: Promise<ArrayBuffer>) in
-              __promise.resolve(withResult: __result)
-            }
-            let __rejecter = { (__error: Error) in
-              __promise.reject(withError: __error)
-            }
-            let __resolverCpp = { () -> bridge.Func_void_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer___ in
-              let __closureWrapper = Func_void_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer___(__resolver)
-              return bridge.create_Func_void_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer___(__closureWrapper.toUnsafe())
-            }()
-            let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-              let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-              return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-            }()
-            let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer_____(__result)
-            __promiseHolder.addOnResolvedListener(__resolverCpp)
-            __promiseHolder.addOnRejectedListener(__rejecterCpp)
-            return __promise
-          }()
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer___ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer___()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer___(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result.getArrayBuffer()) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getComplexCallback() -> bridge.Result_std__function_void_double____value______ {
-    do {
-      let __result = try self.__implementation.getComplexCallback()
-      let __resultCpp = { () -> bridge.Func_void_double in
-        let __closureWrapper = Func_void_double(__result)
-        return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-      }()
-      return bridge.create_Result_std__function_void_double____value______(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__function_void_double____value______(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func twoOptionalCallbacks(value: Double, first: bridge.std__optional_std__function_void_double____value______, second: bridge.std__optional_std__function_void_const_std__string_____value______) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.twoOptionalCallbacks(value: value, first: { () -> ((_ value: Double) -> Void)? in
-        if bridge.has_value_std__optional_std__function_void_double____value______(first) {
-          let __unwrapped = bridge.get_std__optional_std__function_void_double____value______(first)
-          return { () -> (Double) -> Void in
-            let __wrappedFunction = bridge.wrap_Func_void_double(__unwrapped)
-            return { (__value: Double) -> Void in
-              __wrappedFunction.call(__value)
-            }
-          }()
-        } else {
-          return nil
-        }
-      }(), second: { () -> ((_ value: String) -> Void)? in
-        if bridge.has_value_std__optional_std__function_void_const_std__string_____value______(second) {
-          let __unwrapped = bridge.get_std__optional_std__function_void_const_std__string_____value______(second)
-          return { () -> (String) -> Void in
-            let __wrappedFunction = bridge.wrap_Func_void_std__string(__unwrapped)
-            return { (__value: String) -> Void in
-              __wrappedFunction.call(std.string(__value))
-            }
-          }()
-        } else {
-          return nil
-        }
-      }())
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func errorCallback(onError: bridge.Func_void_std__exception_ptr) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.errorCallback(onError: { () -> (Error) -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void_std__exception_ptr(onError)
-        return { (__error: Error) -> Void in
-          __wrappedFunction.call(__error.toCpp())
-        }
-      }())
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createNativeCallback(wrappingJsCallback: bridge.Func_void_double) -> bridge.Result_std__function_void_double____num______ {
-    do {
-      let __result = try self.__implementation.createNativeCallback(wrappingJsCallback: { () -> (Double) -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void_double(wrappingJsCallback)
-        return { (__num: Double) -> Void in
-          __wrappedFunction.call(__num)
-        }
-      }())
-      let __resultCpp = { () -> bridge.Func_void_double in
-        let __closureWrapper = Func_void_double(__result)
-        return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-      }()
-      return bridge.create_Result_std__function_void_double____num______(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__function_void_double____num______(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getValueFromJSCallbackAndWait(getValue: bridge.Func_std__shared_ptr_Promise_double__) -> bridge.Result_std__shared_ptr_Promise_double___ {
-    do {
-      let __result = try self.__implementation.getValueFromJSCallbackAndWait(getValue: { () -> () -> Promise<Double> in
-        let __wrappedFunction = bridge.wrap_Func_std__shared_ptr_Promise_double__(getValue)
-        return { () -> Promise<Double> in
-          let __result = __wrappedFunction.call()
-          return { () -> Promise<Double> in
-            let __promise = Promise<Double>()
-            let __resolver = { (__result: Double) in
-              __promise.resolve(withResult: __result)
-            }
-            let __rejecter = { (__error: Error) in
-              __promise.reject(withError: __error)
-            }
-            let __resolverCpp = { () -> bridge.Func_void_double in
-              let __closureWrapper = Func_void_double(__resolver)
-              return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-            }()
-            let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-              let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-              return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-            }()
-            let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__result)
-            __promiseHolder.addOnResolvedListenerCopy(__resolverCpp)
-            __promiseHolder.addOnRejectedListener(__rejecterCpp)
-            return __promise
-          }()
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_double__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_double__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getValueFromJsCallback(callback: bridge.Func_std__shared_ptr_Promise_std__string__, andThenCall: bridge.Func_void_std__string) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.getValueFromJsCallback(callback: { () -> () -> Promise<String> in
-        let __wrappedFunction = bridge.wrap_Func_std__shared_ptr_Promise_std__string__(callback)
-        return { () -> Promise<String> in
-          let __result = __wrappedFunction.call()
-          return { () -> Promise<String> in
-            let __promise = Promise<String>()
-            let __resolver = { (__result: String) in
-              __promise.resolve(withResult: __result)
-            }
-            let __rejecter = { (__error: Error) in
-              __promise.reject(withError: __error)
-            }
-            let __resolverCpp = { () -> bridge.Func_void_std__string in
-              let __closureWrapper = Func_void_std__string(__resolver)
-              return bridge.create_Func_void_std__string(__closureWrapper.toUnsafe())
-            }()
-            let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-              let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-              return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-            }()
-            let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__string__(__result)
-            __promiseHolder.addOnResolvedListener(__resolverCpp)
-            __promiseHolder.addOnRejectedListener(__rejecterCpp)
-            return __promise
-          }()
-        }
-      }(), andThenCall: { () -> (String) -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void_std__string(andThenCall)
-        return { (__valueFromJs: String) -> Void in
-          __wrappedFunction.call(std.string(__valueFromJs))
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getCar() -> bridge.Result_Car_ {
-    do {
-      let __result = try self.__implementation.getCar()
-      let __resultCpp = __result
-      return bridge.create_Result_Car_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_Car_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func isCarElectric(car: Car) -> bridge.Result_bool_ {
-    do {
-      let __result = try self.__implementation.isCarElectric(car: car)
-      let __resultCpp = __result
-      return bridge.create_Result_bool_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_bool_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func areCarsEqual(a: Car, b: Car) -> bridge.Result_bool_ {
-    do {
-      let __result = try self.__implementation.areCarsEqual(a: a, b: b)
-      let __resultCpp = __result
-      return bridge.create_Result_bool_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_bool_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getDriver(car: Car) -> bridge.Result_std__optional_Person__ {
-    do {
-      let __result = try self.__implementation.getDriver(car: car)
-      let __resultCpp = { () -> bridge.std__optional_Person_ in
-        if let __unwrappedValue = __result {
-          return bridge.create_std__optional_Person_(__unwrappedValue)
-        } else {
-          return .init()
-        }
-      }()
-      return bridge.create_Result_std__optional_Person__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__optional_Person__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceCar(car: Car) -> bridge.Result_Car_ {
-    do {
-      let __result = try self.__implementation.bounceCar(car: car)
-      let __resultCpp = __result
-      return bridge.create_Result_Car_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_Car_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func jsStyleObjectAsParameters(params: JsStyleStruct) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.jsStyleObjectAsParameters(params: params)
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceWrappedJsStyleStruct(value: WrappedJsStruct) -> bridge.Result_WrappedJsStruct_ {
-    do {
-      let __result = try self.__implementation.bounceWrappedJsStyleStruct(value: value)
-      let __resultCpp = __result
-      return bridge.create_Result_WrappedJsStruct_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_WrappedJsStruct_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceOptionalWrapper(wrapper: OptionalWrapper) -> bridge.Result_OptionalWrapper_ {
-    do {
-      let __result = try self.__implementation.bounceOptionalWrapper(wrapper: wrapper)
-      let __resultCpp = __result
-      return bridge.create_Result_OptionalWrapper_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_OptionalWrapper_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceOptionalCallback(value: OptionalCallback) -> bridge.Result_OptionalCallback_ {
-    do {
-      let __result = try self.__implementation.bounceOptionalCallback(value: value)
-      let __resultCpp = __result
-      return bridge.create_Result_OptionalCallback_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_OptionalCallback_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceOptionalEnumStruct(value: bridge.std__optional_OptionalEnumWrapper_) -> bridge.Result_std__optional_OptionalEnumWrapper__ {
-    do {
-      let __result = try self.__implementation.bounceOptionalEnumStruct(value: value.value)
-      let __resultCpp = { () -> bridge.std__optional_OptionalEnumWrapper_ in
-        if let __unwrappedValue = __result {
-          return bridge.create_std__optional_OptionalEnumWrapper_(__unwrappedValue)
-        } else {
-          return .init()
-        }
-      }()
-      return bridge.create_Result_std__optional_OptionalEnumWrapper__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__optional_OptionalEnumWrapper__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createArrayBuffer() -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
-    do {
-      let __result = try self.__implementation.createArrayBuffer()
-      let __resultCpp = __result.getArrayBuffer()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createArrayBufferFromNativeBuffer(copy: Bool) -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
-    do {
-      let __result = try self.__implementation.createArrayBufferFromNativeBuffer(copy: copy)
-      let __resultCpp = __result.getArrayBuffer()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createHardwareBuffer(width: Double, height: Double, layers: Double, format: Int32) -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
-    do {
-      let __result = try self.__implementation.createHardwareBuffer(width: width, height: height, layers: layers, format: margelo.nitro.test.HardwareBufferFormat(rawValue: format)!)
-      let __resultCpp = __result.getArrayBuffer()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func copyBuffer(buffer: ArrayBuffer) -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
-    do {
-      let __result = try self.__implementation.copyBuffer(buffer: buffer)
-      let __resultCpp = __result.getArrayBuffer()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getBufferLastItem(buffer: ArrayBuffer) -> bridge.Result_double_ {
-    do {
-      let __result = try self.__implementation.getBufferLastItem(buffer: buffer)
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func setAllValuesTo(buffer: ArrayBuffer, value: Double) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.setAllValuesTo(buffer: buffer, value: value)
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createArrayBufferAsync() -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer____ {
-    do {
-      let __result = try self.__implementation.createArrayBufferAsync()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer___ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer___()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer___(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result.getArrayBuffer()) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_ArrayBuffer____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceArrayBuffer(buffer: ArrayBuffer) -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
-    do {
-      let __result = try self.__implementation.bounceArrayBuffer(buffer: buffer)
-      let __resultCpp = __result.getArrayBuffer()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func passVariant(either: bridge.std__variant_bool__std__vector_double___std__vector_std__string___double__std__string_) -> bridge.Result_std__variant_double__std__string__ {
-    do {
-      let __result = try self.__implementation.passVariant(either: { () -> Variant_Bool__Double___String__Double_String in
-        let __variant = either
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(__actual)
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual.map({ __item in __item }))
-          case 2:
-            let __actual = __variant.get_2()
-            return .third(__actual.map({ __item in String(__item) }))
-          case 3:
-            let __actual = __variant.get_3()
-            return .fourth(__actual)
-          case 4:
-            let __actual = __variant.get_4()
-            return .fifth(String(__actual))
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_double__std__string_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_double__std__string_(__value)
-          case .second(let __value):
-            return bridge.create_std__variant_double__std__string_(std.string(__value))
-        }
-      }().variant
-      return bridge.create_Result_std__variant_double__std__string__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_double__std__string__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getVariantEnum(variant: bridge.std__variant_OldEnum__bool_) -> bridge.Result_std__variant_OldEnum__bool__ {
-    do {
-      let __result = try self.__implementation.getVariantEnum(variant: { () -> Variant_OldEnum_Bool in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(__actual)
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual)
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_OldEnum__bool_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_OldEnum__bool_(__value)
-          case .second(let __value):
-            return bridge.create_std__variant_OldEnum__bool_(__value)
-        }
-      }().variant
-      return bridge.create_Result_std__variant_OldEnum__bool__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_OldEnum__bool__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceVariantUnionEnum(variant: bridge.std__variant_Powertrain__Car_) -> bridge.Result_std__variant_Powertrain__Car__ {
-    do {
-      let __result = try self.__implementation.bounceVariantUnionEnum(variant: { () -> Variant_Powertrain_Car in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(__actual)
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual)
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_Powertrain__Car_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_Powertrain__Car_(__value)
-          case .second(let __value):
-            return bridge.create_std__variant_Powertrain__Car_(__value)
-        }
-      }().variant
-      return bridge.create_Result_std__variant_Powertrain__Car__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_Powertrain__Car__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getVariantWeirdNumbersEnum(variant: bridge.std__variant_WeirdNumbersEnum__bool_) -> bridge.Result_std__variant_WeirdNumbersEnum__bool__ {
-    do {
-      let __result = try self.__implementation.getVariantWeirdNumbersEnum(variant: { () -> Variant_WeirdNumbersEnum_Bool in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(__actual)
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual)
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_WeirdNumbersEnum__bool_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_WeirdNumbersEnum__bool_(__value)
-          case .second(let __value):
-            return bridge.create_std__variant_WeirdNumbersEnum__bool_(__value)
-        }
-      }().variant
-      return bridge.create_Result_std__variant_WeirdNumbersEnum__bool__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_WeirdNumbersEnum__bool__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getVariantObjects(variant: bridge.std__variant_Person__Car_) -> bridge.Result_std__variant_Person__Car__ {
-    do {
-      let __result = try self.__implementation.getVariantObjects(variant: { () -> Variant_Person_Car in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(__actual)
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual)
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_Person__Car_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_Person__Car_(__value)
-          case .second(let __value):
-            return bridge.create_std__variant_Person__Car_(__value)
-        }
-      }().variant
-      return bridge.create_Result_std__variant_Person__Car__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_Person__Car__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func passNamedVariant(variant: bridge.std__variant_std__string__Car_) -> bridge.Result_std__variant_std__string__Car__ {
-    do {
-      let __result = try self.__implementation.passNamedVariant(variant: { () -> NamedVariant in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(String(__actual))
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual)
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_std__string__Car_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_std__string__Car_(std.string(__value))
-          case .second(let __value):
-            return bridge.create_std__variant_std__string__Car_(__value)
-        }
-      }().variant
-      return bridge.create_Result_std__variant_std__string__Car__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_std__string__Car__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func passAllEmptyObjectVariant(variant: bridge.std__variant_std__shared_ptr_HybridBaseSpec___OptionalWrapper_) -> bridge.Result_std__variant_std__shared_ptr_HybridBaseSpec___OptionalWrapper__ {
-    do {
-      let __result = try self.__implementation.passAllEmptyObjectVariant(variant: { () -> Variant__any_HybridBaseSpec__OptionalWrapper in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first({ () -> any HybridBaseSpec in
-              let __unsafePointer = bridge.get_std__shared_ptr_HybridBaseSpec_(__actual)
-              let __instance = HybridBaseSpec_cxx.fromUnsafe(__unsafePointer)
-              return __instance.getHybridBaseSpec()
-            }())
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual)
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_std__shared_ptr_HybridBaseSpec___OptionalWrapper_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_std__shared_ptr_HybridBaseSpec___OptionalWrapper_({ () -> bridge.std__shared_ptr_HybridBaseSpec_ in
-              let __cxxWrapped = __value.getCxxWrapper()
-              return __cxxWrapped.getCxxPart()
-            }())
-          case .second(let __value):
-            return bridge.create_std__variant_std__shared_ptr_HybridBaseSpec___OptionalWrapper_(__value)
-        }
-      }().variant
-      return bridge.create_Result_std__variant_std__shared_ptr_HybridBaseSpec___OptionalWrapper__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_std__shared_ptr_HybridBaseSpec___OptionalWrapper__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceComplexVariant(variant: bridge.std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap__) -> bridge.Result_std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap___ {
-    do {
-      let __result = try self.__implementation.bounceComplexVariant(variant: { () -> CoreTypesVariant in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(ArrayBuffer(__actual))
-          case 1:
-            let __actual = __variant.get_1()
-            return .second({ () -> (Double) -> Void in
-              let __wrappedFunction = bridge.wrap_Func_void_double(__actual)
-              return { (__value: Double) -> Void in
-                __wrappedFunction.call(__value)
-              }
-            }())
-          case 2:
-            let __actual = __variant.get_2()
-            return .third(__actual)
-          case 3:
-            let __actual = __variant.get_3()
-            return .fourth({ () -> Promise<Double> in
-              let __promise = Promise<Double>()
-              let __resolver = { (__result: Double) in
-                __promise.resolve(withResult: __result)
-              }
-              let __rejecter = { (__error: Error) in
-                __promise.reject(withError: __error)
-              }
-              let __resolverCpp = { () -> bridge.Func_void_double in
-                let __closureWrapper = Func_void_double(__resolver)
-                return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-              }()
-              let __rejecterCpp = { () -> bridge.Func_void_std__exception_ptr in
-                let __closureWrapper = Func_void_std__exception_ptr(__rejecter)
-                return bridge.create_Func_void_std__exception_ptr(__closureWrapper.toUnsafe())
-              }()
-              let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__actual)
-              __promiseHolder.addOnResolvedListenerCopy(__resolverCpp)
-              __promiseHolder.addOnRejectedListener(__rejecterCpp)
-              return __promise
-            }())
-          case 4:
-            let __actual = __variant.get_4()
-            return .fifth(Date(fromChrono: __actual))
-          case 5:
-            let __actual = __variant.get_5()
-            return .sixth(AnyMap(withCppPart: __actual))
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap__ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap__(__value.getArrayBuffer())
-          case .second(let __value):
-            return bridge.create_std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap__({ () -> bridge.Func_void_double in
-              let __closureWrapper = Func_void_double(__value)
-              return bridge.create_Func_void_double(__closureWrapper.toUnsafe())
-            }())
-          case .third(let __value):
-            return bridge.create_std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap__(__value)
-          case .fourth(let __value):
-            return bridge.create_std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap__({ () -> bridge.std__shared_ptr_Promise_double__ in
-              let __promise = bridge.create_std__shared_ptr_Promise_double__()
-              let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-              __value
-                .then({ __result in __promiseHolder.resolve(__result) })
-                .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-              return __promise
-            }())
-          case .fifth(let __value):
-            return bridge.create_std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap__(__value.toCpp())
-          case .sixth(let __value):
-            return bridge.create_std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap__(__value.cppPart)
-        }
-      }().variant
-      return bridge.create_Result_std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_std__shared_ptr_ArrayBuffer___std__function_void_double____value_______WrappedJsStruct__std__shared_ptr_Promise_double____std__chrono__system_clock__time_point__std__shared_ptr_AnyMap___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createChild() -> bridge.Result_std__shared_ptr_HybridChildSpec__ {
-    do {
-      let __result = try self.__implementation.createChild()
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridChildSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridChildSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridChildSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createBase() -> bridge.Result_std__shared_ptr_HybridBaseSpec__ {
-    do {
-      let __result = try self.__implementation.createBase()
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridBaseSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridBaseSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridBaseSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createBaseActualChild() -> bridge.Result_std__shared_ptr_HybridBaseSpec__ {
-    do {
-      let __result = try self.__implementation.createBaseActualChild()
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridBaseSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridBaseSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridBaseSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceChild(child: bridge.std__shared_ptr_HybridChildSpec_) -> bridge.Result_std__shared_ptr_HybridChildSpec__ {
-    do {
-      let __result = try self.__implementation.bounceChild(child: { () -> any HybridChildSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridChildSpec_(child)
-        let __instance = HybridChildSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridChildSpec()
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridChildSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridChildSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridChildSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceBase(base: bridge.std__shared_ptr_HybridBaseSpec_) -> bridge.Result_std__shared_ptr_HybridBaseSpec__ {
-    do {
-      let __result = try self.__implementation.bounceBase(base: { () -> any HybridBaseSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridBaseSpec_(base)
-        let __instance = HybridBaseSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridBaseSpec()
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridBaseSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridBaseSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridBaseSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceChildBase(child: bridge.std__shared_ptr_HybridChildSpec_) -> bridge.Result_std__shared_ptr_HybridBaseSpec__ {
-    do {
-      let __result = try self.__implementation.bounceChildBase(child: { () -> any HybridChildSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridChildSpec_(child)
-        let __instance = HybridChildSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridChildSpec()
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridBaseSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridBaseSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridBaseSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func castBase(base: bridge.std__shared_ptr_HybridBaseSpec_) -> bridge.Result_std__shared_ptr_HybridChildSpec__ {
-    do {
-      let __result = try self.__implementation.castBase(base: { () -> any HybridBaseSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridBaseSpec_(base)
-        let __instance = HybridBaseSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridBaseSpec()
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridChildSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridChildSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridChildSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func callbackSync(callback: bridge.Func_double) -> bridge.Result_double_ {
-    do {
-      let __result = try self.__implementation.callbackSync(callback: { () -> () -> Double in
-        let __wrappedFunction = bridge.wrap_Func_double(callback)
-        return { () -> Double in
-          let __result = __wrappedFunction.call()
-          return __result
-        }
-      }())
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func getSyncNumberCallback() -> bridge.Result_std__function_double____ {
-    do {
-      let __result = try self.__implementation.getSyncNumberCallback()
-      let __resultCpp = { () -> bridge.Func_double in
-        let __closureWrapper = Func_double(__result)
-        return bridge.create_Func_double(__closureWrapper.toUnsafe())
-      }()
-      return bridge.create_Result_std__function_double____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__function_double____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceSyncInt64Callback(callback: bridge.Func_int64_t_int64_t) -> bridge.Result_std__function_int64_t_int64_t____value______ {
-    do {
-      let __result = try self.__implementation.bounceSyncInt64Callback(callback: { () -> (Int64) -> Int64 in
-        let __wrappedFunction = bridge.wrap_Func_int64_t_int64_t(callback)
-        return { (__value: Int64) -> Int64 in
-          let __result = __wrappedFunction.call(__value)
-          return __result
-        }
-      }())
-      let __resultCpp = { () -> bridge.Func_int64_t_int64_t in
-        let __closureWrapper = Func_int64_t_int64_t(__result)
-        return bridge.create_Func_int64_t_int64_t(__closureWrapper.toUnsafe())
-      }()
-      return bridge.create_Result_std__function_int64_t_int64_t____value______(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__function_int64_t_int64_t____value______(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceExternalHybrid(externalObject: bridge.std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_) -> bridge.Result_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__ {
-    do {
-      let __result = try self.__implementation.bounceExternalHybrid(externalObject: { () -> any HybridSomeExternalObjectSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(externalObject)
-        let __instance = HybridSomeExternalObjectSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridSomeExternalObjectSpec()
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createInternalObject() -> bridge.Result_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__ {
-    do {
-      let __result = try self.__implementation.createInternalObject()
-      let __resultCpp = { () -> bridge.std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceExternalStruct(externalStruct: ExternalObjectStruct) -> bridge.Result_ExternalObjectStruct_ {
-    do {
-      let __result = try self.__implementation.bounceExternalStruct(externalStruct: externalStruct)
-      let __resultCpp = __result
-      return bridge.create_Result_ExternalObjectStruct_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_ExternalObjectStruct_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func bounceExternalVariant(variant: bridge.std__variant_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec___std__string_) -> bridge.Result_std__variant_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec___std__string__ {
-    do {
-      let __result = try self.__implementation.bounceExternalVariant(variant: { () -> StringOrExternal in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first({ () -> any HybridSomeExternalObjectSpec in
-              let __unsafePointer = bridge.get_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(__actual)
-              let __instance = HybridSomeExternalObjectSpec_cxx.fromUnsafe(__unsafePointer)
-              return __instance.getHybridSomeExternalObjectSpec()
-            }())
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(String(__actual))
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec___std__string_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec___std__string_({ () -> bridge.std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ in
-              let __cxxWrapped = __value.getCxxWrapper()
-              return __cxxWrapped.getCxxPart()
-            }())
-          case .second(let __value):
-            return bridge.create_std__variant_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec___std__string_(std.string(__value))
-        }
-      }().variant
-      return bridge.create_Result_std__variant_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec___std__string__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec___std__string__(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createExternalVariantFromFunc(factory: bridge.Func_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_) -> bridge.Result_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__ {
-    do {
-      let __result = try self.__implementation.createExternalVariantFromFunc(factory: { () -> () -> (any HybridSomeExternalObjectSpec) in
-        let __wrappedFunction = bridge.wrap_Func_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(factory)
-        return { () -> (any HybridSomeExternalObjectSpec) in
-          let __result = __wrappedFunction.call()
-          return { () -> any HybridSomeExternalObjectSpec in
-            let __unsafePointer = bridge.get_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(__result)
-            let __instance = HybridSomeExternalObjectSpec_cxx.fromUnsafe(__unsafePointer)
-            return __instance.getHybridSomeExternalObjectSpec()
-          }()
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__(__exceptionPtr)
+
+  public final func simpleFunc() -> bridge.Result_void {
+    do {
+      try __implementation.simpleFunc()
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func addNumbers(a: Double, b: Double) -> bridge.Result_double {
+    do {
+      let value = try __implementation.addNumbers(a: a, b: b)
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
+    }
+  }
+
+  public final func addStrings(a: String, b: String, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.addStrings(a: a, b: b)
+      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func multipleArguments(num: Double, str: String, boo: Bool) -> bridge.Result_void {
+    do {
+      try __implementation.multipleArguments(num: num, str: str, boo: boo)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceNull(value: NullType) -> bridge.Result_nitro__NullType {
+    do {
+      let value = try __implementation.bounceNull(value: value)
+      return bridge.Result_nitro__NullType.withValue(value)
+    } catch {
+      return bridge.Result_nitro__NullType.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceStrings(array: [String], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceStrings(array: array)
+      __outResult.assumingMemoryBound(to: [String].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceNumbers(array: [Double], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceNumbers(array: array)
+      __outResult.assumingMemoryBound(to: [Double].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceStructs(array: [Person], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceStructs(array: array)
+      __outResult.assumingMemoryBound(to: [Person].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceNestedArray(array: [[Person]], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceNestedArray(array: array)
+      __outResult.assumingMemoryBound(to: [[Person]].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bouncePartialStruct(person: PartialPerson, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bouncePartialStruct(person: person)
+      __outResult.assumingMemoryBound(to: PartialPerson.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func sumUpAllPassengers(cars: [Car], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.sumUpAllPassengers(cars: cars)
+      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceEnums(array: [Powertrain], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceEnums(array: array)
+      __outResult.assumingMemoryBound(to: [Powertrain].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func complexEnumCallback(array: [Powertrain], callback: margelo.nitro.test.swift_bridge.Callback_void_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain_) -> bridge.Result_void {
+    do {
+      try __implementation.complexEnumCallback(array: array, callback: callback)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callEnumArrayCallback(array: [Powertrain], callback: margelo.nitro.test.swift_bridge.Callback_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain_, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callEnumArrayCallback(array: array, callback: callback)
+      __outResult.assumingMemoryBound(to: [Powertrain].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func getEnumArrayCallback() -> bridge.Result_Callback_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__const_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain____ {
+    do {
+      let value = try __implementation.getEnumArrayCallback()
+      return bridge.Result_Callback_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__const_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain____.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Callback_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__const_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain____.withError(error.toCpp())
+    }
+  }
+
+  public final func callEnumArrayPromiseCallback(callback: margelo.nitro.test.swift_bridge.Callback_Promise_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__) -> bridge.Result_Promise_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__ {
+    do {
+      let value = try __implementation.callEnumArrayPromiseCallback(callback: callback)
+      return bridge.Result_Promise_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__.withError(error.toCpp())
+    }
+  }
+
+  public final func awaitEnumArrayPromise(promise: margelo.nitro.test.swift_bridge.Promise_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain_) -> bridge.Result_Promise_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__ {
+    do {
+      let value = try __implementation.awaitEnumArrayPromise(promise: promise)
+      return bridge.Result_Promise_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_NitroTest__SwiftContainer_swift__Array_NitroTest__Powertrain__.withError(error.toCpp())
+    }
+  }
+
+  public final func callNestedStructCallback(value: [[Person?]], callback: margelo.nitro.test.swift_bridge.Callback_NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional_NitroTest__Person____NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional_NitroTest__Person___, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callNestedStructCallback(value: value, callback: callback)
+      __outResult.assumingMemoryBound(to: [[Person?]].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceHybridObjects(array: [HybridChildSpec_cxx], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceHybridObjects(array: array.map { $0.getHybridChildSpec() })
+      __outResult.assumingMemoryBound(to: [HybridChildSpec_cxx].self).initialize(to: value.map { $0.getCxxWrapper() })
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceFunctions(functions: [margelo.nitro.test.swift_bridge.Callback_void], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceFunctions(functions: functions.map { $0 })
+      __outResult.assumingMemoryBound(to: [margelo.nitro.test.swift_bridge.Callback_void].self).initialize(to: value.map { $0.toCpp() })
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceMaps(maps: [AnyJSON], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceMaps(maps: maps)
+      __outResult.assumingMemoryBound(to: [AnyJSON].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bouncePromises(promises: [margelo.nitro.test.swift_bridge.Promise_double], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bouncePromises(promises: promises.map { $0 })
+      __outResult.assumingMemoryBound(to: [margelo.nitro.test.swift_bridge.Promise_double].self).initialize(to: value.map { $0.toCpp() })
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceArrayBuffers(arrayBuffers: [ArrayBuffer], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceArrayBuffers(arrayBuffers: arrayBuffers)
+      __outResult.assumingMemoryBound(to: [ArrayBuffer].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceOptionals(strings: [String?], arrayBuffers: [ArrayBuffer?], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceOptionals(strings: strings, arrayBuffers: arrayBuffers)
+      __outResult.assumingMemoryBound(to: [String?].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceNulls(strings: [Variant_NullType_String_cxx], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceNulls(strings: strings.map { $0.value })
+      __outResult.assumingMemoryBound(to: [Variant_NullType_String_cxx].self).initialize(to: value.map { Variant_NullType_String_cxx($0) })
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceOptionalNulls(strings: [Variant_NullType_String_cxx?], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceOptionalNulls(strings: strings.map { $0.map { $0.value } })
+      __outResult.assumingMemoryBound(to: [Variant_NullType_String_cxx?].self).initialize(to: value.map { $0.map { Variant_NullType_String_cxx($0) } })
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func createMap(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.createMap()
+      __outResult.assumingMemoryBound(to: AnyJSON.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func mapRoundtrip(map: AnyJSON, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.mapRoundtrip(map: map)
+      __outResult.assumingMemoryBound(to: AnyJSON.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func getMapKeys(map: AnyJSON, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.getMapKeys(map: map)
+      __outResult.assumingMemoryBound(to: [String].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func mergeMaps(a: AnyJSON, b: AnyJSON, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.mergeMaps(a: a, b: b)
+      __outResult.assumingMemoryBound(to: AnyJSON.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func copyAnyMap(map: AnyJSON, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.copyAnyMap(map: map)
+      __outResult.assumingMemoryBound(to: AnyJSON.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceMap(map: Record_swift__String_NitroTest__Variant_Bool_Double_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceMap(map: map.dictionary)
+      __outResult.assumingMemoryBound(to: Record_swift__String_NitroTest__Variant_Bool_Double_cxx.self).initialize(to: Record_swift__String_NitroTest__Variant_Bool_Double_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceSimpleMap(map: Record_swift__String_double, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceSimpleMap(map: map.dictionary)
+      __outResult.assumingMemoryBound(to: Record_swift__String_double.self).initialize(to: Record_swift__String_double(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceOptionalMap(map: Record_swift__String_swift__Optional_swift__String_, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceOptionalMap(map: map.dictionary)
+      __outResult.assumingMemoryBound(to: Record_swift__String_swift__Optional_swift__String_.self).initialize(to: Record_swift__String_swift__Optional_swift__String_(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceNullMap(map: Record_swift__String_NitroTest__Variant_NullType_String_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceNullMap(map: map.dictionary)
+      __outResult.assumingMemoryBound(to: Record_swift__String_NitroTest__Variant_NullType_String_cxx.self).initialize(to: Record_swift__String_NitroTest__Variant_NullType_String_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceOptionalNullMap(map: Record_swift__String_swift__Optional_NitroTest__Variant_NullType_String_cxx_, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceOptionalNullMap(map: map.dictionary)
+      __outResult.assumingMemoryBound(to: Record_swift__String_swift__Optional_NitroTest__Variant_NullType_String_cxx_.self).initialize(to: Record_swift__String_swift__Optional_NitroTest__Variant_NullType_String_cxx_(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func extractMap(mapWrapper: MapWrapper, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.extractMap(mapWrapper: mapWrapper)
+      __outResult.assumingMemoryBound(to: Record_swift__String_swift__String.self).initialize(to: Record_swift__String_swift__String(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func funcThatThrows() -> bridge.Result_double {
+    do {
+      let value = try __implementation.funcThatThrows()
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
+    }
+  }
+
+  public final func funcThatThrowsBeforePromise() -> bridge.Result_Promise_void_ {
+    do {
+      let value = try __implementation.funcThatThrowsBeforePromise()
+      return bridge.Result_Promise_void_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func throwError(error: std.exception_ptr) -> bridge.Result_void {
+    do {
+      try __implementation.throwError(error: RuntimeError.from(cppError: error))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func tryOptionalParams(num: Double, boo: Bool, str: String?, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.tryOptionalParams(num: num, boo: boo, str: str)
+      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func tryMiddleParam(num: Double, boo: Bool?, str: String, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.tryMiddleParam(num: num, boo: boo, str: str)
+      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func tryOptionalEnum(value: Powertrain?, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.tryOptionalEnum(value: value)
+      __outResult.assumingMemoryBound(to: Powertrain?.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func tryTrailingOptional(num: Double, str: String, boo: Bool?) -> bridge.Result_bool {
+    do {
+      let value = try __implementation.tryTrailingOptional(num: num, str: str, boo: boo)
+      return bridge.Result_bool.withValue(value)
+    } catch {
+      return bridge.Result_bool.withError(error.toCpp())
+    }
+  }
+
+  public final func calculateFibonacciSync(value: Double) -> bridge.Result_int64_t {
+    do {
+      let value = try __implementation.calculateFibonacciSync(value: value)
+      return bridge.Result_int64_t.withValue(value)
+    } catch {
+      return bridge.Result_int64_t.withError(error.toCpp())
+    }
+  }
+
+  public final func calculateFibonacciAsync(value: Double) -> bridge.Result_Promise_int64_t_ {
+    do {
+      let value = try __implementation.calculateFibonacciAsync(value: value)
+      return bridge.Result_Promise_int64_t_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_int64_t_.withError(error.toCpp())
+    }
+  }
+
+  public final func wait(seconds: Double) -> bridge.Result_Promise_void_ {
+    do {
+      let value = try __implementation.wait(seconds: seconds)
+      return bridge.Result_Promise_void_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func promiseThrows() -> bridge.Result_Promise_void_ {
+    do {
+      let value = try __implementation.promiseThrows()
+      return bridge.Result_Promise_void_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func promiseReturnsInstantly() -> bridge.Result_Promise_double_ {
+    do {
+      let value = try __implementation.promiseReturnsInstantly()
+      return bridge.Result_Promise_double_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_double_.withError(error.toCpp())
+    }
+  }
+
+  public final func promiseReturnsInstantlyAsync() -> bridge.Result_Promise_double_ {
+    do {
+      let value = try __implementation.promiseReturnsInstantlyAsync()
+      return bridge.Result_Promise_double_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_double_.withError(error.toCpp())
+    }
+  }
+
+  public final func createPendingPromise() -> bridge.Result_Promise_double_ {
+    do {
+      let value = try __implementation.createPendingPromise()
+      return bridge.Result_Promise_double_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_double_.withError(error.toCpp())
+    }
+  }
+
+  public final func resolvePendingPromiseOnWorker() -> bridge.Result_void {
+    do {
+      try __implementation.resolvePendingPromiseOnWorker()
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func promiseThatResolvesVoidInstantly() -> bridge.Result_Promise_void_ {
+    do {
+      let value = try __implementation.promiseThatResolvesVoidInstantly()
+      return bridge.Result_Promise_void_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func promiseThatResolvesToUndefined() -> bridge.Result_Promise_swift__Optional_double__ {
+    do {
+      let value = try __implementation.promiseThatResolvesToUndefined()
+      return bridge.Result_Promise_swift__Optional_double__.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_swift__Optional_double__.withError(error.toCpp())
+    }
+  }
+
+  public final func awaitNullablePromise() -> bridge.Result_Promise_swift__Optional_double__ {
+    do {
+      let value = try __implementation.awaitNullablePromise()
+      return bridge.Result_Promise_swift__Optional_double__.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_swift__Optional_double__.withError(error.toCpp())
+    }
+  }
+
+  public final func awaitAndGetPromise(promise: margelo.nitro.test.swift_bridge.Promise_double) -> bridge.Result_Promise_double_ {
+    do {
+      let value = try __implementation.awaitAndGetPromise(promise: promise)
+      return bridge.Result_Promise_double_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_double_.withError(error.toCpp())
+    }
+  }
+
+  public final func awaitAndGetComplexPromise(promise: margelo.nitro.test.swift_bridge.Promise_NitroTest__Car) -> bridge.Result_Promise_NitroTest__Car_ {
+    do {
+      let value = try __implementation.awaitAndGetComplexPromise(promise: promise)
+      return bridge.Result_Promise_NitroTest__Car_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_NitroTest__Car_.withError(error.toCpp())
+    }
+  }
+
+  public final func awaitPromise(promise: margelo.nitro.test.swift_bridge.Promise_void) -> bridge.Result_Promise_void_ {
+    do {
+      let value = try __implementation.awaitPromise(promise: promise)
+      return bridge.Result_Promise_void_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func callCallback(callback: margelo.nitro.test.swift_bridge.Callback_void) -> bridge.Result_void {
+    do {
+      try __implementation.callCallback(callback: callback)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callInlineCallback(callback: borrowing margelo.nitro.test.swift_bridge.InlineCallback_void) -> bridge.Result_void {
+    do {
+      try __implementation.callInlineCallback(callback: callback)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callInlineCallbackWithValue(value: Double, callback: borrowing margelo.nitro.test.swift_bridge.InlineCallback_double_double) -> bridge.Result_double {
+    do {
+      let value = try __implementation.callInlineCallbackWithValue(value: value, callback: callback)
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
+    }
+  }
+
+  public final func callCallbackThatReturnsPromiseVoid(callback: margelo.nitro.test.swift_bridge.Callback_Promise_void_) -> bridge.Result_Promise_void_ {
+    do {
+      let value = try __implementation.callCallbackThatReturnsPromiseVoid(callback: callback)
+      return bridge.Result_Promise_void_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func callAll(first: margelo.nitro.test.swift_bridge.Callback_void, second: margelo.nitro.test.swift_bridge.Callback_void, third: margelo.nitro.test.swift_bridge.Callback_void) -> bridge.Result_void {
+    do {
+      try __implementation.callAll(first: first, second: second, third: third)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callWithOptional(value: Double?, callback: margelo.nitro.test.swift_bridge.Callback_void_swift__Optional_double_) -> bridge.Result_void {
+    do {
+      try __implementation.callWithOptional(value: value, callback: callback)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callSumUpNTimes(callback: margelo.nitro.test.swift_bridge.Callback_double, n: Double) -> bridge.Result_Promise_double_ {
+    do {
+      let value = try __implementation.callSumUpNTimes(callback: callback, n: n)
+      return bridge.Result_Promise_double_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_double_.withError(error.toCpp())
+    }
+  }
+
+  public final func callbackAsyncPromise(callback: margelo.nitro.test.swift_bridge.Callback_Promise_double_) -> bridge.Result_Promise_double_ {
+    do {
+      let value = try __implementation.callbackAsyncPromise(callback: callback)
+      return bridge.Result_Promise_double_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_double_.withError(error.toCpp())
+    }
+  }
+
+  public final func callbackAsyncPromiseBuffer(callback: margelo.nitro.test.swift_bridge.Callback_Promise_ArrayBuffer_) -> bridge.Result_Promise_ArrayBuffer_ {
+    do {
+      let value = try __implementation.callbackAsyncPromiseBuffer(callback: callback)
+      return bridge.Result_Promise_ArrayBuffer_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_ArrayBuffer_.withError(error.toCpp())
+    }
+  }
+
+  public final func getComplexCallback() -> bridge.Result_Callback_void_double__ {
+    do {
+      let value = try __implementation.getComplexCallback()
+      return bridge.Result_Callback_void_double__.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Callback_void_double__.withError(error.toCpp())
+    }
+  }
+
+  public final func twoOptionalCallbacks(value: Double, first: (margelo.nitro.test.swift_bridge.Callback_void_double)?, second: (margelo.nitro.test.swift_bridge.Callback_void_swift__String)?) -> bridge.Result_void {
+    do {
+      try __implementation.twoOptionalCallbacks(value: value, first: first.map { $0 }, second: second.map { $0 })
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func errorCallback(onError: margelo.nitro.test.swift_bridge.Callback_void_std__exception_ptr) -> bridge.Result_void {
+    do {
+      try __implementation.errorCallback(onError: onError)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func createNativeCallback(wrappingJsCallback: margelo.nitro.test.swift_bridge.Callback_void_double) -> bridge.Result_Callback_void_double__ {
+    do {
+      let value = try __implementation.createNativeCallback(wrappingJsCallback: wrappingJsCallback)
+      return bridge.Result_Callback_void_double__.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Callback_void_double__.withError(error.toCpp())
+    }
+  }
+
+  public final func getValueFromJSCallbackAndWait(getValue: margelo.nitro.test.swift_bridge.Callback_double) -> bridge.Result_Promise_double_ {
+    do {
+      let value = try __implementation.getValueFromJSCallbackAndWait(getValue: getValue)
+      return bridge.Result_Promise_double_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_double_.withError(error.toCpp())
+    }
+  }
+
+  public final func getValueFromJsCallback(callback: margelo.nitro.test.swift_bridge.Callback_swift__String, andThenCall: margelo.nitro.test.swift_bridge.Callback_void_swift__String) -> bridge.Result_Promise_void_ {
+    do {
+      let value = try __implementation.getValueFromJsCallback(callback: callback, andThenCall: andThenCall)
+      return bridge.Result_Promise_void_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func getCar(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.getCar()
+      __outResult.assumingMemoryBound(to: Car.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func isCarElectric(car: Car) -> bridge.Result_bool {
+    do {
+      let value = try __implementation.isCarElectric(car: car)
+      return bridge.Result_bool.withValue(value)
+    } catch {
+      return bridge.Result_bool.withError(error.toCpp())
+    }
+  }
+
+  public final func areCarsEqual(a: Car, b: Car) -> bridge.Result_bool {
+    do {
+      let value = try __implementation.areCarsEqual(a: a, b: b)
+      return bridge.Result_bool.withValue(value)
+    } catch {
+      return bridge.Result_bool.withError(error.toCpp())
+    }
+  }
+
+  public final func getDriver(car: Car, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.getDriver(car: car)
+      __outResult.assumingMemoryBound(to: Person?.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceCar(car: Car, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceCar(car: car)
+      __outResult.assumingMemoryBound(to: Car.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func jsStyleObjectAsParameters(params: JsStyleStruct) -> bridge.Result_void {
+    do {
+      try __implementation.jsStyleObjectAsParameters(params: params)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceWrappedJsStyleStruct(value: WrappedJsStruct, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceWrappedJsStyleStruct(value: value)
+      __outResult.assumingMemoryBound(to: WrappedJsStruct.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceOptionalWrapper(wrapper: OptionalWrapper, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceOptionalWrapper(wrapper: wrapper)
+      __outResult.assumingMemoryBound(to: OptionalWrapper.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceOptionalCallback(value: OptionalCallback, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceOptionalCallback(value: value)
+      __outResult.assumingMemoryBound(to: OptionalCallback.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceOptionalEnumStruct(value: OptionalEnumWrapper?, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceOptionalEnumStruct(value: value)
+      __outResult.assumingMemoryBound(to: OptionalEnumWrapper?.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func createArrayBuffer() -> bridge.Result_ArrayBuffer {
+    do {
+      let value = try __implementation.createArrayBuffer()
+      return bridge.Result_ArrayBuffer.withValue(value)
+    } catch {
+      return bridge.Result_ArrayBuffer.withError(error.toCpp())
+    }
+  }
+
+  public final func createArrayBufferFromNativeBuffer(copy: Bool) -> bridge.Result_ArrayBuffer {
+    do {
+      let value = try __implementation.createArrayBufferFromNativeBuffer(copy: copy)
+      return bridge.Result_ArrayBuffer.withValue(value)
+    } catch {
+      return bridge.Result_ArrayBuffer.withError(error.toCpp())
+    }
+  }
+
+  public final func createHardwareBuffer(width: Double, height: Double, layers: Double, format: HardwareBufferFormat) -> bridge.Result_ArrayBuffer {
+    do {
+      let value = try __implementation.createHardwareBuffer(width: width, height: height, layers: layers, format: format)
+      return bridge.Result_ArrayBuffer.withValue(value)
+    } catch {
+      return bridge.Result_ArrayBuffer.withError(error.toCpp())
+    }
+  }
+
+  public final func copyBuffer(buffer: ArrayBuffer) -> bridge.Result_ArrayBuffer {
+    do {
+      let value = try __implementation.copyBuffer(buffer: buffer)
+      return bridge.Result_ArrayBuffer.withValue(value)
+    } catch {
+      return bridge.Result_ArrayBuffer.withError(error.toCpp())
+    }
+  }
+
+  public final func getBufferLastItem(buffer: ArrayBuffer) -> bridge.Result_double {
+    do {
+      let value = try __implementation.getBufferLastItem(buffer: buffer)
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
+    }
+  }
+
+  public final func setAllValuesTo(buffer: ArrayBuffer, value: Double) -> bridge.Result_void {
+    do {
+      try __implementation.setAllValuesTo(buffer: buffer, value: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func createArrayBufferAsync() -> bridge.Result_Promise_ArrayBuffer_ {
+    do {
+      let value = try __implementation.createArrayBufferAsync()
+      return bridge.Result_Promise_ArrayBuffer_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_ArrayBuffer_.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceArrayBuffer(buffer: ArrayBuffer) -> bridge.Result_ArrayBuffer {
+    do {
+      let value = try __implementation.bounceArrayBuffer(buffer: buffer)
+      return bridge.Result_ArrayBuffer.withValue(value)
+    } catch {
+      return bridge.Result_ArrayBuffer.withError(error.toCpp())
+    }
+  }
+
+  public final func passVariant(either: Variant_Bool__Double___String__Double_String_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.passVariant(either: either.value)
+      __outResult.assumingMemoryBound(to: Variant_Double_String_cxx.self).initialize(to: Variant_Double_String_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func getVariantEnum(variant: Variant_OldEnum_Bool_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.getVariantEnum(variant: variant.value)
+      __outResult.assumingMemoryBound(to: Variant_OldEnum_Bool_cxx.self).initialize(to: Variant_OldEnum_Bool_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceVariantUnionEnum(variant: Variant_Powertrain_Car_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceVariantUnionEnum(variant: variant.value)
+      __outResult.assumingMemoryBound(to: Variant_Powertrain_Car_cxx.self).initialize(to: Variant_Powertrain_Car_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func getVariantWeirdNumbersEnum(variant: Variant_WeirdNumbersEnum_Bool_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.getVariantWeirdNumbersEnum(variant: variant.value)
+      __outResult.assumingMemoryBound(to: Variant_WeirdNumbersEnum_Bool_cxx.self).initialize(to: Variant_WeirdNumbersEnum_Bool_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func getVariantObjects(variant: Variant_Person_Car_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.getVariantObjects(variant: variant.value)
+      __outResult.assumingMemoryBound(to: Variant_Person_Car_cxx.self).initialize(to: Variant_Person_Car_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func passNamedVariant(variant: NamedVariant_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.passNamedVariant(variant: variant.value)
+      __outResult.assumingMemoryBound(to: NamedVariant_cxx.self).initialize(to: NamedVariant_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func passAllEmptyObjectVariant(variant: Variant__any_HybridBaseSpec__OptionalWrapper_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.passAllEmptyObjectVariant(variant: variant.value)
+      __outResult.assumingMemoryBound(to: Variant__any_HybridBaseSpec__OptionalWrapper_cxx.self).initialize(to: Variant__any_HybridBaseSpec__OptionalWrapper_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceComplexVariant(variant: CoreTypesVariant_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceComplexVariant(variant: variant.value)
+      __outResult.assumingMemoryBound(to: CoreTypesVariant_cxx.self).initialize(to: CoreTypesVariant_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func createChild() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createChild()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func createBase() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createBase()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func createBaseActualChild() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createBaseActualChild()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceChild(child: HybridChildSpec_cxx) -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.bounceChild(child: child.getHybridChildSpec())
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceBase(base: HybridBaseSpec_cxx) -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.bounceBase(base: base.getHybridBaseSpec())
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
     }
+  }
+
+  public final func bounceChildBase(child: HybridChildSpec_cxx) -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.bounceChildBase(child: child.getHybridChildSpec())
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func castBase(base: HybridBaseSpec_cxx) -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.castBase(base: base.getHybridBaseSpec())
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func callbackSync(callback: margelo.nitro.test.swift_bridge.Callback_double) -> bridge.Result_double {
+    do {
+      let value = try __implementation.callbackSync(callback: callback)
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
+    }
+  }
+
+  public final func getSyncNumberCallback() -> bridge.Result_Callback_double___ {
+    do {
+      let value = try __implementation.getSyncNumberCallback()
+      return bridge.Result_Callback_double___.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Callback_double___.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceSyncInt64Callback(callback: margelo.nitro.test.swift_bridge.Callback_int64_t_int64_t) -> bridge.Result_Callback_int64_t_int64_t__ {
+    do {
+      let value = try __implementation.bounceSyncInt64Callback(callback: callback)
+      return bridge.Result_Callback_int64_t_int64_t__.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Callback_int64_t_int64_t__.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceExternalHybrid(externalObject: HybridSomeExternalObjectSpec_cxx) -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.bounceExternalHybrid(externalObject: externalObject.getHybridSomeExternalObjectSpec())
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func createInternalObject() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createInternalObject()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceExternalStruct(externalStruct: ExternalObjectStruct, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceExternalStruct(externalStruct: externalStruct)
+      __outResult.assumingMemoryBound(to: ExternalObjectStruct.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceExternalVariant(variant: StringOrExternal_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceExternalVariant(variant: variant.value)
+      __outResult.assumingMemoryBound(to: StringOrExternal_cxx.self).initialize(to: StringOrExternal_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func createExternalVariantFromFunc(factory: margelo.nitro.test.swift_bridge.Callback_NitroTestExternal__HybridSomeExternalObjectSpec_cxx) -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createExternalVariantFromFunc(factory: factory)
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func newTestObject() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.newTestObject()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func newTestObjectAsync() -> bridge.Result_Promise_NitroTest__HybridTestObjectSwiftKotlinSpec_cxx_ {
+    do {
+      let value = try __implementation.newTestObjectAsync()
+      return bridge.Result_Promise_NitroTest__HybridTestObjectSwiftKotlinSpec_cxx_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_NitroTest__HybridTestObjectSwiftKotlinSpec_cxx_.withError(error.toCpp())
+    }
+  }
+
+  public final func getVariantHybrid(variant: Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.getVariantHybrid(variant: variant.value)
+      __outResult.assumingMemoryBound(to: Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx.self).initialize(to: Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  // Constructor
+
+  public class func constructor() -> bridge.Result_void_ {
+    do {
+      let value = try HybridTestObjectSwift()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  // Static properties
+
+  public class func getReadonlyNumber_NitroTest_TestObjectSwiftKotlin() -> Double {
+    let value = HybridTestObjectSwift.readonlyNumber
+    return value
+  }
+
+  public class func getSharedNumber_NitroTest_TestObjectSwiftKotlin() -> Double {
+    let value = HybridTestObjectSwift.sharedNumber
+    return value
+  }
+
+  public class func setSharedNumber_NitroTest_TestObjectSwiftKotlin(sharedNumber: Double) -> Void {
+    HybridTestObjectSwift.sharedNumber = sharedNumber
   }
 }

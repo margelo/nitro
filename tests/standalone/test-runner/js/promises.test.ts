@@ -200,7 +200,7 @@ export const cases = {
       try {
         expect(() => object.createPendingPromise()).to.throw(
           nativeErrorMessage(
-            testObject.name,
+            testObject.constructor.name,
             "createPendingPromise",
             "A pending Promise is already waiting for completion.",
           ),
@@ -217,7 +217,7 @@ export const cases = {
       const object = testObject.newTestObject();
       expect(() => object.resolvePendingPromiseOnWorker()).to.throw(
         nativeErrorMessage(
-          testObject.name,
+          testObject.constructor.name,
           "resolvePendingPromiseOnWorker",
           "No pending Promise is waiting for completion.",
         ),
@@ -383,7 +383,7 @@ export const cases = {
       expect(() =>
         // @ts-expect-error intentionally passing a number instead of a Promise
         testObject.awaitPromise(5),
-      ).to.throw(`${testObject.name}.awaitPromise(...): `);
+      ).to.throw(`${testObject.constructor.name}.awaitPromise(...): `);
     },
   }),
 };

@@ -6,32 +6,28 @@ The package contains native sources in `native/{cpp,apple,android}/`, TypeScript
 sources in `js/src/`, and compiled JavaScript and declarations in `js/lib/`.
 Native sources and JS use the same package version. Core has no React Native
 dependency. Views, TurboModules, and React Native dispatchers live in
-`react-native-nitro-modules`, which stages Core sources for CocoaPods and Android
+`react-native-nitro-modules`, which stages Core sources for SwiftPM and Android
 builds.
 
 ```ts
-import type { HybridObject } from 'nitro-core'
+import { HybridObject, iOS, Android } from 'nitro-core'
 
-export interface Image extends HybridObject<{ ios: 'swift', android: 'kotlin' }> {
+@iOS({ language: 'swift', allowMultipleImplementations: true })
+@Android({ language: 'kotlin', allowMultipleImplementations: true })
+export declare class Image extends HybridObject {
   readonly width: number
   readonly height: number
 }
 ```
 
-The package includes `HybridObject`, platform and custom type definitions,
-`NitroModulesProxy`, and helpers such as `getHybridObjectConstructor`.
-Nitrogen reads these definitions when generating native bindings.
+Nitrogen reads the declared classes and decorators to generate native bindings.
+The package also exports `NitroModules`, `NitroModulesProxy`, and shared types.
 
-Importing the package does not install Nitro or require a native runtime.
-The host integration installs the native proxy and dispatcher, checks its
-version, then calls `getNitroModules()` to initialize the exported
-`NitroModules` binding. The binding is the native object itself.
-Call `getInstalledNitro()` to check whether the current runtime has a proxy.
-
-Each loaded module instance has its own `NitroModules` binding. Code loaded
-independently, including a separate CommonJS or ESM copy, should call
-`getNitroModules()` to initialize its binding and access the runtime's native
-proxy.
+The host must install the native proxy and dispatcher before importing
+`nitro-core`. The exported `NitroModules` constant is the installed native proxy.
+Core compares its native version with the JavaScript package version on import
+and warns if they differ. Separately loaded CommonJS and ESM copies read the same
+installed proxy.
 
 React Native applications should initialize Nitro through
 `react-native-nitro-modules`, which re-exports these APIs and handles native

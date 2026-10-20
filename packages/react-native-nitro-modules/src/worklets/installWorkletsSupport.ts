@@ -1,5 +1,5 @@
 import type { HybridObject } from 'nitro-core'
-import { NitroModules } from '../turbomodule/NativeNitroModules'
+import { NitroModules } from 'nitro-core'
 
 export function installWorkletsSupport() {
   try {
@@ -9,7 +9,7 @@ export function installWorkletsSupport() {
     const boxedNitroProxy = NitroModules.box(NitroModules)
     registerCustomSerializable({
       name: 'nitro.HybridObject',
-      determine(value): value is HybridObject<{}> {
+      determine(value): value is HybridObject {
         'worklet'
         const nitroProxy = boxedNitroProxy.unbox()
         return nitroProxy.isHybridObject(value)

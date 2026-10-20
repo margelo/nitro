@@ -43,7 +43,7 @@ function fixture(t) {
     "export const version = '1.2.3'\n",
   );
   put(
-    "packages/nitro-core/native/cpp/utils/NitroDefines.hpp",
+    "packages/nitro-core/native/cpp/include/NitroModules/NitroDefines.hpp",
     '#define NITRO_VERSION "1.2.3"\n',
   );
   put(
@@ -78,7 +78,7 @@ test("stages workspace sources without dependencies and cleans only generated di
   );
   put("packages/react-native-nitro-modules/src/index.ts", "// RN integration");
   const adapters = [
-    "cpp/views/HybridView.hpp",
+    "cpp/src/RawPropsCompat.cpp",
     "apple/views/HybridView.swift",
     "android/src/main/java/NitroModules.kt",
   ];

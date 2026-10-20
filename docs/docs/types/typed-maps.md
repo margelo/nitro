@@ -13,7 +13,10 @@ For example, if your API returns a map of users with their ages, you _could_ use
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    interface Database extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Database extends HybridObject {
       getAllUsers(): Record<string, number>
     }
     ```
@@ -21,22 +24,22 @@ For example, if your API returns a map of users with their ages, you _could_ use
   <TabItem value="swift" label="Swift">
     ```swift
     class HybridDatabase: HybridDatabaseSpec {
-      func getAllUsers() -> Dictionary<String, Double>
+      func getAllUsers() throws -> Dictionary<String, Double>
     }
     ```
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
     class HybridDatabase: HybridDatabaseSpec() {
-      fun getAllUsers(): Map<String, Double>
+      override fun getAllUsers(): Map<String, Double>
     }
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp
     class HybridDatabase: public HybridDatabaseSpec {
-      std::unordered_map<std::string, double> getAllUsers();
-    }
+      std::unordered_map<std::string, double> getAllUsers() override;
+    };
     ```
   </TabItem>
 </Tabs>

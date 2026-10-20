@@ -4,44 +4,42 @@
 /// https://github.com/margelo/nitro
 /// Copyright © Marc Rousavy @ Margelo
 ///
-
-import NitroModules
+public import NitroModules
+internal import CxxStdlib
+public import NitroTestAppleCxx
 
 /**
  * A class implementation that bridges HybridBenchmarkObjectSwiftKotlinSpec over to C++.
  * In C++, we cannot use Swift protocols - so we need to wrap it in a class to make it strongly defined.
- *
- * Also, some Swift types need to be bridged with special handling:
- * - Enums need to be wrapped in Structs, otherwise they cannot be accessed bi-directionally (Swift bug: https://github.com/swiftlang/swift/issues/75330)
- * - Other HybridObjects need to be wrapped/unwrapped from the Swift TCxx wrapper
- * - Throwing methods need to be wrapped with a Result<T, Error> type, as exceptions cannot be propagated to C++
  */
-open class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
+@_expose(Cxx)
+public final class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
   /**
-   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::bridge::swift`)
-   * from `NitroTest-Swift-Cxx-Bridge.hpp`.
+   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::swift_bridge`)
+   * from `NitroTestAppleCxx/NitroTestAppleCxx.h`.
    * This contains specialized C++ templates, and C++ helper functions that can be accessed from Swift.
    */
-  public typealias bridge = margelo.nitro.test.bridge.swift
+  public typealias bridge = margelo.nitro.test.swift_bridge
 
   /**
-   * Holds an instance of the `HybridBenchmarkObjectSwiftKotlinSpec` Swift protocol.
+   * Holds the Swift implementation of `HybridBenchmarkObjectSwiftKotlinSpec`.
    */
-  private let __implementation: any HybridBenchmarkObjectSwiftKotlinSpec
+  private let __implementation: HybridBenchmarkObjectSwift
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.
    */
-  private var __cxxPart: bridge.std__weak_ptr_HybridBenchmarkObjectSwiftKotlinSpec_
+  private var __cxxPart: bridge.std__weak_ptr_HybridBenchmarkObjectSwiftKotlinSpec_ = .init()
 
   /**
    * Create a new `HybridBenchmarkObjectSwiftKotlinSpec_cxx` that wraps the given `HybridBenchmarkObjectSwiftKotlinSpec`.
-   * All properties and methods bridge to C++ types.
    */
   public init(_ implementation: any HybridBenchmarkObjectSwiftKotlinSpec) {
+    guard let implementation = implementation as? HybridBenchmarkObjectSwift else {
+      preconditionFailure("BenchmarkObjectSwiftKotlin selects HybridBenchmarkObjectSwift as its Swift implementation. Every instance must inherit HybridBenchmarkObjectSwift.")
+    }
     self.__implementation = implementation
-    self.__cxxPart = .init()
-    /* no base class */
+
   }
 
   /**
@@ -65,7 +63,7 @@ open class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
    * The pointer has to be a retained opaque `Unmanaged<HybridBenchmarkObjectSwiftKotlinSpec_cxx>`.
    * This removes one strong reference from the object!
    */
-  public class func fromUnsafe(_ pointer: UnsafeMutableRawPointer) -> HybridBenchmarkObjectSwiftKotlinSpec_cxx {
+  public class func fromUnsafe(pointer: UnsafeMutableRawPointer) -> HybridBenchmarkObjectSwiftKotlinSpec_cxx {
     return Unmanaged<HybridBenchmarkObjectSwiftKotlinSpec_cxx>.fromOpaque(pointer).takeRetainedValue()
   }
 
@@ -74,17 +72,23 @@ open class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
    * The C++ part is a `std::shared_ptr<HybridBenchmarkObjectSwiftKotlinSpec>`.
    */
   public func getCxxPart() -> bridge.std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec_ {
-    let cachedCxxPart = self.__cxxPart.lock()
-    if cachedCxxPart.use_count() > 0 {
-      return cachedCxxPart
-    } else {
-      let newCxxPart = bridge.create_std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec_(self.toUnsafe())
-      __cxxPart = bridge.weakify_std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec_(newCxxPart)
-      return newCxxPart
+    let cached = __cxxPart.lock()
+    if cached.use_count() > 0 {
+      return cached
     }
+    let value = bridge.create_std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec_(self.toUnsafe())
+    __cxxPart = bridge.weakify_std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec_(value)
+    return value
   }
 
-  
+
+  // A static borrowing accessor lets C++ pass a const reference without copying it.
+  // TODO: Remove this adapter and call the instance method directly once
+  // https://github.com/swiftlang/swift/pull/92862 is merged and supported by our Swift toolchain.
+  @_spi(NitroCxx)
+  public static func getCxxPart(_ value: borrowing HybridBenchmarkObjectSwiftKotlinSpec_cxx) -> bridge.std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec_ {
+    return value.getCxxPart()
+  }
 
   /**
    * Get the memory size of the Swift class (plus size of any other allocations)
@@ -92,7 +96,7 @@ open class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
    */
   @inline(__always)
   public var memorySize: Int {
-    return MemoryHelper.getSizeOf(self.__implementation) + self.__implementation.memorySize
+    return MemoryHelper.getSizeOf(__implementation) + __implementation.memorySize
   }
 
   /**
@@ -100,7 +104,7 @@ open class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
    */
   @inline(__always)
   public func equals(other: HybridBenchmarkObjectSwiftKotlinSpec_cxx) -> Bool {
-    return self.__implementation === other.__implementation
+    return __implementation === other.__implementation
   }
 
   /**
@@ -109,7 +113,7 @@ open class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
    */
   @inline(__always)
   public func dispose() {
-    self.__implementation.dispose()
+    __implementation.dispose()
   }
 
   /**
@@ -117,285 +121,176 @@ open class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
    */
   @inline(__always)
   public func toString() -> String {
-    return self.__implementation.toString()
+    return __implementation.toString()
   }
 
   // Properties
-  public final var thisObject: bridge.std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec_ in
-        let __cxxWrapped = self.__implementation.thisObject.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-    }
+
+  public final func getNumberValue() -> Double {
+    let value = __implementation.numberValue
+    return value
   }
-  
-  public final var numberValue: Double {
-    @inline(__always)
-    get {
-      return self.__implementation.numberValue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.numberValue = newValue
-    }
+
+  public final func setNumberValue(numberValue: Double) -> Void {
+    __implementation.numberValue = numberValue
+  }
+
+  public final func getThisObject() -> HybridBenchmarkObjectSwiftKotlinSpec_cxx {
+    let value = __implementation.thisObject
+    return value.getCxxWrapper()
   }
 
   // Methods
-  @inline(__always)
-  public final func newBenchmarkObject() -> bridge.Result_std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec__ {
+
+  public final func simpleFunc() -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.newBenchmarkObject()
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridBenchmarkObjectSwiftKotlinSpec__(__exceptionPtr)
+      try __implementation.simpleFunc()
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func simpleFunc() -> bridge.Result_void_ {
+
+  public final func addNumbers(a: Double, b: Double) -> bridge.Result_double {
     do {
-      try self.__implementation.simpleFunc()
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
+      let value = try __implementation.addNumbers(a: a, b: b)
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func addNumbers(a: Double, b: Double) -> bridge.Result_double_ {
+
+  public final func addStrings(a: String, b: String, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.addNumbers(a: a, b: b)
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
+      let value = try __implementation.addStrings(a: a, b: b)
+      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func addStrings(a: std.string, b: std.string) -> bridge.Result_std__string_ {
+
+  public final func bounceNumbers(array: [Double], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.addStrings(a: String(a), b: String(b))
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
+      let value = try __implementation.bounceNumbers(array: array)
+      __outResult.assumingMemoryBound(to: [Double].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func bounceNumbers(array: bridge.std__vector_double_) -> bridge.Result_std__vector_double__ {
+
+  public final func bounceCar(car: Car, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.bounceNumbers(array: array.map({ __item in __item }))
-      let __resultCpp = { () -> bridge.std__vector_double_ in
-        var __vector = bridge.create_std__vector_double_(__result.count)
-        for __item in __result {
-          __vector.push_back(__item)
-        }
-        return __vector
-      }()
-      return bridge.create_Result_std__vector_double__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__vector_double__(__exceptionPtr)
+      let value = try __implementation.bounceCar(car: car)
+      __outResult.assumingMemoryBound(to: Car.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func bounceCar(car: Car) -> bridge.Result_Car_ {
+
+  public final func bounceSimpleMap(map: Record_swift__String_double, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.bounceCar(car: car)
-      let __resultCpp = __result
-      return bridge.create_Result_Car_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_Car_(__exceptionPtr)
+      let value = try __implementation.bounceSimpleMap(map: map.dictionary)
+      __outResult.assumingMemoryBound(to: Record_swift__String_double.self).initialize(to: Record_swift__String_double(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func bounceSimpleMap(map: bridge.std__unordered_map_std__string__double_) -> bridge.Result_std__unordered_map_std__string__double__ {
+
+  public final func tryOptionalParams(num: Double, boo: Bool, str: String?, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.bounceSimpleMap(map: { () -> Dictionary<String, Double> in
-        var __dictionary = Dictionary<String, Double>(minimumCapacity: map.size())
-        let __keys = bridge.get_std__unordered_map_std__string__double__keys(map)
-        for __key in __keys {
-          let __value = bridge.get_std__unordered_map_std__string__double__value(map, __key)
-          __dictionary[String(__key)] = __value
-        }
-        return __dictionary
-      }())
-      let __resultCpp = { () -> bridge.std__unordered_map_std__string__double_ in
-        var __map = bridge.create_std__unordered_map_std__string__double_(__result.count)
-        for (__k, __v) in __result {
-          bridge.emplace_std__unordered_map_std__string__double_(&__map, std.string(__k), __v)
-        }
-        return __map
-      }()
-      return bridge.create_Result_std__unordered_map_std__string__double__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__unordered_map_std__string__double__(__exceptionPtr)
+      let value = try __implementation.tryOptionalParams(num: num, boo: boo, str: str)
+      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func tryOptionalParams(num: Double, boo: Bool, str: bridge.std__optional_std__string_) -> bridge.Result_std__string_ {
+
+  public final func passVariant(either: Variant_Bool__Double___String__Double_String_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.tryOptionalParams(num: num, boo: boo, str: { () -> String? in
-        if bridge.has_value_std__optional_std__string_(str) {
-          let __unwrapped = bridge.get_std__optional_std__string_(str)
-          return String(__unwrapped)
-        } else {
-          return nil
-        }
-      }())
-      let __resultCpp = std.string(__result)
-      return bridge.create_Result_std__string_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__string_(__exceptionPtr)
+      let value = try __implementation.passVariant(either: either.value)
+      __outResult.assumingMemoryBound(to: Variant_Double_String_cxx.self).initialize(to: Variant_Double_String_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func passVariant(either: bridge.std__variant_bool__std__vector_double___std__vector_std__string___double__std__string_) -> bridge.Result_std__variant_double__std__string__ {
+
+  public final func bounceArrayBuffer(buffer: ArrayBuffer) -> bridge.Result_ArrayBuffer {
     do {
-      let __result = try self.__implementation.passVariant(either: { () -> Variant_Bool__Double___String__Double_String in
-        let __variant = either
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(__actual)
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual.map({ __item in __item }))
-          case 2:
-            let __actual = __variant.get_2()
-            return .third(__actual.map({ __item in String(__item) }))
-          case 3:
-            let __actual = __variant.get_3()
-            return .fourth(__actual)
-          case 4:
-            let __actual = __variant.get_4()
-            return .fifth(String(__actual))
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_double__std__string_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_double__std__string_(__value)
-          case .second(let __value):
-            return bridge.create_std__variant_double__std__string_(std.string(__value))
-        }
-      }().variant
-      return bridge.create_Result_std__variant_double__std__string__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_double__std__string__(__exceptionPtr)
+      let value = try __implementation.bounceArrayBuffer(buffer: buffer)
+      return bridge.Result_ArrayBuffer.withValue(value)
+    } catch {
+      return bridge.Result_ArrayBuffer.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func bounceArrayBuffer(buffer: ArrayBuffer) -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
+
+  public final func copyBuffer(buffer: ArrayBuffer) -> bridge.Result_ArrayBuffer {
     do {
-      let __result = try self.__implementation.bounceArrayBuffer(buffer: buffer)
-      let __resultCpp = __result.getArrayBuffer()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__exceptionPtr)
+      let value = try __implementation.copyBuffer(buffer: buffer)
+      return bridge.Result_ArrayBuffer.withValue(value)
+    } catch {
+      return bridge.Result_ArrayBuffer.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func copyBuffer(buffer: ArrayBuffer) -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
+
+  public final func callbackSync(callback: margelo.nitro.test.swift_bridge.Callback_double) -> bridge.Result_double {
     do {
-      let __result = try self.__implementation.copyBuffer(buffer: buffer)
-      let __resultCpp = __result.getArrayBuffer()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__exceptionPtr)
+      let value = try __implementation.callbackSync(callback: callback)
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func callbackSync(callback: bridge.Func_double) -> bridge.Result_double_ {
+
+  public final func promiseReturnsInstantly() -> bridge.Result_Promise_double_ {
     do {
-      let __result = try self.__implementation.callbackSync(callback: { () -> () -> Double in
-        let __wrappedFunction = bridge.wrap_Func_double(callback)
-        return { () -> Double in
-          let __result = __wrappedFunction.call()
-          return __result
-        }
-      }())
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
+      let value = try __implementation.promiseReturnsInstantly()
+      return bridge.Result_Promise_double_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_double_.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func promiseReturnsInstantly() -> bridge.Result_std__shared_ptr_Promise_double___ {
+
+  public final func createPendingPromise() -> bridge.Result_Promise_double_ {
     do {
-      let __result = try self.__implementation.promiseReturnsInstantly()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_double__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_double__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__exceptionPtr)
+      let value = try __implementation.createPendingPromise()
+      return bridge.Result_Promise_double_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_double_.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func createPendingPromise() -> bridge.Result_std__shared_ptr_Promise_double___ {
+
+  public final func resolvePendingPromiseOnWorker() -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.createPendingPromise()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_double__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_double__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_double__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_double___(__exceptionPtr)
+      try __implementation.resolvePendingPromiseOnWorker()
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func resolvePendingPromiseOnWorker() -> bridge.Result_void_ {
+
+  public final func newBenchmarkObject() -> bridge.Result_void_ {
     do {
-      try self.__implementation.resolvePendingPromiseOnWorker()
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
+      let value = try __implementation.newBenchmarkObject()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  // Constructor
+
+  public class func constructor() -> bridge.Result_void_ {
+    do {
+      let value = try HybridBenchmarkObjectSwift()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
     }
   }
 }

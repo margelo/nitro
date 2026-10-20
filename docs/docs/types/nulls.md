@@ -13,7 +13,10 @@ While it can be used as a separate type directly, `null` most commonly used to m
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    interface Math extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Math extends HybridObject {
       a: number | null
     }
     ```
@@ -35,7 +38,8 @@ While it can be used as a separate type directly, `null` most commonly used to m
   <TabItem value="cpp" label="C++">
     ```cpp
     class HybridMath: public HybridMathSpec {
-      std::variant<nitro::NullType, double> a;
+      std::variant<NullType, double> getA() override;
+      void setA(const std::variant<NullType, double>& value) override;
     };
     ```
   </TabItem>

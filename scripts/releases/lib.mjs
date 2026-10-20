@@ -68,8 +68,20 @@ export function parseVersion(version) {
   }
 }
 
-export function nightlyVersion(baseVersion, runNumber, sourceCommit) {
+export function nightlyVersion(
+  baseVersion,
+  runNumber,
+  sourceCommit,
+  npmTag = 'nightly'
+) {
   const base = parseVersion(baseVersion)
+  if (!['nightly', 'alpha-nightly'].includes(npmTag))
+    throw new Error(`Invalid nightly npm tag: ${npmTag}`)
+  if (
+    npmTag === 'alpha-nightly' &&
+    (base.major !== 1 || base.prerelease[0] !== 'alpha')
+  )
+    throw new Error('V1 nightlies require a 1.x alpha base version')
   if (
     !['string', 'number'].includes(typeof runNumber) ||
     !/^[1-9]\d*$/.test(String(runNumber)) ||
@@ -84,13 +96,22 @@ export function nightlyVersion(baseVersion, runNumber, sourceCommit) {
     throw new Error('A nightly requires the full source commit SHA')
   }
   const patch = base.patch + (base.prerelease.length ? 0 : 1)
-  const version = `${base.major}.${base.minor}.${patch}-nightly.${runNumber}.g${sourceCommit.slice(0, 12)}`
+  const prerelease = npmTag === 'alpha-nightly' ? 'alpha.nightly' : 'nightly'
+  const version = `${base.major}.${base.minor}.${patch}-${prerelease}.${runNumber}.g${sourceCommit.slice(0, 12)}`
   parseVersion(version)
   return version
 }
 
 export function isNightly(version) {
-  return parseVersion(version).prerelease[0] === 'nightly'
+  return nightlyNpmTag(version) !== undefined
+}
+
+export function nightlyNpmTag(version) {
+  const { prerelease } = parseVersion(version)
+  if (prerelease[0] === 'nightly') return 'nightly'
+  if (prerelease[0] === 'alpha' && prerelease[1] === 'nightly')
+    return 'alpha-nightly'
+  return undefined
 }
 
 export function versionFromTag(tag) {
@@ -133,6 +154,7 @@ export function npmTagFor(version, requested = '') {
   const { prerelease } = parseVersion(version)
   const tag =
     requested ||
+    nightlyNpmTag(version) ||
     (prerelease.length
       ? /^[a-z]/.test(prerelease[0])
         ? prerelease[0]
@@ -169,15 +191,15 @@ export function validateManifest(manifest, { repository, tag, packages }) {
     throw new Error('Missing npm tag')
   if (isNightly(manifest.version)) {
     if (
-      manifest.npmTag !== 'nightly' ||
+      manifest.npmTag !== nightlyNpmTag(manifest.version) ||
       !/^[a-f0-9]{40}$/.test(manifest.sourceCommit)
     ) {
       throw new Error(
-        'A nightly manifest requires the nightly npm tag and source commit SHA'
+        'A nightly manifest requires its matching npm tag and source commit SHA'
       )
     }
-  } else if (manifest.npmTag === 'nightly') {
-    throw new Error('The nightly npm tag is reserved for nightly versions')
+  } else if (['nightly', 'alpha-nightly'].includes(manifest.npmTag)) {
+    throw new Error('Nightly npm tags are reserved for nightly versions')
   }
   if (
     !Array.isArray(manifest.packages) ||
@@ -410,8 +432,8 @@ export async function publishPackages(
         current &&
         compareVersions(current.version, pkg.version) > 0
       ) {
-        if (manifest.npmTag === 'nightly' && isNightly(manifest.version)) {
-          npmTag = `nightly-${manifest.commit.slice(0, 12)}`
+        if (manifest.npmTag === nightlyNpmTag(manifest.version)) {
+          npmTag = `${manifest.npmTag}-${manifest.commit.slice(0, 12)}`
         } else {
           throw new Error(
             `Refusing to move ${pkg.name}'s ${manifest.npmTag} tag backwards from ${current.version}`

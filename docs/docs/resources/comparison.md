@@ -121,7 +121,7 @@ A Turbo Module does not provide a syntax for properties. Instead, conventional g
 
 ```swift title="Nitro Module (Swift)"
 class HybridMath : HybridMathSpec {
-  var someValue: Double
+  var someValue: Double = 0
 }
 ```
 
@@ -158,9 +158,11 @@ Native objects, like Image instances, can not be represented in Turbo Modules. C
 ```swift title="HybridImageEditor.swift"
 class HybridImageEditor: HybridImageEditorSpec {
   func crop(image: HybridImage,
-            size: Size) -> HybridImage {
-    let original = image.cgImage
-    let cropped = original.cropping(to: size)
+            size: Size) throws -> HybridImage {
+    let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+    guard let cropped = image.cgImage.cropping(to: rect) else {
+      throw RuntimeError("Failed to crop image")
+    }
     return HybridImage(cgImage: cropped)
   }
 }
@@ -217,10 +219,10 @@ Instead, Turbo Modules has "Events". Events are essentially just native function
 <div className="side-by-side-block">
 
 ```swift title="HybridMath.swift (Nitro)"
-class Math: MathSpec {
-  var listeners: [(String) -> Void] = []
-  func addListener(listener: (String) -> Void) {
-    listeners.add(listener)
+class HybridMath: HybridMathSpec {
+  var listeners: [any Callback<String, Void>] = []
+  func addListener(listener: any Callback<String, Void>) {
+    listeners.append(listener)
   }
 
   func onSomethingChanged() {
@@ -270,12 +272,12 @@ Codegen is similar to Nitrogen as it also generates native interfaces from TypeS
 <div className="side-by-side-block">
 
 ```ts title="Nitrogen"
-interface Math extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Math extends HybridObject {
+  constructor()
   add(a: number, b: number): Promise<number>
 }
-
-export const Math =
- NitroModules.createHybridObject<Math>('Math')
+export * from '#nitro/Math'
 ```
 
 </div>
@@ -424,7 +426,7 @@ Asynchronous functions can be implemented using Kotlin coroutines, which is a co
 <div className="side-by-side-block">
 
 ```kotlin title="HybridMath.kt (Nitro)"
-class HybridMath: HybridMathSpec {
+class HybridMath: HybridMathSpec() {
   override fun doSomeWork(): Promise<String> {
     return Promise.async {
       delay(5000)
@@ -465,10 +467,10 @@ Similar to Turbo Modules, Expo Modules also uses Events to notify JS about any c
 <div className="side-by-side-block">
 
 ```swift title="HybridMath.swift (Nitro)"
-class Math: MathSpec {
-  var listeners: [(String) -> Void] = []
-  func addListener(listener: (String) -> Void) {
-    listeners.add(listener)
+class HybridMath: HybridMathSpec {
+  var listeners: [any Callback<String, Void>] = []
+  func addListener(listener: any Callback<String, Void>) {
+    listeners.append(listener)
   }
 
   func onSomethingChanged() {

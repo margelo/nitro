@@ -3,7 +3,7 @@ import { capitalizeName } from '../utils.js'
 import { type SourceFile, type SourceImport } from './SourceFile.js'
 import type { Language } from '../getPlatformSpecs.js'
 import type { Type } from './types/Type.js'
-import { Method } from './Method.js'
+import { InstanceMethod, type InstanceMethodOptions } from './InstanceMethod.js'
 import { VoidType } from './types/VoidType.js'
 import { Parameter } from './Parameter.js'
 
@@ -113,24 +113,34 @@ export class Property implements CodeNode {
     return `set${capitalizeName(this.name)}`
   }
 
-  get cppGetter(): Method {
-    return new Method(this.getGetterName('other'), this.type, [])
+  get cppGetter(): InstanceMethod {
+    return this.getCppMethods()[0]
   }
 
-  get cppSetter(): Method | undefined {
-    if (this.isReadonly) return undefined
+  get cppSetter(): InstanceMethod | undefined {
+    return this.getCppMethods()[1]
+  }
+
+  getCppMethods(
+    options: InstanceMethodOptions = {}
+  ):
+    | [getter: InstanceMethod]
+    | [getter: InstanceMethod, setter: InstanceMethod] {
+    const getter = new InstanceMethod(
+      this.getGetterName('other'),
+      this.type,
+      [],
+      options
+    )
+    if (this.isReadonly) return [getter]
     const parameter = new Parameter(this.name, this.type)
-    return new Method(this.getSetterName('other'), new VoidType(), [parameter])
-  }
-
-  getCppMethods(): [getter: Method] | [getter: Method, setter: Method] {
-    if (this.cppSetter != null) {
-      // get + set
-      return [this.cppGetter, this.cppSetter]
-    } else {
-      // get
-      return [this.cppGetter]
-    }
+    const setter = new InstanceMethod(
+      this.getSetterName('other'),
+      new VoidType(),
+      [parameter],
+      options
+    )
+    return [getter, setter]
   }
 
   getCode(
@@ -145,18 +155,41 @@ export class Property implements CodeNode {
 
     switch (language) {
       case 'c++': {
-        const methods = this.getCppMethods()
+        const { classDefinitionName, virtual, ...sharedModifiers } =
+          modifiers ?? {}
+        const methods = this.getCppMethods({
+          ...sharedModifiers,
+          virtual: virtual,
+          pureVirtual: virtual === true && body == null,
+        })
         const [getter, setter] = methods
+        function renderMethod(
+          method: InstanceMethod,
+          methodBody: string | undefined
+        ): string {
+          if (methodBody == null) return method.getDeclaration('c++')
+          if (classDefinitionName != null) {
+            return method.getDefinition('c++', {
+              placement: 'out-of-class',
+              className: classDefinitionName,
+              body: methodBody,
+            })
+          }
+          return method.getDefinition('c++', {
+            placement: 'in-class',
+            body: methodBody,
+          })
+        }
         const lines: string[] = []
-        lines.push(getter.getCode('c++', modifiers, body?.getter))
+        lines.push(renderMethod(getter, body?.getter))
         if (setter != null) {
-          lines.push(setter.getCode('c++', modifiers, body?.setter))
+          lines.push(renderMethod(setter, body?.setter))
         }
 
         return lines.join('\n')
       }
       case 'swift': {
-        const type = this.type.getCode('swift')
+        const type = this.type.getCode('swift', { context: 'property' })
         let accessors: string
         if (body == null) {
           accessors = this.isReadonly ? `get` : `get set`
@@ -179,7 +212,7 @@ set {
         return `var ${this.name}: ${type} { ${accessors} }`
       }
       case 'kotlin': {
-        const type = this.type.getCode('kotlin')
+        const type = this.type.getCode('kotlin', { context: 'property' })
         let keyword = this.isReadonly ? 'val' : 'var'
         if (modifiers?.virtual) keyword = `abstract ${keyword}`
         const lines: string[] = []

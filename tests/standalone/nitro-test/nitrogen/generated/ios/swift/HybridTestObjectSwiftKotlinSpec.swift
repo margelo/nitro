@@ -5,14 +5,12 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
-import NitroTestExternal
+public import NitroModules
+public import NitroTestExternal
 
 /// See ``HybridTestObjectSwiftKotlinSpec``
 public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   // Properties
-  var thisObject: (any HybridTestObjectSwiftKotlinSpec) { get }
-  var optionalHybrid: (any HybridTestObjectSwiftKotlinSpec)? { get set }
   var numberValue: Double { get set }
   var boolValue: Bool { get set }
   var stringValue: String { get set }
@@ -26,7 +24,7 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   var optionalEnum: Powertrain? { get set }
   var optionalOldEnum: OldEnum? { get set }
   var optionalEnumPlusOne: TruckPowertrain? { get set }
-  var optionalCallback: ((_ value: Double) -> Void)? { get set }
+  var optionalCallback: (any Callback<(/* value */ Double), Void>)? { get set }
   var hasBoolean: Bool { get }
   var isBoolean: Bool { get }
   var hasBooleanWritable: Bool { get set }
@@ -34,11 +32,10 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   var isolatedBoolean: Bool { get set }
   var isTextValue: String { get set }
   var someVariant: Variant_Double_String { get set }
+  var thisObject: (any HybridTestObjectSwiftKotlinSpec) { get }
+  var optionalHybrid: (any HybridTestObjectSwiftKotlinSpec)? { get set }
 
   // Methods
-  func newTestObject() throws -> (any HybridTestObjectSwiftKotlinSpec)
-  func newTestObjectAsync() throws -> Promise<(any HybridTestObjectSwiftKotlinSpec)>
-  func getVariantHybrid(variant: Variant__any_HybridTestObjectSwiftKotlinSpec__Person) throws -> Variant__any_HybridTestObjectSwiftKotlinSpec__Person
   func simpleFunc() throws -> Void
   func addNumbers(a: Double, b: Double) throws -> Double
   func addStrings(a: String, b: String) throws -> String
@@ -51,20 +48,25 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   func bouncePartialStruct(person: PartialPerson) throws -> PartialPerson
   func sumUpAllPassengers(cars: [Car]) throws -> String
   func bounceEnums(array: [Powertrain]) throws -> [Powertrain]
-  func complexEnumCallback(array: [Powertrain], callback: @escaping (_ array: [Powertrain]) -> Void) throws -> Void
+  func complexEnumCallback(array: [Powertrain], callback: any Callback<(/* array */ [Powertrain]), Void>) throws -> Void
+  func callEnumArrayCallback(array: [Powertrain], callback: any Callback<(/* array */ [Powertrain]), [Powertrain]>) throws -> [Powertrain]
+  func getEnumArrayCallback() throws -> any Callback<(/* array */ [Powertrain]), [Powertrain]>
+  func callEnumArrayPromiseCallback(callback: any Callback<(), any Promise<[Powertrain]>>) throws -> any Promise<[Powertrain]>
+  func awaitEnumArrayPromise(promise: any Promise<[Powertrain]>) throws -> any Promise<[Powertrain]>
+  func callNestedStructCallback(value: [[Person?]], callback: any Callback<(/* value */ [[Person?]]), [[Person?]]>) throws -> [[Person?]]
   func bounceHybridObjects(array: [(any HybridChildSpec)]) throws -> [(any HybridChildSpec)]
-  func bounceFunctions(functions: [() -> Void]) throws -> [() -> Void]
-  func bounceMaps(maps: [AnyMap]) throws -> [AnyMap]
-  func bouncePromises(promises: [Promise<Double>]) throws -> [Promise<Double>]
+  func bounceFunctions(functions: [any Callback<(), Void>]) throws -> [any Callback<(), Void>]
+  func bounceMaps(maps: [AnyJSON]) throws -> [AnyJSON]
+  func bouncePromises(promises: [any Promise<Double>]) throws -> [any Promise<Double>]
   func bounceArrayBuffers(arrayBuffers: [ArrayBuffer]) throws -> [ArrayBuffer]
   func bounceOptionals(strings: [String?], arrayBuffers: [ArrayBuffer?]) throws -> [String?]
   func bounceNulls(strings: [Variant_NullType_String]) throws -> [Variant_NullType_String]
   func bounceOptionalNulls(strings: [Variant_NullType_String?]) throws -> [Variant_NullType_String?]
-  func createMap() throws -> AnyMap
-  func mapRoundtrip(map: AnyMap) throws -> AnyMap
-  func getMapKeys(map: AnyMap) throws -> [String]
-  func mergeMaps(a: AnyMap, b: AnyMap) throws -> AnyMap
-  func copyAnyMap(map: AnyMap) throws -> AnyMap
+  func createMap() throws -> AnyJSON
+  func mapRoundtrip(map: AnyJSON) throws -> AnyJSON
+  func getMapKeys(map: AnyJSON) throws -> [String]
+  func mergeMaps(a: AnyJSON, b: AnyJSON) throws -> AnyJSON
+  func copyAnyMap(map: AnyJSON) throws -> AnyJSON
   func bounceMap(map: Dictionary<String, Variant_Bool_Double>) throws -> Dictionary<String, Variant_Bool_Double>
   func bounceSimpleMap(map: Dictionary<String, Double>) throws -> Dictionary<String, Double>
   func bounceOptionalMap(map: Dictionary<String, String?>) throws -> Dictionary<String, String?>
@@ -72,41 +74,41 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   func bounceOptionalNullMap(map: Dictionary<String, Variant_NullType_String?>) throws -> Dictionary<String, Variant_NullType_String?>
   func extractMap(mapWrapper: MapWrapper) throws -> Dictionary<String, String>
   func funcThatThrows() throws -> Double
-  func funcThatThrowsBeforePromise() throws -> Promise<Void>
-  func throwError(error: Error) throws -> Void
+  func funcThatThrowsBeforePromise() throws -> any Promise<Void>
+  func throwError(error: any Error) throws -> Void
   func tryOptionalParams(num: Double, boo: Bool, str: String?) throws -> String
   func tryMiddleParam(num: Double, boo: Bool?, str: String) throws -> String
   func tryOptionalEnum(value: Powertrain?) throws -> Powertrain?
   func tryTrailingOptional(num: Double, str: String, boo: Bool?) throws -> Bool
-  func add1Hour(date: Date) throws -> Date
-  func currentDate() throws -> Date
   func calculateFibonacciSync(value: Double) throws -> Int64
-  func calculateFibonacciAsync(value: Double) throws -> Promise<Int64>
-  func wait(seconds: Double) throws -> Promise<Void>
-  func promiseThrows() throws -> Promise<Void>
-  func promiseReturnsInstantly() throws -> Promise<Double>
-  func promiseReturnsInstantlyAsync() throws -> Promise<Double>
-  func createPendingPromise() throws -> Promise<Double>
+  func calculateFibonacciAsync(value: Double) throws -> any Promise<Int64>
+  func wait(seconds: Double) throws -> any Promise<Void>
+  func promiseThrows() throws -> any Promise<Void>
+  func promiseReturnsInstantly() throws -> any Promise<Double>
+  func promiseReturnsInstantlyAsync() throws -> any Promise<Double>
+  func createPendingPromise() throws -> any Promise<Double>
   func resolvePendingPromiseOnWorker() throws -> Void
-  func promiseThatResolvesVoidInstantly() throws -> Promise<Void>
-  func promiseThatResolvesToUndefined() throws -> Promise<Double?>
-  func awaitNullablePromise() throws -> Promise<Double?>
-  func awaitAndGetPromise(promise: Promise<Double>) throws -> Promise<Double>
-  func awaitAndGetComplexPromise(promise: Promise<Car>) throws -> Promise<Car>
-  func awaitPromise(promise: Promise<Void>) throws -> Promise<Void>
-  func callCallback(callback: @escaping () -> Void) throws -> Void
-  func callCallbackThatReturnsPromiseVoid(callback: @escaping () -> Promise<Promise<Void>>) throws -> Promise<Void>
-  func callAll(first: @escaping () -> Void, second: @escaping () -> Void, third: @escaping () -> Void) throws -> Void
-  func callWithOptional(value: Double?, callback: @escaping (_ maybe: Double?) -> Void) throws -> Void
-  func callSumUpNTimes(callback: @escaping () -> Promise<Double>, n: Double) throws -> Promise<Double>
-  func callbackAsyncPromise(callback: @escaping () -> Promise<Promise<Double>>) throws -> Promise<Double>
-  func callbackAsyncPromiseBuffer(callback: @escaping () -> Promise<Promise<ArrayBuffer>>) throws -> Promise<ArrayBuffer>
-  func getComplexCallback() throws -> (_ value: Double) -> Void
-  func twoOptionalCallbacks(value: Double, first: ((_ value: Double) -> Void)?, second: ((_ value: String) -> Void)?) throws -> Void
-  func errorCallback(onError: @escaping (_ error: Error) -> Void) throws -> Void
-  func createNativeCallback(wrappingJsCallback: @escaping (_ num: Double) -> Void) throws -> (_ num: Double) -> Void
-  func getValueFromJSCallbackAndWait(getValue: @escaping () -> Promise<Double>) throws -> Promise<Double>
-  func getValueFromJsCallback(callback: @escaping () -> Promise<String>, andThenCall: @escaping (_ valueFromJs: String) -> Void) throws -> Promise<Void>
+  func promiseThatResolvesVoidInstantly() throws -> any Promise<Void>
+  func promiseThatResolvesToUndefined() throws -> any Promise<Double?>
+  func awaitNullablePromise() throws -> any Promise<Double?>
+  func awaitAndGetPromise(promise: any Promise<Double>) throws -> any Promise<Double>
+  func awaitAndGetComplexPromise(promise: any Promise<Car>) throws -> any Promise<Car>
+  func awaitPromise(promise: any Promise<Void>) throws -> any Promise<Void>
+  func callCallback(callback: any Callback<(), Void>) throws -> Void
+  func callInlineCallback(callback: borrowing some InlineCallback<(), Void> & ~Copyable & ~Escapable) throws -> Void
+  func callInlineCallbackWithValue(value: Double, callback: borrowing some InlineCallback<(/* value */ Double), Double> & ~Copyable & ~Escapable) throws -> Double
+  func callCallbackThatReturnsPromiseVoid(callback: any Callback<(), any Promise<Void>>) throws -> any Promise<Void>
+  func callAll(first: any Callback<(), Void>, second: any Callback<(), Void>, third: any Callback<(), Void>) throws -> Void
+  func callWithOptional(value: Double?, callback: any Callback<(/* maybe */ Double?), Void>) throws -> Void
+  func callSumUpNTimes(callback: any Callback<(), Double>, n: Double) throws -> any Promise<Double>
+  func callbackAsyncPromise(callback: any Callback<(), any Promise<Double>>) throws -> any Promise<Double>
+  func callbackAsyncPromiseBuffer(callback: any Callback<(), any Promise<ArrayBuffer>>) throws -> any Promise<ArrayBuffer>
+  func getComplexCallback() throws -> any Callback<(/* value */ Double), Void>
+  func twoOptionalCallbacks(value: Double, first: (any Callback<(/* value */ Double), Void>)?, second: (any Callback<(/* value */ String), Void>)?) throws -> Void
+  func errorCallback(onError: any Callback<(/* error */ any Error), Void>) throws -> Void
+  func createNativeCallback(wrappingJsCallback: any Callback<(/* num */ Double), Void>) throws -> any Callback<(/* num */ Double), Void>
+  func getValueFromJSCallbackAndWait(getValue: any Callback<(), Double>) throws -> any Promise<Double>
+  func getValueFromJsCallback(callback: any Callback<(), String>, andThenCall: any Callback<(/* valueFromJs */ String), Void>) throws -> any Promise<Void>
   func getCar() throws -> Car
   func isCarElectric(car: Car) throws -> Bool
   func areCarsEqual(a: Car, b: Car) throws -> Bool
@@ -123,7 +125,7 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   func copyBuffer(buffer: ArrayBuffer) throws -> ArrayBuffer
   func getBufferLastItem(buffer: ArrayBuffer) throws -> Double
   func setAllValuesTo(buffer: ArrayBuffer, value: Double) throws -> Void
-  func createArrayBufferAsync() throws -> Promise<ArrayBuffer>
+  func createArrayBufferAsync() throws -> any Promise<ArrayBuffer>
   func bounceArrayBuffer(buffer: ArrayBuffer) throws -> ArrayBuffer
   func passVariant(either: Variant_Bool__Double___String__Double_String) throws -> Variant_Double_String
   func getVariantEnum(variant: Variant_OldEnum_Bool) throws -> Variant_OldEnum_Bool
@@ -140,14 +142,17 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   func bounceBase(base: (any HybridBaseSpec)) throws -> (any HybridBaseSpec)
   func bounceChildBase(child: (any HybridChildSpec)) throws -> (any HybridBaseSpec)
   func castBase(base: (any HybridBaseSpec)) throws -> (any HybridChildSpec)
-  func callbackSync(callback: @escaping () -> Double) throws -> Double
-  func getSyncNumberCallback() throws -> () -> Double
-  func bounceSyncInt64Callback(callback: @escaping (_ value: Int64) -> Int64) throws -> (_ value: Int64) -> Int64
+  func callbackSync(callback: any Callback<(), Double>) throws -> Double
+  func getSyncNumberCallback() throws -> any Callback<(), Double>
+  func bounceSyncInt64Callback(callback: any Callback<(/* value */ Int64), Int64>) throws -> any Callback<(/* value */ Int64), Int64>
   func bounceExternalHybrid(externalObject: (any HybridSomeExternalObjectSpec)) throws -> (any HybridSomeExternalObjectSpec)
   func createInternalObject() throws -> (any HybridSomeExternalObjectSpec)
   func bounceExternalStruct(externalStruct: ExternalObjectStruct) throws -> ExternalObjectStruct
   func bounceExternalVariant(variant: StringOrExternal) throws -> StringOrExternal
-  func createExternalVariantFromFunc(factory: @escaping () -> (any HybridSomeExternalObjectSpec)) throws -> (any HybridSomeExternalObjectSpec)
+  func createExternalVariantFromFunc(factory: any Callback<(), (any HybridSomeExternalObjectSpec)>) throws -> (any HybridSomeExternalObjectSpec)
+  func newTestObject() throws -> (any HybridTestObjectSwiftKotlinSpec)
+  func newTestObjectAsync() throws -> any Promise<(any HybridTestObjectSwiftKotlinSpec)>
+  func getVariantHybrid(variant: Variant__any_HybridTestObjectSwiftKotlinSpec__Person) throws -> Variant__any_HybridTestObjectSwiftKotlinSpec__Person
 }
 
 public extension HybridTestObjectSwiftKotlinSpec_protocol {
@@ -161,7 +166,7 @@ public extension HybridTestObjectSwiftKotlinSpec_protocol {
 open class HybridTestObjectSwiftKotlinSpec_base {
   private weak var cxxWrapper: HybridTestObjectSwiftKotlinSpec_cxx? = nil
   public init() { }
-  public func getCxxWrapper() -> HybridTestObjectSwiftKotlinSpec_cxx {
+  public final func getCxxWrapper() -> HybridTestObjectSwiftKotlinSpec_cxx {
   #if DEBUG
     guard self is any HybridTestObjectSwiftKotlinSpec else {
       fatalError("`self` is not a `HybridTestObjectSwiftKotlinSpec`! Did you accidentally inherit from `HybridTestObjectSwiftKotlinSpec_base` instead of `HybridTestObjectSwiftKotlinSpec`?")

@@ -1,84 +1,102 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
 import { capitalizeName, indent } from '../../utils.js'
-import { includeHeader } from '../c++/includeNitroHeader.js'
-import {
-  createFileMetadataString,
-  isNotDuplicate,
-  toReferenceType,
-} from '../helpers.js'
+import { createFileMetadataString, isNotDuplicate } from '../helpers.js'
 import type { SourceFile } from '../SourceFile.js'
 import { OptionalType } from '../types/OptionalType.js'
-import { type VariantType } from '../types/VariantType.js'
-import { KotlinCxxBridgedType } from './KotlinCxxBridgedType.js'
+import type { KotlinVariantType } from './types/KotlinVariantType.js'
+import { getImportCode, getImportsCode } from '../getImportCode.js'
 
-export function createKotlinVariant(variant: VariantType): SourceFile[] {
-  const jsName = variant.variants.map((v) => v.getCode('kotlin')).join(' | ')
-  const cxxName = variant
-    .getCode('c++')
+export function createKotlinVariant(variant: KotlinVariantType): SourceFile[] {
+  const publicVariant = variant.type
+  const jniName = variant.jniName
+  const jsName = publicVariant.variants
+    .map((v) => v.getCode('kotlin', { context: 'value' }))
+    .join(' | ')
+  const cxxName = publicVariant
+    .getCode('c++', { context: 'value' })
     .replaceAll('/* ', '')
     .replaceAll(' */', '')
-  const kotlinName = variant.getAliasName('kotlin')
-  const namespace = `J${kotlinName}_impl`
+  const kotlinName = variant.name
+  const namespace = `${jniName}_impl`
 
-  const innerClasses = variant.cases.map(([label, v]) => {
+  const innerClasses = variant.kotlinCases.map(({ label, type }) => {
     const innerName = capitalizeName(label)
-    const bridge = new KotlinCxxBridgedType(v)
+    const valueType = type.getCode('kotlin', { context: 'property' })
     return `
 @DoNotStrip
-data class ${innerName}(@DoNotStrip val value: ${bridge.getTypeCode('kotlin')}): ${kotlinName}()
+data class ${innerName}(@DoNotStrip val value: ${valueType}): ${kotlinName}()
       `.trim()
   })
 
   const packageName = NitroConfig.current.getAndroidPackage('java/kotlin')
-  const isFunctions = variant.cases.map(([label]) => {
+  const isFunctions = variant.kotlinCases.map(({ label }) => {
     const innerName = capitalizeName(label)
     return `
 val is${innerName}: Boolean
   get() = this is ${innerName}
     `.trim()
   })
-  const asFunctions = variant.cases.map(([label, v]) => {
+  const asFunctions = variant.kotlinCases.map(({ label, publicType, type }) => {
     const innerName = capitalizeName(label)
-    const bridge = new KotlinCxxBridgedType(v)
-    const optional = new OptionalType(v)
+    const optional = new OptionalType(publicType)
+    const optionalType = optional.getCode('kotlin', { context: 'return' })
+    const publicValue = type.convert('value', {
+      from: 'c++',
+      to: 'kotlin',
+      in: 'kotlin',
+    })
     return `
-fun as${innerName}OrNull(): ${optional.getCode('kotlin')} {
+fun as${innerName}OrNull(): ${optionalType} {
   val value = (this as? ${innerName})?.value ?: return null
-  return ${bridge.parseFromCppToKotlin('value', 'kotlin')}
+  return ${publicValue}
 }
     `.trim()
   })
-  const matchParameters = variant.cases.map(([label, v]) => {
-    return `${label}: (${v.getCode('kotlin')}) -> R`
+  const matchParameters = variant.kotlinCases.map(({ label, publicType }) => {
+    const type = publicType.getCode('kotlin', { context: 'parameter' })
+    return `${label}: (${type}) -> R`
   })
-  const matchCases = variant.cases.map(([label, v]) => {
+  const matchCases = variant.kotlinCases.map(({ label, type }) => {
     const innerName = capitalizeName(label)
-    const bridge = new KotlinCxxBridgedType(v)
+    const publicValue = type.convert('value', {
+      from: 'c++',
+      to: 'kotlin',
+      in: 'kotlin',
+    })
     return `
-is ${innerName} -> ${label}(${bridge.parseFromCppToKotlin('value', 'kotlin')})
+is ${innerName} -> ${label}(${publicValue})
     `.trim()
   })
-  const asCases = variant.cases.map(([label, v]) => {
+  const asCases = variant.kotlinCases.map(({ label, type }) => {
     const innerName = capitalizeName(label)
-    const bridge = new KotlinCxxBridgedType(v)
+    const publicValue = type.convert('value', {
+      from: 'c++',
+      to: 'kotlin',
+      in: 'kotlin',
+    })
     return `
-is ${innerName} -> (${bridge.parseFromCppToKotlin('value', 'kotlin')}) as? T
+is ${innerName} -> (${publicValue}) as? T
     `.trim()
   })
 
-  const createFunctions = variant.cases.map(([label, v]) => {
-    const bridge = new KotlinCxxBridgedType(v)
+  const createFunctions = variant.kotlinCases.map(({ label, type }) => {
     const innerName = capitalizeName(label)
+    const valueType = type.getCode('kotlin', { context: 'parameter' })
+    const publicValue = type.convert('value', {
+      from: 'c++',
+      to: 'kotlin',
+      in: 'kotlin',
+    })
     return `
 @JvmStatic
 @DoNotStrip
-fun create(value: ${bridge.getTypeCode('kotlin')}): ${kotlinName} = ${innerName}(${bridge.parseFromCppToKotlin('value', 'kotlin')})
+fun create(value: ${valueType}): ${kotlinName} = ${innerName}(${publicValue})
 `.trim()
   })
 
-  const extraImports = variant.variants
+  const extraImports = publicVariant.variants
     .flatMap((t) => t.getRequiredImports('kotlin'))
-    .map((i) => `import ${i.name}`)
+    .map((i) => getImportCode(i))
     .filter(isNotDuplicate)
 
   const code = `
@@ -126,65 +144,107 @@ sealed class ${kotlinName} {
     'c++/jni',
     kotlinName
   )
-  const cppCreateFuncs = variant.variants.map((v, i) => {
-    const bridge = new KotlinCxxBridgedType(v)
+  const cppCreateDeclarations = variant.kotlinCases.map(({ type }, i) => {
+    const jniType = type.getCode('c++', { context: 'parameter' })
+    return `static jni::local_ref<${jniName}> create_${i}(${jniType} value);`
+  })
+  const cppCreateImplementations = variant.kotlinCases.map(({ type }, i) => {
+    const jniType = type.getCode('c++', { context: 'parameter' })
     return `
-static jni::local_ref<J${kotlinName}> create_${i}(${bridge.asJniReferenceType('alias')} value) {
-  static const auto method = javaClassStatic()->getStaticMethod<J${kotlinName}(${bridge.asJniReferenceType('alias')})>("create");
+jni::local_ref<${jniName}> ${jniName}::create_${i}(${jniType} value) {
+  static const auto method = javaClassStatic()->getStaticMethod<${jniName}(${jniType})>("create");
   return method(javaClassStatic(), value);
 }
     `.trim()
   })
-  const variantCases = variant.variants.map((v, i) => {
-    const bridge = new KotlinCxxBridgedType(v)
-    return `case ${i}: return create_${i}(${bridge.parseFromCppToKotlin(`std::get<${i}>(variant)`, 'c++')});`
+  const variantCases = variant.kotlinCases.map(({ type }, i) => {
+    const jniValue = type.convert(`std::get<${i}>(variant)`, {
+      from: 'c++',
+      to: 'kotlin',
+      in: 'c++',
+    })
+    return `case ${i}: return create_${i}(${jniValue});`
   })
-  const cppGetIfs = variant.cases.map(([label, v]) => {
+  const cppGetIfs = variant.kotlinCases.map(({ label, publicType, type }) => {
     const innerName = capitalizeName(label)
-    const bridge = new KotlinCxxBridgedType(v)
+    const cppType = publicType.getCode('c++', { context: 'value' })
+    const cppValue = type.convert('jniValue', {
+      from: 'kotlin',
+      to: 'c++',
+      in: 'c++',
+    })
     return `
 if (isInstanceOf(${namespace}::${innerName}::javaClassStatic())) {
-  // It's a \`${v.getCode('c++')}\`
+  // It's a \`${cppType}\`
   auto jniValue = static_cast<const ${namespace}::${innerName}*>(this)->getValue();
-  return ${indent(bridge.parseFromKotlinToCpp('jniValue', 'c++'), '  ')};
+  return ${indent(cppValue, '  ')};
 }
   `.trim()
   })
-  const cppInnerClasses = variant.cases.map(([label, v]) => {
-    const bridge = new KotlinCxxBridgedType(v)
+  const cppInnerClasses = variant.kotlinCases.map(({ label, type }) => {
     const innerName = capitalizeName(label)
+    const jniType = type.getCode('c++', { context: 'return' })
     const descriptor = NitroConfig.current.getAndroidPackage(
       'c++/jni',
       `${kotlinName}$${innerName}`
     )
     return `
-class ${innerName} final: public jni::JavaClass<${innerName}, J${kotlinName}> {
+class ${innerName} final : public jni::JavaClass<${innerName}, ${jniName}> {
 public:
   static constexpr auto kJavaDescriptor = "L${descriptor};";
 
-  [[nodiscard]] ${bridge.asJniReferenceType('local')} getValue() const {
-    static const auto field = javaClassStatic()->getField<${bridge.getTypeCode('c++')}>("value");
-    return getFieldValue(field);
-  }
+  [[nodiscard]] ${jniType} getValue() const;
 };
     `.trim()
   })
 
-  const includes = new KotlinCxxBridgedType(variant)
-    .getRequiredImports('c++')
-    .filter((i) => i.name !== `J${kotlinName}.hpp`)
-    .map((i) => includeHeader(i, true))
+  const cppInnerImplementations = variant.kotlinCases.map(({ label, type }) => {
+    const innerName = capitalizeName(label)
+    const jniType = type.getCode('c++', { context: 'return' })
+    const fieldType = type.getCode('c++', { context: 'property' })
+    return `
+${jniType} ${namespace}::${innerName}::getValue() const {
+  static const auto field = javaClassStatic()->getField<${fieldType}>("value");
+  return getFieldValue(field);
+}
+    `.trim()
+  })
+
+  const imports = [
+    ...publicVariant.getRequiredImports('c++'),
+    ...variant.variants.flatMap((v) => v.getRequiredImports('c++')),
+  ]
+  const declarationIncludes = imports
+    .map((i) => getImportCode(i, 'declaration'))
     .filter(isNotDuplicate)
+  const implementationIncludes = getImportsCode(
+    [
+      {
+        language: 'c++',
+        declaration: NitroConfig.current.getCxxHeader(
+          `${jniName}.hpp`,
+          'private'
+        ),
+      },
+      ...imports,
+    ],
+    'implementation'
+  )
+
+  const cppParameterType = publicVariant.getCode('c++', {
+    context: 'parameter',
+  })
+  const cppReturnType = publicVariant.getCode('c++', { context: 'return' })
 
   const fbjniHeaderCode = `
-${createFileMetadataString(`J${kotlinName}.hpp`)}
+${createFileMetadataString(`${jniName}.hpp`)}
 
 #pragma once
 
 #include <fbjni/fbjni.h>
 #include <variant>
 
-${includes.join('\n')}
+${declarationIncludes.join('\n')}
 
 namespace ${cxxNamespace} {
 
@@ -193,20 +253,15 @@ namespace ${cxxNamespace} {
   /**
    * The C++ JNI bridge between the C++ std::variant and the Java class "${kotlinName}".
    */
-  class J${kotlinName}: public jni::JavaClass<J${kotlinName}> {
+  class ${jniName} : public jni::JavaClass<${jniName}> {
   public:
     static constexpr auto kJavaDescriptor = "L${jniClassDescriptor};";
 
-    ${indent(cppCreateFuncs.join('\n'), '    ')}
+    ${indent(cppCreateDeclarations.join('\n'), '    ')}
 
-    static jni::local_ref<J${kotlinName}> fromCpp(${toReferenceType(variant.getCode('c++'))} variant) {
-      switch (variant.index()) {
-        ${indent(variantCases.join('\n'), '        ')}
-        default: throw std::invalid_argument("Variant holds unknown index! (" + std::to_string(variant.index()) + ")");
-      }
-    }
+    static jni::local_ref<${jniName}> fromCpp(${cppParameterType} variant);
 
-    [[nodiscard]] ${variant.getCode('c++')} toCpp() const;
+    [[nodiscard]] ${cppReturnType} toCpp() const;
   };
 
   namespace ${namespace} {
@@ -215,15 +270,26 @@ namespace ${cxxNamespace} {
 } // namespace ${cxxNamespace}
   `.trim()
   const fbjniImplementationCode = `
-${createFileMetadataString(`J${kotlinName}.cpp`)}
+${createFileMetadataString(`${jniName}.cpp`)}
 
-#include "J${kotlinName}.hpp"
+${implementationIncludes}
 
 namespace ${cxxNamespace} {
+  ${indent(cppCreateImplementations.join('\n\n'), '  ')}
+
+  jni::local_ref<${jniName}> ${jniName}::fromCpp(${cppParameterType} variant) {
+    switch (variant.index()) {
+      ${indent(variantCases.join('\n'), '      ')}
+      default: throw std::invalid_argument("Variant holds unknown index! (" + std::to_string(variant.index()) + ")");
+    }
+  }
+
+  ${indent(cppInnerImplementations.join('\n\n'), '  ')}
+
   /**
-   * Converts J${kotlinName} to ${cxxName}
+   * Converts ${jniName} to ${cxxName}
    */
-  ${variant.getCode('c++')} J${kotlinName}::toCpp() const {
+  ${cppReturnType} ${jniName}::toCpp() const {
     ${indent(cppGetIfs.join(' else '), '    ')}
     throw std::invalid_argument("Variant is unknown Kotlin instance!");
   }
@@ -241,14 +307,14 @@ namespace ${cxxNamespace} {
   files.push({
     content: fbjniHeaderCode,
     language: 'c++',
-    name: `J${kotlinName}.hpp`,
+    name: `${jniName}.hpp`,
     subdirectory: [],
     platform: 'android',
   })
   files.push({
     content: fbjniImplementationCode,
     language: 'c++',
-    name: `J${kotlinName}.cpp`,
+    name: `${jniName}.cpp`,
     subdirectory: [],
     platform: 'android',
   })

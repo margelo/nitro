@@ -5,17 +5,10 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridBaseSpec.hpp"
+#include <NitroTest/HybridBaseSpec.hpp>
 
 namespace margelo::nitro::test {
 
-  void HybridBaseSpec::loadHybridMethods() {
-    // load base methods/properties
-    HybridObject::loadHybridMethods();
-    // load custom methods/properties
-    registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("baseValue", &HybridBaseSpec::getBaseValue);
-    });
-  }
+  HybridBaseSpec::~HybridBaseSpec() = default;
 
 } // namespace margelo::nitro::test

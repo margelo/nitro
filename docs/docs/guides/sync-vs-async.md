@@ -45,7 +45,8 @@ For larger/heavy methods that take a while to execute this can be problematic, b
 To free up the JS Thread while the long-running method is executing, you can make it **asynchronous** by just returning a `Promise`:
 
 ```ts title="MinerSpec.nitro.ts"
-interface Miner extends HybridObject<{ … }> {
+@iOS(...)
+export declare class Miner extends HybridObject {
   mineOneBitcoin(): Promise<number>
 }
 ```
@@ -55,10 +56,10 @@ On the native side you still start out with a synchronous method, but you can re
 <Tabs groupId="native-language">
   <TabItem value="swift" label="Swift" default>
     ```swift title="HybridMiner.swift"
-    func mineOneBitcoin() throws -> Promise<Double> {
+    func mineOneBitcoin() throws -> any Promise<Double> {
       // 1. synchronous in here, JS Thread is still blocked
       //    useful e.g. for argument checking before starting async Thread
-      return Promise.async {
+      return .parallel {
         // 2. asynchronous in here, JS Thread is now free
         return computeBitcoin()
       }
@@ -72,14 +73,14 @@ On the native side you still start out with a synchronous method, but you can re
       //    useful e.g. for argument checking before starting async Thread
       return Promise.async {
         // 2. asynchronous in here, JS Thread is now free
-        return computeBitcoin()
+        return@async computeBitcoin()
       }
     }
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp title="HybridMiner.hpp"
-    std::shared_ptr<Promise<double>> mineOneBitcoin() override {
+    Promise<double> mineOneBitcoin() override {
       // 1. synchronous in here, JS Thread is still blocked
       //    useful e.g. for argument checking before starting async Thread
       return Promise<double>::async([]() {

@@ -12,6 +12,9 @@
     "nitrogen": "workspace:*"
   },
   "exports": {
-    ".": "./specs/SomeExternalObject.nitro.ts"
+    ".": "./specs/index.ts"
+  },
+  "imports": {
+    "#nitro/*": "./nitrogen/generated/shared/javascript/*.cjs"
   }
 }

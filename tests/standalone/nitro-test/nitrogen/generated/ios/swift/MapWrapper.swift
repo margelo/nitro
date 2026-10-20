@@ -5,44 +5,31 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
 
-/**
- * Represents an instance of `MapWrapper`, backed by a C++ struct.
- */
-public typealias MapWrapper = margelo.nitro.test.MapWrapper
+@_expose(Cxx)
+public struct MapWrapper: Equatable, Hashable, Sendable {
+  public let map: Dictionary<String, String>
+  public let secondMap: SecondMapWrapper
 
-public extension MapWrapper {
-  private typealias bridge = margelo.nitro.test.bridge.swift
-
-  /**
-   * Create a new instance of `MapWrapper`.
-   */
-  init(map: Dictionary<String, String>, secondMap: SecondMapWrapper) {
-    self.init({ () -> bridge.std__unordered_map_std__string__std__string_ in
-      var __map = bridge.create_std__unordered_map_std__string__std__string_(map.count)
-      for (__k, __v) in map {
-        bridge.emplace_std__unordered_map_std__string__std__string_(&__map, std.string(__k), std.string(__v))
-      }
-      return __map
-    }(), secondMap)
+  public init(map: Dictionary<String, String>, secondMap: SecondMapWrapper) {
+    self.map = map
+    self.secondMap = secondMap
   }
 
-  @inline(__always)
-  var map: Dictionary<String, String> {
-    return { () -> Dictionary<String, String> in
-      var __dictionary = Dictionary<String, String>(minimumCapacity: self.__map.size())
-      let __keys = bridge.get_std__unordered_map_std__string__std__string__keys(self.__map)
-      for __key in __keys {
-        let __value = bridge.get_std__unordered_map_std__string__std__string__value(self.__map, __key)
-        __dictionary[String(__key)] = String(__value)
-      }
-      return __dictionary
-    }()
+  @_spi(NitroCxx)
+  public static func init_cxx(_ map: Record_swift__String_swift__String, _ secondMap: SecondMapWrapper) -> Self {
+    return Self(map: map.dictionary, secondMap: secondMap)
   }
-  
-  @inline(__always)
-  var secondMap: SecondMapWrapper {
-    return self.__secondMap
+
+  @_spi(NitroCxx)
+  public borrowing func getMap_cxx() -> Record_swift__String_swift__String {
+    return Record_swift__String_swift__String(self.map)
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getSecondMap_cxx() -> SecondMapWrapper {
+    return self.secondMap
   }
 }

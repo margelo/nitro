@@ -3,6 +3,8 @@ import type { HybridObjectSpec } from '../../syntax/HybridObjectSpec.js'
 import {
   createViewComponentShadowNodeFiles,
   getViewComponentNames,
+  getHybridViewComponentName,
+  getHybridViewProperties,
 } from '../CppHybridViewComponent.js'
 import {
   createFileMetadataString,
@@ -11,9 +13,11 @@ import {
 import { getHybridObjectName } from '../../syntax/getHybridObjectName.js'
 import { addJNINativeRegistration } from '../../syntax/kotlin/JNINativeRegistrations.js'
 import { indent } from '../../utils.js'
+import { getImportsCode, getImportCode } from '../../syntax/getImportCode.js'
+import { getKotlinImplementation } from '../../syntax/kotlin/KotlinMethodHelpers.js'
 
 export function createKotlinHybridViewManager(
-  spec: HybridObjectSpec
+  spec: HybridObjectSpec<'kotlin'>
 ): SourceFile[] {
   const cppFiles = createViewComponentShadowNodeFiles(spec)
   const javaSubNamespace = spec.config.getAndroidPackage('java/kotlin', 'views')
@@ -28,15 +32,29 @@ export function createKotlinHybridViewManager(
     descriptorClassName,
   } = getViewComponentNames(spec)
   const stateUpdaterName = `${stateClassName}Updater`
-  const implementation = spec.config.getAndroidAutolinkedImplementation(
-    spec.name
+  const implementation = getKotlinImplementation(spec)
+  const viewImplementation = implementation.className
+  const implementationImport = getImportCode(implementation.kotlinImport)
+  const componentName = getHybridViewComponentName(spec)
+  const componentHeader = spec.config.getCxxHeader(
+    `views/${component}.hpp`,
+    'private'
   )
-  if (implementation?.language !== 'kotlin') {
-    throw new Error(
-      `Cannot create Kotlin HybridView ViewManager for ${spec.name} - it must be autolinked with a Kotlin Android implementation in nitro.json!`
-    )
-  }
-  const viewImplementation = implementation.implementationClassName
+  const updaterHeader = spec.config.getCxxHeader(
+    `views/J${stateUpdaterName}.hpp`,
+    'private'
+  )
+  const updaterIncludes = getImportsCode([
+    { language: 'c++', declaration: updaterHeader },
+    { language: 'c++', declaration: componentHeader },
+  ])
+  const declarationIncludes = getImportsCode([
+    {
+      language: 'c++',
+      declaration: spec.config.getCxxHeader(`${JHybridTSpec}.hpp`, 'private'),
+    },
+    { language: 'c++', declaration: componentHeader },
+  ])
 
   const viewManagerCode = `
 ${createFileMetadataString(`${manager}.kt`)}
@@ -51,6 +69,7 @@ import com.facebook.react.uimanager.ThemedReactContext
 import com.margelo.nitro.R.id.associated_hybrid_view_tag
 import com.margelo.nitro.views.RecyclableView
 import ${javaNamespace}.*
+${implementationImport}
 
 /**
  * Represents the React Native \`ViewManager\` for the "${spec.name}" Nitro HybridView.
@@ -72,7 +91,7 @@ public class ${manager}: SimpleViewManager<View>() {
   }
 
   override fun getName(): String {
-    return "${spec.name}"
+    return "${componentName}"
   }
 
   override fun createViewInstance(reactContext: ThemedReactContext): View {
@@ -173,11 +192,11 @@ ${createFileMetadataString(`J${stateUpdaterName}.hpp`)}
 #include <react/renderer/core/ConcreteComponentDescriptor.h>
 #include <NitroModules/NitroDefines.hpp>
 #include <NitroModules/JStateWrapper.hpp>
-#include "${JHybridTSpec}.hpp"
-#include "views/${component}.hpp"
+${declarationIncludes}
 
 namespace ${cxxNamespace} {
 
+using namespace margelo;
 using namespace facebook;
 
 class J${stateUpdaterName} final: public jni::JavaClass<J${stateUpdaterName}> {
@@ -210,7 +229,7 @@ public:
 } // namespace ${cxxNamespace}
   `.trim()
 
-  const propsUpdaterCalls = spec.properties.map((p) => {
+  const propsUpdaterCalls = getHybridViewProperties(spec).map((p) => {
     const name = escapeCppName(p.name)
     const setter = p.getSetterName('other')
     return `
@@ -224,13 +243,13 @@ if (oldProps == nullptr
   const updaterJniCppCode = `
 ${createFileMetadataString(`J${stateUpdaterName}.cpp`)}
 
-#include "J${stateUpdaterName}.hpp"
-#include "views/${component}.hpp"
+${updaterIncludes}
 #include <NitroModules/NitroDefines.hpp>
 #include <react/fabric/StateWrapperImpl.h>
 
 namespace ${cxxNamespace} {
 
+using namespace margelo;
 using namespace facebook;
 using ConcreteStateData = react::ConcreteState<${stateClassName}>;
 
@@ -281,7 +300,7 @@ void J${stateUpdaterName}::updateViewProps(jni::alias_ref<jni::JClass> /* class 
     // hybridRef changed - call it with new this
     const auto& maybeFunc = newProps->hybridRef.get();
     if (maybeFunc.has_value()) {
-      maybeFunc.value()(hybridView);
+      maybeFunc.value().callAsync(hybridView);
     }
   }
 }
@@ -293,9 +312,8 @@ void J${stateUpdaterName}::updateViewProps(jni::alias_ref<jni::JClass> /* class 
     namespace: cxxNamespace,
     className: `J${stateUpdaterName}`,
     import: {
-      name: `views/J${stateUpdaterName}.hpp`,
-      space: 'user',
       language: 'c++',
+      declaration: updaterHeader,
     },
   })
 
@@ -318,9 +336,9 @@ void J${stateUpdaterName}::updateViewProps(jni::alias_ref<jni::JClass> /* class 
     {
       content: updaterJniHeaderCode,
       language: 'c++',
-      name: `J${stateUpdaterName}.hpp`,
+      name: `views/J${stateUpdaterName}.hpp`,
       platform: 'android',
-      subdirectory: ['views'],
+      subdirectory: [],
     },
     {
       content: updaterJniCppCode,

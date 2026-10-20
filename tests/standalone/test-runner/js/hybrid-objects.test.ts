@@ -1,9 +1,7 @@
 import { expect } from "chai";
 import { casesForTestObjects } from "./utils/cases";
 
-import { getNitroModules } from "nitro-core";
-
-const NitroModules = getNitroModules();
+import { NitroModules } from "nitro-core";
 
 /**
  * Returns the enumerable keys of `object` and its whole prototype chain.
@@ -163,7 +161,9 @@ export const cases = {
     "thisObject returns a HybridObject of the same type": (testObject) => {
       const self = testObject.thisObject;
       expect(Object.is(NitroModules.isHybridObject(self), true)).to.equal(true);
-      expect(Object.is(self.name, testObject.name)).to.equal(true);
+      expect(
+        Object.is(self.constructor.name, testObject.constructor.name),
+      ).to.equal(true);
       for (const property of TEST_OBJECT_PROPERTIES) {
         expect(self)
           .to.have.property(property)
@@ -176,7 +176,9 @@ export const cases = {
       expect(Object.is(NitroModules.isHybridObject(newObject), true)).to.equal(
         true,
       );
-      expect(Object.is(newObject.name, testObject.name)).to.equal(true);
+      expect(
+        Object.is(newObject.constructor.name, testObject.constructor.name),
+      ).to.equal(true);
       for (const property of TEST_OBJECT_PROPERTIES) {
         expect(newObject)
           .to.have.property(property)
@@ -187,13 +189,16 @@ export const cases = {
   ...casesForTestObjects("HybridObject base members", {
     'toString() returns "[HybridObject <name>]"': (testObject) => {
       expect(
-        Object.is(testObject.toString(), `[HybridObject ${testObject.name}]`),
+        Object.is(
+          testObject.toString(),
+          `[HybridObject ${testObject.constructor.name}]`,
+        ),
       ).to.equal(true);
     },
 
-    "name is a registered HybridObject name": (testObject) => {
-      expect(NitroModules.getAllHybridObjectNames()).to.include(
-        testObject.name,
+    "namespace and name identify a registered HybridObject": (testObject) => {
+      expect(NitroModules.getAllHybridClassNames()).to.include(
+        `test.${testObject.constructor.name}`,
       );
     },
 
@@ -275,7 +280,10 @@ export const cases = {
 
     '__type is "HybridObject<name>" in debug': (testObject) => {
       expect(
-        Object.is(testObject.__type, `HybridObject<${testObject.name}>`),
+        Object.is(
+          testObject.__type,
+          `HybridObject<${testObject.constructor.name}>`,
+        ),
       ).to.equal(true);
     },
 
@@ -317,7 +325,9 @@ export const cases = {
     "equals({}) throws because it has no NativeState": (testObject) => {
       // @ts-expect-error - a plain object is not a HybridObject
       const equalsPlainObject = () => testObject.equals({});
-      expect(equalsPlainObject).to.throw(`${testObject.name}.equals(...)`);
+      expect(equalsPlainObject).to.throw(
+        `${testObject.constructor.name}.equals(...)`,
+      );
       expect(equalsPlainObject).to.throw("It does not have a NativeState!");
     },
 
@@ -378,12 +388,14 @@ export const cases = {
       expect(setNumberValue).to.throw("dispose()");
     },
 
-    "name after dispose() throws": (testObject) => {
+    "constructor and class name remain available after dispose()": (
+      testObject,
+    ) => {
       const object = testObject.newTestObject();
+      const constructor = object.constructor;
       object.dispose();
-      expect(() => object.name).to.throw(
-        "Cannot get hybrid property `HybridObject.name`",
-      );
+      expect(object.constructor).to.equal(constructor);
+      expect(object.constructor.name).to.equal(testObject.constructor.name);
     },
 
     "toString() after dispose() throws": (testObject) => {
@@ -507,13 +519,6 @@ export const skips = {
       release: "Existing main exclusion: IS_DEBUG",
     },
   "HybridObject dispose() / TestObjectSwiftKotlin / a property write after dispose() throws":
-    {
-      release: "Existing main exclusion: IS_DEBUG",
-    },
-  "HybridObject dispose() / TestObjectCpp / name after dispose() throws": {
-    release: "Existing main exclusion: IS_DEBUG",
-  },
-  "HybridObject dispose() / TestObjectSwiftKotlin / name after dispose() throws":
     {
       release: "Existing main exclusion: IS_DEBUG",
     },

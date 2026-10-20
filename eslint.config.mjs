@@ -72,6 +72,7 @@ export default [
   ...baseConfig,
   packageConfig('packages/nitro-core', true, false),
   packageConfig('packages/nitrogen', true, false),
+  packageConfig('packages/nitrogen/bin', false, false),
   packageConfig('packages/react-native-nitro-modules'),
   packageConfig('tests/react-native/packages/react-native-nitro-test'),
   packageConfig('tests/react-native/apps/example'),

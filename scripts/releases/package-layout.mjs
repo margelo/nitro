@@ -13,10 +13,10 @@ export const corePackageFiles = [
   'js/lib/module/index.js',
   'js/lib/typescript/commonjs/index.d.ts',
   'js/lib/typescript/module/index.d.ts',
-  'native/cpp/core/HybridObject.hpp',
-  'native/cpp/utils/NitroDefines.hpp',
+  'native/cpp/include/NitroModules/HybridObject.hpp',
+  'native/cpp/include/NitroModules/NitroDefines.hpp',
   'native/apple/core/HybridObject.swift',
-  'native/android/src/main/cpp/NitroOnLoad.cpp',
+  'native/android/src/main/cpp/src/NitroOnLoad.cpp',
   'native/android/src/main/java/com/margelo/nitro/core/HybridObject.kt',
 ]
 
@@ -24,12 +24,16 @@ export const reactNativePackageFiles = [
   'package.json',
   'NitroModules.podspec',
   'react-native.config.js',
-  'apple/nitro_pod_utils.rb',
-  'cpp/core/entrypoint/InstallNitro.hpp',
-  'cpp/core/utils/NitroDefines.hpp',
+  'Package.swift',
+  'cpp/core/include/module.modulemap',
+  'apple/core/include/module.modulemap',
+  'apple/core/swift-bridge/include/module.modulemap',
+  'include/module.modulemap',
+  'cpp/core/include/NitroModules/InstallNitro.hpp',
+  'cpp/core/include/NitroModules/NitroDefines.hpp',
   'apple/views/HybridView.swift',
-  'android/src/main/cpp/JNIOnLoad.cpp',
-  'android/core/main/cpp/NitroOnLoad.cpp',
+  'android/src/main/cpp/src/JNIOnLoad.cpp',
+  'android/core/main/cpp/src/NitroOnLoad.cpp',
   'android/build.gradle',
   'android/CMakeLists.txt',
   'src/index.ts',
@@ -102,7 +106,7 @@ export function verifyCorePackage(directory, options) {
       `Missing core package file: ${relative}`
     )
   const native = readFileSync(
-    path.join(directory, 'native/cpp/utils/NitroDefines.hpp'),
+    path.join(directory, 'native/cpp/include/NitroModules/NitroDefines.hpp'),
     'utf8'
   )
   const js = readFileSync(path.join(directory, 'js/src/version.ts'), 'utf8')
@@ -142,12 +146,18 @@ export function verifyReactNativePackage(directory, coreDirectory, options) {
       `Missing RN package file: ${relative}`
     )
   for (const [source, target] of [
-    ['native/cpp/utils/NitroDefines.hpp', 'cpp/core/utils/NitroDefines.hpp'],
-    ['native/cpp/core/HybridObject.hpp', 'cpp/core/core/HybridObject.hpp'],
+    [
+      'native/cpp/include/NitroModules/NitroDefines.hpp',
+      'cpp/core/include/NitroModules/NitroDefines.hpp',
+    ],
+    [
+      'native/cpp/include/NitroModules/HybridObject.hpp',
+      'cpp/core/include/NitroModules/HybridObject.hpp',
+    ],
     ['native/apple/core/HybridObject.swift', 'apple/core/core/HybridObject.swift'],
     [
-      'native/android/src/main/cpp/NitroOnLoad.cpp',
-      'android/core/main/cpp/NitroOnLoad.cpp',
+      'native/android/src/main/cpp/src/NitroOnLoad.cpp',
+      'android/core/main/cpp/src/NitroOnLoad.cpp',
     ],
     ['LICENSE', 'LICENSE'],
   ]) {

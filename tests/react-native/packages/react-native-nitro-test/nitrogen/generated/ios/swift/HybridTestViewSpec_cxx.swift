@@ -4,44 +4,42 @@
 /// https://github.com/margelo/nitro
 /// Copyright © Marc Rousavy @ Margelo
 ///
-
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
+public import NitroTestAppleCxx
 
 /**
  * A class implementation that bridges HybridTestViewSpec over to C++.
  * In C++, we cannot use Swift protocols - so we need to wrap it in a class to make it strongly defined.
- *
- * Also, some Swift types need to be bridged with special handling:
- * - Enums need to be wrapped in Structs, otherwise they cannot be accessed bi-directionally (Swift bug: https://github.com/swiftlang/swift/issues/75330)
- * - Other HybridObjects need to be wrapped/unwrapped from the Swift TCxx wrapper
- * - Throwing methods need to be wrapped with a Result<T, Error> type, as exceptions cannot be propagated to C++
  */
-open class HybridTestViewSpec_cxx {
+@_expose(Cxx)
+public final class HybridTestViewSpec_cxx {
   /**
-   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::bridge::swift`)
-   * from `NitroTest-Swift-Cxx-Bridge.hpp`.
+   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::swift_bridge`)
+   * from `NitroTestAppleCxx/NitroTestAppleCxx.h`.
    * This contains specialized C++ templates, and C++ helper functions that can be accessed from Swift.
    */
-  public typealias bridge = margelo.nitro.test.bridge.swift
+  public typealias bridge = margelo.nitro.test.swift_bridge
 
   /**
-   * Holds an instance of the `HybridTestViewSpec` Swift protocol.
+   * Holds the Swift implementation of `HybridTestViewSpec`.
    */
-  private let __implementation: any HybridTestViewSpec
+  private let __implementation: HybridTestView
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.
    */
-  private var __cxxPart: bridge.std__weak_ptr_HybridTestViewSpec_
+  private var __cxxPart: bridge.std__weak_ptr_HybridTestViewSpec_ = .init()
 
   /**
    * Create a new `HybridTestViewSpec_cxx` that wraps the given `HybridTestViewSpec`.
-   * All properties and methods bridge to C++ types.
    */
   public init(_ implementation: any HybridTestViewSpec) {
+    guard let implementation = implementation as? HybridTestView else {
+      preconditionFailure("TestView selects HybridTestView as its Swift implementation. Every instance must inherit HybridTestView.")
+    }
     self.__implementation = implementation
-    self.__cxxPart = .init()
-    /* no base class */
+
   }
 
   /**
@@ -65,7 +63,7 @@ open class HybridTestViewSpec_cxx {
    * The pointer has to be a retained opaque `Unmanaged<HybridTestViewSpec_cxx>`.
    * This removes one strong reference from the object!
    */
-  public class func fromUnsafe(_ pointer: UnsafeMutableRawPointer) -> HybridTestViewSpec_cxx {
+  public class func fromUnsafe(pointer: UnsafeMutableRawPointer) -> HybridTestViewSpec_cxx {
     return Unmanaged<HybridTestViewSpec_cxx>.fromOpaque(pointer).takeRetainedValue()
   }
 
@@ -74,17 +72,23 @@ open class HybridTestViewSpec_cxx {
    * The C++ part is a `std::shared_ptr<HybridTestViewSpec>`.
    */
   public func getCxxPart() -> bridge.std__shared_ptr_HybridTestViewSpec_ {
-    let cachedCxxPart = self.__cxxPart.lock()
-    if cachedCxxPart.use_count() > 0 {
-      return cachedCxxPart
-    } else {
-      let newCxxPart = bridge.create_std__shared_ptr_HybridTestViewSpec_(self.toUnsafe())
-      __cxxPart = bridge.weakify_std__shared_ptr_HybridTestViewSpec_(newCxxPart)
-      return newCxxPart
+    let cached = __cxxPart.lock()
+    if cached.use_count() > 0 {
+      return cached
     }
+    let value = bridge.create_std__shared_ptr_HybridTestViewSpec_(self.toUnsafe())
+    __cxxPart = bridge.weakify_std__shared_ptr_HybridTestViewSpec_(value)
+    return value
   }
 
-  
+
+  // A static borrowing accessor lets C++ pass a const reference without copying it.
+  // TODO: Remove this adapter and call the instance method directly once
+  // https://github.com/swiftlang/swift/pull/92862 is merged and supported by our Swift toolchain.
+  @_spi(NitroCxx)
+  public static func getCxxPart(_ value: borrowing HybridTestViewSpec_cxx) -> bridge.std__shared_ptr_HybridTestViewSpec_ {
+    return value.getCxxPart()
+  }
 
   /**
    * Get the memory size of the Swift class (plus size of any other allocations)
@@ -92,7 +96,7 @@ open class HybridTestViewSpec_cxx {
    */
   @inline(__always)
   public var memorySize: Int {
-    return MemoryHelper.getSizeOf(self.__implementation) + self.__implementation.memorySize
+    return MemoryHelper.getSizeOf(__implementation) + __implementation.memorySize
   }
 
   /**
@@ -100,7 +104,7 @@ open class HybridTestViewSpec_cxx {
    */
   @inline(__always)
   public func equals(other: HybridTestViewSpec_cxx) -> Bool {
-    return self.__implementation === other.__implementation
+    return __implementation === other.__implementation
   }
 
   /**
@@ -109,7 +113,7 @@ open class HybridTestViewSpec_cxx {
    */
   @inline(__always)
   public func dispose() {
-    self.__implementation.dispose()
+    __implementation.dispose()
   }
 
   /**
@@ -117,178 +121,138 @@ open class HybridTestViewSpec_cxx {
    */
   @inline(__always)
   public func toString() -> String {
-    return self.__implementation.toString()
+    return __implementation.toString()
   }
 
   // Properties
-  public final var isBlue: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.isBlue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.isBlue = newValue
-    }
+
+  public final func getIsBlue() -> Bool {
+    let value = __implementation.isBlue
+    return value
   }
-  
-  public final var hasBeenCalled: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.hasBeenCalled
-    }
-    @inline(__always)
-    set {
-      self.__implementation.hasBeenCalled = newValue
-    }
+
+  public final func setIsBlue(isBlue: Bool) -> Void {
+    __implementation.isBlue = isBlue
   }
-  
-  public final var int64Value: Int64 {
-    @inline(__always)
-    get {
-      return self.__implementation.int64Value
-    }
-    @inline(__always)
-    set {
-      self.__implementation.int64Value = newValue
-    }
+
+  public final func getHasBeenCalled() -> Bool {
+    let value = __implementation.hasBeenCalled
+    return value
   }
-  
-  public final var colorScheme: Int32 {
-    @inline(__always)
-    get {
-      return self.__implementation.colorScheme.rawValue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.colorScheme = margelo.nitro.test.ColorScheme(rawValue: newValue)!
-    }
+
+  public final func setHasBeenCalled(hasBeenCalled: Bool) -> Void {
+    __implementation.hasBeenCalled = hasBeenCalled
   }
-  
-  public final var someCallback: bridge.Func_void {
-    @inline(__always)
-    get {
-      return { () -> bridge.Func_void in
-        let __closureWrapper = Func_void(self.__implementation.someCallback)
-        return bridge.create_Func_void(__closureWrapper.toUnsafe())
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.someCallback = { () -> () -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void(newValue)
-        return { () -> Void in
-          __wrappedFunction.call()
-        }
-      }()
-    }
+
+  public final func getInt64Value() -> Int64 {
+    let value = __implementation.int64Value
+    return value
   }
-  
-  public final var nativeDefaultValue: bridge.std__optional_double_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_double_ in
-        if let __unwrappedValue = self.__implementation.nativeDefaultValue {
-          return bridge.create_std__optional_double_(__unwrappedValue)
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.nativeDefaultValue = { () -> Double? in
-        if bridge.has_value_std__optional_double_(newValue) {
-          let __unwrapped = bridge.get_std__optional_double_(newValue)
-          return __unwrapped
-        } else {
-          return nil
-        }
-      }()
-    }
+
+  public final func setInt64Value(int64Value: Int64) -> Void {
+    __implementation.int64Value = int64Value
+  }
+
+  public final func getColorScheme() -> ColorScheme {
+    let value = __implementation.colorScheme
+    return value
+  }
+
+  public final func setColorScheme(colorScheme: ColorScheme) -> Void {
+    __implementation.colorScheme = colorScheme
+  }
+
+  public final func getSomeCallback() -> margelo.nitro.test.swift_bridge.Callback_void {
+    let value = __implementation.someCallback
+    return value.toCpp()
+  }
+
+  public final func setSomeCallback(someCallback: margelo.nitro.test.swift_bridge.Callback_void) -> Void {
+    __implementation.someCallback = someCallback
+  }
+
+  public final func getNativeDefaultValue() -> Double? {
+    let value = __implementation.nativeDefaultValue
+    return value
+  }
+
+  public final func setNativeDefaultValue(nativeDefaultValue: Double?) -> Void {
+    __implementation.nativeDefaultValue = nativeDefaultValue
   }
 
   // Methods
-  @inline(__always)
-  public final func getIsViewBlue(view: bridge.std__shared_ptr_HybridTestViewSpec_) -> bridge.Result_bool_ {
+
+  public final func getIsViewBlue(view: HybridTestViewSpec_cxx) -> bridge.Result_bool {
     do {
-      let __result = try self.__implementation.getIsViewBlue(view: { () -> any HybridTestViewSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridTestViewSpec_(view)
-        let __instance = HybridTestViewSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridTestViewSpec()
-      }())
-      let __resultCpp = __result
-      return bridge.create_Result_bool_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_bool_(__exceptionPtr)
+      let value = try __implementation.getIsViewBlue(view: view.getHybridTestViewSpec())
+      return bridge.Result_bool.withValue(value)
+    } catch {
+      return bridge.Result_bool.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func getOnDropViewCount() -> bridge.Result_double_ {
+
+  public final func getOnDropViewCount() -> bridge.Result_double {
     do {
-      let __result = try self.__implementation.getOnDropViewCount()
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
+      let value = try __implementation.getOnDropViewCount()
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func getIsBlueSetterCallCount() -> bridge.Result_double_ {
+
+  public final func getIsBlueSetterCallCount() -> bridge.Result_double {
     do {
-      let __result = try self.__implementation.getIsBlueSetterCallCount()
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
+      let value = try __implementation.getIsBlueSetterCallCount()
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func getNativeDefaultValueSetterCallCount() -> bridge.Result_double_ {
+
+  public final func getNativeDefaultValueSetterCallCount() -> bridge.Result_double {
     do {
-      let __result = try self.__implementation.getNativeDefaultValueSetterCallCount()
-      let __resultCpp = __result
-      return bridge.create_Result_double_(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_double_(__exceptionPtr)
+      let value = try __implementation.getNativeDefaultValueSetterCallCount()
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
     }
   }
-  
-  @inline(__always)
-  public final func someMethod() -> bridge.Result_void_ {
+
+  public final func someMethod() -> bridge.Result_void {
     do {
-      try self.__implementation.someMethod()
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
+      try __implementation.someMethod()
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
-  
+
+  // Fabric creates views on the UI thread, independently of JavaScript constructors.
+  public static func createTestViewView() -> bridge.std__shared_ptr_HybridTestViewSpec_ {
+    return HybridTestView().getCxxWrapper().getCxxPart()
+  }
+
+  public static func isTestViewRecyclable() -> Bool {
+    return HybridTestView.self is any RecyclableView.Type
+  }
+
   public final func getView() -> UnsafeMutableRawPointer {
     return Unmanaged.passRetained(__implementation.view).toOpaque()
   }
-  
+
   public final func beforeUpdate() {
     __implementation.beforeUpdate()
   }
-  
+
   public final func afterUpdate() {
     __implementation.afterUpdate()
   }
-  
+
   public final func maybePrepareForRecycle() {
     guard let recyclable = __implementation as? any RecyclableView else { return }
     recyclable.prepareForRecycle()
   }
-  
+
   public final func onDropView() {
     __implementation.onDropView()
   }

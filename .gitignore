@@ -29,7 +29,12 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-project.xcworkspace
+**/project.xcworkspace/*
+!**/project.xcworkspace/xcshareddata/
+**/project.xcworkspace/xcshareddata/*
+!**/project.xcworkspace/xcshareddata/swiftpm/
+**/project.xcworkspace/xcshareddata/swiftpm/*
+!**/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
 # Android/IJ
 #
@@ -94,6 +99,8 @@ tests/react-native/apps/*/.harness/
 .claude/settings.local.json
 
 # Native runtime test build products
+/.build/
+/.swiftpm/
 /tests/standalone/.build/
 
 # Native sources staged from the local nitro-core package

@@ -5,56 +5,31 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
 
-/**
- * Represents an instance of `PartialPerson`, backed by a C++ struct.
- */
-public typealias PartialPerson = margelo.nitro.test.PartialPerson
+@_expose(Cxx)
+public struct PartialPerson: Equatable, Hashable, Sendable {
+  public let name: String?
+  public let age: Double?
 
-public extension PartialPerson {
-  private typealias bridge = margelo.nitro.test.bridge.swift
-
-  /**
-   * Create a new instance of `PartialPerson`.
-   */
-  init(name: String?, age: Double?) {
-    self.init({ () -> bridge.std__optional_std__string_ in
-      if let __unwrappedValue = name {
-        return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = age {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }())
+  public init(name: String?, age: Double?) {
+    self.name = name
+    self.age = age
   }
 
-  @inline(__always)
-  var name: String? {
-    return { () -> String? in
-      if bridge.has_value_std__optional_std__string_(self.__name) {
-        let __unwrapped = bridge.get_std__optional_std__string_(self.__name)
-        return String(__unwrapped)
-      } else {
-        return nil
-      }
-    }()
+  @_spi(NitroCxx)
+  public static func init_cxx(_ name: String?, _ age: Double?) -> Self {
+    return Self(name: name, age: age)
   }
-  
-  @inline(__always)
-  var age: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__age) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__age)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getName_cxx() -> String? {
+    return self.name
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getAge_cxx() -> Double? {
+    return self.age
   }
 }

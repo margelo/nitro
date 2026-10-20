@@ -5,20 +5,20 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
+public import NitroTestAppleCxx
 
 /**
- * An Swift enum with associated values representing a Variant/Union type.
- * JS type: `array-buffer | function | struct | promise | date | map`
+ * A Swift enum with associated values representing a Variant/Union type.
+ * JS type: `array-buffer | callback | struct | promise | any-json`
  */
 @frozen
-public indirect enum CoreTypesVariant {
+public enum CoreTypesVariant {
   case first(ArrayBuffer)
-  case second((_ value: Double) -> Void)
+  case second(any Callback<(/* value */ Double), Void>)
   case third(WrappedJsStruct)
-  case fourth(Promise<Double>)
-  case fifth(Date)
-  case sixth(AnyMap)
+  case fourth(any Promise<Double>)
+  case fifth(AnyJSON)
 }
 
 public extension CoreTypesVariant {
@@ -29,10 +29,84 @@ public extension CoreTypesVariant {
       case .third(let value): return value as? T
       case .fourth(let value): return value as? T
       case .fifth(let value): return value as? T
-      case .sixth(let value): return value as? T
     }
   }
   func isType<T>(_ type: T.Type = T.self) -> Bool {
     return self.asType(type) != nil
+  }
+}
+
+// Raw Swift storage keeps associated values containing imported C++ types exportable.
+@_expose(Cxx)
+public struct CoreTypesVariant_cxx {
+  let value: CoreTypesVariant
+
+  init(_ value: CoreTypesVariant) {
+    self.value = value
+  }
+
+  public var index: Int {
+    switch value {
+      case .first: return 0
+      case .second: return 1
+      case .third: return 2
+      case .fourth: return 3
+      case .fifth: return 4
+    }
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeFirst(_ payload: ArrayBuffer, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: CoreTypesVariant_cxx.self).initialize(to: Self(.first(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getFirst() -> ArrayBuffer {
+    guard case .first(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeSecond(_ payload: margelo.nitro.test.swift_bridge.Callback_void_double, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: CoreTypesVariant_cxx.self).initialize(to: Self(.second(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getSecond() -> margelo.nitro.test.swift_bridge.Callback_void_double {
+    guard case .second(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload.toCpp()
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeThird(_ payload: WrappedJsStruct, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: CoreTypesVariant_cxx.self).initialize(to: Self(.third(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getThird() -> WrappedJsStruct {
+    guard case .third(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeFourth(_ payload: margelo.nitro.test.swift_bridge.Promise_double, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: CoreTypesVariant_cxx.self).initialize(to: Self(.fourth(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getFourth() -> margelo.nitro.test.swift_bridge.Promise_double {
+    guard case .fourth(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload.toCpp()
+  }
+
+  @_spi(NitroCxx)
+  public static func initializeFifth(_ payload: AnyJSON, result: UnsafeMutableRawPointer) {
+    result.assumingMemoryBound(to: CoreTypesVariant_cxx.self).initialize(to: Self(.fifth(payload)))
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getFifth() -> AnyJSON {
+    guard case .fifth(let payload) = value else { preconditionFailure("Invalid variant case") }
+    return payload
   }
 }

@@ -32,12 +32,8 @@ export function isArrayBuffer(type: TSMorphType): boolean {
   return isSymbol(type, 'ArrayBuffer')
 }
 
-export function isDate(type: TSMorphType): boolean {
-  return isSymbol(type, 'Date')
-}
-
-export function isMap(type: TSMorphType): boolean {
-  return isSymbol(type, 'AnyMap')
+export function isAnyJSON(type: TSMorphType): boolean {
+  return isSymbol(type, 'AnyJSON')
 }
 
 export function isError(type: TSMorphType): boolean {
@@ -49,14 +45,6 @@ export function isCustomType(type: TSMorphType): boolean {
     type.getProperty('__customTypeName') != null &&
     type.getProperty('__customTypeConfig') != null
   )
-}
-
-export function isSyncFunction(type: TSMorphType): boolean {
-  if (type.getCallSignatures().length < 1)
-    // not a function.
-    return false
-  const syncTag = type.getProperty('__syncTag')
-  return syncTag != null
 }
 
 export function isInt64(type: TSMorphType): boolean {
@@ -78,4 +66,10 @@ export function isUInt64(type: TSMorphType): boolean {
   }
   const unsignedTag = type.getProperty('__unsignedTag')
   return unsignedTag != null
+}
+
+/** `Inline<T>` is an intersection: `T & { __inlineTag?: never }`. */
+export function isInlineCallback(type: TSMorphType): boolean {
+  if (type.getCallSignatures().length === 0) return false
+  return type.getProperty('__inlineTag') != null
 }

@@ -404,6 +404,7 @@ const config: Config = {
         {
           className: 'code-block-diff-add-line',
           line: 'diff-add',
+          block: { start: 'diff-add-start', end: 'diff-add-end' },
         },
         {
           className: 'code-block-diff-remove-line',

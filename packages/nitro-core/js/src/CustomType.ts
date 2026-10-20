@@ -24,8 +24,10 @@ export interface CustomTypeConfig {
  * **You** then need to create a header file that is importable with the filename specified in {@linkcode Config.include}.
  * @example
  * ```ts
+ * // MyHybrid.nitro.ts
  * type MyOwnString = CustomType<string, 'MyOwnString', { include: 'MyOwnString.hpp' }>
- * interface MyHybrid extends HybridObject<{ … }> {
+ * @iOS({ language: 'c++', allowMultipleImplementations: true })
+ * export declare class MyHybrid extends HybridObject {
  *   getValue(): MyOwnString
  * }
  * ```

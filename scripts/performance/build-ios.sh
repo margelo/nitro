@@ -3,12 +3,11 @@ set -euo pipefail
 cd "${1:?Usage: build-ios.sh <checkout-root> [application-id]}"
 bun install --frozen-lockfile
 cd tests/react-native/apps/benchmark
-bundle install
-bun pods
+bun spm
 cd ios
 xcodebuild \
   -derivedDataPath build-benchmark \
-  -workspace NitroBenchmark.xcworkspace \
+  -project NitroBenchmark.xcodeproj \
   -scheme NitroBenchmark \
   -configuration Release \
   -sdk iphonesimulator \

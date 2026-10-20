@@ -1,8 +1,12 @@
 import Dispatch
 import NitroModules
 
+#if SWIFT_PACKAGE
+  import NitroModulesCxx
+#endif
+
 class HybridBenchmarkObjectSwift: HybridBenchmarkObjectSwiftKotlinSpec {
-  private var pendingPromise: Promise<Double>?
+  private var pendingPromise: (any Promise<Double>)?
   var numberValue: Double = 0.0
 
   var thisObject: any HybridBenchmarkObjectSwiftKotlinSpec {
@@ -63,35 +67,35 @@ class HybridBenchmarkObjectSwift: HybridBenchmarkObjectSwiftKotlinSpec {
   }
 
   func copyBuffer(buffer: ArrayBuffer) throws -> ArrayBuffer {
-    return ArrayBuffer.copy(of: buffer)
+    return ArrayBuffer.copy(buffer)
   }
 
-  func callbackSync(callback: @escaping () -> Double) throws -> Double {
-    let value = callback()
+  func callbackSync(callback: any Callback<(), Double>) throws -> Double {
+    let value = try callback.callSync()
     return value
   }
 
-  func promiseReturnsInstantly() throws -> Promise<Double> {
-    return Promise.resolved(withResult: 55.0)
+  func promiseReturnsInstantly() throws -> any Promise<Double> {
+    return .resolved(with: 55.0)
   }
 
-  func createPendingPromise() throws -> Promise<Double> {
+  func createPendingPromise() throws -> any Promise<Double> {
     guard pendingPromise == nil else {
-      throw RuntimeError.error(withMessage: "A pending Promise is already waiting for completion.")
+      throw RuntimeError("A pending Promise is already waiting for completion.")
     }
-    let promise = Promise<Double>()
+    let promise: any Promise<Double> = .pending()
     pendingPromise = promise
     return promise
   }
 
   func resolvePendingPromiseOnWorker() throws {
     guard let promise = pendingPromise else {
-      throw RuntimeError.error(withMessage: "No pending Promise is waiting for completion.")
+      throw RuntimeError("No pending Promise is waiting for completion.")
     }
     // Only JS calls access the slot; the worker owns the extracted Promise.
     pendingPromise = nil
     DispatchQueue.global().async {
-      promise.resolve(withResult: 55.0)
+      promise.resolve(result: 55.0)
     }
   }
 }

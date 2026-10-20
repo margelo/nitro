@@ -12,7 +12,10 @@ For example, a JS `number` is always a 64-bit `double` in C++, a `Double` in Swi
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    interface Math extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Math extends HybridObject {
       add(a: number, b: number): number
     }
     ```
@@ -20,22 +23,22 @@ For example, a JS `number` is always a 64-bit `double` in C++, a `Double` in Swi
   <TabItem value="swift" label="Swift">
     ```swift
     class HybridMath: HybridMathSpec {
-      func add(a: Double, b: Double) -> Double
+      func add(a: Double, b: Double) throws -> Double
     }
     ```
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
     class HybridMath: HybridMathSpec() {
-      fun add(a: Double, b: Double): Double
+      override fun add(a: Double, b: Double): Double
     }
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp
-    class HybridMath : public HybridMathSpec {
-      double add(double a, double b);
-    }
+    class HybridMath: public HybridMathSpec {
+      double add(double a, double b) override;
+    };
     ```
   </TabItem>
 </Tabs>
@@ -55,7 +58,10 @@ A 64-bit signed integer that ranges from -2^63 to 2^63-1.
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    interface Math extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Math extends HybridObject {
       add(a: Int64, b: Int64): Int64
     }
     ```
@@ -63,22 +69,22 @@ A 64-bit signed integer that ranges from -2^63 to 2^63-1.
   <TabItem value="swift" label="Swift">
     ```swift
     class HybridMath: HybridMathSpec {
-      func add(a: Int64, b: Int64) -> Int64
+      func add(a: Int64, b: Int64) throws -> Int64
     }
     ```
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
     class HybridMath: HybridMathSpec() {
-      fun add(a: Long, b: Long): Long
+      override fun add(a: Long, b: Long): Long
     }
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp
-    class HybridMath : public HybridMathSpec {
-      int64_t add(int64_t a, int64_t b);
-    }
+    class HybridMath: public HybridMathSpec {
+      int64_t add(int64_t a, int64_t b) override;
+    };
     ```
   </TabItem>
 </Tabs>
@@ -90,7 +96,10 @@ A 64-bit unsigned integer that ranges from 0 to 2^64-1. On 64-bit systems, this 
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    interface Math extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Math extends HybridObject {
       add(a: UInt64, b: UInt64): UInt64
     }
     ```
@@ -98,28 +107,28 @@ A 64-bit unsigned integer that ranges from 0 to 2^64-1. On 64-bit systems, this 
   <TabItem value="swift" label="Swift">
     ```swift
     class HybridMath: HybridMathSpec {
-      func add(a: UInt64, b: UInt64) -> UInt64
+      func add(a: UInt64, b: UInt64) throws -> UInt64
     }
     ```
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
     class HybridMath: HybridMathSpec() {
-      fun add(a: ULong, b: ULong): ULong
+      override fun add(a: ULong, b: ULong): ULong
     }
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp
-    class HybridMath : public HybridMathSpec {
-      uint64_t add(uint64_t a, uint64_t b);
-    }
+    class HybridMath: public HybridMathSpec {
+      uint64_t add(uint64_t a, uint64_t b) override;
+    };
     ```
   </TabItem>
 </Tabs>
 
 :::warning
-A `UInt64` cannot be stored in an [AnyMap](untyped-maps).
+`Int64` and `UInt64` map to JavaScript `bigint`, which cannot be stored in [AnyJSON](any-json).
 :::
 
 ### Anything larger

@@ -30,6 +30,7 @@ const sourceExtensions = new Set([
   ".kt",
   ".java",
   ".xml",
+  ".modulemap",
 ]);
 
 function sourceFiles(directory, prefix = "") {

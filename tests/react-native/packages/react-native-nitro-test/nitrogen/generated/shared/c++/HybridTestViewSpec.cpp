@@ -5,33 +5,10 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridTestViewSpec.hpp"
+#include <NitroTest/HybridTestViewSpec.hpp>
 
 namespace margelo::nitro::test {
 
-  void HybridTestViewSpec::loadHybridMethods() {
-    // load base methods/properties
-    HybridObject::loadHybridMethods();
-    // load custom methods/properties
-    registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("isBlue", &HybridTestViewSpec::getIsBlue);
-      prototype.registerHybridSetter("isBlue", &HybridTestViewSpec::setIsBlue);
-      prototype.registerHybridGetter("hasBeenCalled", &HybridTestViewSpec::getHasBeenCalled);
-      prototype.registerHybridSetter("hasBeenCalled", &HybridTestViewSpec::setHasBeenCalled);
-      prototype.registerHybridGetter("int64Value", &HybridTestViewSpec::getInt64Value);
-      prototype.registerHybridSetter("int64Value", &HybridTestViewSpec::setInt64Value);
-      prototype.registerHybridGetter("colorScheme", &HybridTestViewSpec::getColorScheme);
-      prototype.registerHybridSetter("colorScheme", &HybridTestViewSpec::setColorScheme);
-      prototype.registerHybridGetter("someCallback", &HybridTestViewSpec::getSomeCallback);
-      prototype.registerHybridSetter("someCallback", &HybridTestViewSpec::setSomeCallback);
-      prototype.registerHybridGetter("nativeDefaultValue", &HybridTestViewSpec::getNativeDefaultValue);
-      prototype.registerHybridSetter("nativeDefaultValue", &HybridTestViewSpec::setNativeDefaultValue);
-      prototype.registerHybridMethod("getIsViewBlue", &HybridTestViewSpec::getIsViewBlue);
-      prototype.registerHybridMethod("getOnDropViewCount", &HybridTestViewSpec::getOnDropViewCount);
-      prototype.registerHybridMethod("getIsBlueSetterCallCount", &HybridTestViewSpec::getIsBlueSetterCallCount);
-      prototype.registerHybridMethod("getNativeDefaultValueSetterCallCount", &HybridTestViewSpec::getNativeDefaultValueSetterCallCount);
-      prototype.registerHybridMethod("someMethod", &HybridTestViewSpec::someMethod);
-    });
-  }
+  HybridTestViewSpec::~HybridTestViewSpec() = default;
 
 } // namespace margelo::nitro::test

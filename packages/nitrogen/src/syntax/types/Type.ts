@@ -10,10 +10,10 @@ export type TypeKind =
   | 'custom-type'
   | 'enum'
   | 'error'
-  | 'function'
+  | 'callback'
   | 'hybrid-object'
   | 'hybrid-object-base'
-  | 'map'
+  | 'any-json'
   | 'null'
   | 'number'
   | 'optional'
@@ -23,11 +23,26 @@ export type TypeKind =
   | 'struct'
   | 'tuple'
   | 'variant'
-  | 'result-wrapper'
-  | 'date'
   | 'void'
+  | 'unsafe-void-pointer'
+  | 'swift-result'
+
+export type TypeContext =
+  | 'value'
+  | 'parameter'
+  | 'parameter-type'
+  | 'return'
+  | 'property'
+  | 'type-argument'
 
 export interface GetCodeOptions {
+  /**
+   * Where this type appears in generated code.
+   * `parameter` renders a method parameter, including passing modifiers.
+   * `parameter-type` renders its bare type for converters and type aliases.
+   * Wrappers pass `type-argument` when rendering their nested types.
+   */
+  context: TypeContext
   /**
    * Specifies whether the name (e.g. a C++ class name)
    * should use the fully qualified namespace name prefix.
@@ -39,10 +54,6 @@ export interface GetCodeOptions {
  * Represents a TypeScript Type that can be represented in a native language (C++, Swift, Kotlin)
  */
 export interface Type {
-  /**
-   * Get whether this type can be passed by reference in C++ (`const T&` vs `T`)
-   */
-  readonly canBePassedByReference: boolean
   /**
    * Get the kind of the type.
    */
@@ -56,9 +67,9 @@ export interface Type {
    *
    * E.g. for a `number` type, this would return `'double'` in C++.
    *
-   * The `options` parameter can specify custom options. Subclasses may have more options.
+   * The `options` parameter specifies the calling context and may include custom options.
    */
-  getCode(language: Language, options?: GetCodeOptions): string
+  getCode(language: Language, options: GetCodeOptions): string
   /**
    * Get all required extra files that need to be **created** for this type to properly work.
    *

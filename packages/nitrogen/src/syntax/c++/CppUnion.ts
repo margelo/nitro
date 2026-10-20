@@ -1,8 +1,8 @@
-import type { SourceFile } from '../SourceFile.js'
-import { createFileMetadataString } from './../helpers.js'
+import type { SourceFile, SourceImport } from '../SourceFile.js'
+import { createFileMetadataString } from '../helpers.js'
 import { indent, toLowerCamelCase } from '../../utils.js'
 import type { EnumMember } from '../types/EnumType.js'
-import { includeNitroHeader } from './includeNitroHeader.js'
+import { getImportCode } from '../getImportCode.js'
 import { NitroConfig } from '../../config/NitroConfig.js'
 
 /**
@@ -37,15 +37,36 @@ export function createCppUnion(
     .map((m) => `case hashString("${m.stringValue}"):`)
     .join('\n')
   const cxxNamespace = NitroConfig.current.getCxxNamespace('c++')
+  const imports: SourceImport[] = [
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/NitroHash.hpp',
+        space: 'system',
+      },
+    },
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/JSIConverter.hpp',
+        space: 'system',
+      },
+    },
+    {
+      language: 'c++',
+      declaration: {
+        name: 'NitroModules/NitroDefines.hpp',
+        space: 'system',
+      },
+    },
+  ]
 
   const cppCode = `
 ${createFileMetadataString(`${typename}.hpp`)}
 
 #pragma once
 
-${includeNitroHeader('NitroHash.hpp')}
-${includeNitroHeader('JSIConverter.hpp')}
-${includeNitroHeader('NitroDefines.hpp')}
+${imports.map((i) => getImportCode(i)).join('\n')}
 
 namespace ${cxxNamespace} {
 

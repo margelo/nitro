@@ -1,21 +1,17 @@
-import type {
-  HybridView,
-  HybridViewMethods,
-  HybridViewProps,
-} from 'react-native-nitro-modules'
+import { iOS, type HybridView } from 'react-native-nitro-modules'
 
-export interface RecyclableTestViewProps extends HybridViewProps {
+@iOS({
+  language: 'swift',
+  implementation: { className: 'HybridRecyclableTestView' },
+})
+export declare class RecyclableTestView extends HybridView {
   isBlue: boolean
   nativeDefaultValue?: number
-}
-export interface RecyclableTestViewMethods extends HybridViewMethods {
+
   getInvalidLifecycleOrderCount(): number
   getOnDropViewCount(): number
   getPrepareForRecycleCount(): number
   getNativeDefaultValueSetterCallCount(): number
 }
 
-export type RecyclableTestView = HybridView<
-  RecyclableTestViewProps,
-  RecyclableTestViewMethods
->
+export * from '#nitro/RecyclableTestView'

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "classes": {
+    "Base": {
+      "ios": {
+        "implementation": {
+          "className": "HybridBase"
+        },
+        "language": "swift"
+      }
+    },
+    "SomeExternalObject": {
+      "ios": {
+        "allowMultipleImplementations": true,
+        "implementation": {
+          "className": "HybridSomeExternalObject"
+        },
+        "language": "swift"
+      }
+    }
+  }
+}

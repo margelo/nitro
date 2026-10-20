@@ -1,14 +1,10 @@
 import type { Language } from '../../getPlatformSpecs.js'
 import { type SourceFile, type SourceImport } from '../SourceFile.js'
-import type { Type, TypeKind } from './Type.js'
+import type { GetCodeOptions, Type, TypeKind } from './Type.js'
 
 export class ErrorType implements Type {
   constructor() {}
 
-  get canBePassedByReference(): boolean {
-    // It's an exception<..>, pass by reference.
-    return true
-  }
   get kind(): TypeKind {
     return 'error'
   }
@@ -16,12 +12,14 @@ export class ErrorType implements Type {
     return true
   }
 
-  getCode(language: Language): string {
+  getCode(language: Language, options: GetCodeOptions): string {
     switch (language) {
-      case 'c++':
-        return `std::exception_ptr`
+      case 'c++': {
+        const type = `std::exception_ptr`
+        return options.context === 'parameter' ? `const ${type}&` : type
+      }
       case 'swift':
-        return `Error`
+        return `any Error`
       case 'kotlin':
         return `Throwable`
       default:
@@ -35,12 +33,13 @@ export class ErrorType implements Type {
   }
   getRequiredImports(language: Language): SourceImport[] {
     const imports: SourceImport[] = []
-    if (language === 'c++') {
-      imports.push({
-        language: 'c++',
-        name: 'exception',
-        space: 'system',
-      })
+    switch (language) {
+      case 'c++':
+        imports.push({
+          language,
+          declaration: { name: 'exception', space: 'system' },
+        })
+        break
     }
     return imports
   }

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "HybridObject.hpp"
+#include <NitroModules/HybridObject.hpp>
 #include "JHybridObject.hpp"
 #include <fbjni/fbjni.h>
 

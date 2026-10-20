@@ -1,0 +1,5 @@
+module NitroModulesReactNative {
+  header "NitroModulesReactNative/NativeNitroModules.h"
+  exclude header "NitroModulesReactNative/detail/CallInvokerDispatcher.hpp"
+  export *
+}

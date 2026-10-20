@@ -89,7 +89,7 @@ function installedCoreFixture(t) {
     JSON.stringify({ name: 'nitro-core', version: '0.37.2-beta.1' })
   )
   writeFileSync(
-    path.join(directory, 'native/cpp/utils/NitroDefines.hpp'),
+    path.join(directory, 'native/cpp/include/NitroModules/NitroDefines.hpp'),
     '#define NITRO_VERSION "0.37.2-beta.1"\n'
   )
   writeFileSync(
@@ -112,7 +112,7 @@ test('packed core rejects missing native sources', (t) => {
 test('packed core rejects a JS/native version mismatch', (t) => {
   const directory = installedCoreFixture(t)
   writeFileSync(
-    path.join(directory, 'native/cpp/utils/NitroDefines.hpp'),
+    path.join(directory, 'native/cpp/include/NitroModules/NitroDefines.hpp'),
     '#define NITRO_VERSION "0.37.1"\n'
   )
   assert.throws(() => verifyCorePackage(directory), /Native version/)

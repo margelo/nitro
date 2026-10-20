@@ -6,7 +6,7 @@
 //
 
 /// A base protocol for all Swift-based Hybrid Objects.
-public protocol HybridObject: AnyObject {
+public protocol HybridObject: AnyObject, CustomStringConvertible {
   /**
    * Get the memory size of the Swift instance (plus any external heap allocations),
    * in bytes.
@@ -43,6 +43,11 @@ public protocol HybridObject: AnyObject {
 }
 
 extension HybridObject {
+  /// Uses the HybridObject's string representation for Swift logging.
+  public var description: String {
+    return toString()
+  }
+
   // By default, this returns `0`.
   public var memorySize: Int { return 0 }
   // By default, this does nothing.

@@ -1,14 +1,14 @@
 import { expect } from "chai";
 import { casesForTestObjects } from "./utils/cases";
 
-import type { AnyMap, ValueType } from "nitro-core";
+import type { AnyJSON } from "nitro-core";
 
 import { TEST_MAP, TEST_MAP_2, TEST_MAP_3, TEST_MAP_4 } from "./utils/fixtures";
 
 import { type TestObject } from "./utils/testObjects";
 
 // createMap() builds its values from these getters - seed non-default values
-// so AnyMap has to carry a true bool, a non-empty string and a negative int64.
+// so AnyJSON has to carry a true bool, a non-empty string and a negative int64.
 function seedPrimitives(testObject: TestObject) {
   testObject.numberValue = 14;
   testObject.boolValue = true;
@@ -20,50 +20,43 @@ const INT64_MIN = -(2n ** 63n);
 
 const INT64_MAX = 2n ** 63n - 1n;
 
-// An AnyMap with objects and arrays nested a few levels deep.
-const NESTED_MAP: AnyMap = {
+// An AnyJSON with objects and arrays nested a few levels deep.
+const NESTED_MAP: AnyJSON = {
   level1: {
     level2: {
       level3: {
-        array: [1, ["two", [true, { deepest: "value", bigint: 42n }]]],
+        array: [1, ["two", [true, { deepest: "value", number: 42 }]]],
       },
       empty: {},
     },
     emptyArray: [],
   },
-  mixed: [1, "two", false, 3n, [], {}],
+  mixed: [1, "two", false, 3, [], {}],
 };
 
 function createKeys(count: number): string[] {
   return Array.from({ length: count }, (_, i) => `key_${i}`);
 }
 
-// Every AnyMap value type, each kept as the only value of a map.
-const ANY_MAP_VALUES: ReadonlyArray<[label: string, value: ValueType]> = [
-  ["integer number", 55],
-  ["fractional number", -13.37],
-  ["true", true],
-  ["false", false],
-  ["string", "hello"],
-  ["empty string", ""],
-  ["null", null],
-  ["bigint", 1234567890123n],
-  ["negative bigint", -55n],
-  ["empty array", []],
-  ["empty object", {}],
-];
+function getObject(value: AnyJSON): Record<string, AnyJSON> {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("Expected an AnyJSON object");
+  }
+  return value;
+}
+
 export const cases = {
-  ...casesForTestObjects("AnyMap", {
+  ...casesForTestObjects("AnyJSON", {
     "createMap() contains every value type": (testObject) => {
       seedPrimitives(testObject);
-      const result = testObject.createMap();
+      const result = getObject(testObject.createMap());
       expect(result.array).to.be.instanceOf(Array);
       expect(result.object).to.be.an("object");
       expect(result).to.deep.equal({
         number: 14,
         bool: true,
         string: "hello!",
-        int64: -7362572367826385n,
+        int64: Number(-7362572367826385n),
         null: null,
         array: result.array,
         object: result.object,
@@ -72,11 +65,11 @@ export const cases = {
 
     "createMap().array contains every value type": (testObject) => {
       seedPrimitives(testObject);
-      expect(testObject.createMap().array).to.deep.equal([
+      expect(getObject(testObject.createMap()).array).to.deep.equal([
         testObject.numberValue,
         testObject.boolValue,
         testObject.stringValue,
-        testObject.int64Value,
+        Number(testObject.int64Value),
       ]);
     },
 
@@ -86,11 +79,11 @@ export const cases = {
         testObject.numberValue,
         testObject.boolValue,
         testObject.stringValue,
-        testObject.int64Value,
+        Number(testObject.int64Value),
       ];
-      expect(testObject.createMap().object).to.deep.equal({
+      expect(getObject(testObject.createMap()).object).to.deep.equal({
         array: [...values, values],
-        int64: testObject.int64Value,
+        int64: Number(testObject.int64Value),
         bool: testObject.boolValue,
         string: testObject.stringValue,
         number: testObject.numberValue,
@@ -108,7 +101,9 @@ export const cases = {
       seedPrimitives(testObject);
       const map = testObject.createMap();
       const keys = testObject.getMapKeys(map);
-      expect([...keys].sort()).to.deep.equal(Object.keys(map).sort());
+      expect([...keys].sort()).to.deep.equal(
+        Object.keys(getObject(map)).sort(),
+      );
     },
 
     "mergeMaps(...) merges both maps": (testObject) => {
@@ -118,8 +113,9 @@ export const cases = {
       });
     },
 
-    "copyAnyMap(...) returns an equal map": (testObject) => {
-      expect(testObject.copyAnyMap(TEST_MAP_4)).to.deep.equal(TEST_MAP_4);
+    "copyAnyMap(...) rejects a map containing bigint": (testObject) => {
+      // @ts-expect-error BigInt is not a JSON value.
+      expect(() => testObject.copyAnyMap(TEST_MAP_4)).to.throw();
     },
   }),
   ...casesForTestObjects("Typed maps", {
@@ -161,77 +157,100 @@ export const cases = {
       ).to.deep.equal(TEST_MAP_2);
     },
   }),
-  ...casesForTestObjects("AnyMap values", {
+  ...casesForTestObjects("AnyJSON values", {
     "mapRoundtrip(...) keeps a integer number value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[0]!;
+      const value = 55;
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      expect(testObject.mapRoundtrip({ value: value })).to.deep.equal({
+        value: value,
+      });
     },
 
     "mapRoundtrip(...) keeps a fractional number value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[1]!;
+      const value = -13.37;
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      expect(testObject.mapRoundtrip({ value: value })).to.deep.equal({
+        value: value,
+      });
     },
 
     "mapRoundtrip(...) keeps a true value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[2]!;
+      const value = true;
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      expect(testObject.mapRoundtrip({ value: value })).to.deep.equal({
+        value: value,
+      });
     },
 
     "mapRoundtrip(...) keeps a false value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[3]!;
+      const value = false;
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      expect(testObject.mapRoundtrip({ value: value })).to.deep.equal({
+        value: value,
+      });
     },
 
     "mapRoundtrip(...) keeps a string value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[4]!;
+      const value = "hello";
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      expect(testObject.mapRoundtrip({ value: value })).to.deep.equal({
+        value: value,
+      });
     },
 
     "mapRoundtrip(...) keeps a empty string value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[5]!;
+      const value = "";
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      expect(testObject.mapRoundtrip({ value: value })).to.deep.equal({
+        value: value,
+      });
     },
 
     "mapRoundtrip(...) keeps a null value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[6]!;
+      const value = null;
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      expect(testObject.mapRoundtrip({ value: value })).to.deep.equal({
+        value: value,
+      });
     },
 
-    "mapRoundtrip(...) keeps a bigint value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[7]!;
+    "mapRoundtrip(...) rejects a bigint value": (testObject) => {
+      const value = 1234567890123n;
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      // @ts-expect-error BigInt is not a JSON value.
+      expect(() => testObject.mapRoundtrip({ value: value })).to.throw();
     },
 
-    "mapRoundtrip(...) keeps a negative bigint value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[8]!;
+    "mapRoundtrip(...) rejects a negative bigint value": (testObject) => {
+      const value = -55n;
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      // @ts-expect-error BigInt is not a JSON value.
+      expect(() => testObject.mapRoundtrip({ value: value })).to.throw();
     },
 
     "mapRoundtrip(...) keeps a empty array value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[9]!;
+      const value: AnyJSON[] = [];
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      expect(testObject.mapRoundtrip({ value: value })).to.deep.equal({
+        value: value,
+      });
     },
 
     "mapRoundtrip(...) keeps a empty object value": (testObject) => {
-      const [label, value] = ANY_MAP_VALUES[10]!;
+      const value = {};
 
-      expect(testObject.mapRoundtrip({ value })).to.deep.equal({ value });
+      expect(testObject.mapRoundtrip({ value: value })).to.deep.equal({
+        value: value,
+      });
     },
 
-    "mapRoundtrip(...) keeps the int64 boundaries as bigints": (testObject) => {
-      expect(
+    "mapRoundtrip(...) rejects the int64 boundaries as bigints": (
+      testObject,
+    ) => {
+      expect(() =>
+        // @ts-expect-error BigInt is not a JSON value.
         testObject.mapRoundtrip({ min: INT64_MIN, max: INT64_MAX }),
-      ).to.deep.equal({ min: INT64_MIN, max: INT64_MAX });
+      ).to.throw();
     },
 
     "mapRoundtrip(...) keeps numbers beyond 2^53 as numbers": (testObject) => {
@@ -257,24 +276,21 @@ export const cases = {
       expect(testObject.copyAnyMap(NESTED_MAP)).to.deep.equal(NESTED_MAP);
     },
 
-    // TODO: Fix in Nitro - Swift `AnyValue.fromAny(...)` (packages/nitro-core/native/apple/core/AnyMap.swift) does not unwrap a nested `Optional<Any>.none` from `toAny()`, so on Swift copyAnyMap throws "Value Optional(nil) cannot be represented as AnyValue!"
-
     "copyAnyMap(...) keeps null inside arrays": (testObject) => {
       const map = { array: [null, 1, null] };
       expect(testObject.copyAnyMap(map)).to.deep.equal(map);
     },
-
-    // TODO: Fix in Nitro - Swift `AnyValue.fromAny(...)` (packages/nitro-core/native/apple/core/AnyMap.swift) does not unwrap a nested `Optional<Any>.none` from `toAny()`, so on Swift copyAnyMap throws "Value Optional(nil) cannot be represented as AnyValue!"
 
     "copyAnyMap(...) keeps null inside objects": (testObject) => {
       const map = { object: { a: null, b: 1 } };
       expect(testObject.copyAnyMap(map)).to.deep.equal(map);
     },
 
-    "copyAnyMap(...) keeps the int64 boundaries as bigints": (testObject) => {
-      expect(
+    "copyAnyMap(...) rejects the int64 boundaries as bigints": (testObject) => {
+      expect(() =>
+        // @ts-expect-error BigInt is not a JSON value.
         testObject.copyAnyMap({ min: INT64_MIN, max: INT64_MAX }),
-      ).to.deep.equal({ min: INT64_MIN, max: INT64_MAX });
+      ).to.throw();
     },
 
     "mapRoundtrip(...) returns a new object": (testObject) => {
@@ -282,7 +298,7 @@ export const cases = {
       expect(Object.is(testObject.mapRoundtrip(map), map)).to.equal(false);
     },
   }),
-  ...casesForTestObjects("AnyMap keys", {
+  ...casesForTestObjects("AnyJSON keys", {
     "mapRoundtrip(...) returns {} for an empty map": (testObject) => {
       expect(testObject.mapRoundtrip({})).to.deep.equal({});
     },
@@ -310,11 +326,10 @@ export const cases = {
       );
     },
 
-    // TODO: Fix in Nitro - values of non-ASCII keys are read as undefined (`PropNameIDCache` uses `PropNameID::forAscii`), throws 'Cannot convert "undefined" to any type in variant<...>'
-    // it('mapRoundtrip(...) keeps unicode keys', () => {
-    //   const map = { '🔥': 1, 'ключ': 'значение', '日本語': true }
-    //   expect(testObject.mapRoundtrip(map)).toStrictEqual(map)
-    // })
+    "mapRoundtrip(...) keeps unicode keys": (testObject) => {
+      const map = { "🔥": 1, ключ: "значение", 日本語: true };
+      expect(testObject.mapRoundtrip(map)).to.deep.equal(map);
+    },
 
     "mapRoundtrip(...) keeps an empty string key": (testObject) => {
       expect(testObject.mapRoundtrip({ "": "empty" })).to.deep.equal({
@@ -327,7 +342,7 @@ export const cases = {
       expect(testObject.mapRoundtrip(map)).to.deep.equal(map);
     },
   }),
-  ...casesForTestObjects("AnyMap merging", {
+  ...casesForTestObjects("AnyJSON merging", {
     "mergeMaps(...) returns {} for two empty maps": (testObject) => {
       expect(testObject.mergeMaps({}, {})).to.deep.equal({});
     },
@@ -360,8 +375,8 @@ export const cases = {
       testObject,
     ) => {
       expect(
-        testObject.mergeMaps({ shared: 1 }, { shared: [1n, "one"] }),
-      ).to.deep.equal({ shared: [1n, "one"] });
+        testObject.mergeMaps({ shared: 1 }, { shared: [1, "one"] }),
+      ).to.deep.equal({ shared: [1, "one"] });
     },
 
     "mergeMaps(...) replaces nested objects instead of merging them": (
@@ -372,50 +387,97 @@ export const cases = {
       ).to.deep.equal({ nested: { b: 3 } });
     },
   }),
-  ...casesForTestObjects("AnyMap conversion errors", {
-    "mapRoundtrip(...) rejects a number": (testObject) => {
-      // @ts-expect-error passing a number instead of an AnyMap
-      expect(() => testObject.mapRoundtrip(5)).to.throw(
-        `${testObject.name}.mapRoundtrip(...): Value is a number, expected an Object`,
-      );
+  ...casesForTestObjects("AnyJSON serialization", {
+    "mapRoundtrip(...) accepts a number": (testObject) => {
+      expect(testObject.mapRoundtrip(5)).to.equal(5);
     },
 
-    "mapRoundtrip(...) rejects undefined values": (testObject) => {
-      // @ts-expect-error passing an undefined value
-      expect(() => testObject.mapRoundtrip({ a: undefined })).to.throw(
-        `${testObject.name}.mapRoundtrip(...): Cannot convert "undefined" to any type in variant<`,
-      );
+    "mapRoundtrip(...) omits undefined object properties": (testObject) => {
+      // @ts-expect-error Undefined is not a declared JSON value.
+      const result = testObject.mapRoundtrip({ keep: 1, a: undefined });
+      expect(result).to.deep.equal({ keep: 1 });
     },
 
-    "mapRoundtrip(...) rejects undefined inside an array": (testObject) => {
-      // @ts-expect-error passing an undefined array element
-      expect(() => testObject.mapRoundtrip({ a: [1, undefined] })).to.throw(
-        `${testObject.name}.mapRoundtrip(...): Cannot convert "undefined" to any type in variant<`,
-      );
+    "mapRoundtrip(...) converts undefined array elements to null": (
+      testObject,
+    ) => {
+      // @ts-expect-error Undefined is not a declared JSON value.
+      const result = testObject.mapRoundtrip({ a: [1, undefined] });
+      expect(result).to.deep.equal({ a: [1, null] });
     },
 
-    "mapRoundtrip(...) rejects function values": (testObject) => {
-      // @ts-expect-error passing a function value
-      const roundtrip = () => testObject.mapRoundtrip({ a: () => {} });
-      expect(roundtrip).to.throw(
-        `${testObject.name}.mapRoundtrip(...): Cannot convert "`,
-      );
-      expect(roundtrip).to.throw("to any type in variant<");
+    "mapRoundtrip(...) omits function object properties": (testObject) => {
+      // @ts-expect-error Functions are not declared JSON values.
+      const result = testObject.mapRoundtrip({ keep: 1, a: () => {} });
+      expect(result).to.deep.equal({ keep: 1 });
     },
 
-    "mapRoundtrip(...) rejects ArrayBuffer values": (testObject) => {
-      const roundtrip = () =>
-        // @ts-expect-error passing an ArrayBuffer value
-        testObject.mapRoundtrip({ a: new ArrayBuffer(8) });
-      expect(roundtrip).to.throw(
-        `${testObject.name}.mapRoundtrip(...): Cannot convert "[object ArrayBuffer]" to any type in variant<`,
+    "mapRoundtrip(...) omits symbol object properties": (testObject) => {
+      // @ts-expect-error Symbols are not declared JSON values.
+      const result = testObject.mapRoundtrip({ keep: 1, a: Symbol("a") });
+      expect(result).to.deep.equal({ keep: 1 });
+    },
+
+    "mapRoundtrip(...) converts functions and symbols in arrays to null": (
+      testObject,
+    ) => {
+      // @ts-expect-error Functions and symbols are not declared JSON values.
+      const result = testObject.mapRoundtrip([1, () => {}, Symbol("a")]);
+      expect(result).to.deep.equal([1, null, null]);
+    },
+
+    "mapRoundtrip(...) converts nonfinite numbers to null": (testObject) => {
+      expect(
+        testObject.mapRoundtrip({ a: NaN, b: Infinity, c: -Infinity }),
+      ).to.deep.equal({ a: null, b: null, c: null });
+      expect(testObject.mapRoundtrip([NaN, Infinity, -Infinity])).to.deep.equal(
+        [null, null, null],
       );
+      expect(testObject.mapRoundtrip(NaN)).to.equal(null);
+    },
+
+    "mapRoundtrip(...) serializes ArrayBuffer values as empty objects": (
+      testObject,
+    ) => {
+      // @ts-expect-error ArrayBuffer is not a declared JSON value.
+      const result = testObject.mapRoundtrip({ a: new ArrayBuffer(8) });
+      expect(result).to.deep.equal({ a: {} });
     },
 
     "mapRoundtrip(...) rejects a bigint beyond int64": (testObject) => {
-      expect(() => testObject.mapRoundtrip({ a: INT64_MAX + 1n })).to.throw(
-        `${testObject.name}.mapRoundtrip(...): Cannot convert "9223372036854775808" to any type in variant<`,
-      );
+      // @ts-expect-error BigInt is not a JSON value.
+      expect(() => testObject.mapRoundtrip({ a: INT64_MAX + 1n })).to.throw();
+      expect(testObject.mapRoundtrip({ valid: true })).to.deep.equal({
+        valid: true,
+      });
+    },
+
+    "mapRoundtrip(...) rejects circular objects": (testObject) => {
+      const circular: Record<string, AnyJSON> = {};
+      circular.self = circular;
+      expect(() => testObject.mapRoundtrip(circular)).to.throw();
+      expect(testObject.mapRoundtrip({ valid: true })).to.deep.equal({
+        valid: true,
+      });
+    },
+
+    "mapRoundtrip(...) rejects circular arrays": (testObject) => {
+      const circular: AnyJSON[] = [];
+      circular.push(circular);
+      expect(() => testObject.mapRoundtrip(circular)).to.throw();
+      expect(testObject.mapRoundtrip([])).to.deep.equal([]);
+    },
+
+    "mapRoundtrip(...) rejects top-level undefined, functions and symbols": (
+      testObject,
+    ) => {
+      // @ts-expect-error Undefined is not a JSON value.
+      expect(() => testObject.mapRoundtrip(undefined)).to.throw();
+      // @ts-expect-error Functions are not JSON values.
+      expect(() => testObject.mapRoundtrip(() => {})).to.throw();
+      // @ts-expect-error Symbols are not JSON values.
+      expect(() => testObject.mapRoundtrip(Symbol("a"))).to.throw();
+      expect(testObject.mapRoundtrip(null)).to.equal(null);
     },
   }),
   ...casesForTestObjects("Typed map edge cases", {
@@ -450,54 +512,43 @@ export const cases = {
     "bounceSimpleMap(...) rejects a number": (testObject) => {
       // @ts-expect-error passing a number instead of a map
       expect(() => testObject.bounceSimpleMap(5)).to.throw(
-        `${testObject.name}.bounceSimpleMap(...): Value is a number, expected an Object`,
+        `${testObject.constructor.name}.bounceSimpleMap(...): Value is a number, expected an Object`,
       );
     },
 
     "bounceSimpleMap(...) rejects a string value": (testObject) => {
       // @ts-expect-error passing a string value
       expect(() => testObject.bounceSimpleMap({ a: 1, b: "2" })).to.throw(
-        `${testObject.name}.bounceSimpleMap(...): Value is a string, expected a number`,
+        `${testObject.constructor.name}.bounceSimpleMap(...): Value is a string, expected a number`,
       );
     },
 
     "bounceMap(...) rejects a string value": (testObject) => {
       // @ts-expect-error passing a string value
       expect(() => testObject.bounceMap({ a: "yes" })).to.throw(
-        `${testObject.name}.bounceMap(...): Cannot convert "yes" to any type in variant<`,
+        `${testObject.constructor.name}.bounceMap(...): Cannot convert "yes" to any type in variant<`,
       );
     },
 
     "bounceOptionalMap(...) rejects null values": (testObject) => {
       // @ts-expect-error passing null where only undefined is optional
       expect(() => testObject.bounceOptionalMap({ a: null })).to.throw(
-        `${testObject.name}.bounceOptionalMap(...): Value is null, expected a String`,
+        `${testObject.constructor.name}.bounceOptionalMap(...): Value is null, expected a String`,
       );
     },
 
     "bounceNullMap(...) rejects undefined values": (testObject) => {
       // @ts-expect-error passing undefined where only null is allowed
       expect(() => testObject.bounceNullMap({ a: undefined })).to.throw(
-        `${testObject.name}.bounceNullMap(...): Cannot convert "undefined" to any type in variant<`,
+        `${testObject.constructor.name}.bounceNullMap(...): Cannot convert "undefined" to any type in variant<`,
       );
     },
 
     "extractMap(...) rejects a missing secondMap": (testObject) => {
       // @ts-expect-error passing a MapWrapper without secondMap
       expect(() => testObject.extractMap({ map: {} })).to.throw(
-        `${testObject.name}.extractMap(...): Value is undefined, expected an Object`,
+        `${testObject.constructor.name}.extractMap(...): Value is undefined, expected an Object`,
       );
     },
   }),
 };
-
-export const skips = {
-  "AnyMap values / TestObjectSwiftKotlin / copyAnyMap(...) keeps null inside arrays":
-    {
-      ios: 'Fix in Nitro - Swift `AnyValue.fromAny(...)` (packages/nitro-core/native/apple/core/AnyMap.swift) does not unwrap a nested `Optional<Any>.none` from `toAny()`, so on Swift copyAnyMap throws "Value Optional(nil) cannot be represented as AnyValue!"',
-    },
-  "AnyMap values / TestObjectSwiftKotlin / copyAnyMap(...) keeps null inside objects":
-    {
-      ios: 'Fix in Nitro - Swift `AnyValue.fromAny(...)` (packages/nitro-core/native/apple/core/AnyMap.swift) does not unwrap a nested `Optional<Any>.none` from `toAny()`, so on Swift copyAnyMap throws "Value Optional(nil) cannot be represented as AnyValue!"',
-    },
-} as const;

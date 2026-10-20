@@ -6,9 +6,11 @@ plugins {
 def nativeRoot = file('../../../../packages/nitro-core/native')
 def prefabHeaders = layout.buildDirectory.dir('generated/prefab-headers')
 def prepareHeaders = tasks.register('prepareHeaders', Sync) {
-  from(new File(nativeRoot, 'cpp')) { include '**/*.hpp' }
-  from(new File(nativeRoot, 'android/src/main/cpp')) { include '**/*.hpp' }
-  eachFile { path = "NitroModules/${name}" }
+  from(new File(nativeRoot, 'cpp/include')) { include '**/*.hpp' }
+  from(new File(nativeRoot, 'android/src/main/cpp')) {
+    include '**/*.hpp'
+    eachFile { path = "NitroModules/${name}" }
+  }
   includeEmptyDirs = false
   duplicatesStrategy = DuplicatesStrategy.FAIL
   into prefabHeaders

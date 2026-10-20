@@ -5,12 +5,12 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
 
 /// See ``HybridPlatformObjectSpec``
 public protocol HybridPlatformObjectSpec_protocol: HybridObject {
   // Properties
-  
+
 
   // Methods
   func getOSVersion() throws -> String
@@ -27,7 +27,7 @@ public extension HybridPlatformObjectSpec_protocol {
 open class HybridPlatformObjectSpec_base {
   private weak var cxxWrapper: HybridPlatformObjectSpec_cxx? = nil
   public init() { }
-  public func getCxxWrapper() -> HybridPlatformObjectSpec_cxx {
+  public final func getCxxWrapper() -> HybridPlatformObjectSpec_cxx {
   #if DEBUG
     guard self is any HybridPlatformObjectSpec else {
       fatalError("`self` is not a `HybridPlatformObjectSpec`! Did you accidentally inherit from `HybridPlatformObjectSpec_base` instead of `HybridPlatformObjectSpec`?")

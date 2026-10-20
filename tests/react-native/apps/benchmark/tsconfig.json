@@ -1,6 +1,7 @@
 {
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
+    "resolvePackageJsonImports": true,
     "types": ["react"]
   },
   "include": ["src", "index.js"],

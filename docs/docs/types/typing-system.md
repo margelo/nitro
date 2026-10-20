@@ -13,8 +13,10 @@ For example, a JS `number` will always be a `double` on the native side:
 <div className="side-by-side-block">
 
 ```ts title="Math.nitro.ts"
-interface Math
-  extends HybridObject<{ ios: 'c++' }> {
+import { type HybridObject, iOS } from 'nitro-core'
+
+@iOS(...)
+export declare class Math extends HybridObject {
   add(a: number, b: number): number
 }
 ```
@@ -26,7 +28,7 @@ interface Math
 class HybridMath : public HybridMathSpec {
 public:
   double add(double a, double b) override;
-}
+};
 ```
 
 </div>
@@ -146,7 +148,7 @@ These are all the types Nitro supports out of the box:
   </tr>
   <tr>
     <td><code>Promise&lt;T&gt;</code></td>
-    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/Promise.hpp">Promise&lt;T&gt;</a>&gt;</code></td>
+    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/include/NitroModules/Promise.hpp">Promise&lt;T&gt;</a>&gt;</code></td>
     <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/Promise.swift">Promise&lt;T&gt;</a></code></td>
     <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/Promise.kt">Promise&lt;T&gt;</a></code></td>
   </tr>
@@ -158,19 +160,13 @@ These are all the types Nitro supports out of the box:
   </tr>
   <tr>
     <td><code>ArrayBuffer</code></td>
-    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/ArrayBuffer.hpp">ArrayBuffer</a>&gt;</code></td>
+    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/include/NitroModules/ArrayBuffer.hpp">ArrayBuffer</a>&gt;</code></td>
     <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/ArrayBuffer.swift">ArrayBuffer</a></code></td>
     <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/ArrayBuffer.kt">ArrayBuffer</a></code></td>
   </tr>
   <tr>
-    <td><code>Date</code></td>
-    <td><code>std::chrono::system_clock::time_point</code></td>
-    <td><code>Date</code></td>
-    <td><code>java.time.Instant</code></td>
-  </tr>
-  <tr>
     <td>..any <code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/js/src/HybridObject.ts">HybridObject</a></code></td>
-    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/HybridObject.hpp">HybridObject</a>&gt;</code></td>
+    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/include/NitroModules/HybridObject.hpp">HybridObject</a>&gt;</code></td>
     <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/HybridObject.swift">HybridObject</a></code></td>
     <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/HybridObject.kt">HybridObject</a></code></td>
   </tr>

@@ -14,37 +14,33 @@ Once the callback is no longer used, it will be safely deleted from memory.
 
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
-    In TypeScript, a callback is represented as an anonymous function:
-
     ```ts
-    interface Server extends HybridObject<{ … }> {
+    import { type HybridObject, iOS } from 'nitro-core'
+
+    @iOS(...)
+    export declare class Server extends HybridObject {
       start(onNewUserJoined: (user: User) => void): void
     }
     ```
   </TabItem>
   <TabItem value="swift" label="Swift">
-    In Swift, a callback is represented as a closure:
-
     ```swift
-    func start(onNewUserJoined: (User) -> Void) {
+    func start(onNewUserJoined: any Callback<User, Void>) {
       onNewUserJoined(user)
     }
     ```
+
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
-    In Kotlin, a callback is represented as a lambda:
-
     ```kotlin
-    fun start(onNewUserJoined: (User) -> Unit) {
+    fun start(onNewUserJoined: Callback<User, Void>) {
       onNewUserJoined(user)
     }
     ```
   </TabItem>
   <TabItem value="cpp" label="C++">
-    In C++, a callback is represented as a function:
-
     ```cpp
-    void start(std::function<void(User)> onNewUserJoined) {
+    void start(const Callback<void(const User&)>& onNewUserJoined) {
       onNewUserJoined(user);
     }
     ```
@@ -60,9 +56,11 @@ It is simply a function you store in memory and call later, just like in a norma
   <TabItem value="ts" label="TypeScript" default>
     ```ts
     type Orientation = "portrait" | "landscape"
-    interface DeviceInfo extends HybridObject<{ … }> {
+    @iOS(...)
+    export declare class DeviceInfo extends HybridObject {
       listenToOrientation(onChanged: (o: Orientation) => void): void
     }
+    export * from '#nitro/DeviceInfo'
 
     const deviceInfo = // ...
     deviceInfo.listenToOrientation((o) => {
@@ -72,7 +70,7 @@ It is simply a function you store in memory and call later, just like in a norma
   </TabItem>
   <TabItem value="swift" label="Swift">
     ```swift
-    func listenToOrientation(onChanged: (Orientation) -> Void) {
+    func listenToOrientation(onChanged: any Callback<Orientation, Void>) {
       self.listeners.append(onChanged)
     }
 
@@ -85,7 +83,7 @@ It is simply a function you store in memory and call later, just like in a norma
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
-    fun listenToOrientation(onChanged: (Orientation) -> Unit) {
+    fun listenToOrientation(onChanged: Callback<Orientation, Unit>) {
       this.listeners.add(onChanged)
     }
 
@@ -98,7 +96,7 @@ It is simply a function you store in memory and call later, just like in a norma
   </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp
-    void listenToOrientation(std::function<void(Orientation)> onChanged) {
+    void listenToOrientation(const Callback<void(Orientation)>& onChanged) {
       this->listeners.push_back(onChanged);
     }
 
@@ -113,67 +111,77 @@ It is simply a function you store in memory and call later, just like in a norma
 
 ## Callbacks that return a value (`(...) => T`)
 
-Since JS callbacks could theoretically be called from any native Thread,
-Nitro safely wraps the result types of callbacks that return a value in **Promises which need to be awaited**.
-
-<div className="side-by-side-container">
-<div className="side-by-side-block">
+A `Callback` can also return a value:
 
 ```ts title="Math.nitro.ts"
-interface Math
-  extends HybridObject<{ ios: 'swift' }> {
-  some(getValue: () => number): void
+@iOS(...)
+export declare class Math extends HybridObject {
+  calculate(getValue: () => number): void
 }
+export * from '#nitro/Math'
 ```
 
-</div>
-<div className="side-by-side-block">
+Since JS callbacks could theoretically be called from any native Thread, callbacks are called asynchronously by default:
 
 ```swift title="HybridMath.swift"
-func some(getValue: () -> Promise<Double>) {
-  Task {
-    let promise = getValue()
-    let valueFromJs = try await promise.await()
+class HybridMath: HybridMathSpec {
+  func calculate(getValue: any Callback<(), Double>) {
+    Task {
+      let result = try await getValue() // async Double
+    }
   }
 }
 ```
 
-</div>
-</div>
+## Async by default, sync when needed
 
-## Synchronous Callbacks
+`Callback` has three calling conventions:
 
-By default, callback functions in Nitro are _asynchronous_. Their execution is scheduled on the JS Thread, and if they return a value they always return a `Promise<T>` wrapping the value.
-This ensures that you can call the callback from any Thread, and it safely executes the actual JS function on the correct JS Thread.
-
-In addition to that, Nitro also supports fully _synchronous_ callbacks. They are considered dangerous, as the caller is responsible for ensuring Thread safety.
-To extend the previous example, we can make `getValue()` synchronous by wrapping it in the `Sync<T>` type provided by Nitro:
-
-<div className="side-by-side-container">
-<div className="side-by-side-block">
-
-```ts title="Math.nitro.ts"
-interface Math
-  extends HybridObject<{ ios: 'swift' }> {
-  some(getValue: Sync<() => number>): void
+```swift
+func call(callback: any Callback<(), Void>) {
+  callback.callAsync()     // Promise<Void>
+  callback.callSync()      // Void (blocking)
+  callback.callAndForget() // Void
 }
 ```
 
-</div>
-<div className="side-by-side-block">
+Additionally, the call operator overload either chooses `callAndForget()` when the callback returns `Void`, or `callAsync()` when it returns a value.
 
-```swift title="HybridMath.swift"
-func some(getValue: () -> Double) {
-  let valueFromJs = getValue()
+```swift
+func callVoid(callback: any Callback<(), Void>) {
+  callback()               // Void (just like callAndForget())
+}
+func callResult(callback: any Callback<(), Double>) {
+  callback()               // Promise<Double> (just like callAsync())
 }
 ```
-
-</div>
-</div>
 
 :::warning
-The `getValue()` callback can now only be called from the JS Thread.
+Use `callSync()` only when you can ensure that you call it on the JS Runtime's Thread - otherwise it will throw.
 :::
+
+## Inline Callbacks
+
+If your callback never escapes the calling function, use `Inline<...>` as a performance optimization:
+
+```ts title="Math.nitro.ts"
+@iOS(...)
+export declare class Math extends HybridObject {
+  calculate(getValue: Inline<() => number>): void
+}
+export * from '#nitro/Math'
+```
+
+`InlineCallback<...>` allows you to call back to JS inline, or escape to a `Callback<...>` just like before:
+
+```swift title="HybridMath.swift"
+class HybridMath: HybridMathSpec {
+  func calculate(getValue: borrowing some InlineCallback<(), Double> & ~Copyable & ~Escapable) {
+    let result = getValue()                  // Double
+    let callbackForLater = getValue.escape() // any Callback<(), Double>
+  }
+}
+```
 
 ## How was it before Nitro?
 

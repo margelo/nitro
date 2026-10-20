@@ -5,10 +5,21 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
+
+
 /**
- * Represents the JS enum `WeirdNumbersEnum`, backed by a C++ enum.
+ * Represents the JS enum `WeirdNumbersEnum`.
  */
-public typealias WeirdNumbersEnum = margelo.nitro.test.WeirdNumbersEnum
+@_expose(Cxx)
+public enum WeirdNumbersEnum: Int32, CaseIterable, Sendable, CustomStringConvertible {
+  case `a` = 0
+  case `b` = 32
+  case `c` = 64
+
+  public static func fromRawValue(_ value: Int32) -> Self {
+    return Self(rawValue: value)!
+  }
+}
 
 public extension WeirdNumbersEnum {
   /**
@@ -40,5 +51,9 @@ public extension WeirdNumbersEnum {
       case .c:
         return "C"
     }
+  }
+
+  var description: String {
+    return stringValue
   }
 }

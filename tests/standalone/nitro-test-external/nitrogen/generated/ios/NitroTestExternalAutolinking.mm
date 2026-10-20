@@ -6,28 +6,19 @@
 ///
 
 #import <Foundation/Foundation.h>
-#import <NitroModules/HybridObjectRegistry.hpp>
-#import "NitroTestExternal-Swift-Cxx-Umbrella.hpp"
-#import <type_traits>
+#include <NitroTestExternal/NitroTestExternalAutolinking.hpp>
 
-#include "HybridSomeExternalObjectSpecSwift.hpp"
-
+/**
+ * Registers all HybridObject classes of NitroTestExternal
+ * when the app loads, so JS can look them up by name.
+ */
 @interface NitroTestExternalAutolinking : NSObject
 @end
 
 @implementation NitroTestExternalAutolinking
 
-+ (void) load {
-  using namespace margelo::nitro;
-  using namespace margelo::nitro::test::external;
-
-  HybridObjectRegistry::registerHybridObjectConstructor(
-    "SomeExternalObject",
-    []() -> std::shared_ptr<HybridObject> {
-      std::shared_ptr<HybridSomeExternalObjectSpec> hybridObject = NitroTestExternal::NitroTestExternalAutolinking::createSomeExternalObject();
-      return hybridObject;
-    }
-  );
++ (void)load {
+  margelo::nitro::test::external::registerHybridClasses();
 }
 
 @end

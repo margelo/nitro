@@ -5,78 +5,45 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
 
-/**
- * Represents an instance of `OptionalPrimitivesHolder`, backed by a C++ struct.
- */
-public typealias OptionalPrimitivesHolder = margelo.nitro.test.external.OptionalPrimitivesHolder
+@_expose(Cxx)
+public struct OptionalPrimitivesHolder: Equatable, Hashable, Sendable {
+  public let optionalNumber: Double?
+  public let optionalBoolean: Bool?
+  public let optionalUInt64: UInt64?
+  public let optionalInt64: Int64?
 
-public extension OptionalPrimitivesHolder {
-  private typealias bridge = margelo.nitro.test.external.bridge.swift
-
-  /**
-   * Create a new instance of `OptionalPrimitivesHolder`.
-   */
-  init(optionalNumber: Double?, optionalBoolean: Bool?, optionalUInt64: UInt64?, optionalInt64: Int64?) {
-    self.init({ () -> bridge.std__optional_double_ in
-      if let __unwrappedValue = optionalNumber {
-        return bridge.create_std__optional_double_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_bool_ in
-      if let __unwrappedValue = optionalBoolean {
-        return bridge.create_std__optional_bool_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_uint64_t_ in
-      if let __unwrappedValue = optionalUInt64 {
-        return bridge.create_std__optional_uint64_t_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_int64_t_ in
-      if let __unwrappedValue = optionalInt64 {
-        return bridge.create_std__optional_int64_t_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }())
+  public init(optionalNumber: Double?, optionalBoolean: Bool?, optionalUInt64: UInt64?, optionalInt64: Int64?) {
+    self.optionalNumber = optionalNumber
+    self.optionalBoolean = optionalBoolean
+    self.optionalUInt64 = optionalUInt64
+    self.optionalInt64 = optionalInt64
   }
 
-  @inline(__always)
-  var optionalNumber: Double? {
-    return { () -> Double? in
-      if bridge.has_value_std__optional_double_(self.__optionalNumber) {
-        let __unwrapped = bridge.get_std__optional_double_(self.__optionalNumber)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+  @_spi(NitroCxx)
+  public static func init_cxx(_ optionalNumber: Double?, _ optionalBoolean: Bool?, _ optionalUInt64: UInt64?, _ optionalInt64: Int64?) -> Self {
+    return Self(optionalNumber: optionalNumber, optionalBoolean: optionalBoolean, optionalUInt64: optionalUInt64, optionalInt64: optionalInt64)
   }
-  
-  @inline(__always)
-  var optionalBoolean: Bool? {
-    return { () -> Bool? in
-      if bridge.has_value_std__optional_bool_(self.__optionalBoolean) {
-        let __unwrapped = bridge.get_std__optional_bool_(self.__optionalBoolean)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
+
+  @_spi(NitroCxx)
+  public borrowing func getOptionalNumber_cxx() -> Double? {
+    return self.optionalNumber
   }
-  
-  @inline(__always)
-  var optionalUInt64: UInt64? {
-    return self.__optionalUInt64.value
+
+  @_spi(NitroCxx)
+  public borrowing func getOptionalBoolean_cxx() -> Bool? {
+    return self.optionalBoolean
   }
-  
-  @inline(__always)
-  var optionalInt64: Int64? {
-    return self.__optionalInt64.value
+
+  @_spi(NitroCxx)
+  public borrowing func getOptionalUInt64_cxx() -> UInt64? {
+    return self.optionalUInt64
+  }
+
+  @_spi(NitroCxx)
+  public borrowing func getOptionalInt64_cxx() -> Int64? {
+    return self.optionalInt64
   }
 }

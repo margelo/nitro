@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "ArrayBuffer.hpp"
+#include <NitroModules/ArrayBuffer.hpp>
 #include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
 

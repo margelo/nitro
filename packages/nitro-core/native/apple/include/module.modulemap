@@ -1,0 +1,6 @@
+module NitroModulesAppleCxx {
+  requires cplusplus
+  umbrella header "NitroModulesAppleCxx.h"
+  exclude header "NitroModules/detail/UIThreadDispatcher.hpp"
+  export *
+}

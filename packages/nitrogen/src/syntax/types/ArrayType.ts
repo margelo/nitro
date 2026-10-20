@@ -9,11 +9,6 @@ export class ArrayType implements Type {
     this.itemType = itemType
   }
 
-  get canBePassedByReference(): boolean {
-    // It's a vector<..>, heavy to copy
-    return true
-  }
-
   get kind(): TypeKind {
     return 'array'
   }
@@ -21,12 +16,17 @@ export class ArrayType implements Type {
     return this.itemType.isEquatable
   }
 
-  getCode(language: Language, options?: GetCodeOptions): string {
-    const itemCode = this.itemType.getCode(language, options)
+  getCode(language: Language, options: GetCodeOptions): string {
+    const itemCode = this.itemType.getCode(language, {
+      ...options,
+      context: 'type-argument',
+    })
 
     switch (language) {
-      case 'c++':
-        return `std::vector<${itemCode}>`
+      case 'c++': {
+        const type = `std::vector<${itemCode}>`
+        return options.context === 'parameter' ? `const ${type}&` : type
+      }
       case 'swift':
         return `[${itemCode}]`
       case 'kotlin':
@@ -56,12 +56,13 @@ export class ArrayType implements Type {
     const imports: SourceImport[] = [
       ...this.itemType.getRequiredImports(language),
     ]
-    if (language === 'c++') {
-      imports.push({
-        name: 'vector',
-        language: 'c++',
-        space: 'system',
-      })
+    switch (language) {
+      case 'c++':
+        imports.push({
+          language,
+          declaration: { name: 'vector', space: 'system' },
+        })
+        break
     }
     return imports
   }

@@ -5,19 +5,10 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-#include "HybridChildSpec.hpp"
+#include <NitroTest/HybridChildSpec.hpp>
 
 namespace margelo::nitro::test {
 
-  void HybridChildSpec::loadHybridMethods() {
-    // load base methods/properties
-    HybridObject::loadHybridMethods();
-    HybridBaseSpec::loadHybridMethods();
-    // load custom methods/properties
-    registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("childValue", &HybridChildSpec::getChildValue);
-      prototype.registerHybridMethod("bounceVariant", &HybridChildSpec::bounceVariant);
-    });
-  }
+  HybridChildSpec::~HybridChildSpec() = default;
 
 } // namespace margelo::nitro::test

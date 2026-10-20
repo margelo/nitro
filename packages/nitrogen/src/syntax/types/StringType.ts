@@ -1,12 +1,8 @@
 import type { Language } from '../../getPlatformSpecs.js'
 import type { SourceFile, SourceImport } from '../SourceFile.js'
-import type { Type, TypeKind } from './Type.js'
+import type { GetCodeOptions, Type, TypeKind } from './Type.js'
 
 export class StringType implements Type {
-  get canBePassedByReference(): boolean {
-    // It's a string<..>, heavy to copy.
-    return true
-  }
   get kind(): TypeKind {
     return 'string'
   }
@@ -14,10 +10,12 @@ export class StringType implements Type {
     return true
   }
 
-  getCode(language: Language): string {
+  getCode(language: Language, options: GetCodeOptions): string {
     switch (language) {
-      case 'c++':
-        return 'std::string'
+      case 'c++': {
+        const type = 'std::string'
+        return options.context === 'parameter' ? `const ${type}&` : type
+      }
       case 'swift':
         return 'String'
       case 'kotlin':
@@ -35,12 +33,13 @@ export class StringType implements Type {
 
   getRequiredImports(language: Language): SourceImport[] {
     const imports: SourceImport[] = []
-    if (language === 'c++') {
-      imports.push({
-        language: 'c++',
-        name: 'string',
-        space: 'system',
-      })
+    switch (language) {
+      case 'c++':
+        imports.push({
+          language,
+          declaration: { name: 'string', space: 'system' },
+        })
+        break
     }
     return imports
   }

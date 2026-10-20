@@ -1,0 +1,4 @@
+# GitHub's Xcode 27 preview runner is not in actionlint's hosted label list yet.
+self-hosted-runner:
+  labels:
+    - xcode-27

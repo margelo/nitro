@@ -4,43 +4,41 @@
 /// https://github.com/margelo/nitro
 /// Copyright © Marc Rousavy @ Margelo
 ///
-
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
+public import NitroTestAppleCxx
 
 /**
  * A class implementation that bridges HybridChildSpec over to C++.
  * In C++, we cannot use Swift protocols - so we need to wrap it in a class to make it strongly defined.
- *
- * Also, some Swift types need to be bridged with special handling:
- * - Enums need to be wrapped in Structs, otherwise they cannot be accessed bi-directionally (Swift bug: https://github.com/swiftlang/swift/issues/75330)
- * - Other HybridObjects need to be wrapped/unwrapped from the Swift TCxx wrapper
- * - Throwing methods need to be wrapped with a Result<T, Error> type, as exceptions cannot be propagated to C++
  */
-open class HybridChildSpec_cxx : HybridBaseSpec_cxx {
+@_expose(Cxx)
+public final class HybridChildSpec_cxx: HybridBaseSpec_cxx {
   /**
-   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::bridge::swift`)
-   * from `NitroTest-Swift-Cxx-Bridge.hpp`.
+   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::swift_bridge`)
+   * from `NitroTestAppleCxx/NitroTestAppleCxx.h`.
    * This contains specialized C++ templates, and C++ helper functions that can be accessed from Swift.
    */
-  public typealias bridge = margelo.nitro.test.bridge.swift
+  public typealias bridge = margelo.nitro.test.swift_bridge
 
   /**
-   * Holds an instance of the `HybridChildSpec` Swift protocol.
+   * Holds the Swift implementation of `HybridChildSpec`.
    */
-  private let __implementation: any HybridChildSpec
+  private let __implementation: HybridChild
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.
    */
-  private var __cxxPart: bridge.std__weak_ptr_HybridChildSpec_
+  private var __cxxPart: bridge.std__weak_ptr_HybridChildSpec_ = .init()
 
   /**
    * Create a new `HybridChildSpec_cxx` that wraps the given `HybridChildSpec`.
-   * All properties and methods bridge to C++ types.
    */
   public init(_ implementation: any HybridChildSpec) {
+    guard let implementation = implementation as? HybridChild else {
+      preconditionFailure("Child selects HybridChild as its Swift implementation. Every instance must inherit HybridChild.")
+    }
     self.__implementation = implementation
-    self.__cxxPart = .init()
     super.init(implementation)
   }
 
@@ -65,7 +63,7 @@ open class HybridChildSpec_cxx : HybridBaseSpec_cxx {
    * The pointer has to be a retained opaque `Unmanaged<HybridChildSpec_cxx>`.
    * This removes one strong reference from the object!
    */
-  public override class func fromUnsafe(_ pointer: UnsafeMutableRawPointer) -> HybridChildSpec_cxx {
+  public override class func fromUnsafe(pointer: UnsafeMutableRawPointer) -> HybridChildSpec_cxx {
     return Unmanaged<HybridChildSpec_cxx>.fromOpaque(pointer).takeRetainedValue()
   }
 
@@ -74,19 +72,28 @@ open class HybridChildSpec_cxx : HybridBaseSpec_cxx {
    * The C++ part is a `std::shared_ptr<HybridChildSpec>`.
    */
   public func getCxxPart() -> bridge.std__shared_ptr_HybridChildSpec_ {
-    let cachedCxxPart = self.__cxxPart.lock()
-    if cachedCxxPart.use_count() > 0 {
-      return cachedCxxPart
-    } else {
-      let newCxxPart = bridge.create_std__shared_ptr_HybridChildSpec_(self.toUnsafe())
-      __cxxPart = bridge.weakify_std__shared_ptr_HybridChildSpec_(newCxxPart)
-      return newCxxPart
+    let cached = __cxxPart.lock()
+    if cached.use_count() > 0 {
+      return cached
     }
+    let value = bridge.create_std__shared_ptr_HybridChildSpec_(self.toUnsafe())
+    __cxxPart = bridge.weakify_std__shared_ptr_HybridChildSpec_(value)
+    return value
+  }
+  // C++ uses the accessor for this spec. Keep base upcasts in Swift to avoid
+  // exporting the same imported pointer metadata from two Swift modules.
+  @_expose(!Cxx)
+  public override func getCxxPart() -> bridge.std__shared_ptr_HybridBaseSpec_ {
+    let own: bridge.std__shared_ptr_HybridChildSpec_ = getCxxPart()
+    return bridge.upcast_Child_to_Base(own)
   }
 
-  public override func getCxxPart() -> bridge.std__shared_ptr_HybridBaseSpec_ {
-    let ownCxxPart: bridge.std__shared_ptr_HybridChildSpec_ = getCxxPart()
-    return bridge.upcast_Child_to_Base(ownCxxPart)
+  // A static borrowing accessor lets C++ pass a const reference without copying it.
+  // TODO: Remove this adapter and call the instance method directly once
+  // https://github.com/swiftlang/swift/pull/92862 is merged and supported by our Swift toolchain.
+  @_spi(NitroCxx)
+  public static func getCxxPart(_ value: borrowing HybridChildSpec_cxx) -> bridge.std__shared_ptr_HybridChildSpec_ {
+    return value.getCxxPart()
   }
 
   /**
@@ -95,7 +102,7 @@ open class HybridChildSpec_cxx : HybridBaseSpec_cxx {
    */
   @inline(__always)
   public override var memorySize: Int {
-    return MemoryHelper.getSizeOf(self.__implementation) + self.__implementation.memorySize
+    return MemoryHelper.getSizeOf(__implementation) + __implementation.memorySize
   }
 
   /**
@@ -103,7 +110,7 @@ open class HybridChildSpec_cxx : HybridBaseSpec_cxx {
    */
   @inline(__always)
   public func equals(other: HybridChildSpec_cxx) -> Bool {
-    return self.__implementation === other.__implementation
+    return __implementation === other.__implementation
   }
 
   /**
@@ -112,7 +119,7 @@ open class HybridChildSpec_cxx : HybridBaseSpec_cxx {
    */
   @inline(__always)
   public override func dispose() {
-    self.__implementation.dispose()
+    __implementation.dispose()
   }
 
   /**
@@ -120,46 +127,36 @@ open class HybridChildSpec_cxx : HybridBaseSpec_cxx {
    */
   @inline(__always)
   public override func toString() -> String {
-    return self.__implementation.toString()
+    return __implementation.toString()
   }
 
   // Properties
-  public final var childValue: Double {
-    @inline(__always)
-    get {
-      return self.__implementation.childValue
-    }
+
+  public final func getChildValue() -> Double {
+    let value = __implementation.childValue
+    return value
   }
 
   // Methods
-  @inline(__always)
-  public final func bounceVariant(variant: bridge.std__variant_std__string__Car_) -> bridge.Result_std__variant_std__string__Car__ {
+
+  public final func bounceVariant(variant: NamedVariant_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let __result = try self.__implementation.bounceVariant(variant: { () -> NamedVariant in
-        let __variant = variant
-        switch __variant.index() {
-          case 0:
-            let __actual = __variant.get_0()
-            return .first(String(__actual))
-          case 1:
-            let __actual = __variant.get_1()
-            return .second(__actual)
-          default:
-            fatalError("Variant can never have index \(__variant.index())!")
-        }
-      }())
-      let __resultCpp = { () -> bridge.std__variant_std__string__Car_ in
-        switch __result {
-          case .first(let __value):
-            return bridge.create_std__variant_std__string__Car_(std.string(__value))
-          case .second(let __value):
-            return bridge.create_std__variant_std__string__Car_(__value)
-        }
-      }().variant
-      return bridge.create_Result_std__variant_std__string__Car__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__variant_std__string__Car__(__exceptionPtr)
+      let value = try __implementation.bounceVariant(variant: variant.value)
+      __outResult.assumingMemoryBound(to: NamedVariant_cxx.self).initialize(to: NamedVariant_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  // Constructor
+
+  public override class func constructor() -> bridge.Result_void_ {
+    do {
+      let value = try HybridChild()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
     }
   }
 }

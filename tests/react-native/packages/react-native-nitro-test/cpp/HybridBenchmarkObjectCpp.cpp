@@ -62,29 +62,29 @@ std::shared_ptr<HybridBenchmarkObjectCppSpec> HybridBenchmarkObjectCpp::newBench
   return std::make_shared<HybridBenchmarkObjectCpp>();
 }
 
-std::shared_ptr<ArrayBuffer> HybridBenchmarkObjectCpp::bounceArrayBuffer(const std::shared_ptr<ArrayBuffer>& buffer) {
+ArrayBuffer HybridBenchmarkObjectCpp::bounceArrayBuffer(const ArrayBuffer& buffer) {
   return buffer;
 }
 
-std::shared_ptr<ArrayBuffer> HybridBenchmarkObjectCpp::copyBuffer(const std::shared_ptr<ArrayBuffer>& buffer) {
+ArrayBuffer HybridBenchmarkObjectCpp::copyBuffer(const ArrayBuffer& buffer) {
   return ArrayBuffer::copy(buffer);
 }
 
-double HybridBenchmarkObjectCpp::callbackSync(const std::function<double()>& callback) {
-  double value = callback();
+double HybridBenchmarkObjectCpp::callbackSync(const Callback<double()>& callback) {
+  double value = callback.callSync();
   return value;
 }
 
-std::shared_ptr<Promise<double>> HybridBenchmarkObjectCpp::promiseReturnsInstantly() {
+Promise<double> HybridBenchmarkObjectCpp::promiseReturnsInstantly() {
   return Promise<double>::resolved(55);
 }
 
-std::shared_ptr<Promise<double>> HybridBenchmarkObjectCpp::createPendingPromise() {
+Promise<double> HybridBenchmarkObjectCpp::createPendingPromise() {
   if (_pendingPromise) {
     throw std::runtime_error("A pending Promise is already waiting for completion.");
   }
-  _pendingPromise = Promise<double>::create();
-  return _pendingPromise;
+  _pendingPromise = Promise<double>::pending();
+  return _pendingPromise.value();
 }
 
 void HybridBenchmarkObjectCpp::resolvePendingPromiseOnWorker() {
@@ -92,8 +92,9 @@ void HybridBenchmarkObjectCpp::resolvePendingPromiseOnWorker() {
     throw std::runtime_error("No pending Promise is waiting for completion.");
   }
   // Only JS calls access the slot; the worker owns the extracted Promise.
-  auto promise = std::move(_pendingPromise);
-  ThreadPool::shared().run([promise = std::move(promise)]() { promise->resolve(55); });
+  auto promise = std::move(_pendingPromise.value());
+  _pendingPromise.reset();
+  ThreadPool::shared().run([promise = std::move(promise)]() { promise.resolve(55); });
 }
 
 } // namespace margelo::nitro::test

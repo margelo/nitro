@@ -5,7 +5,7 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
 
 /// See ``HybridChildSpec``
 public protocol HybridChildSpec_protocol: HybridObject, HybridBaseSpec_protocol {
@@ -27,7 +27,7 @@ public extension HybridChildSpec_protocol {
 open class HybridChildSpec_base: HybridBaseSpec_base {
   private weak var cxxWrapper: HybridChildSpec_cxx? = nil
   public override init() { super.init() }
-  public override func getCxxWrapper() -> HybridChildSpec_cxx {
+  public final override func getCxxWrapper() -> HybridChildSpec_cxx {
   #if DEBUG
     guard self is any HybridChildSpec else {
       fatalError("`self` is not a `HybridChildSpec`! Did you accidentally inherit from `HybridChildSpec_base` instead of `HybridChildSpec`?")

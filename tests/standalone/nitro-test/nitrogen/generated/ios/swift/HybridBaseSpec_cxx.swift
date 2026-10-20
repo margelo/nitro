@@ -4,44 +4,39 @@
 /// https://github.com/margelo/nitro
 /// Copyright © Marc Rousavy @ Margelo
 ///
-
-import NitroModules
+internal import NitroModules
+internal import CxxStdlib
+public import NitroTestAppleCxx
 
 /**
  * A class implementation that bridges HybridBaseSpec over to C++.
  * In C++, we cannot use Swift protocols - so we need to wrap it in a class to make it strongly defined.
- *
- * Also, some Swift types need to be bridged with special handling:
- * - Enums need to be wrapped in Structs, otherwise they cannot be accessed bi-directionally (Swift bug: https://github.com/swiftlang/swift/issues/75330)
- * - Other HybridObjects need to be wrapped/unwrapped from the Swift TCxx wrapper
- * - Throwing methods need to be wrapped with a Result<T, Error> type, as exceptions cannot be propagated to C++
  */
+@_expose(Cxx)
 open class HybridBaseSpec_cxx {
   /**
-   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::bridge::swift`)
-   * from `NitroTest-Swift-Cxx-Bridge.hpp`.
+   * The Swift <> C++ bridge's namespace (`margelo::nitro::test::swift_bridge`)
+   * from `NitroTestAppleCxx/NitroTestAppleCxx.h`.
    * This contains specialized C++ templates, and C++ helper functions that can be accessed from Swift.
    */
-  public typealias bridge = margelo.nitro.test.bridge.swift
+  public typealias bridge = margelo.nitro.test.swift_bridge
 
   /**
-   * Holds an instance of the `HybridBaseSpec` Swift protocol.
+   * Holds the Swift implementation of `HybridBaseSpec`.
    */
   private let __implementation: any HybridBaseSpec
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.
    */
-  private var __cxxPart: bridge.std__weak_ptr_HybridBaseSpec_
+  private var __cxxPart: bridge.std__weak_ptr_HybridBaseSpec_ = .init()
 
   /**
    * Create a new `HybridBaseSpec_cxx` that wraps the given `HybridBaseSpec`.
-   * All properties and methods bridge to C++ types.
    */
   public init(_ implementation: any HybridBaseSpec) {
     self.__implementation = implementation
-    self.__cxxPart = .init()
-    /* no base class */
+
   }
 
   /**
@@ -56,7 +51,7 @@ open class HybridBaseSpec_cxx {
    * Casts this instance to a retained unsafe raw pointer.
    * This acquires one additional strong reference on the object!
    */
-  public func toUnsafe() -> UnsafeMutableRawPointer {
+  open func toUnsafe() -> UnsafeMutableRawPointer {
     return Unmanaged.passRetained(self).toOpaque()
   }
 
@@ -65,7 +60,7 @@ open class HybridBaseSpec_cxx {
    * The pointer has to be a retained opaque `Unmanaged<HybridBaseSpec_cxx>`.
    * This removes one strong reference from the object!
    */
-  public class func fromUnsafe(_ pointer: UnsafeMutableRawPointer) -> HybridBaseSpec_cxx {
+  open class func fromUnsafe(pointer: UnsafeMutableRawPointer) -> HybridBaseSpec_cxx {
     return Unmanaged<HybridBaseSpec_cxx>.fromOpaque(pointer).takeRetainedValue()
   }
 
@@ -73,26 +68,32 @@ open class HybridBaseSpec_cxx {
    * Gets (or creates) the C++ part of this Hybrid Object.
    * The C++ part is a `std::shared_ptr<HybridBaseSpec>`.
    */
-  public func getCxxPart() -> bridge.std__shared_ptr_HybridBaseSpec_ {
-    let cachedCxxPart = self.__cxxPart.lock()
-    if cachedCxxPart.use_count() > 0 {
-      return cachedCxxPart
-    } else {
-      let newCxxPart = bridge.create_std__shared_ptr_HybridBaseSpec_(self.toUnsafe())
-      __cxxPart = bridge.weakify_std__shared_ptr_HybridBaseSpec_(newCxxPart)
-      return newCxxPart
+  open func getCxxPart() -> bridge.std__shared_ptr_HybridBaseSpec_ {
+    let cached = __cxxPart.lock()
+    if cached.use_count() > 0 {
+      return cached
     }
+    let value = bridge.create_std__shared_ptr_HybridBaseSpec_(self.toUnsafe())
+    __cxxPart = bridge.weakify_std__shared_ptr_HybridBaseSpec_(value)
+    return value
   }
 
-  
+
+  // A static borrowing accessor lets C++ pass a const reference without copying it.
+  // TODO: Remove this adapter and call the instance method directly once
+  // https://github.com/swiftlang/swift/pull/92862 is merged and supported by our Swift toolchain.
+  @_spi(NitroCxx)
+  public static func getCxxPart(_ value: borrowing HybridBaseSpec_cxx) -> bridge.std__shared_ptr_HybridBaseSpec_ {
+    return value.getCxxPart()
+  }
 
   /**
    * Get the memory size of the Swift class (plus size of any other allocations)
    * so the JS VM can properly track it and garbage-collect the JS object if needed.
    */
   @inline(__always)
-  public var memorySize: Int {
-    return MemoryHelper.getSizeOf(self.__implementation) + self.__implementation.memorySize
+  open var memorySize: Int {
+    return MemoryHelper.getSizeOf(__implementation) + __implementation.memorySize
   }
 
   /**
@@ -100,7 +101,7 @@ open class HybridBaseSpec_cxx {
    */
   @inline(__always)
   public func equals(other: HybridBaseSpec_cxx) -> Bool {
-    return self.__implementation === other.__implementation
+    return __implementation === other.__implementation
   }
 
   /**
@@ -108,26 +109,64 @@ open class HybridBaseSpec_cxx {
    * This _may_ be called manually from JS.
    */
   @inline(__always)
-  public func dispose() {
-    self.__implementation.dispose()
+  open func dispose() {
+    __implementation.dispose()
   }
 
   /**
    * Call toString() on the Swift class.
    */
   @inline(__always)
-  public func toString() -> String {
-    return self.__implementation.toString()
+  open func toString() -> String {
+    return __implementation.toString()
   }
 
   // Properties
-  public final var baseValue: Double {
-    @inline(__always)
-    get {
-      return self.__implementation.baseValue
-    }
+
+  public final func getBaseValue() -> Double {
+    let value = __implementation.baseValue
+    return value
   }
 
   // Methods
-  
+
+  public final func bounceSize(size: Size, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceSize(size: size)
+      __outResult.assumingMemoryBound(to: Size.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceSizeUnit(unit: SizeUnit, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceSizeUnit(unit: unit)
+      __outResult.assumingMemoryBound(to: SizeUnit.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func mapSize(size: Size, callback: margelo.nitro.test.swift_bridge.Callback_NitroTest__Size_NitroTest__Size) -> bridge.Result_Promise_NitroTest__Size_ {
+    do {
+      let value = try __implementation.mapSize(size: size, callback: callback)
+      return bridge.Result_Promise_NitroTest__Size_.withValue(value.toCpp())
+    } catch {
+      return bridge.Result_Promise_NitroTest__Size_.withError(error.toCpp())
+    }
+  }
+
+  // Constructor
+
+  public class func constructor() -> bridge.Result_void_ {
+    do {
+      let value = try HybridBase()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
 }

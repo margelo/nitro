@@ -26,11 +26,6 @@ export class VariantType implements Type {
     this.aliasName = aliasName
   }
 
-  get canBePassedByReference(): boolean {
-    // It's a variant<..> - heavy to copy
-    return true
-  }
-
   get kind(): TypeKind {
     return 'variant'
   }
@@ -55,20 +50,24 @@ export class VariantType implements Type {
 
   getAliasName(language: Language, options?: GetCodeOptions): string {
     if (this.aliasName == null) {
-      const variants = this.variants.map((v) => v.getCode(language, options))
+      const variants = this.variants.map((v) =>
+        v.getCode(language, { ...options, context: 'type-argument' })
+      )
       return escapeCppName(`Variant_${variants.join('_')}`)
     }
     return this.aliasName
   }
 
-  getCode(language: Language, options?: GetCodeOptions): string {
+  getCode(language: Language, options: GetCodeOptions): string {
     const types = this.variants
-      .map((v) => v.getCode(language, options))
+      .map((v) => v.getCode(language, { ...options, context: 'type-argument' }))
       .filter(isNotDuplicate)
 
     switch (language) {
-      case 'c++':
-        return `std::variant<${types.join(', ')}>`
+      case 'c++': {
+        const type = `std::variant<${types.join(', ')}>`
+        return options.context === 'parameter' ? `const ${type}&` : type
+      }
       case 'swift':
       case 'kotlin':
         return this.getAliasName(language, options)
@@ -83,12 +82,13 @@ export class VariantType implements Type {
   }
   getRequiredImports(language: Language): SourceImport[] {
     const imports = this.variants.flatMap((v) => v.getRequiredImports(language))
-    if (language === 'c++') {
-      imports.push({
-        language: 'c++',
-        name: 'variant',
-        space: 'system',
-      })
+    switch (language) {
+      case 'c++':
+        imports.push({
+          language,
+          declaration: { name: 'variant', space: 'system' },
+        })
+        break
     }
     return imports
   }

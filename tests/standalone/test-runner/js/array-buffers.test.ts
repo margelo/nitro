@@ -1,13 +1,11 @@
 import { expect } from "chai";
 import { casesForTestObjects } from "./utils/cases";
 
-import { getNitroModules } from "nitro-core";
+import { NitroModules } from "nitro-core";
 
 import { HARDWARE_BUFFER_FORMATS } from "./utils/fixtures";
 
 import { isKotlin } from "./utils/testObjects";
-
-const NitroModules = getNitroModules();
 
 const LARGE_BUFFER_SIZE = 16 * 1024 * 1024;
 
@@ -831,7 +829,9 @@ export const cases = {
       const typedArray = new Uint8Array([1, 2, 3]);
       // @ts-expect-error - a Uint8Array is not an ArrayBuffer
       const getLastItem = () => testObject.getBufferLastItem(typedArray);
-      expect(getLastItem).to.throw(`${testObject.name}.getBufferLastItem(...)`);
+      expect(getLastItem).to.throw(
+        `${testObject.constructor.name}.getBufferLastItem(...)`,
+      );
       expect(getLastItem).to.throw(
         'Object "1,2,3" is not an ArrayBuffer! Are you maybe passing a TypedArray (e.g. Uint8Array)? Try to pass its `.buffer` value.',
       );

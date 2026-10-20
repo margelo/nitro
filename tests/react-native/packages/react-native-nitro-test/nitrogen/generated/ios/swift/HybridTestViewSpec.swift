@@ -5,7 +5,7 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-import NitroModules
+public import NitroModules
 
 /// See ``HybridTestViewSpec``
 public protocol HybridTestViewSpec_protocol: HybridObject, HybridView {
@@ -14,7 +14,7 @@ public protocol HybridTestViewSpec_protocol: HybridObject, HybridView {
   var hasBeenCalled: Bool { get set }
   var int64Value: Int64 { get set }
   var colorScheme: ColorScheme { get set }
-  var someCallback: () -> Void { get set }
+  var someCallback: any Callback<(), Void> { get set }
   var nativeDefaultValue: Double? { get set }
 
   // Methods
@@ -36,7 +36,7 @@ public extension HybridTestViewSpec_protocol {
 open class HybridTestViewSpec_base {
   private weak var cxxWrapper: HybridTestViewSpec_cxx? = nil
   public init() { }
-  public func getCxxWrapper() -> HybridTestViewSpec_cxx {
+  public final func getCxxWrapper() -> HybridTestViewSpec_cxx {
   #if DEBUG
     guard self is any HybridTestViewSpec else {
       fatalError("`self` is not a `HybridTestViewSpec`! Did you accidentally inherit from `HybridTestViewSpec_base` instead of `HybridTestViewSpec`?")
