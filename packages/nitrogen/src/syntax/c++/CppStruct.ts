@@ -23,7 +23,7 @@ export function createCppStruct(
     .map((p) => `${p.getCode('c++')} ${p.escapedName}`)
     .join(', ')
   const cppInitializerParams = properties
-    .map((p) => `${p.escapedName}(${p.escapedName})`)
+    .map((p) => `${p.escapedName}(std::move(${p.escapedName}))`)
     .join(', ')
   // Get C++ code for converting each member from a jsi::Value
   const codeOptions: GetFunctionCodeOptions = {
@@ -78,6 +78,8 @@ export function createCppStruct(
 ${createFileMetadataString(`${typename}.hpp`)}
 
 #pragma once
+
+#include <utility>
 
 ${includeNitroHeader('JSIConverter.hpp')}
 ${includeNitroHeader('NitroDefines.hpp')}
