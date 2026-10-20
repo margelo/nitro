@@ -27,6 +27,14 @@ export interface SwiftType extends Type {
   getRequiredImports(language: Language, context?: 'declaration' | 'implementation'): SourceImport[]
   /** Whether Swift can import this C++ representation directly. */
   readonly canImportFromCpp: boolean
+  // TODO: Remove once our minimum Xcode includes https://github.com/swiftlang/swift/pull/93321,
+  // which fixes https://github.com/swiftlang/swift/issues/93318.
+  /**
+   * Whether exported Swift signatures pass this imported C++ value through native
+   * C++ storage instead of naming its record. Two generated -Swift.h headers that
+   * name the same record both specialize its generic traits, so C++ including both fails.
+   */
+  readonly requiresOpaqueCxxBridge?: boolean
   /** Whether this Swift value uses the retained class-reference bridge. */
   readonly isReferenceType: boolean
   /**

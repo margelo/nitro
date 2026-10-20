@@ -38,6 +38,9 @@ export class SwiftNamedType extends NamedWrappingType<SwiftType> implements Swif
   get canImportFromCpp(): boolean {
     return this.type.canImportFromCpp
   }
+  get requiresOpaqueCxxBridge(): boolean {
+    return this.type.requiresOpaqueCxxBridge ?? false
+  }
   get requiresExplicitSwiftTarget(): boolean {
     return this.type.requiresExplicitSwiftTarget
   }

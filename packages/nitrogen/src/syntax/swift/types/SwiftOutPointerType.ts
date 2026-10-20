@@ -1,7 +1,7 @@
 import { indent } from '../../../utils.js'
 import { SwiftPointerType } from './SwiftPointerType.js'
 
-interface AllocateOptions {
+export interface AllocateOptions {
   /** The name of the temporary storage. */
   storage: string
   /** Code that initializes the storage through the given pointer. */

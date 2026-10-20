@@ -19,17 +19,23 @@ namespace margelo::nitro::test::external {
   // Properties
 
   Callback<void(double)> HybridSharedSpecializationsSpecSwift::getNumberCallback() {
-    return _swiftPart.getNumberCallback();
+    return makeCxxValue<Callback<void(double)>>([&](void* __outResult) {
+      _swiftPart.getNumberCallback(__outResult);
+    });
   }
 
   void HybridSharedSpecializationsSpecSwift::setNumberCallback(const Callback<void(double)>& numberCallback) {
-    return _swiftPart.setNumberCallback(numberCallback);
+    return ([&](const void* numberCallback) {
+      return _swiftPart.setNumberCallback(numberCallback);
+    })(std::addressof(numberCallback));
   }
 
   // Methods
 
   Promise<void> HybridSharedSpecializationsSpecSwift::resolveVoid() {
-    auto __result = _swiftPart.resolveVoid();
+    auto __result = withCxxResult<Promise<void>>([&](void* __outResult) {
+      return _swiftPart.resolveVoid(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -37,7 +43,9 @@ namespace margelo::nitro::test::external {
   }
 
   Promise<double> HybridSharedSpecializationsSpecSwift::resolveNumber(double value) {
-    auto __result = _swiftPart.resolveNumber(value);
+    auto __result = withCxxResult<Promise<double>>([&](void* __outResult) {
+      return _swiftPart.resolveNumber(value, __outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -45,7 +53,9 @@ namespace margelo::nitro::test::external {
   }
 
   Promise<swift::String> HybridSharedSpecializationsSpecSwift::resolveString(const swift::String& value) {
-    auto __result = _swiftPart.resolveString(value);
+    auto __result = withCxxResult<Promise<swift::String>>([&](void* __outResult) {
+      return _swiftPart.resolveString(value, __outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -53,7 +63,11 @@ namespace margelo::nitro::test::external {
   }
 
   Promise<void> HybridSharedSpecializationsSpecSwift::awaitVoid(const Promise<void>& promise) {
-    auto __result = _swiftPart.awaitVoid(promise);
+    auto __result = ([&](const void* promise) {
+      return withCxxResult<Promise<void>>([&](void* __outResult) {
+        return _swiftPart.awaitVoid(promise, __outResult);
+      });
+    })(std::addressof(promise));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -61,7 +75,11 @@ namespace margelo::nitro::test::external {
   }
 
   Promise<double> HybridSharedSpecializationsSpecSwift::awaitNumber(const Promise<double>& promise) {
-    auto __result = _swiftPart.awaitNumber(promise);
+    auto __result = ([&](const void* promise) {
+      return withCxxResult<Promise<double>>([&](void* __outResult) {
+        return _swiftPart.awaitNumber(promise, __outResult);
+      });
+    })(std::addressof(promise));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -69,28 +87,38 @@ namespace margelo::nitro::test::external {
   }
 
   void HybridSharedSpecializationsSpecSwift::callVoid(const Callback<void()>& callback) {
-    auto __result = _swiftPart.callVoid(callback);
+    auto __result = ([&](const void* callback) {
+      return _swiftPart.callVoid(callback);
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
   }
 
   void HybridSharedSpecializationsSpecSwift::callWithNumber(double value, const Callback<void(double)>& callback) {
-    auto __result = _swiftPart.callWithNumber(value, callback);
+    auto __result = ([&](const void* callback) {
+      return _swiftPart.callWithNumber(value, callback);
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
   }
 
   void HybridSharedSpecializationsSpecSwift::callWithString(const swift::String& value, const Callback<void(const swift::String&)>& callback) {
-    auto __result = _swiftPart.callWithString(value, callback);
+    auto __result = ([&](const void* callback) {
+      return _swiftPart.callWithString(value, callback);
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
   }
 
   Promise<double> HybridSharedSpecializationsSpecSwift::mapNumber(double value, const Callback<double(double)>& callback) {
-    auto __result = _swiftPart.mapNumber(value, callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<double>>([&](void* __outResult) {
+        return _swiftPart.mapNumber(value, callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -98,7 +126,11 @@ namespace margelo::nitro::test::external {
   }
 
   Callback<void(double)> HybridSharedSpecializationsSpecSwift::wrapNumberCallback(const Callback<void(double)>& callback) {
-    auto __result = _swiftPart.wrapNumberCallback(callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Callback<void(double)>>([&](void* __outResult) {
+        return _swiftPart.wrapNumberCallback(callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -106,7 +138,11 @@ namespace margelo::nitro::test::external {
   }
 
   Promise<void> HybridSharedSpecializationsSpecSwift::callVoidPromiseCallback(const Callback<Promise<void>()>& callback) {
-    auto __result = _swiftPart.callVoidPromiseCallback(callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<void>>([&](void* __outResult) {
+        return _swiftPart.callVoidPromiseCallback(callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -114,7 +150,11 @@ namespace margelo::nitro::test::external {
   }
 
   Promise<double> HybridSharedSpecializationsSpecSwift::callNumberPromiseCallback(const Callback<Promise<double>()>& callback) {
-    auto __result = _swiftPart.callNumberPromiseCallback(callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<double>>([&](void* __outResult) {
+        return _swiftPart.callNumberPromiseCallback(callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }

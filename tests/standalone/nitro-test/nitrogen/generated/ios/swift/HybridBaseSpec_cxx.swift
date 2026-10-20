@@ -152,12 +152,13 @@ open class HybridBaseSpec_cxx {
     }
   }
 
-  public final func mapSize(size: Size, callback: margelo.nitro.test.swift_bridge.Callback___NitroTest__Size___NitroTest__Size) -> bridge.Result_Promise___NitroTest__Size_ {
+  public final func mapSize(size: Size, callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let value = try __implementation.mapSize(size: size, callback: callback)
-      return bridge.Result_Promise___NitroTest__Size_.withValue(value.toCpp())
+      let value = try __implementation.mapSize(size: size, callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback___NitroTest__Size___NitroTest__Size.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise___NitroTest__Size.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
     } catch {
-      return bridge.Result_Promise___NitroTest__Size_.withError(error.toCpp())
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
 

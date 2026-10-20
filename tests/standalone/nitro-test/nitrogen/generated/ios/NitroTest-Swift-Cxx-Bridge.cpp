@@ -445,9 +445,13 @@ namespace margelo::nitro::test::swift_bridge {
     });
   }
 
+  Callback_void InlineCallback_void::escape() const {
+    return get().escape();
+  }
+
   Result<void, margelo::nitro::test::swift_bridge::ResultTag> call_InlineCallback_void(const InlineCallback_void& callback) noexcept {
     try {
-      callback.call();
+      callback.get().call();
       return Result<void, margelo::nitro::test::swift_bridge::ResultTag>::withValue();
     } catch (...) {
       return Result<void, margelo::nitro::test::swift_bridge::ResultTag>::withError(std::current_exception());
@@ -472,9 +476,13 @@ namespace margelo::nitro::test::swift_bridge {
     });
   }
 
+  Callback_double_double InlineCallback_double_double::escape() const {
+    return get().escape();
+  }
+
   Result<double, margelo::nitro::test::swift_bridge::ResultTag> call_InlineCallback_double_double(const InlineCallback_double_double& callback, double param0) noexcept {
     try {
-      return Result<double, margelo::nitro::test::swift_bridge::ResultTag>::withValue(callback.call(param0));
+      return Result<double, margelo::nitro::test::swift_bridge::ResultTag>::withValue(callback.get().call(param0));
     } catch (...) {
       return Result<double, margelo::nitro::test::swift_bridge::ResultTag>::withError(std::current_exception());
     }

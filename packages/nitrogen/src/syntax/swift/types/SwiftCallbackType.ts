@@ -96,6 +96,13 @@ export class SwiftCallbackType extends CallbackType implements SwiftType {
 
   readonly canImportFromCpp = true
 
+  // TODO: Remove once our minimum Xcode includes https://github.com/swiftlang/swift/pull/93321.
+  // Two generated Swift headers must not both export this imported C++ record.
+  // Inline callbacks use a module-owned facade instead; see createInlineCppHelpers().
+  get requiresOpaqueCxxBridge(): boolean {
+    return !this.isInline
+  }
+
   get requiresExplicitSwiftTarget(): boolean {
     return this.returnType.requiresExplicitSwiftTarget || this.parameters.some((p) => p.requiresExplicitSwiftTarget)
   }
@@ -362,17 +369,46 @@ ${signature} {
   /** Aliases the borrowed callback and lets Swift call it through a `Result`. */
   private createInlineCppHelpers(): CppHelper[] {
     const alias = this.inlineSpecializationName
+    const owningAlias = this.specializationName
     const callbackType = this.getCode('c++', { context: 'parameter-type' })
     const callbackAliasCode = `
-using ${alias} = ${callbackType};
+// TODO: Replace this borrowing facade with a typealias once our minimum Xcode includes
+// https://github.com/swiftlang/swift/pull/93321, which fixes https://github.com/swiftlang/swift/issues/93318.
+// Exporting the same imported InlineCallback specialization from two Swift headers duplicates its traits.
+class SWIFT_NONCOPYABLE SWIFT_NONESCAPABLE SWIFT_CONFORMS_TO_PROTOCOL(NitroModules.CxxInlineCallback) ${alias} final {
+public:
+  ${alias}(const ${callbackType}& callback [[clang::lifetimebound]]) : _callback(std::addressof(callback)) {}
+  ${alias}(const ${alias}&) = delete;
+  ${alias}(${alias}&&) = default;
+
+  const ${callbackType}& get() const SWIFT_PRIVATE {
+    return *_callback;
+  }
+  ${owningAlias} escape() const;
+
+private:
+  const ${callbackType}* NON_NULL _callback;
+};
+`.trim()
+    const escapeCode = `
+${owningAlias} ${alias}::escape() const {
+  return get().escape();
+}
 `.trim()
     const argumentsCpp = this.cppAdapterArguments
-    const swiftToCppInlineInvocation = `callback.call(${argumentsCpp.join(', ')})`
+    const swiftToCppInlineInvocation = `callback.get().call(${argumentsCpp.join(', ')})`
     return [
       {
         header: {
           code: callbackAliasCode,
-          requiredImports: this.getRequiredImports('c++', 'declaration'),
+          requiredImports: [
+            ...this.getRequiredImports('c++', 'declaration'),
+            { language: 'c++', declaration: { header: 'memory', space: 'system' } },
+          ],
+        },
+        implementation: {
+          code: escapeCode,
+          requiredImports: this.getRequiredImports('c++', 'implementation'),
         },
       },
       this.createCppCallHelper({

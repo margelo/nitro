@@ -51,6 +51,8 @@ export class SwiftPromiseType extends PromiseType implements SwiftType {
   }
 
   readonly canImportFromCpp = true
+  // TODO: Remove once our minimum Xcode includes https://github.com/swiftlang/swift/pull/93321.
+  readonly requiresOpaqueCxxBridge = true
 
   get requiresExplicitSwiftTarget(): boolean {
     return this.resultingType.requiresExplicitSwiftTarget

@@ -311,16 +311,20 @@ namespace margelo::nitro::test {
   }
 
   void HybridTestObjectSwiftKotlinSpecSwift::complexEnumCallback(const swift::Array<::NitroTest::Powertrain>& array, const Callback<void(const ::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_&)>& callback) {
-    auto __result = _swiftPart.complexEnumCallback(array, callback);
+    auto __result = ([&](const void* callback) {
+      return _swiftPart.complexEnumCallback(array, callback);
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
   }
 
   swift::Array<::NitroTest::Powertrain> HybridTestObjectSwiftKotlinSpecSwift::callEnumArrayCallback(const swift::Array<::NitroTest::Powertrain>& array, const Callback<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_(const ::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_&)>& callback) {
-    auto __result = withSwiftResult<swift::Array<::NitroTest::Powertrain>>([&](void* __outResult) {
-      return _swiftPart.callEnumArrayCallback(array, callback, __outResult);
-    });
+    auto __result = ([&](const void* callback) {
+      return withSwiftResult<swift::Array<::NitroTest::Powertrain>>([&](void* __outResult) {
+        return _swiftPart.callEnumArrayCallback(array, callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -328,7 +332,9 @@ namespace margelo::nitro::test {
   }
 
   Callback<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_(const ::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_&)> HybridTestObjectSwiftKotlinSpecSwift::getEnumArrayCallback() {
-    auto __result = _swiftPart.getEnumArrayCallback();
+    auto __result = withCxxResult<Callback<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_(const ::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_&)>>([&](void* __outResult) {
+      return _swiftPart.getEnumArrayCallback(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -336,7 +342,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_> HybridTestObjectSwiftKotlinSpecSwift::callEnumArrayPromiseCallback(const Callback<Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_>()>& callback) {
-    auto __result = _swiftPart.callEnumArrayPromiseCallback(callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_>>([&](void* __outResult) {
+        return _swiftPart.callEnumArrayPromiseCallback(callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -344,7 +354,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_> HybridTestObjectSwiftKotlinSpecSwift::awaitEnumArrayPromise(const Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_>& promise) {
-    auto __result = _swiftPart.awaitEnumArrayPromise(promise);
+    auto __result = ([&](const void* promise) {
+      return withCxxResult<Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_>>([&](void* __outResult) {
+        return _swiftPart.awaitEnumArrayPromise(promise, __outResult);
+      });
+    })(std::addressof(promise));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -352,9 +366,11 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>> HybridTestObjectSwiftKotlinSpecSwift::callNestedStructCallback(const swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>>& value, const Callback<::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(const ::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___&)>& callback) {
-    auto __result = withSwiftResult<swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>>>([&](void* __outResult) {
-      return _swiftPart.callNestedStructCallback(value, callback, __outResult);
-    });
+    auto __result = ([&](const void* callback) {
+      return withSwiftResult<swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>>>([&](void* __outResult) {
+        return _swiftPart.callNestedStructCallback(value, callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -560,7 +576,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<void> HybridTestObjectSwiftKotlinSpecSwift::funcThatThrowsBeforePromise() {
-    auto __result = _swiftPart.funcThatThrowsBeforePromise();
+    auto __result = withCxxResult<Promise<void>>([&](void* __outResult) {
+      return _swiftPart.funcThatThrowsBeforePromise(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -621,7 +639,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<int64_t> HybridTestObjectSwiftKotlinSpecSwift::calculateFibonacciAsync(double value) {
-    auto __result = _swiftPart.calculateFibonacciAsync(value);
+    auto __result = withCxxResult<Promise<int64_t>>([&](void* __outResult) {
+      return _swiftPart.calculateFibonacciAsync(value, __outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -629,7 +649,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<void> HybridTestObjectSwiftKotlinSpecSwift::wait(double seconds) {
-    auto __result = _swiftPart.wait(seconds);
+    auto __result = withCxxResult<Promise<void>>([&](void* __outResult) {
+      return _swiftPart.wait(seconds, __outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -637,7 +659,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<void> HybridTestObjectSwiftKotlinSpecSwift::promiseThrows() {
-    auto __result = _swiftPart.promiseThrows();
+    auto __result = withCxxResult<Promise<void>>([&](void* __outResult) {
+      return _swiftPart.promiseThrows(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -645,7 +669,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<double> HybridTestObjectSwiftKotlinSpecSwift::promiseReturnsInstantly() {
-    auto __result = _swiftPart.promiseReturnsInstantly();
+    auto __result = withCxxResult<Promise<double>>([&](void* __outResult) {
+      return _swiftPart.promiseReturnsInstantly(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -653,7 +679,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<double> HybridTestObjectSwiftKotlinSpecSwift::promiseReturnsInstantlyAsync() {
-    auto __result = _swiftPart.promiseReturnsInstantlyAsync();
+    auto __result = withCxxResult<Promise<double>>([&](void* __outResult) {
+      return _swiftPart.promiseReturnsInstantlyAsync(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -661,7 +689,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<double> HybridTestObjectSwiftKotlinSpecSwift::createPendingPromise() {
-    auto __result = _swiftPart.createPendingPromise();
+    auto __result = withCxxResult<Promise<double>>([&](void* __outResult) {
+      return _swiftPart.createPendingPromise(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -676,7 +706,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<void> HybridTestObjectSwiftKotlinSpecSwift::promiseThatResolvesVoidInstantly() {
-    auto __result = _swiftPart.promiseThatResolvesVoidInstantly();
+    auto __result = withCxxResult<Promise<void>>([&](void* __outResult) {
+      return _swiftPart.promiseThatResolvesVoidInstantly(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -684,7 +716,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<swift::Optional<double>> HybridTestObjectSwiftKotlinSpecSwift::promiseThatResolvesToUndefined() {
-    auto __result = _swiftPart.promiseThatResolvesToUndefined();
+    auto __result = withCxxResult<Promise<swift::Optional<double>>>([&](void* __outResult) {
+      return _swiftPart.promiseThatResolvesToUndefined(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -692,7 +726,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<swift::Optional<double>> HybridTestObjectSwiftKotlinSpecSwift::awaitNullablePromise() {
-    auto __result = _swiftPart.awaitNullablePromise();
+    auto __result = withCxxResult<Promise<swift::Optional<double>>>([&](void* __outResult) {
+      return _swiftPart.awaitNullablePromise(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -700,7 +736,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<double> HybridTestObjectSwiftKotlinSpecSwift::awaitAndGetPromise(const Promise<double>& promise) {
-    auto __result = _swiftPart.awaitAndGetPromise(promise);
+    auto __result = ([&](const void* promise) {
+      return withCxxResult<Promise<double>>([&](void* __outResult) {
+        return _swiftPart.awaitAndGetPromise(promise, __outResult);
+      });
+    })(std::addressof(promise));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -708,7 +748,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<::NitroTest::Car> HybridTestObjectSwiftKotlinSpecSwift::awaitAndGetComplexPromise(const Promise<::NitroTest::Car>& promise) {
-    auto __result = _swiftPart.awaitAndGetComplexPromise(promise);
+    auto __result = ([&](const void* promise) {
+      return withCxxResult<Promise<::NitroTest::Car>>([&](void* __outResult) {
+        return _swiftPart.awaitAndGetComplexPromise(promise, __outResult);
+      });
+    })(std::addressof(promise));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -716,7 +760,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<void> HybridTestObjectSwiftKotlinSpecSwift::awaitPromise(const Promise<void>& promise) {
-    auto __result = _swiftPart.awaitPromise(promise);
+    auto __result = ([&](const void* promise) {
+      return withCxxResult<Promise<void>>([&](void* __outResult) {
+        return _swiftPart.awaitPromise(promise, __outResult);
+      });
+    })(std::addressof(promise));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -724,7 +772,9 @@ namespace margelo::nitro::test {
   }
 
   void HybridTestObjectSwiftKotlinSpecSwift::callCallback(const Callback<void()>& callback) {
-    auto __result = _swiftPart.callCallback(callback);
+    auto __result = ([&](const void* callback) {
+      return _swiftPart.callCallback(callback);
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -746,7 +796,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<void> HybridTestObjectSwiftKotlinSpecSwift::callCallbackThatReturnsPromiseVoid(const Callback<Promise<void>()>& callback) {
-    auto __result = _swiftPart.callCallbackThatReturnsPromiseVoid(callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<void>>([&](void* __outResult) {
+        return _swiftPart.callCallbackThatReturnsPromiseVoid(callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -754,21 +808,33 @@ namespace margelo::nitro::test {
   }
 
   void HybridTestObjectSwiftKotlinSpecSwift::callAll(const Callback<void()>& first, const Callback<void()>& second, const Callback<void()>& third) {
-    auto __result = _swiftPart.callAll(first, second, third);
+    auto __result = ([&](const void* first) {
+      return ([&](const void* second) {
+        return ([&](const void* third) {
+          return _swiftPart.callAll(first, second, third);
+        })(std::addressof(third));
+      })(std::addressof(second));
+    })(std::addressof(first));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
   }
 
   void HybridTestObjectSwiftKotlinSpecSwift::callWithOptional(const swift::Optional<double>& value, const Callback<void(const swift::Optional<double>&)>& callback) {
-    auto __result = _swiftPart.callWithOptional(value, callback);
+    auto __result = ([&](const void* callback) {
+      return _swiftPart.callWithOptional(value, callback);
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
   }
 
   Promise<double> HybridTestObjectSwiftKotlinSpecSwift::callSumUpNTimes(const Callback<double()>& callback, double n) {
-    auto __result = _swiftPart.callSumUpNTimes(callback, n);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<double>>([&](void* __outResult) {
+        return _swiftPart.callSumUpNTimes(callback, n, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -776,7 +842,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<double> HybridTestObjectSwiftKotlinSpecSwift::callbackAsyncPromise(const Callback<Promise<double>()>& callback) {
-    auto __result = _swiftPart.callbackAsyncPromise(callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<double>>([&](void* __outResult) {
+        return _swiftPart.callbackAsyncPromise(callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -784,7 +854,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<ArrayBuffer> HybridTestObjectSwiftKotlinSpecSwift::callbackAsyncPromiseBuffer(const Callback<Promise<ArrayBuffer>()>& callback) {
-    auto __result = _swiftPart.callbackAsyncPromiseBuffer(callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<ArrayBuffer>>([&](void* __outResult) {
+        return _swiftPart.callbackAsyncPromiseBuffer(callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -792,7 +866,9 @@ namespace margelo::nitro::test {
   }
 
   Callback<void(double)> HybridTestObjectSwiftKotlinSpecSwift::getComplexCallback() {
-    auto __result = _swiftPart.getComplexCallback();
+    auto __result = withCxxResult<Callback<void(double)>>([&](void* __outResult) {
+      return _swiftPart.getComplexCallback(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -807,14 +883,20 @@ namespace margelo::nitro::test {
   }
 
   void HybridTestObjectSwiftKotlinSpecSwift::errorCallback(const Callback<void(const std::exception_ptr&)>& onError) {
-    auto __result = _swiftPart.errorCallback(onError);
+    auto __result = ([&](const void* onError) {
+      return _swiftPart.errorCallback(onError);
+    })(std::addressof(onError));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
   }
 
   Callback<void(double)> HybridTestObjectSwiftKotlinSpecSwift::createNativeCallback(const Callback<void(double)>& wrappingJsCallback) {
-    auto __result = _swiftPart.createNativeCallback(wrappingJsCallback);
+    auto __result = ([&](const void* wrappingJsCallback) {
+      return withCxxResult<Callback<void(double)>>([&](void* __outResult) {
+        return _swiftPart.createNativeCallback(wrappingJsCallback, __outResult);
+      });
+    })(std::addressof(wrappingJsCallback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -822,7 +904,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<double> HybridTestObjectSwiftKotlinSpecSwift::getValueFromJSCallbackAndWait(const Callback<double()>& getValue) {
-    auto __result = _swiftPart.getValueFromJSCallbackAndWait(getValue);
+    auto __result = ([&](const void* getValue) {
+      return withCxxResult<Promise<double>>([&](void* __outResult) {
+        return _swiftPart.getValueFromJSCallbackAndWait(getValue, __outResult);
+      });
+    })(std::addressof(getValue));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -830,7 +916,13 @@ namespace margelo::nitro::test {
   }
 
   Promise<void> HybridTestObjectSwiftKotlinSpecSwift::getValueFromJsCallback(const Callback<swift::String()>& callback, const Callback<void(const swift::String&)>& andThenCall) {
-    auto __result = _swiftPart.getValueFromJsCallback(callback, andThenCall);
+    auto __result = ([&](const void* callback) {
+      return ([&](const void* andThenCall) {
+        return withCxxResult<Promise<void>>([&](void* __outResult) {
+          return _swiftPart.getValueFromJsCallback(callback, andThenCall, __outResult);
+        });
+      })(std::addressof(andThenCall));
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -998,7 +1090,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<ArrayBuffer> HybridTestObjectSwiftKotlinSpecSwift::createArrayBufferAsync() {
-    auto __result = _swiftPart.createArrayBufferAsync();
+    auto __result = withCxxResult<Promise<ArrayBuffer>>([&](void* __outResult) {
+      return _swiftPart.createArrayBufferAsync(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -1182,7 +1276,9 @@ namespace margelo::nitro::test {
   }
 
   double HybridTestObjectSwiftKotlinSpecSwift::callbackSync(const Callback<double()>& callback) {
-    auto __result = _swiftPart.callbackSync(callback);
+    auto __result = ([&](const void* callback) {
+      return _swiftPart.callbackSync(callback);
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -1190,7 +1286,9 @@ namespace margelo::nitro::test {
   }
 
   Callback<double()> HybridTestObjectSwiftKotlinSpecSwift::getSyncNumberCallback() {
-    auto __result = _swiftPart.getSyncNumberCallback();
+    auto __result = withCxxResult<Callback<double()>>([&](void* __outResult) {
+      return _swiftPart.getSyncNumberCallback(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -1198,7 +1296,11 @@ namespace margelo::nitro::test {
   }
 
   Callback<int64_t(int64_t)> HybridTestObjectSwiftKotlinSpecSwift::bounceSyncInt64Callback(const Callback<int64_t(int64_t)>& callback) {
-    auto __result = _swiftPart.bounceSyncInt64Callback(callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Callback<int64_t(int64_t)>>([&](void* __outResult) {
+        return _swiftPart.bounceSyncInt64Callback(callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -1242,7 +1344,9 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx HybridTestObjectSwiftKotlinSpecSwift::createExternalVariantFromFunc(const Callback<::NitroTestExternal::HybridSomeExternalObjectSpec_cxx()>& factory) {
-    auto __result = _swiftPart.createExternalVariantFromFunc(factory);
+    auto __result = ([&](const void* factory) {
+      return _swiftPart.createExternalVariantFromFunc(factory);
+    })(std::addressof(factory));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -1268,7 +1372,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx> HybridTestObjectSwiftKotlinSpecSwift::newTestObjectAsync() {
-    auto __result = _swiftPart.newTestObjectAsync();
+    auto __result = withCxxResult<Promise<::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx>>([&](void* __outResult) {
+      return _swiftPart.newTestObjectAsync(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }

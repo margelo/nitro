@@ -239,30 +239,32 @@ public final class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
     }
   }
 
-  public final func callbackSync(callback: margelo.nitro.test.swift_bridge.Callback_double) -> bridge.Result_double {
+  public final func callbackSync(callback: UnsafeRawPointer) -> bridge.Result_double {
     do {
-      let value = try __implementation.callbackSync(callback: callback)
+      let value = try __implementation.callbackSync(callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_double.self))
       return bridge.Result_double.withValue(value)
     } catch {
       return bridge.Result_double.withError(error.toCpp())
     }
   }
 
-  public final func promiseReturnsInstantly() -> bridge.Result_Promise_double_ {
+  public final func promiseReturnsInstantly(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.promiseReturnsInstantly()
-      return bridge.Result_Promise_double_.withValue(value.toCpp())
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
     } catch {
-      return bridge.Result_Promise_double_.withError(error.toCpp())
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func createPendingPromise() -> bridge.Result_Promise_double_ {
+  public final func createPendingPromise(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.createPendingPromise()
-      return bridge.Result_Promise_double_.withValue(value.toCpp())
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
     } catch {
-      return bridge.Result_Promise_double_.withError(error.toCpp())
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
 

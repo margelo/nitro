@@ -33,6 +33,7 @@ namespace margelo::nitro::test::external { class HybridBaseSpecSwift; }
 #include <NitroModules/NitroDefines.hpp>
 // Forward declaration of `HybridSharedSpecializationsSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test::external { class HybridSharedSpecializationsSpecSwift; }
+#include <memory>
 // Forward declaration of `HybridSomeExternalObjectSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test::external { class HybridSomeExternalObjectSpecSwift; }
 
@@ -58,7 +59,6 @@ namespace margelo::nitro::test::external::swift_bridge {
   Promise<::NitroTestExternal::Size> callAsync_Callback___NitroTestExternal__Size___NitroTestExternal__Size(const Callback___NitroTestExternal__Size___NitroTestExternal__Size& callback, const void* NON_NULL param0);
   void callAndForget_Callback___NitroTestExternal__Size___NitroTestExternal__Size(const Callback___NitroTestExternal__Size___NitroTestExternal__Size& callback, const void* NON_NULL param0);
   Callback___NitroTestExternal__Size___NitroTestExternal__Size create_Callback___NitroTestExternal__Size___NitroTestExternal__Size(std::function<Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
-  using Result_Promise___NitroTestExternal__Size_ = Result<Promise<::NitroTestExternal::Size>, margelo::nitro::test::external::swift_bridge::ResultTag>;
   using Result_void_ = Result<void*, margelo::nitro::test::external::swift_bridge::ResultTag>;
   using std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_ = std::shared_ptr<margelo::nitro::test::external::HybridSharedSpecializationsSpecSwift>;
   using std__weak_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_ = std::weak_ptr<margelo::nitro::test::external::HybridSharedSpecializationsSpecSwift>;
@@ -104,12 +104,42 @@ namespace margelo::nitro::test::external::swift_bridge {
   Promise<Promise<double>> callAsync_Callback_Promise_double_(const Callback_Promise_double_& callback);
   void callAndForget_Callback_Promise_double_(const Callback_Promise_double_& callback);
   Callback_Promise_double_ create_Callback_Promise_double_(std::function<Result<Promise<double>, margelo::nitro::test::external::swift_bridge::ResultTag>()> closure);
-  using InlineCallback_void = InlineCallback<void()>;
+  // TODO: Replace this borrowing facade with a typealias once our minimum Xcode includes
+  // https://github.com/swiftlang/swift/pull/93321, which fixes https://github.com/swiftlang/swift/issues/93318.
+  // Exporting the same imported InlineCallback specialization from two Swift headers duplicates its traits.
+  class SWIFT_NONCOPYABLE SWIFT_NONESCAPABLE SWIFT_CONFORMS_TO_PROTOCOL(NitroModules.CxxInlineCallback) InlineCallback_void final {
+  public:
+    InlineCallback_void(const InlineCallback<void()>& callback [[clang::lifetimebound]]) : _callback(std::addressof(callback)) {}
+    InlineCallback_void(const InlineCallback_void&) = delete;
+    InlineCallback_void(InlineCallback_void&&) = default;
+
+    const InlineCallback<void()>& get() const SWIFT_PRIVATE {
+      return *_callback;
+    }
+    Callback_void escape() const;
+
+  private:
+    const InlineCallback<void()>* NON_NULL _callback;
+  };
   Result<void, margelo::nitro::test::external::swift_bridge::ResultTag> call_InlineCallback_void(const InlineCallback_void& callback) noexcept;
-  using InlineCallback_double_double = InlineCallback<double(double)>;
+  // TODO: Replace this borrowing facade with a typealias once our minimum Xcode includes
+  // https://github.com/swiftlang/swift/pull/93321, which fixes https://github.com/swiftlang/swift/issues/93318.
+  // Exporting the same imported InlineCallback specialization from two Swift headers duplicates its traits.
+  class SWIFT_NONCOPYABLE SWIFT_NONESCAPABLE SWIFT_CONFORMS_TO_PROTOCOL(NitroModules.CxxInlineCallback) InlineCallback_double_double final {
+  public:
+    InlineCallback_double_double(const InlineCallback<double(double)>& callback [[clang::lifetimebound]]) : _callback(std::addressof(callback)) {}
+    InlineCallback_double_double(const InlineCallback_double_double&) = delete;
+    InlineCallback_double_double(InlineCallback_double_double&&) = default;
+
+    const InlineCallback<double(double)>& get() const SWIFT_PRIVATE {
+      return *_callback;
+    }
+    Callback_double_double escape() const;
+
+  private:
+    const InlineCallback<double(double)>* NON_NULL _callback;
+  };
   Result<double, margelo::nitro::test::external::swift_bridge::ResultTag> call_InlineCallback_double_double(const InlineCallback_double_double& callback, double param0) noexcept;
-  using Result_Promise_swift__String_ = Result<Promise<swift::String>, margelo::nitro::test::external::swift_bridge::ResultTag>;
-  using Result_Callback_void_double__ = Result<Callback<void(double)>, margelo::nitro::test::external::swift_bridge::ResultTag>;
   using std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ = std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift>;
   using std__weak_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ = std::weak_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift>;
   inline std__weak_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ weakify_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(const std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_& value) {

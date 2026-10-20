@@ -45,7 +45,11 @@ namespace margelo::nitro::test {
   }
 
   Promise<::NitroTest::Size> HybridBaseSpecSwift::mapSize(const ::NitroTest::Size& size, const Callback<::NitroTest::Size(const ::NitroTest::Size&)>& callback) {
-    auto __result = _swiftPart.mapSize(size, callback);
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<::NitroTest::Size>>([&](void* __outResult) {
+        return _swiftPart.mapSize(size, callback, __outResult);
+      });
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
