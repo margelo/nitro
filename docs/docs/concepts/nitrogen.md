@@ -158,6 +158,8 @@ You should push the files in `./nitrogen/generated/` to git, and make sure those
 This way your library will always ship a working package as a whole (including generated interfaces), and the user does not need to do anything else than to install your package.
 :::
 
+Nitrogen always writes a `.gitattributes` file in the output directory with `** linguist-generated=true`. GitHub uses this to collapse generated files in diffs and exclude them from language statistics.
+
 ### 3. Add generated sources to your library
 
 All the generated sources (`./nitrogen/generated/`) need to be part of your library's code - so we need to add it to the iOS/Android build files.

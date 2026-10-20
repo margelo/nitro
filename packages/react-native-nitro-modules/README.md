@@ -1,8 +1,8 @@
 <a href="https://nitro.margelo.com">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="../../docs/static/img/banner-react-native-nitro-modules-dark.png" />
-    <source media="(prefers-color-scheme: light)" srcset="../../docs/static/img/banner-react-native-nitro-modules-light.png" />
-    <img alt="React Native Nitro Modules" src="../../docs/static/img/banner-react-native-nitro-modules-light.png" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/margelo/nitro/main/docs/static/img/banner-react-native-nitro-modules-dark.png" />
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/margelo/nitro/main/docs/static/img/banner-react-native-nitro-modules-light.png" />
+    <img alt="React Native Nitro Modules" src="https://raw.githubusercontent.com/margelo/nitro/main/docs/static/img/banner-react-native-nitro-modules-light.png" />
   </picture>
 </a>
 
@@ -21,6 +21,8 @@ Install [react-native-nitro-modules](https://npmjs.org/react-native-nitro-module
 npm i react-native-nitro-modules
 cd ios && pod install
 ```
+
+The package re-exports the shared `nitro-core` API and installs it into the React Native runtime.
 
 ### Inside a nitro module library
 
@@ -87,7 +89,7 @@ private:
 };
 ```
 
-The `MyHybridObject` can then be registered in the [`HybridObjectRegistry`](./cpp/registry/HybridObjectRegistry.hpp) at app startup:
+The `MyHybridObject` can then be registered in the [`HybridObjectRegistry`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/registry/HybridObjectRegistry.hpp) at app startup:
 
 ```cpp
 #include <NitroModules/HybridObjectRegistry.hpp>
@@ -103,7 +105,7 @@ void load() {
 }
 ```
 
-Inside your `MyHybridObject`, you can use standard C++ types which will automatically be converted to JS using Nitro's [`JSIConverter<T>`](./cpp/jsi/JSIConverter.hpp) interface.
+Inside your `MyHybridObject`, you can use standard C++ types which will automatically be converted to JS using Nitro's [`JSIConverter<T>`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/jsi/JSIConverter.hpp) interface.
 
 The following C++ / JS types are supported out of the box:
 
@@ -189,9 +191,9 @@ The following C++ / JS types are supported out of the box:
   </tr>
   <tr>
     <td><code>(T...) =&gt; R</code></td>
-    <td><code>std::function&lt;std::shared_ptr&lt;<a href="./cpp/core/Promise.hpp">Promise&lt;R&gt;</a>&gt; (T...)&gt;</code></td>
-    <td><code>(T...) -&gt; <a href="./ios/core/Promise.swift">Promise&lt;T&gt;</a></code></td>
-    <td><code>(T...) -&gt; <a href="./android/src/main/java/com/margelo/nitro/core/Promise.kt">Promise&lt;T&gt;</a></code></td>
+    <td><code>std::function&lt;std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/Promise.hpp">Promise&lt;R&gt;</a>&gt; (T...)&gt;</code></td>
+    <td><code>(T...) -&gt; <a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/Promise.swift">Promise&lt;T&gt;</a></code></td>
+    <td><code>(T...) -&gt; <a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/Promise.kt">Promise&lt;T&gt;</a></code></td>
   </tr>
   <tr>
     <td><code>Sync&lt;(T...) =&gt; R&gt;</code></td>
@@ -207,21 +209,21 @@ The following C++ / JS types are supported out of the box:
   </tr>
   <tr>
     <td><code>Promise&lt;T&gt;</code></td>
-    <td><code>std::shared_ptr&lt;<a href="./cpp/core/Promise.hpp">Promise&lt;T&gt;</a>&gt;</code></td>
-    <td><code><a href="./ios/core/Promise.swift">Promise&lt;T&gt;</a></code></td>
-    <td><code><a href="./android/src/main/java/com/margelo/nitro/core/Promise.kt">Promise&lt;T&gt;</a></code></td>
+    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/Promise.hpp">Promise&lt;T&gt;</a>&gt;</code></td>
+    <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/Promise.swift">Promise&lt;T&gt;</a></code></td>
+    <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/Promise.kt">Promise&lt;T&gt;</a></code></td>
   </tr>
   <tr>
-    <td><code><a href="./src/AnyMap.ts">AnyMap</a></code></td>
-    <td><code>std::shared_ptr&lt;<a href="./cpp/core/AnyMap.hpp">AnyMap</a>&gt;</code></td>
-    <td><code><a href="./ios/core/AnyMap.swift">AnyMap</a></code></td>
-    <td><code><a href="./android/src/main/java/com/margelo/nitro/core/AnyMap.kt">AnyMap</a></code></td>
+    <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/js/src/AnyMap.ts">AnyMap</a></code></td>
+    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/AnyMap.hpp">AnyMap</a>&gt;</code></td>
+    <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/AnyMap.swift">AnyMap</a></code></td>
+    <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/AnyMap.kt">AnyMap</a></code></td>
   </tr>
   <tr>
     <td><code>ArrayBuffer</code></td>
-    <td><code>std::shared_ptr&lt;<a href="./cpp/core/ArrayBuffer.hpp">ArrayBuffer</a>&gt;</code></td>
-    <td><code><a href="./ios/core/ArrayBuffer.swift">ArrayBuffer</a></code></td>
-    <td><code><a href="./android/src/main/java/com/margelo/nitro/core/ArrayBuffer.kt">ArrayBuffer</a></code></td>
+    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/ArrayBuffer.hpp">ArrayBuffer</a>&gt;</code></td>
+    <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/ArrayBuffer.swift">ArrayBuffer</a></code></td>
+    <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/ArrayBuffer.kt">ArrayBuffer</a></code></td>
   </tr>
   <tr>
     <td><code>Date</code></td>
@@ -230,10 +232,10 @@ The following C++ / JS types are supported out of the box:
     <td><code>java.time.Instant</code></td>
   </tr>
   <tr>
-    <td>..any <code><a href="./src/HybridObject.ts">HybridObject</a></code></td>
-    <td><code>std::shared_ptr&lt;<a href="./cpp/core/HybridObject.hpp">HybridObject</a>&gt;</code></td>
-    <td><code><a href="./ios/core/HybridObject.swift">HybridObject</a></code></td>
-    <td><code><a href="./android/src/main/java/com/margelo/nitro/core/HybridObject.kt">HybridObject</a></code></td>
+    <td>..any <code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/js/src/HybridObject.ts">HybridObject</a></code></td>
+    <td><code>std::shared_ptr&lt;<a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/HybridObject.hpp">HybridObject</a>&gt;</code></td>
+    <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/HybridObject.swift">HybridObject</a></code></td>
+    <td><code><a href="https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/HybridObject.kt">HybridObject</a></code></td>
   </tr>
   <tr>
     <td>..any <code>interface</code></td>
@@ -297,4 +299,4 @@ const value = myHybridObject.getEnumValue() // <-- typed as `MyEnum` instead of 
 
 Make sure to always include the header that defines the `JSIConverter<MyEnum>` overload inside the `MyHybridObject` file, as this is where the `JSIConverter<T>` overloads are accessed from.
 
-[**Nitrogen**](../nitrogen/) can automatically generate such `JSIConverter<T>` extensions for enums, TypeScript unions, and even structs/objects - so it is generally recommended to use nitrogen.
+[**Nitrogen**](https://github.com/margelo/nitro/tree/main/packages/nitrogen) can automatically generate such `JSIConverter<T>` extensions for enums, TypeScript unions, and even structs/objects - so it is generally recommended to use nitrogen.

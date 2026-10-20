@@ -76,7 +76,7 @@ body:
     attributes:
       label: Can you build the Nitro Modules Example app?
       description: >
-        Try to build the example app (`apps/example/`) and see if the issue is reproduceable here.
+        Try the example app in [Nitro](https://github.com/margelo/nitro/tree/main/tests/react-native/apps/example) and check whether it reproduces the issue.
         **Note:** If you don't try to build the example app, I most likely won't help you with your issue.
       options:
         - I didn't try (⚠️ your issue might get ignored & closed if you don't try this)
@@ -94,6 +94,6 @@ body:
         - label: I am using nitrogen
         - label: I have read and followed the [Troubleshooting Guide](https://nitro.margelo.com/docs/troubleshooting).
           required: true
-        - label: I created a reproduction PR to reproduce this issue here in the nitro repo. (See [Contributing](https://nitro.margelo.com/docs/contributing) for more information)
+        - label: I created a reproduction PR in [Nitro](https://github.com/margelo/nitro) and linked it here. (See [Contributing](https://nitro.margelo.com/docs/resources/contributing) for more information)
         - label: I searched for [similar issues in this repository](https://github.com/margelo/nitro/issues) and found none.
           required: true

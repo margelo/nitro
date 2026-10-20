@@ -27,7 +27,7 @@ This allows your native code to perform heavy-, long-running tasks in parallel, 
     :::
   </TabItem>
   <TabItem value="swift" label="Swift">
-    In Swift, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/main/packages/react-native-nitro-modules/ios/core/Promise.swift) type - for example, to use Swift's new async/await syntax:
+    In Swift, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/apple/core/Promise.swift) type - for example, to use Swift's new async/await syntax:
 
     ```swift
     func fibonacci(n: Double) -> Promise<Double> {
@@ -43,7 +43,7 @@ This allows your native code to perform heavy-, long-running tasks in parallel, 
     :::
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
-    In Kotlin, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/main/packages/react-native-nitro-modules/android/src/main/java/com/margelo/nitro/core/Promise.kt) type - for example, to use Kotlin's coroutine syntax:
+    In Kotlin, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/Promise.kt) type - for example, to use Kotlin's coroutine syntax:
 
     ```kotlin
     fun fibonacci(n: Double): Promise<Double> {
@@ -59,7 +59,7 @@ This allows your native code to perform heavy-, long-running tasks in parallel, 
     :::
   </TabItem>
   <TabItem value="cpp" label="C++">
-    In C++, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/main/packages/react-native-nitro-modules/cpp/core/Promise.hpp) type - for example, to use an asynchronous Thread pool:
+    In C++, a `Promise<T>` can be created via Nitro's [`Promise<T>`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/Promise.hpp) type - for example, to use an asynchronous Thread pool:
 
     ```cpp
     std::shared_ptr<Promise<double>> fibonacci(double n) {

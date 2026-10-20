@@ -22,6 +22,6 @@ body:
       options:
         - label: I checked the [documentation](https://nitro.margelo.com/docs/) and couldn't find this feature.
           required: true
-        - label: I can create a PR to implement this feature. (See [Contributing](https://nitro.margelo.com/docs/contributing) for more information)
+        - label: I can create a PR to implement this feature. (See [Contributing](https://nitro.margelo.com/docs/resources/contributing) for more information)
         - label: I searched for [similar issues in this repository](https://github.com/margelo/nitro/issues) and found none.
           required: true

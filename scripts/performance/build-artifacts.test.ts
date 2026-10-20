@@ -53,10 +53,10 @@ for (const platform of ['android', 'ios'] as const) {
 set -eu
 echo "$(basename "$1") \${2:-com.margelo.nitrobenchmark}" >> "$GITHUB_WORKSPACE/builds"
 if [[ '${platform}' == android ]]; then
-  mkdir -p "$1/apps/benchmark/android/app/build/outputs/apk/release"
-  echo "$(basename "$1")" > "$1/apps/benchmark/android/app/build/outputs/apk/release/app-release.apk"
+  mkdir -p "$1/tests/react-native/apps/benchmark/android/app/build/outputs/apk/release"
+  echo "$(basename "$1")" > "$1/tests/react-native/apps/benchmark/android/app/build/outputs/apk/release/app-release.apk"
 else
-  APP="$1/apps/benchmark/ios/build-benchmark/Build/Products/Release-iphonesimulator/NitroBenchmark.app"
+  APP="$1/tests/react-native/apps/benchmark/ios/build-benchmark/Build/Products/Release-iphonesimulator/NitroBenchmark.app"
   mkdir -p "$APP"
   echo "$(basename "$1")" > "$APP/NitroBenchmark"
   chmod 755 "$APP/NitroBenchmark"

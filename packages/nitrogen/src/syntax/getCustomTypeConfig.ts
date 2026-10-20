@@ -1,4 +1,4 @@
-import type { CustomTypeConfig } from 'react-native-nitro-modules'
+import type { CustomTypeConfig } from 'nitro-core'
 import type { Type as TSMorphType } from 'ts-morph'
 
 interface Result {

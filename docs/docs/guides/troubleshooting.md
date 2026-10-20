@@ -19,7 +19,7 @@ If you want to ask for help, join our [Margelo Community Discord](https://margel
 
 ## Run the example app
 
-Each release of Nitro contains a pre-built release version of the [Nitro Example app](https://github.com/margelo/nitro/tree/main/example). You can run this by following the ["Running the Example app" guide](running-example-app).
+Each release of Nitro contains a pre-built release version of the [Nitro Example app](https://github.com/margelo/nitro/tree/main/tests/react-native/apps/example). You can run this by following the ["Running the Example app" guide](running-example-app).
 
 ## Build error
 

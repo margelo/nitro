@@ -1,4 +1,4 @@
-import type { PlatformSpec } from 'react-native-nitro-modules'
+import type { PlatformSpec } from 'nitro-core'
 import type { InterfaceDeclaration, Type, TypeAliasDeclaration } from 'ts-morph'
 import { Symbol } from 'ts-morph'
 import { getBaseTypes } from './utils.js'

@@ -30,18 +30,17 @@ Each request starts an independent workflow run and posts a new report comment,
 even when the commits have not changed. Re-running jobs within that workflow
 updates only that run's report, using its workflow run ID. Requests do not cancel
 one another. After publishing a report, the bot minimizes its older performance
-comments as **Outdated**, including legacy reports. It leaves other authors and
+comments as **Outdated**. It leaves other authors and
 unrelated comments alone; rerunning an older run never hides a newer report.
 The artifact links and attempt details are collapsed under
 **Raw measurements and artifacts**.
 
-The comment trigger and trusted publisher take effect after merging into the
-default branch. A comment event points at the default branch, so preparation
-resolves the PR's current base/head SHAs and head repository through GitHub before
+The comment trigger and trusted publisher run from the default branch.
+Preparation resolves the PR's current base/head SHAs and head repository through GitHub before
 checking out either revision. Forks are supported. Re-running all jobs resolves
 the current PR revisions again; measurement-only reruns reuse the saved apps.
 
-`Nitro Performance` builds the dedicated `apps/benchmark` Release/Hermes app.
+`Nitro Performance` builds the dedicated `tests/react-native/apps/benchmark` Release/Hermes app.
 Each platform installs base and head side by side on the same machine. It
 runs four pairs at each position in the apps' suite order: **AB, BA, BA, AB**
 (A = base, B = head), then moves to the next position. It finishes any remaining
@@ -58,7 +57,7 @@ work or OS scheduling from competing for the CPU. The Android crash monitor's
 one-second polling interval runs concurrently and does not delay measurements.
 
 Each case uses checked-in operation counts from
-[`iterations.ts`](../apps/benchmark/src/benchmarks/iterations.ts), separately for
+[`iterations.ts`](../tests/react-native/apps/benchmark/src/benchmarks/iterations.ts), separately for
 Android and iOS. Each revision uses its own checked-in counts and chunk sizes.
 Timings are divided by the operation count before comparison. The initial counts are rounded to two significant digits from the measured
 medians in [GitHub run 34125332141, attempt 1](https://github.com/margelo/nitro/actions/runs/34125332141/attempts/1),
@@ -167,8 +166,8 @@ failures. Stale PR results are skipped. User comments are never edited.
 
 The publication envelope is independent of raw app schema versions. Keep its
 filenames and identity fields stable when changing benchmarks or report rendering.
-Changes to the trusted upload code itself still take effect after merge; ordinary
-report changes do not. Raw app results currently use schema version 2.
+The trusted upload code runs from the default branch; report rendering runs from
+the PR head. Raw app results use schema version 2.
 
 The trusted workflow also performs the final Bencher upload with `BENCHER_KEY`;
 that secret never reaches HEAD code. Its CLI version and binary digest are pinned.
@@ -176,7 +175,7 @@ Bencher's JSON adapter validates the already-generated BMF files. The comment is
 posted first so an invalid BMF file cannot prevent the report from appearing.
 Bencher receives median latency values without invented bounds. PR publications
 seed both measured platform baselines at `baseline-<base SHA>` before recording
-the head at `pr-<number>`. Automatic main-branch history is no longer recorded.
+the head at `pr-<number>`. Pushes to `main` do not add Bencher history.
 Bencher receives history only: it does not post a second comment or create alert-driven
 checks.
 
@@ -192,16 +191,22 @@ from different hosts are not evidence of a Nitro performance change.
 The API 36 x86_64 emulator requires KVM. CI checks `/dev/kvm`, verifies acceleration
 before boot and uses `-accel on`; it must not silently use software CPU emulation.
 Software GPU rendering is separate. Base/head measurements stay on that machine.
+The performance emulator is pinned to 37.1.11 (build `15917651`), used by
+[successful run 34414142495](https://github.com/margelo/nitro/actions/runs/34414142495).
+Update `emulator-build` deliberately after validating a complete paired run and
+same-code variation on the new version. The runner image and API 36 system image
+can still change independently; the emulator pin does not freeze the whole testbed.
 Android process failures retain logcat and process-exit diagnostics. Both platforms
 bound boot time to five minutes and individual install/launch commands to two.
 
-The benchmark app shares real Nitro test packages without Harness/navigation UI.
-Correctness remains in `apps/example`. See the [benchmark app README](../apps/benchmark/README.md)
+The benchmark app uses the benchmark objects in `react-native-nitro-test`.
+HybridObject correctness tests live in `tests/standalone/test-runner`; the RN
+example covers Views and React Native integration. See the [benchmark app README](../tests/react-native/apps/benchmark/README.md)
 for local build and run commands.
 
 ## Nitro Modules Bot
 
-The paired PR comparison can post as a dedicated GitHub App named **Nitro Modules Bot**, using [`docs/static/img/nos.png`](../docs/static/img/nos.png)
+The paired PR comparison can post as a dedicated GitHub App named **Nitro Modules Bot**, using [Nitro logo](https://github.com/margelo/nitro/blob/main/docs/static/img/nos.png)
 as its avatar. The app needs no hosted service or webhook receiver; Actions
 creates short-lived installation tokens for the request acknowledgment and report
 publication in separate jobs that never execute PR code.
@@ -228,7 +233,6 @@ The acknowledgment job requests both Issues and Pull requests write permissions
 so it can react to PR conversation comments. The publisher requests Pull requests
 write permission. Both tokens are restricted to the current repository.
 The token action revokes each token at the end of its job. Build and measurement jobs never receive the app key. Bencher publishing retains its existing token.
-Bot authentication and upload changes take effect after reaching the default branch; report rendering runs from HEAD.
 
 Without the Client ID variable, comments and reactions use `github-actions[bot]`.
 Removing that variable switches back to the default identity. Configured app
@@ -237,16 +241,8 @@ Each workflow run creates its own comment under the configured identity. Reruns
 update only the matching run's comment from that bot. Switching identities creates
 a new comment; earlier comments keep their original author and avatar.
 
-## Remaining upstream warnings
+## SDK manager warnings
 
-The benchmark now uses the supported ReactModuleInfo constructor and matching
-`reactContext` parameter name. Its Gradle property assignments use current syntax.
-AGP/RN and Nitro package Gradle warnings remain outside that focused app edit.
-Android uses supported `-gpu swiftshader` with required KVM CPU acceleration.
-
-The emulator action hardcodes `cmdline-tools/latest`. Older hosted SDK managers
-can still emit the XML v3/v4 metadata warning. Updating only the action does not
-replace an installed SDK manager; latest command-line tools 23 also deprecates
-`sdkmanager` in favor of the Android CLI. This change logs the selected SDK manager
-and version, and leaves provisioning to the runner/action rather than patching its
-SDK layout. This inherited warning is not suppressed.
+The emulator action uses `cmdline-tools/latest` from the runner's Android SDK.
+Older SDK managers can emit the XML v3/v4 metadata warning. CI logs the selected
+SDK manager and version so these warnings can be traced to the installed tools.

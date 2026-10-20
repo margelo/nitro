@@ -1,0 +1,22 @@
+pluginManagement {
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
+}
+
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    google()
+    mavenCentral()
+  }
+}
+
+rootProject.name = 'NitroTestRunner'
+include ':hermes', ':nitro-core', ':nitro-test', ':nitro-test-external'
+project(':hermes').projectDir = file('../../hermes/android')
+project(':nitro-core').projectDir = file('../../nitro-core/android')
+project(':nitro-test-external').projectDir = file('../../nitro-test-external/android')
+project(':nitro-test').projectDir = file('../../nitro-test/android')

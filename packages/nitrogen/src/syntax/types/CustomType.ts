@@ -1,4 +1,4 @@
-import type { CustomTypeConfig } from 'react-native-nitro-modules'
+import type { CustomTypeConfig } from 'nitro-core'
 import type { Language } from '../../getPlatformSpecs.js'
 import type { SourceFile, SourceImport } from '../SourceFile.js'
 import type { Type, TypeKind } from './Type.js'

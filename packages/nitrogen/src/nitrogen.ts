@@ -24,7 +24,7 @@ import { createIOSAutolinking } from './autolinking/createIOSAutolinking.js'
 import { createAndroidAutolinking } from './autolinking/createAndroidAutolinking.js'
 import type { Autolinking } from './autolinking/Autolinking.js'
 import { createGitAttributes } from './createGitAttributes.js'
-import type { PlatformSpec } from 'react-native-nitro-modules'
+import type { PlatformSpec } from 'nitro-core'
 import { NITROGEN_VERSION } from './config/nitrogenVersion.js'
 
 interface NitrogenOptions {
@@ -89,6 +89,7 @@ export async function runNitrogen({
   }
 
   const usedPlatforms: Platform[] = []
+  const hybridViewNames = new Set<string>()
   const filesAfter: string[] = []
   const writtenFiles: SourceFile[] = []
 
@@ -109,6 +110,7 @@ export async function runNitrogen({
         if (isHybridView(declaration.getType())) {
           // Hybrid View Props
           platformSpec = getHybridViewPlatforms(declaration)
+          hybridViewNames.add(typeName)
         } else if (extendsHybridObject(declaration.getType(), true)) {
           // Hybrid View
           platformSpec = getHybridObjectPlatforms(declaration)
@@ -198,7 +200,7 @@ export async function runNitrogen({
   const autolinkingFiles: Autolinking[] = []
 
   if (usedPlatforms.includes('ios')) {
-    autolinkingFiles.push(createIOSAutolinking())
+    autolinkingFiles.push(createIOSAutolinking(hybridViewNames))
   }
   if (usedPlatforms.includes('android')) {
     autolinkingFiles.push(createAndroidAutolinking(writtenFiles))
@@ -220,8 +222,7 @@ export async function runNitrogen({
 
   try {
     // write a .gitattributes file
-    const markAsGenerated = NitroConfig.current.getGitAttributesGeneratedFlag()
-    const file = await createGitAttributes(markAsGenerated, outputDirectory)
+    const file = await createGitAttributes(outputDirectory)
     filesAfter.push(file)
   } catch {
     Logger.error(`❌  Failed to write ${chalk.dim(`.gitattributes`)}!`)

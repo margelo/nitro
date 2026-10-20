@@ -1,4 +1,4 @@
-import type { HybridObject } from '../HybridObject'
+import type { HybridObject } from 'nitro-core'
 
 /**
  * Describes the languages this view will be implemented in.

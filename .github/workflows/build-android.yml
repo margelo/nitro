@@ -1,38 +1,27 @@
-name: Build Android
+name: Build React Native Android
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/build-android.yml'
-      - 'apps/example/android/**'
-      - '**/nitrogen/generated/shared/**'
-      - '**/nitrogen/generated/android/**'
-      - 'packages/react-native-nitro-test/cpp/**'
-      - 'packages/react-native-nitro-test/android/**'
-      - 'packages/react-native-nitro-test-external/cpp/**'
-      - 'packages/react-native-nitro-test-external/android/**'
-      - 'packages/react-native-nitro-modules/cpp/**'
-      - 'packages/react-native-nitro-modules/android/**'
-      - '**/bun.lock'
-      - '**/react-native.config.js'
-      - '**/nitro.json'
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
   pull_request:
     paths:
       - '.github/workflows/build-android.yml'
-      - 'apps/example/android/**'
-      - '**/nitrogen/generated/shared/**'
-      - '**/nitrogen/generated/android/**'
-      - 'packages/react-native-nitro-test/cpp/**'
-      - 'packages/react-native-nitro-test/android/**'
-      - 'packages/react-native-nitro-test-external/cpp/**'
-      - 'packages/react-native-nitro-test-external/android/**'
-      - 'packages/react-native-nitro-modules/cpp/**'
-      - 'packages/react-native-nitro-modules/android/**'
-      - '**/bun.lock'
-      - '**/react-native.config.js'
-      - '**/nitro.json'
+      - 'packages/nitro-core/**'
+      - 'packages/nitrogen/**'
+      - 'packages/react-native-nitro-modules/**'
+      - 'tests/react-native/**'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/core-package.mjs'
+      - 'scripts/set-version.mjs'
+      - 'package.json'
+      - 'bun.lock'
+      - 'bunfig.toml'
+      - 'scripts/releases/**'
+      - 'config/**'
 
 env:
   # Build a single ABI in CI to reduce native compile time.
@@ -49,16 +38,23 @@ jobs:
           - '26'
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile
+
+      - name: Generate test bindings
+        run: bun specs
 
       - name: Set minSdk in build.gradle
-        run: sed -i "s/minSdkVersion = 24/minSdkVersion = ${{ matrix.min-sdk }}/g" apps/example/android/build.gradle
+        run: sed -i "s/minSdkVersion = 24/minSdkVersion = ${{ matrix.min-sdk }}/g" tests/react-native/apps/example/android/build.gradle
 
       - name: Setup JDK 17
-        uses: actions/setup-java@v6.0.0
+        uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: 17
@@ -70,17 +66,17 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            apps/example/android/.gradle
-            apps/example/android/app/.cxx
+            tests/react-native/apps/example/android/.gradle
+            tests/react-native/apps/example/android/app/.cxx
           key: ${{ runner.os }}-gradle-${{ matrix.min-sdk }}-${{ env.TARGET_ANDROID_ARCH }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: |
             ${{ runner.os }}-gradle-${{ matrix.min-sdk }}-${{ env.TARGET_ANDROID_ARCH }}-
             ${{ runner.os }}-gradle-
-      - name: Run Gradle Build for apps/example/android/
-        working-directory: apps/example/android
+      - name: Run Gradle Build for tests/react-native/apps/example/android/
+        working-directory: tests/react-native/apps/example/android
         run: ./gradlew :app:assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=${{ env.TARGET_ANDROID_ARCH }}
 
       # Gradle cache doesn't like daemons
       - name: Stop Gradle Daemon
-        working-directory: apps/example/android
+        working-directory: tests/react-native/apps/example/android
         run: ./gradlew --stop

@@ -1,43 +1,25 @@
-import type { BenchmarkRunConfiguration } from '../../apps/benchmark/src/benchmarks/types'
+import type { BenchmarkRunConfiguration } from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 import path from 'node:path'
 import { mkdir, readFile } from 'node:fs/promises'
 import { validateBenchmarkRun } from './schema'
+import { commandOutput, saveAndroidFailure } from './diagnostics'
 
 async function command(
   executable: string,
   argumentsList: string[],
   allowFailure = false
 ): Promise<void> {
-  const child = Bun.spawn([executable, ...argumentsList], {
-    stdout: 'inherit',
-    stderr: 'inherit',
-    timeout: 120_000,
-    killSignal: 'SIGKILL',
-  })
-  const exitCode = await child.exited
-  if (exitCode !== 0 && !allowFailure) {
+  const result = await commandOutput(executable, argumentsList, 120_000)
+  if (result.stdout) console.info(result.stdout)
+  if (result.stderr) console.error(result.stderr)
+  if (
+    (result.exitCode !== 0 || result.timedOut || result.truncated) &&
+    !allowFailure
+  ) {
     throw new Error(
-      `${executable} ${argumentsList.join(' ')} failed with exit code ${exitCode}.`
+      `${executable} ${argumentsList.join(' ')} failed with exit code ${result.exitCode}.\n${JSON.stringify(result, null, 2)}`
     )
   }
-}
-
-async function commandOutput(
-  executable: string,
-  argumentsList: string[]
-): Promise<{ exitCode: number; output: string }> {
-  const child = Bun.spawn([executable, ...argumentsList], {
-    stdout: 'pipe',
-    stderr: 'ignore',
-    timeout: 15_000,
-    killSignal: 'SIGKILL',
-    maxBuffer: 2 * 1024 * 1024,
-  })
-  const [exitCode, output] = await Promise.all([
-    child.exited,
-    new Response(child.stdout).text(),
-  ])
-  return { exitCode, output }
 }
 
 /** Each call launches a fresh process and terminates it before returning. */
@@ -98,9 +80,15 @@ export async function runDeviceCase(
         'pidof',
         appId,
       ])
-      if (process.exitCode !== 0 || process.output.trim().length === 0) {
+      if (monitorCancelled) return
+      if (
+        process.exitCode !== 0 ||
+        process.timedOut ||
+        process.truncated ||
+        process.stdout.trim().length === 0
+      ) {
         throw new Error(
-          'Android benchmark app stopped before reporting results.'
+          `Android benchmark app could not be found before reporting results.\n${JSON.stringify(process, null, 2)}`
         )
       }
       await Bun.sleep(1_000)
@@ -164,29 +152,11 @@ export async function runDeviceCase(
     )
     return result
   } catch (error) {
+    monitorCancelled = true
     if (platform === 'android') {
       // Capture diagnostics before the emulator action tears down the target.
       // Nothing is collected during a successful timed batch.
-      const logs = await commandOutput('adb', [
-        '-s',
-        deviceId,
-        'logcat',
-        '-d',
-        '-t',
-        '1000',
-      ])
-      const exits = await commandOutput('adb', [
-        '-s',
-        deviceId,
-        'shell',
-        'dumpsys',
-        'activity',
-        'exit-info',
-        appId,
-      ])
-      const diagnostics = `${logs.output}\n${exits.output}`
-      await Bun.write(output.replace(/\.json$/, '.failure.log'), diagnostics)
-      console.error(diagnostics)
+      await saveAndroidFailure(deviceId, appId, output, error)
     }
     throw error
   } finally {

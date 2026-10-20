@@ -1,0 +1,108 @@
+name: Test standalone runtime (Android)
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/test-runtime-android.yml"
+      - "packages/nitro-core/**"
+      - "packages/nitrogen/**"
+      - "tests/standalone/**"
+      - "package.json"
+      - "bun.lock"
+      - "bunfig.toml"
+      - "scripts/releases/**"
+      - "config/**"
+      - "scripts/set-version.mjs"
+      - ".gitmodules"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runtime-android-${{ inputs.ref && github.run_id || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  junit:
+    name: Standalone Android (${{ matrix.sanitizer.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer:
+          - name: Default
+            flag: ""
+            api-level: 36
+          - name: ASan
+            flag: address
+            api-level: 33
+    env:
+      CMAKE_BUILD_PARALLEL_LEVEL: 2
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          submodules: recursive
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install native build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build libicu-dev
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0' 'ndk;29.0.14206865' 'cmake;3.22.1'
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Read pinned Hermes revision
+        id: hermes
+        run: echo "revision=$(git -C tests/standalone/hermes/hermes rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: tests/standalone/.build/hermes/host
+          key: hermes-host-${{ runner.os }}-${{ runner.arch }}-${{ steps.hermes.outputs.revision }}-${{ hashFiles('tests/standalone/hermes/build.mjs', 'tests/standalone/hermes/options.cmake') }}
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun test:prepare
+      - name: Build test APK
+        working-directory: tests/standalone/test-runner/android
+        run: ./gradlew :assembleDebugAndroidTest -PnitroTestAbi=x86_64 -PnitroSanitizer=${{ matrix.sanitizer.flag }} --no-daemon
+      - name: Run JUnit tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.sanitizer.api-level }}
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: cd tests/standalone/test-runner/android && ./gradlew :connectedDebugAndroidTest -PnitroTestAbi=x86_64 -PnitroSanitizer=${{ matrix.sanitizer.flag }} --no-daemon
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: runtime-android-results-${{ matrix.sanitizer.name }}
+          path: |
+            tests/standalone/test-runner/android/build/reports/androidTests
+            tests/standalone/test-runner/android/build/outputs/androidTest-results
+            tests/standalone/test-runner/build/runtime-tests.js
+            tests/standalone/test-runner/build/runtime-tests.js.map
+            tests/standalone/test-runner/build/runtime-tests.json
+            tests/standalone/test-runner/build/runtime-test-skips.json
+          if-no-files-found: ignore

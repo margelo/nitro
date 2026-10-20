@@ -77,7 +77,7 @@ const math = NitroModules.createHybridObject<Math>('Math')
 const boxed = NitroModules.box(math) // <-- jsi::HostObject
 ```
 
-The `boxed` object is a simple `jsi::HostObject` (see [`BoxedHybridObject.hpp`](https://github.com/margelo/nitro/blob/main/packages/react-native-nitro-modules/cpp/core/BoxedHybridObject.hpp)), which can later be _unboxed_ again:
+The `boxed` object is a simple `jsi::HostObject` (see [`BoxedHybridObject.hpp`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/BoxedHybridObject.hpp)), which can later be _unboxed_ again:
 
 ```ts
 const unboxed = boxed.unbox()    // <-- Math

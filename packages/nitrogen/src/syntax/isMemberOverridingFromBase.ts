@@ -1,4 +1,4 @@
-import type { HybridObject } from 'react-native-nitro-modules'
+import type { HybridObject } from 'nitro-core'
 import type { Language } from '../getPlatformSpecs.js'
 import type { HybridObjectSpec } from './HybridObjectSpec.js'
 

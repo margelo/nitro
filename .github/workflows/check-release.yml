@@ -1,0 +1,61 @@
+name: Check release tooling
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
+  pull_request:
+    paths:
+      [
+        'scripts/releases/**',
+        'scripts/release.sh',
+        'scripts/set-version.mjs',
+        'scripts/sync-core*.mjs',
+        'scripts/core-package.mjs',
+        'package.json',
+        'bun.lock',
+        'packages/**/package.json',
+        'tests/react-native/**/package.json',
+        'packages/nitro-core/js/src/version.ts',
+        'packages/nitro-core/native/cpp/utils/NitroDefines.hpp',
+        '.github/workflows/*.yml',
+      ]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: node --test scripts/releases/*.test.mjs scripts/sync-core.test.mjs
+      - uses: docker://rhysd/actionlint:1.7.12
+        with:
+          # queue:max is supported by GitHub; actionlint 1.7.12 predates it.
+          args: >-
+            -color -ignore unexpected.key..queue..for..concurrency..section
+            .github/workflows/release.yml
+            .github/workflows/build.yml
+            .github/workflows/build-docs.yml
+            .github/workflows/lint-cpp.yml
+            .github/workflows/lint-swift.yml
+            .github/workflows/lint-kotlin.yml
+            .github/workflows/lint-typescript.yml
+            .github/workflows/run-nitrogen.yml
+            .github/workflows/run-nitrogen-init.yml
+            .github/workflows/check-release.yml
+            .github/workflows/test-runtime-ios.yml
+            .github/workflows/test-runtime-android.yml
+            .github/workflows/build-ios.yml
+            .github/workflows/build-android.yml
+            .github/workflows/harness-ios.yml
+            .github/workflows/harness-android.yml

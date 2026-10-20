@@ -1,0 +1,212 @@
+name: Release Nitro
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Exact version, for example 0.37.2 or 0.38.0-beta.1'
+        required: true
+        type: string
+      npm-tag:
+        description: 'Optional npm tag (defaults to latest, beta, rc, etc.)'
+        required: false
+        type: string
+      dry-run:
+        description: 'Build and validate without committing or publishing'
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    if: >-
+      github.repository == 'margelo/nitro' && !github.event.deleted &&
+      ((github.event_name == 'release' && startsWith(github.ref, 'refs/tags/')) ||
+       ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'))
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.resolve.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Resolve release source
+        id: resolve
+        env:
+          RELEASE_MODE: ${{ github.event_name == 'push' && 'nightly' || 'manual' }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_EVENT_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
+        run: node scripts/releases/ci-ref.mjs
+
+  build:
+    needs: resolve
+    uses: ./.github/workflows/build.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  build-docs:
+    needs: resolve
+    uses: ./.github/workflows/build-docs.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  lint-cpp:
+    needs: resolve
+    uses: ./.github/workflows/lint-cpp.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  lint-swift:
+    needs: resolve
+    uses: ./.github/workflows/lint-swift.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  lint-kotlin:
+    needs: resolve
+    uses: ./.github/workflows/lint-kotlin.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  lint-typescript:
+    needs: resolve
+    uses: ./.github/workflows/lint-typescript.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  run-nitrogen:
+    needs: resolve
+    uses: ./.github/workflows/run-nitrogen.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  run-nitrogen-init:
+    needs: resolve
+    uses: ./.github/workflows/run-nitrogen-init.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  check-release:
+    needs: resolve
+    uses: ./.github/workflows/check-release.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  test-runtime-ios:
+    needs: resolve
+    uses: ./.github/workflows/test-runtime-ios.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  test-runtime-android:
+    needs: resolve
+    uses: ./.github/workflows/test-runtime-android.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  build-ios:
+    needs: resolve
+    uses: ./.github/workflows/build-ios.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  build-android:
+    needs: resolve
+    uses: ./.github/workflows/build-android.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  harness-ios:
+    needs: resolve
+    uses: ./.github/workflows/harness-ios.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  harness-android:
+    needs: resolve
+    uses: ./.github/workflows/harness-android.yml
+    with:
+      ref: ${{ needs.resolve.outputs.commit }}
+
+  release:
+    needs:
+      - resolve
+      - build
+      - build-docs
+      - lint-cpp
+      - lint-swift
+      - lint-kotlin
+      - lint-typescript
+      - run-nitrogen
+      - run-nitrogen-init
+      - check-release
+      - test-runtime-ios
+      - test-runtime-android
+      - build-ios
+      - build-android
+      - harness-ios
+      - harness-android
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    concurrency:
+      group: nitro-release
+      cancel-in-progress: false
+      queue: max
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: npm install --global npm@11.19.0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - name: Build, validate and release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_BRANCH: main
+          RELEASE_MODE: ${{ github.event_name == 'push' && 'nightly' || 'manual' }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_NPM_TAG: ${{ inputs.npm-tag }}
+          RELEASE_DRY_RUN: ${{ inputs.dry-run }}
+          RELEASE_EVENT_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
+          RELEASE_VALIDATED_COMMIT: ${{ needs.resolve.outputs.commit }}
+        run: node scripts/releases/core.mjs
+
+  # Releases created with GITHUB_TOKEN do not trigger other release workflows.
+  ios-artifacts:
+    needs: release
+    if: needs.release.outputs.tag != '' && github.event_name != 'release'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build-ios-release.yml
+    with:
+      release-tag: ${{ needs.release.outputs.tag }}
+
+  android-artifacts:
+    needs: release
+    if: needs.release.outputs.tag != '' && github.event_name != 'release'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build-android-release.yml
+    with:
+      release-tag: ${{ needs.release.outputs.tag }}

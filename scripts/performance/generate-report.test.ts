@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import type { BenchmarkRunResult } from '../../apps/benchmark/src/benchmarks/types'
+import type { BenchmarkRunResult } from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 
 const REPOSITORY = 'margelo/nitro'
 const BASE_SHA = 'a'.repeat(40)

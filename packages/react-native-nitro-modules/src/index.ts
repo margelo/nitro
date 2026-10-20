@@ -1,14 +1,9 @@
+import { NitroModules as NativeNitroModules } from './turbomodule/NativeNitroModules'
 import { installWorkletsSupport } from './worklets/installWorkletsSupport'
 
-export * from './AnyHybridObject'
-export * from './AnyMap'
-export * from './BoxedHybridObject'
-export * from './CustomType'
-export * from './getHybridObjectConstructor'
-export * from './HybridObject'
-export * from './NitroModules'
-export * from './Sync'
-export * from './Int64'
+export * from 'nitro-core'
+export const NitroModules = NativeNitroModules
+export { isRuntimeAlive } from './turbomodule/NativeNitroModules'
 
 export * from './views/HybridView'
 export * from './views/getHostComponent'

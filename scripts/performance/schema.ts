@@ -3,7 +3,7 @@ import type {
   BenchmarkRunConfiguration,
   BenchmarkRunEnvironment,
   BenchmarkRunResult,
-} from '../../apps/benchmark/src/benchmarks/types'
+} from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 
 const SHA_PATTERN = /^[0-9a-f]{40}$/
 const SUITE_HASH_PATTERN = /^[0-9a-f]{64}$/

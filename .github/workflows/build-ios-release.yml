@@ -1,11 +1,29 @@
-name: Build iOS (Release)
+name: Build React Native iOS (Release)
 
 on:
+  workflow_call:
+    inputs:
+      release-tag:
+        description: Published tag to build and attach app artifacts to
+        required: true
+        type: string
   release:
     types: [published]
   pull_request:
     paths:
       - '.github/workflows/build-ios-release.yml'
+      - 'packages/nitro-core/**'
+      - 'packages/nitrogen/**'
+      - 'packages/react-native-nitro-modules/**'
+      - 'tests/react-native/**'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/core-package.mjs'
+      - 'scripts/set-version.mjs'
+      - 'package.json'
+      - 'bun.lock'
+      - 'bunfig.toml'
+      - 'scripts/releases/**'
+      - 'config/**'
 
 jobs:
   build_release:
@@ -15,26 +33,33 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.release-tag || github.sha }}
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile
+
+      - name: Generate test bindings
+        run: bun specs
 
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7.2
           bundler-cache: true
-          working-directory: apps/example
+          working-directory: tests/react-native/apps/example
 
       - name: Select Xcode 26.5
         run: sudo xcode-select -s "/Applications/Xcode_26.5.app/Contents/Developer"
       - name: Install Pods
-        working-directory: apps/example
+        working-directory: tests/react-native/apps/example
         run: bun pods
 
       - name: Build App (Release, Simulator)
-        working-directory: apps/example/ios
+        working-directory: tests/react-native/apps/example/ios
         run: |
           set -o pipefail
           xcodebuild \
@@ -51,15 +76,20 @@ jobs:
 
       - name: Package .app for Simulator
         run: |
-          cd apps/example/ios/build/Build/Products/Release-iphonesimulator
+          cd tests/react-native/apps/example/ios/build/Build/Products/Release-iphonesimulator
           zip -r "$GITHUB_WORKSPACE/NitroExample-Release-Simulator.zip" NitroExample.app
 
       - name: Upload .app to Release
-        if: github.event_name == 'release'
+        if: inputs.release-tag != '' || github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ inputs.release-tag || github.event.release.tag_name }}
         run: |
           ASSET_NAME="NitroExample-Simulator-${RELEASE_TAG}.app.zip"
-          mv NitroExample-Release-Simulator.zip "$ASSET_NAME"
-          gh release upload "$RELEASE_TAG" "$ASSET_NAME" --repo "$GITHUB_REPOSITORY"
+          EXISTING_ASSETS=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')
+          if printf '%s\n' "$EXISTING_ASSETS" | grep -Fxq -- "$ASSET_NAME"; then
+            echo "Release asset $ASSET_NAME already exists; keeping it."
+          else
+            mv NitroExample-Release-Simulator.zip "$ASSET_NAME"
+            gh release upload "$RELEASE_TAG" "$ASSET_NAME" --repo "$GITHUB_REPOSITORY"
+          fi

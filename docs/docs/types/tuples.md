@@ -38,5 +38,3 @@ The type in the **Good ✅** example generates a **tuple**, where its size is gu
 
 </div>
 </div>
-
-

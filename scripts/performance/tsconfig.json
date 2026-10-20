@@ -11,7 +11,7 @@
   },
   "include": [
     "./*.ts",
-    "../../apps/benchmark/src/benchmarks/statistics.ts",
-    "../../apps/benchmark/src/benchmarks/types.ts"
+    "../../tests/react-native/apps/benchmark/src/benchmarks/statistics.ts",
+    "../../tests/react-native/apps/benchmark/src/benchmarks/types.ts"
   ]
 }

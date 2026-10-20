@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import type { BenchmarkRunResult } from '../../apps/benchmark/src/benchmarks/types'
+import type { BenchmarkRunResult } from '../../tests/react-native/apps/benchmark/src/benchmarks/types'
 import { combineIsolatedCases } from './isolated-cases'
 
 function result(index: number): BenchmarkRunResult {

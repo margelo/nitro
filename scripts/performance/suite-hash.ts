@@ -14,9 +14,9 @@ async function filesRecursively(directory: string): Promise<string[]> {
 }
 
 export async function calculateSuiteHash(root: string): Promise<string> {
-  const benchmarkDirectory = path.join(root, 'apps/benchmark/src/benchmarks')
+  const benchmarkDirectory = path.join(root, 'tests/react-native/apps/benchmark/src/benchmarks')
   const files = [
-    path.join(root, 'apps/benchmark/index.js'),
+    path.join(root, 'tests/react-native/apps/benchmark/index.js'),
     ...(await filesRecursively(benchmarkDirectory)),
   ].sort()
   const hash = createHash('sha256')
