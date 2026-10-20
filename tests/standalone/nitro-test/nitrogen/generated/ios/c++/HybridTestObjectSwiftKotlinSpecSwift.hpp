@@ -44,6 +44,20 @@ namespace margelo::nitro::test { struct OptionalWrapper; }
 namespace margelo::nitro::test { struct OptionalCallback; }
 // Forward declaration of `OptionalEnumWrapper` to properly resolve imports.
 namespace margelo::nitro::test { struct OptionalEnumWrapper; }
+// Forward declaration of `Gallery` to properly resolve imports.
+namespace margelo::nitro::test { struct Gallery; }
+// Forward declaration of `AlbumItem` to properly resolve imports.
+namespace margelo::nitro::test { struct AlbumItem; }
+// Forward declaration of `MediaInfo` to properly resolve imports.
+namespace margelo::nitro::test { struct MediaInfo; }
+// Forward declaration of `GalleryItem` to properly resolve imports.
+namespace margelo::nitro::test { struct GalleryItem; }
+// Forward declaration of `TagInfo` to properly resolve imports.
+namespace margelo::nitro::test { struct TagInfo; }
+// Forward declaration of `EntityInfo` to properly resolve imports.
+namespace margelo::nitro::test { struct EntityInfo; }
+// Forward declaration of `UserInfo` to properly resolve imports.
+namespace margelo::nitro::test { struct UserInfo; }
 // Forward declaration of `HardwareBufferFormat` to properly resolve imports.
 namespace margelo::nitro::test { enum class HardwareBufferFormat; }
 // Forward declaration of `WeirdNumbersEnum` to properly resolve imports.
@@ -84,6 +98,13 @@ namespace margelo::nitro::test { struct ExternalObjectStruct; }
 #include "OptionalWrapper.hpp"
 #include "OptionalCallback.hpp"
 #include "OptionalEnumWrapper.hpp"
+#include "Gallery.hpp"
+#include "AlbumItem.hpp"
+#include "MediaInfo.hpp"
+#include "GalleryItem.hpp"
+#include "TagInfo.hpp"
+#include "EntityInfo.hpp"
+#include "UserInfo.hpp"
 #include "HardwareBufferFormat.hpp"
 #include "WeirdNumbersEnum.hpp"
 #include "HybridBaseSpec.hpp"
@@ -902,6 +923,14 @@ namespace margelo::nitro::test {
     }
     inline std::optional<OptionalEnumWrapper> bounceOptionalEnumStruct(const std::optional<OptionalEnumWrapper>& value) override {
       auto __result = _swiftPart.bounceOptionalEnumStruct(value);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline Gallery bounceGallery(const Gallery& gallery) override {
+      auto __result = _swiftPart.bounceGallery(std::forward<decltype(gallery)>(gallery));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
