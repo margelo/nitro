@@ -16,21 +16,21 @@ extension Promise___NitroTest__Car {
   public typealias T = Car
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func resolve(result: Car) {
+  public func __nitroResolve(result: Car) {
     withUnsafePointer(to: result) { (pointer: UnsafePointer<Car>) -> Void in
       bridge.resolve_Promise___NitroTest__Car(self, pointer)
     }
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     bridge.reject_Promise___NitroTest__Car(self, error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable (Car) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (Car) -> Void) {
     bridge.listen_Promise___NitroTest__Car(self, .init { (value: UnsafeRawPointer!) -> Void in
       listener(value.load(as: Car.self))
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     bridge.listenRejected_Promise___NitroTest__Car(self, .init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

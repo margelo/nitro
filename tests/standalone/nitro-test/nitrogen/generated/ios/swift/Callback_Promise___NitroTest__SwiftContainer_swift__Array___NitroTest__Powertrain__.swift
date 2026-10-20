@@ -17,17 +17,17 @@ extension Callback_Promise___NitroTest__SwiftContainer_swift__Array___NitroTest_
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise_Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain__
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func callSync(_ arguments: Arguments) throws -> Return {
+  public func __nitroCallSync(_ arguments: Arguments) throws -> Return {
     let __result = bridge.callSync_Callback_Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain__(self)
     if __result.hasError() {
       throw RuntimeError.from(cppError: __result.error())
     }
     return __result.copyValue()
   }
-  public func callAsync(_ arguments: Arguments) -> AsyncResult {
+  public func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult {
     return bridge.callAsync_Callback_Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain__(self)
   }
-  public func callAndForget(_ arguments: Arguments) {
+  public func __nitroCallAndForget(_ arguments: Arguments) {
     bridge.callAndForget_Callback_Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain__(self)
   }
   public init(_ closure: @escaping @Sendable () throws -> Return) {

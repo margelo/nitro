@@ -16,21 +16,21 @@ extension Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertra
   public typealias T = [Powertrain]
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func resolve(result: [Powertrain]) {
+  public func __nitroResolve(result: [Powertrain]) {
     withUnsafePointer(to: SwiftContainer_swift__Array___NitroTest__Powertrain_(result)) { (pointer: UnsafePointer<SwiftContainer_swift__Array___NitroTest__Powertrain_>) -> Void in
       bridge.resolve_Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(self, pointer)
     }
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     bridge.reject_Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(self, error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable ([Powertrain]) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable ([Powertrain]) -> Void) {
     bridge.listen_Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(self, .init { (value: UnsafeRawPointer!) -> Void in
       listener(value.load(as: SwiftContainer_swift__Array___NitroTest__Powertrain_.self).value)
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     bridge.listenRejected_Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(self, .init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

@@ -16,21 +16,21 @@ extension Promise_swift__String {
   public typealias T = String
   private typealias bridge = margelo.nitro.test.external.swift_bridge
 
-  public func resolve(result: String) {
+  public func __nitroResolve(result: String) {
     withUnsafePointer(to: result) { (pointer: UnsafePointer<String>) -> Void in
       bridge.resolve_Promise_swift__String(self, pointer)
     }
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     bridge.reject_Promise_swift__String(self, error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable (String) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (String) -> Void) {
     bridge.listen_Promise_swift__String(self, .init { (value: UnsafeRawPointer!) -> Void in
       listener(value.load(as: String.self))
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     bridge.listenRejected_Promise_swift__String(self, .init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

@@ -69,12 +69,12 @@ ${resolvedListenerCall}.init { (value: ${listenerType}) -> Void in
   if (promiseType.resultingType.kind === 'void') {
     // It's a void specialization
     resolveFunction = `
-public func resolve(result: ()) {
+public func __nitroResolve(result: ()) {
   ${indent(resolveBody, '  ')}
 }
 `.trim()
     addOnResolvedListenerFunction = `
-public func addOnResolvedListener(_ listener: @escaping @Sendable (()) -> Void) {
+public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (()) -> Void) {
   ${indent(addOnResolvedListenerBody, '  ')}
 }
 `.trim()
@@ -87,12 +87,12 @@ public static func resolved() -> Self {
 `.trim()
   } else {
     resolveFunction = `
-public func resolve(result: ${swiftResultType}) {
+public func __nitroResolve(result: ${swiftResultType}) {
   ${indent(resolveBody, '  ')}
 }
 `.trim()
     addOnResolvedListenerFunction = `
-public func addOnResolvedListener(_ listener: @escaping @Sendable (${swiftResultType}) -> Void) {
+public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (${swiftResultType}) -> Void) {
   ${indent(addOnResolvedListenerBody, '  ')}
 }
 `.trim()
@@ -117,12 +117,12 @@ extension ${swiftClassName} {
   private typealias bridge = ${bridgeNamespace}
 
   ${indent(resolveFunction, '  ')}
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     ${rejectCall}
   }
 
   ${indent(addOnResolvedListenerFunction, '  ')}
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     ${rejectedListenerCall}.init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

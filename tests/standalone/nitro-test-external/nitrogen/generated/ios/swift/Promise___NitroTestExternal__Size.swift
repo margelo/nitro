@@ -16,21 +16,21 @@ extension Promise___NitroTestExternal__Size {
   public typealias T = Size
   private typealias bridge = margelo.nitro.test.external.swift_bridge
 
-  public func resolve(result: Size) {
+  public func __nitroResolve(result: Size) {
     withUnsafePointer(to: result) { (pointer: UnsafePointer<Size>) -> Void in
       bridge.resolve_Promise___NitroTestExternal__Size(self, pointer)
     }
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     bridge.reject_Promise___NitroTestExternal__Size(self, error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable (Size) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (Size) -> Void) {
     bridge.listen_Promise___NitroTestExternal__Size(self, .init { (value: UnsafeRawPointer!) -> Void in
       listener(value.load(as: Size.self))
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     bridge.listenRejected_Promise___NitroTestExternal__Size(self, .init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

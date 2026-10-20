@@ -16,19 +16,19 @@ extension Promise_ArrayBuffer {
   public typealias T = ArrayBuffer
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func resolve(result: ArrayBuffer) {
+  public func __nitroResolve(result: ArrayBuffer) {
     resolve(consuming: result)
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     reject(consuming: error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable (ArrayBuffer) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (ArrayBuffer) -> Void) {
     addOnResolvedListener(.init { (value: ArrayBuffer) -> Void in
       listener(value)
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     addOnRejectedListener(.init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

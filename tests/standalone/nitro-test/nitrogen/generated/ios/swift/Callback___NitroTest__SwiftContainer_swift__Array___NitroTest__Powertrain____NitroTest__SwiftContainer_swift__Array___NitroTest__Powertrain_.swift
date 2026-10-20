@@ -17,7 +17,7 @@ extension Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertr
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func callSync(_ arguments: Arguments) throws -> Return {
+  public func __nitroCallSync(_ arguments: Arguments) throws -> Return {
     return try withUnsafePointer(to: SwiftContainer_swift__Array___NitroTest__Powertrain_(arguments)) { (param0: UnsafePointer<SwiftContainer_swift__Array___NitroTest__Powertrain_>) -> Return in
       return try withUnsafeTemporaryAllocation(of: SwiftContainer_swift__Array___NitroTest__Powertrain_.self, capacity: 1) { (result: UnsafeMutableBufferPointer<SwiftContainer_swift__Array___NitroTest__Powertrain_>) -> Return in
         let __result = bridge.callSync_Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(self, param0, result.baseAddress!)
@@ -29,12 +29,12 @@ extension Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertr
       }
     }
   }
-  public func callAsync(_ arguments: Arguments) -> AsyncResult {
+  public func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult {
     return withUnsafePointer(to: SwiftContainer_swift__Array___NitroTest__Powertrain_(arguments)) { (param0: UnsafePointer<SwiftContainer_swift__Array___NitroTest__Powertrain_>) -> AsyncResult in
       return bridge.callAsync_Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(self, param0)
     }
   }
-  public func callAndForget(_ arguments: Arguments) {
+  public func __nitroCallAndForget(_ arguments: Arguments) {
     return withUnsafePointer(to: SwiftContainer_swift__Array___NitroTest__Powertrain_(arguments)) { (param0: UnsafePointer<SwiftContainer_swift__Array___NitroTest__Powertrain_>) -> Void in
       bridge.callAndForget_Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(self, param0)
     }

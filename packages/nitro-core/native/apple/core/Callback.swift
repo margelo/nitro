@@ -57,8 +57,30 @@ public protocol Callback<Arguments, Return>: Sendable {
   func callAndForget(_ arguments: Arguments)
 }
 
-/// Conformance imported from the C++ `Callback<R(Args...)>` declaration.
-public protocol CxxCallback<Arguments, Return>: Callback {}
+/// A C++ `Callback<R(Args...)>` specialization with its conformance declared by Nitro core.
+///
+/// Generated Swift extensions provide the `__nitro` adapter witnesses. The public
+/// operations live here, so importing several generated modules does not duplicate them.
+public protocol CxxCallback<Arguments, Return>: Callback {
+  func __nitroCallSync(_ arguments: Arguments) throws -> Return
+  func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult
+  func __nitroCallAndForget(_ arguments: Arguments)
+}
+
+extension CxxCallback {
+  @inlinable
+  public func callSync(_ arguments: Arguments) throws -> Return {
+    return try __nitroCallSync(arguments)
+  }
+  @inlinable
+  public func callAsync(_ arguments: Arguments) -> AsyncResult {
+    return __nitroCallAsync(arguments)
+  }
+  @inlinable
+  public func callAndForget(_ arguments: Arguments) {
+    __nitroCallAndForget(arguments)
+  }
+}
 
 /// Extension to spread out the single tuple-argument into separate parameters
 extension Callback {

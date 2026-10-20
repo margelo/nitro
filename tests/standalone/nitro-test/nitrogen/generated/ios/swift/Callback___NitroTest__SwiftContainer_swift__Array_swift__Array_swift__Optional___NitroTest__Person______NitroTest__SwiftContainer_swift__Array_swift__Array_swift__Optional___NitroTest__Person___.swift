@@ -17,7 +17,7 @@ extension Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func callSync(_ arguments: Arguments) throws -> Return {
+  public func __nitroCallSync(_ arguments: Arguments) throws -> Return {
     return try withUnsafePointer(to: SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(arguments)) { (param0: UnsafePointer<SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___>) -> Return in
       return try withUnsafeTemporaryAllocation(of: SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___.self, capacity: 1) { (result: UnsafeMutableBufferPointer<SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___>) -> Return in
         let __result = bridge.callSync_Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(self, param0, result.baseAddress!)
@@ -29,12 +29,12 @@ extension Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__
       }
     }
   }
-  public func callAsync(_ arguments: Arguments) -> AsyncResult {
+  public func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult {
     return withUnsafePointer(to: SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(arguments)) { (param0: UnsafePointer<SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___>) -> AsyncResult in
       return bridge.callAsync_Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(self, param0)
     }
   }
-  public func callAndForget(_ arguments: Arguments) {
+  public func __nitroCallAndForget(_ arguments: Arguments) {
     return withUnsafePointer(to: SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(arguments)) { (param0: UnsafePointer<SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___>) -> Void in
       bridge.callAndForget_Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(self, param0)
     }
