@@ -723,6 +723,10 @@ std::optional<OptionalEnumWrapper> HybridTestObjectCpp::bounceOptionalEnumStruct
   return value;
 }
 
+Gallery HybridTestObjectCpp::bounceGallery(const Gallery& gallery) {
+  return gallery;
+}
+
 std::shared_ptr<ArrayBuffer> HybridTestObjectCpp::createArrayBufferFromNativeBuffer(bool /* copy */) {
   // Let's just use the move method here for native buffer to test this too.
   std::vector<uint8_t> data;
