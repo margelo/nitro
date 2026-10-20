@@ -20,9 +20,12 @@ namespace margelo::nitro {
 
 using namespace facebook;
 
+// Swift imports every specialization with its `CxxPromise` and `Sendable`
+// conformances, so generated modules sharing a specialization do not declare them twice.
 template <typename TResult>
-class Promise final {
+class SWIFT_CONFORMS_TO_PROTOCOL(NitroModules.CxxPromise) SWIFT_UNCHECKED_SENDABLE Promise final {
 public:
+  using T = TResult;
   using TError = std::exception_ptr;
   using TPending = std::monostate;
   using OnResolvedFunc = std::function<void(const TResult&)>;
@@ -207,8 +210,9 @@ void Promise<TResult>::addOnRejectedListener(OnRejectedFunc onRejected) const {
 }
 
 template <>
-class Promise<void> final {
+class SWIFT_CONFORMS_TO_PROTOCOL(NitroModules.CxxPromise) SWIFT_UNCHECKED_SENDABLE Promise<void> final {
 public:
+  using T = void;
   using TError = std::exception_ptr;
   using OnResolvedFunc = std::function<void()>;
   using OnRejectedFunc = std::function<void(const TError&)>;

@@ -12,7 +12,7 @@ internal import NitroTestAppleCxx
 
 public typealias Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___ = margelo.nitro.test.swift_bridge.Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___
 
-extension Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___: Promise {
+extension Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___ {
   public typealias T = [[Person?]]
   private typealias bridge = margelo.nitro.test.swift_bridge
 
@@ -36,8 +36,6 @@ extension Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__O
     })
   }
 }
-
-extension Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___: @unchecked Sendable {}
 
 extension Promise<[[Person?]]> where Self == Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___ {
   public static func pending() -> Self {

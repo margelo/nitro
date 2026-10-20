@@ -12,7 +12,7 @@ internal import NitroTestExternalAppleCxx
 
 public typealias Promise_double = margelo.nitro.test.external.swift_bridge.Promise_double
 
-extension Promise_double: Promise {
+extension Promise_double {
   public typealias T = Double
   private typealias bridge = margelo.nitro.test.external.swift_bridge
 
@@ -34,8 +34,6 @@ extension Promise_double: Promise {
     })
   }
 }
-
-extension Promise_double: @unchecked Sendable {}
 
 extension Promise<Double> where Self == Promise_double {
   public static func pending() -> Self {

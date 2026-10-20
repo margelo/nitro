@@ -11,7 +11,7 @@ internal import NitroTestAppleCxx
 
 public typealias Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_ = margelo.nitro.test.swift_bridge.Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_
 
-extension Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_: Callback {
+extension Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_ {
   public typealias Arguments = ([Powertrain])
   public typealias Return = [Powertrain]
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_
@@ -51,10 +51,6 @@ extension Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertr
     })
   }
 }
-
-// JS calls use the C++ dispatcher; native callbacks require Sendable captures.
-// Mutable arguments and results still require synchronization by their callers.
-extension Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_: @unchecked Sendable {}
 
 extension Callback<([Powertrain]), [Powertrain]> where Self == Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_ {
   /// Creates a native callback from an escaping Swift closure.

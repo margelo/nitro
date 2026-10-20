@@ -12,7 +12,7 @@ internal import NitroTestExternalAppleCxx
 
 public typealias Promise___NitroTestExternal__Size = margelo.nitro.test.external.swift_bridge.Promise___NitroTestExternal__Size
 
-extension Promise___NitroTestExternal__Size: Promise {
+extension Promise___NitroTestExternal__Size {
   public typealias T = Size
   private typealias bridge = margelo.nitro.test.external.swift_bridge
 
@@ -36,8 +36,6 @@ extension Promise___NitroTestExternal__Size: Promise {
     })
   }
 }
-
-extension Promise___NitroTestExternal__Size: @unchecked Sendable {}
 
 extension Promise<Size> where Self == Promise___NitroTestExternal__Size {
   public static func pending() -> Self {

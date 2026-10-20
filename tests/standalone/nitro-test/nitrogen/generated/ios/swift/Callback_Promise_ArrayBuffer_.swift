@@ -11,7 +11,7 @@ internal import NitroTestAppleCxx
 
 public typealias Callback_Promise_ArrayBuffer_ = margelo.nitro.test.swift_bridge.Callback_Promise_ArrayBuffer_
 
-extension Callback_Promise_ArrayBuffer_: Callback {
+extension Callback_Promise_ArrayBuffer_ {
   public typealias Arguments = ()
   public typealias Return = any Promise<ArrayBuffer>
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise_Promise_ArrayBuffer_
@@ -41,10 +41,6 @@ extension Callback_Promise_ArrayBuffer_: Callback {
     })
   }
 }
-
-// JS calls use the C++ dispatcher; native callbacks require Sendable captures.
-// Mutable arguments and results still require synchronization by their callers.
-extension Callback_Promise_ArrayBuffer_: @unchecked Sendable {}
 
 extension Callback<(), any Promise<ArrayBuffer>> where Self == Callback_Promise_ArrayBuffer_ {
   /// Creates a native callback from an escaping Swift closure.

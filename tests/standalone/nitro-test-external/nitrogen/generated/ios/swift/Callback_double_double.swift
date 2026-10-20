@@ -11,7 +11,7 @@ internal import NitroTestExternalAppleCxx
 
 public typealias Callback_double_double = margelo.nitro.test.external.swift_bridge.Callback_double_double
 
-extension Callback_double_double: Callback {
+extension Callback_double_double {
   public typealias Arguments = (Double)
   public typealias Return = Double
   public typealias AsyncResult = margelo.nitro.test.external.swift_bridge.Promise_double
@@ -41,10 +41,6 @@ extension Callback_double_double: Callback {
     })
   }
 }
-
-// JS calls use the C++ dispatcher; native callbacks require Sendable captures.
-// Mutable arguments and results still require synchronization by their callers.
-extension Callback_double_double: @unchecked Sendable {}
 
 extension Callback<(Double), Double> where Self == Callback_double_double {
   /// Creates a native callback from an escaping Swift closure.

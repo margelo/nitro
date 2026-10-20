@@ -12,7 +12,7 @@ internal import NitroTestAppleCxx
 
 public typealias Promise___NitroTest__Car = margelo.nitro.test.swift_bridge.Promise___NitroTest__Car
 
-extension Promise___NitroTest__Car: Promise {
+extension Promise___NitroTest__Car {
   public typealias T = Car
   private typealias bridge = margelo.nitro.test.swift_bridge
 
@@ -36,8 +36,6 @@ extension Promise___NitroTest__Car: Promise {
     })
   }
 }
-
-extension Promise___NitroTest__Car: @unchecked Sendable {}
 
 extension Promise<Car> where Self == Promise___NitroTest__Car {
   public static func pending() -> Self {

@@ -12,7 +12,7 @@ internal import NitroTestAppleCxx
 
 public typealias Promise___NitroTest__HybridTestObjectSwiftKotlinSpec_cxx = margelo.nitro.test.swift_bridge.Promise___NitroTest__HybridTestObjectSwiftKotlinSpec_cxx
 
-extension Promise___NitroTest__HybridTestObjectSwiftKotlinSpec_cxx: Promise {
+extension Promise___NitroTest__HybridTestObjectSwiftKotlinSpec_cxx {
   public typealias T = (any HybridTestObjectSwiftKotlinSpec)
   private typealias bridge = margelo.nitro.test.swift_bridge
 
@@ -36,8 +36,6 @@ extension Promise___NitroTest__HybridTestObjectSwiftKotlinSpec_cxx: Promise {
     })
   }
 }
-
-extension Promise___NitroTest__HybridTestObjectSwiftKotlinSpec_cxx: @unchecked Sendable {}
 
 extension Promise<(any HybridTestObjectSwiftKotlinSpec)> where Self == Promise___NitroTest__HybridTestObjectSwiftKotlinSpec_cxx {
   public static func pending() -> Self {

@@ -12,7 +12,7 @@ internal import NitroTestAppleCxx
 
 public typealias Promise_ArrayBuffer = margelo.nitro.test.swift_bridge.Promise_ArrayBuffer
 
-extension Promise_ArrayBuffer: Promise {
+extension Promise_ArrayBuffer {
   public typealias T = ArrayBuffer
   private typealias bridge = margelo.nitro.test.swift_bridge
 
@@ -34,8 +34,6 @@ extension Promise_ArrayBuffer: Promise {
     })
   }
 }
-
-extension Promise_ArrayBuffer: @unchecked Sendable {}
 
 extension Promise<ArrayBuffer> where Self == Promise_ArrayBuffer {
   public static func pending() -> Self {

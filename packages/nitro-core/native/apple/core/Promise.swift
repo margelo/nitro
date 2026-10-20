@@ -27,6 +27,9 @@ public protocol Promise<T>: Sendable {
   func addOnRejectedListener(_: @escaping @Sendable (Error) -> Void)
 }
 
+/// Conformance imported from the C++ `Promise<T>` declaration.
+public protocol CxxPromise<T>: Promise {}
+
 extension Promise where T == Void {
   public func resolve() {
     self.resolve(result: ())

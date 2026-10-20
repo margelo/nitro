@@ -11,7 +11,7 @@ internal import NitroTestAppleCxx
 
 public typealias Callback_void_swift__Optional_double_ = margelo.nitro.test.swift_bridge.Callback_void_swift__Optional_double_
 
-extension Callback_void_swift__Optional_double_: Callback {
+extension Callback_void_swift__Optional_double_ {
   public typealias Arguments = (Double?)
   public typealias Return = Void
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise_void
@@ -46,10 +46,6 @@ extension Callback_void_swift__Optional_double_: Callback {
     })
   }
 }
-
-// JS calls use the C++ dispatcher; native callbacks require Sendable captures.
-// Mutable arguments and results still require synchronization by their callers.
-extension Callback_void_swift__Optional_double_: @unchecked Sendable {}
 
 extension Callback<(Double?), Void> where Self == Callback_void_swift__Optional_double_ {
   /// Creates a native callback from an escaping Swift closure.

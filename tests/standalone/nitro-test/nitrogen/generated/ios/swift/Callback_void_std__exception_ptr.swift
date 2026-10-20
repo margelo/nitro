@@ -11,7 +11,7 @@ internal import NitroTestAppleCxx
 
 public typealias Callback_void_std__exception_ptr = margelo.nitro.test.swift_bridge.Callback_void_std__exception_ptr
 
-extension Callback_void_std__exception_ptr: Callback {
+extension Callback_void_std__exception_ptr {
   public typealias Arguments = (any Error)
   public typealias Return = Void
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise_void
@@ -40,10 +40,6 @@ extension Callback_void_std__exception_ptr: Callback {
     })
   }
 }
-
-// JS calls use the C++ dispatcher; native callbacks require Sendable captures.
-// Mutable arguments and results still require synchronization by their callers.
-extension Callback_void_std__exception_ptr: @unchecked Sendable {}
 
 extension Callback<(any Error), Void> where Self == Callback_void_std__exception_ptr {
   /// Creates a native callback from an escaping Swift closure.
