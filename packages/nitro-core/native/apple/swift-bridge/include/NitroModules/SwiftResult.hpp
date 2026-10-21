@@ -1,6 +1,8 @@
 #pragma once
 
 #include <NitroModules/Result.hpp>
+#include <cstddef>
+#include <new>
 #include <optional>
 #include <type_traits>
 
@@ -23,6 +25,10 @@ namespace detail {
 
   template <typename T, typename OwnerTag>
   inline constexpr bool isResult<Result<T, OwnerTag>> = true;
+
+  // Fixed-layout Swift value types store their Swift value inline, so their C++ address is the Swift storage.
+  template <typename T>
+  inline constexpr bool hasInlineSwiftStorage = swift::_impl::isValueType<T> && !swift::_impl::isOpaqueLayout<T>;
 } // namespace detail
 
 /**
@@ -34,22 +40,40 @@ template <typename T, typename Initializer>
   requires detail::isSwiftResultStatus<std::invoke_result_t<Initializer&, void*>>
 Result<T> withSwiftResult(Initializer&& initializer) {
   using Status = std::invoke_result_t<Initializer&, void*>;
-  auto status = Status::withValue();
-  auto value = NitroModules::tryMakeSwiftValue<T>([&](void* storage) {
+  if constexpr (detail::hasInlineSwiftStorage<T>) {
+    // Swift initializes the C++ wrapper's inline storage, avoiding a boxed swift::Optional<T>.
+    alignas(T) std::byte storage[sizeof(T)];
+    Status status = Status::withValue();
     try {
-      status = initializer(storage);
+      status = initializer(static_cast<void*>(storage));
     } catch (...) {
-      // We have to catch & extract the C++ exception here because we're
-      // still in a Swift stack frame, and throwing here would crash as Swift
-      // cannot catch C++ exceptions yet.
-      status = Status::withError(std::current_exception());
+      return Result<T>::withError(std::current_exception());
     }
-    return status.hasValue();
-  });
-  if (status.hasError()) [[unlikely]] {
-    return Result<T>::withError(status.error());
+    if (status.hasError()) [[unlikely]] {
+      return Result<T>::withError(status.error());
+    }
+    T* value = std::launder(reinterpret_cast<T*>(storage));
+    auto result = Result<T>::withValue(*value);
+    value->~T();
+    return result;
+  } else {
+    auto status = Status::withValue();
+    auto value = NitroModules::tryMakeSwiftValue<T>([&](void* storage) {
+      try {
+        status = initializer(storage);
+      } catch (...) {
+        // We have to catch & extract the C++ exception here because we're
+        // still in a Swift stack frame, and throwing here would crash as Swift
+        // cannot catch C++ exceptions yet.
+        status = Status::withError(std::current_exception());
+      }
+      return status.hasValue();
+    });
+    if (status.hasError()) [[unlikely]] {
+      return Result<T>::withError(status.error());
+    }
+    return Result<T>::withValue(value.get());
   }
-  return Result<T>::withValue(value.get());
 }
 
 /**
