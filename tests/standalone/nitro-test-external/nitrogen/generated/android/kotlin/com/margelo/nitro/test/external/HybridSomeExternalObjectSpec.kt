@@ -65,18 +65,22 @@ abstract class HybridSomeExternalObjectSpec: HybridObject() {
 
 
     // Static Methods
-
+    /** Creates an instance for JavaScript's `new SomeExternalObject(...)`. */
+    fun constructor(): HybridSomeExternalObjectSpec
   }
 
   protected companion object Bridge {
     protected const val TAG = "HybridSomeExternalObjectSpec"
+
+    private val implementationCompanion: Companion
+      get() = HybridSomeExternalObject
 
     // Constructor
     @JvmStatic
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridSomeExternalObjectSpec {
-      val __result = HybridSomeExternalObject()
+      val __result = HybridSomeExternalObject.constructor()
       return __result
     }
   }

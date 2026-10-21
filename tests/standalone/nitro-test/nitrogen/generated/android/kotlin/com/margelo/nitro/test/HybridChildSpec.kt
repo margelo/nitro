@@ -58,18 +58,22 @@ abstract class HybridChildSpec: HybridBaseSpec() {
 
 
     // Static Methods
-
+    /** Creates an instance for JavaScript's `new Child(...)`. */
+    fun constructor(): HybridChildSpec
   }
 
   protected companion object Bridge {
     protected const val TAG = "HybridChildSpec"
+
+    private val implementationCompanion: Companion
+      get() = HybridChild
 
     // Constructor
     @JvmStatic
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridChildSpec {
-      val __result = HybridChild()
+      val __result = HybridChild.constructor()
       return __result
     }
   }

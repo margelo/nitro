@@ -10,6 +10,8 @@ import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 @DoNotStrip
 open class HybridBase : HybridBaseSpec() {
   companion object : HybridBaseSpec.Companion {
+    override fun constructor(): HybridBase = HybridBase()
+
     @JvmStatic
     override fun createAlternativeBase(): HybridBaseSpec = HybridAlternativeBase()
 

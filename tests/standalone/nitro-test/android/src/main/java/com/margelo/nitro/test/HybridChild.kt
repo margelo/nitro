@@ -8,6 +8,10 @@ import com.margelo.nitro.core.resolved
 @Keep
 @DoNotStrip
 class HybridChild : HybridChildSpec() {
+  companion object : HybridChildSpec.Companion {
+    override fun constructor(): HybridChild = HybridChild()
+  }
+
   override fun bounceSize(size: Size): Size = size
 
   override fun bounceSizeUnit(unit: SizeUnit): SizeUnit = unit

@@ -73,6 +73,9 @@ abstract class HybridBaseSpec: HybridObject() {
 
 
     // Static Methods
+    /** Creates an instance for JavaScript's `new Base(...)`. */
+    fun constructor(): HybridBaseSpec
+
     fun createAlternativeBase(): HybridBaseSpec
 
     fun createInternalExternalObject(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
@@ -89,7 +92,7 @@ abstract class HybridBaseSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridBaseSpec {
-      val __result = HybridBase()
+      val __result = HybridBase.constructor()
       return __result
     }
 

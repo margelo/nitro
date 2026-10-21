@@ -6,6 +6,10 @@ import com.facebook.proguard.annotations.DoNotStrip
 @Keep
 @DoNotStrip
 class HybridSomeExternalObject : HybridSomeExternalObjectSpec() {
+  companion object : HybridSomeExternalObjectSpec.Companion {
+    override fun constructor(): HybridSomeExternalObject = HybridSomeExternalObject()
+  }
+
   override fun getValue(): String {
     return "Hello world!"
   }

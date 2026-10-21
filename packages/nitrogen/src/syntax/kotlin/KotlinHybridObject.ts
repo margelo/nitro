@@ -26,12 +26,15 @@ export function createKotlinHybridObject(spec: HybridObjectSpec<'kotlin'>): Sour
   const properties = spec.properties.map(getKotlinPropertyCode).join('\n\n')
   const methods = spec.methods.map(getKotlinMethodCode).join('\n\n')
   const companionProperties = spec.staticProperties.map((property) => property.getCode('kotlin')).join('\n\n')
-  const companionMethods = spec.staticMethods
-    .map((method) => {
-      const requirement = new InstanceMethod(method.name, method.returnType, method.parameters)
-      return requirement.getDeclaration('kotlin')
-    })
-    .join('\n\n')
+  const companionMethodRequirements = spec.staticMethods.map((method) => {
+    const requirement = new InstanceMethod(method.name, method.returnType, method.parameters)
+    return requirement.getDeclaration('kotlin')
+  })
+  if (spec.constructor != null) {
+    const constructorRequirement = getKotlinConstructorRequirement(spec)
+    companionMethodRequirements.unshift(constructorRequirement)
+  }
+  const companionMethods = companionMethodRequirements.join('\n\n')
   const bridgeCompanion = getKotlinCompanion(spec)
   const cxxPartMembers = getKotlinCxxPartMembers({ spec: spec, hybridObject: hybridObject })
 
@@ -182,6 +185,26 @@ interface KotlinCxxPartMembersOptions {
   hybridObject: KotlinHybridObjectType
 }
 
+function getKotlinConstructorRequirement(spec: HybridObjectSpec<'kotlin'>): string {
+  if (spec.constructor == null) return ''
+  const constructor = spec.constructor
+  const parameters = constructor.parameters.map((parameter) => parameter.getCode('kotlin'))
+  const implementation = getKotlinImplementation(spec)
+  let returnType: string
+  if (spec.allowMultipleImplementations) {
+    returnType = constructor.returnType.getCode('kotlin', { context: 'return' })
+  } else {
+    returnType = implementation.className
+  }
+  const requirement = `
+fun constructor(${parameters.join(', ')}): ${returnType}
+`.trim()
+  return `
+/** Creates an instance for JavaScript's \`new ${spec.name}(...)\`. */
+${requirement}
+`.trim()
+}
+
 function getKotlinCxxPartMembers({ spec, hybridObject }: KotlinCxxPartMembersOptions): KotlinCompanion {
   const name = getHybridObjectName(spec.name)
   const initHybridCode = `
@@ -235,8 +258,8 @@ protected const val TAG = "${name.HybridTSpec}"
     })
   }
   const sections = [tagCode]
-  // Only static members require a companion; instance-only specs may have no configured implementation.
-  if (spec.staticMethods.length > 0 || spec.staticProperties.length > 0) {
+  // Constructors and static members share the implementation's companion contract.
+  if (spec.constructor != null || spec.staticMethods.length > 0 || spec.staticProperties.length > 0) {
     const implementation = getKotlinImplementation(spec)
     // Check the configured companion's contract; bridges still call it directly.
     const companionRequirement = `

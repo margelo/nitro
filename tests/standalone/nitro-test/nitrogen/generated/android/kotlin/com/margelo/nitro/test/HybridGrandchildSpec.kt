@@ -63,18 +63,22 @@ abstract class HybridGrandchildSpec: HybridChildSpec() {
 
 
     // Static Methods
-
+    /** Creates an instance for JavaScript's `new Grandchild(...)`. */
+    fun constructor(): HybridGrandchild
   }
 
   protected companion object Bridge {
     protected const val TAG = "HybridGrandchildSpec"
+
+    private val implementationCompanion: Companion
+      get() = HybridGrandchild
 
     // Constructor
     @JvmStatic
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridGrandchildSpec {
-      val __result = HybridGrandchild()
+      val __result = HybridGrandchild.constructor()
       return __result
     }
   }

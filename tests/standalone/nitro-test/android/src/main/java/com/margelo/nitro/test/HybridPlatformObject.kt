@@ -6,7 +6,11 @@ import com.facebook.proguard.annotations.DoNotStrip
 
 @Keep
 @DoNotStrip
-class HybridPlatformObject : HybridPlatformObjectSpec() {
+class HybridPlatformObject private constructor() : HybridPlatformObjectSpec() {
+  companion object : HybridPlatformObjectSpec.Companion {
+    override fun constructor(): HybridPlatformObject = HybridPlatformObject()
+  }
+
   override fun getOSVersion(): String {
     return Build.VERSION.RELEASE
   }

@@ -834,7 +834,8 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     var sharedNumber: Double
 
     // Static Methods
-
+    /** Creates an instance for JavaScript's `new TestObjectSwiftKotlin(...)`. */
+    fun constructor(): HybridTestObjectKotlin
   }
 
   protected companion object Bridge {
@@ -848,7 +849,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridTestObjectSwiftKotlinSpec {
-      val __result = HybridTestObjectKotlin()
+      val __result = HybridTestObjectKotlin.constructor()
       return __result
     }
 

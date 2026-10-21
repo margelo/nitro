@@ -21,7 +21,7 @@ interface KotlinConstructorOptions {
 
 /**
  * Constructs the Kotlin implementation for JavaScript.
- * C++ calls a companion factory through JNI, which calls the Kotlin constructor.
+ * C++ calls the implementation's companion constructor factory through JNI.
  */
 export class KotlinConstructor extends Constructor {
   override readonly returnType: KotlinType
@@ -64,7 +64,7 @@ export class KotlinConstructor extends Constructor {
     })
     const kotlinBody = createKotlinBridgeBody({
       callable: this.callable,
-      getKotlinInvocation: (args) => `${this.implementationClassName}(${args.join(', ')})`,
+      getKotlinInvocation: (args) => `${this.implementationClassName}.${nativeFactory.name}(${args.join(', ')})`,
     })
     return {
       kotlinMethods: [{ method: kotlinFactory, body: kotlinBody }],

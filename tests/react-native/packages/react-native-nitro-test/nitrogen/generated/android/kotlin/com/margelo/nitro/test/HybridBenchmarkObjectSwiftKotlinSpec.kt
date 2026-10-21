@@ -134,18 +134,22 @@ abstract class HybridBenchmarkObjectSwiftKotlinSpec: HybridObject() {
 
 
     // Static Methods
-
+    /** Creates an instance for JavaScript's `new BenchmarkObjectSwiftKotlin(...)`. */
+    fun constructor(): HybridBenchmarkObjectKotlin
   }
 
   protected companion object Bridge {
     protected const val TAG = "HybridBenchmarkObjectSwiftKotlinSpec"
+
+    private val implementationCompanion: Companion
+      get() = HybridBenchmarkObjectKotlin
 
     // Constructor
     @JvmStatic
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridBenchmarkObjectSwiftKotlinSpec {
-      val __result = HybridBenchmarkObjectKotlin()
+      val __result = HybridBenchmarkObjectKotlin.constructor()
       return __result
     }
   }
