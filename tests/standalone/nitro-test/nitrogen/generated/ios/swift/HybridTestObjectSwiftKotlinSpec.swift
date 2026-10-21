@@ -9,7 +9,7 @@ public import NitroModules
 public import NitroTestExternal
 
 /// See ``HybridTestObjectSwiftKotlinSpec``
-public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
+public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridTestObjectSwiftKotlinSpec_base, HybridObject {
   // Constructor
   init() throws
 

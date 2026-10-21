@@ -8,7 +8,7 @@
 public import NitroModules
 
 /// See ``HybridSomeExternalObjectSpec``
-public protocol HybridSomeExternalObjectSpec_protocol: HybridObject {
+public protocol HybridSomeExternalObjectSpec_protocol: HybridSomeExternalObjectSpec_base, HybridObject {
   // Constructor
 
 

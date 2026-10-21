@@ -9,7 +9,7 @@ public import NitroModules
 public import NitroTestExternal
 
 /// See ``HybridPlatformObjectSpec``
-public protocol HybridPlatformObjectSpec_protocol: HybridObject {
+public protocol HybridPlatformObjectSpec_protocol: HybridPlatformObjectSpec_base, HybridObject {
   // Constructor
   init() throws
 

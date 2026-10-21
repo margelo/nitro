@@ -8,7 +8,7 @@
 public import NitroModules
 
 /// See ``HybridGrandchildSpec``
-public protocol HybridGrandchildSpec_protocol: HybridObject, HybridChildSpec_protocol {
+public protocol HybridGrandchildSpec_protocol: HybridGrandchildSpec_base, HybridObject, HybridChildSpec_protocol {
   // Constructor
   init() throws
 
