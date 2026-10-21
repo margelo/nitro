@@ -11,7 +11,7 @@ public import NitroTestExternal
 /// See ``HybridBaseSpec``
 public protocol HybridBaseSpec_protocol: HybridObject {
   // Constructor
-  init() throws
+
 
   // Properties
   var baseValue: Double { get }
@@ -25,8 +25,7 @@ public protocol HybridBaseSpec_protocol: HybridObject {
 
 
   // Static Methods
-  static func createAlternativeBase() throws -> (any HybridBaseSpec)
-  static func createInternalExternalObject() throws -> (any HybridSomeExternalObjectSpec)
+
 }
 
 public extension HybridBaseSpec_protocol {
@@ -67,3 +66,18 @@ open class HybridBaseSpec_base {
  * ```
  */
 public typealias HybridBaseSpec = HybridBaseSpec_protocol & HybridBaseSpec_base
+
+/// Constructor and static requirements for the implementation selected by JavaScript.
+internal protocol HybridBaseSpec_class {
+  // Constructor
+  init() throws
+
+  // Static Properties
+
+
+  // Static Methods
+  static func createAlternativeBase() throws -> (any HybridBaseSpec)
+  static func createInternalExternalObject() throws -> (any HybridSomeExternalObjectSpec)
+}
+
+extension HybridBase: HybridBaseSpec_class { }
