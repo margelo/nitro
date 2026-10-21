@@ -27,9 +27,9 @@ export * from '#nitro/CameraView'
 
 ```swift title="HybridCameraView.swift"
 class HybridCameraView : HybridCameraViewSpec {
-  let view = CameraPreviewView()
+  let view: UIView = CameraPreviewView()
   var enableFlash: Bool = false
-  func takePhoto() -> any Promise<HybridImageSpec> {
+  func takePhoto() -> any Promise<any HybridImageSpec> {
     ...
   }
 }

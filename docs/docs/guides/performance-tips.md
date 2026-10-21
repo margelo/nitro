@@ -408,6 +408,8 @@ enable recycling, implement the `RecyclableView` interface/protocol, and overrid
     import com.margelo.nitro.views.RecyclableView
 
     class HybridMyView: HybridMyViewSpec(), RecyclableView {
+      companion object : HybridMyViewSpec.Companion {}
+
       // ...
       override fun prepareForRecycle() {}
     }

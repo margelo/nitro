@@ -95,6 +95,11 @@ export function getHybridObjectSpec(
     if (options.implementation == null) {
       throw new Error(`${name}: HybridViews require a concrete native implementation.`)
     }
+    if (options.allowMultipleImplementations === true) {
+      throw new Error(
+        `${name}: HybridViews require one concrete native implementation and cannot be extended. Remove \`allowMultipleImplementations\` and \`allowInheritance\` from the ${platform} decorator.`
+      )
+    }
     if (constructorDeclaration?.getScope() === Scope.Public) {
       throw new Error(`${name}: React Native creates HybridViews. Omit the constructor or declare it protected.`)
     }
@@ -168,6 +173,9 @@ export function getHybridObjectSpec(
   const bases = getDirectBaseTypes(type)
     .filter((t) => isSomeHybridObject(t) && !isHybridViewBaseClass(t))
     .map((baseType) => {
+      if (view && isHybridView(baseType)) {
+        throw new Error(`${name}: HybridViews cannot extend ${baseType.getSymbolOrThrow().getName()}. Extend HybridView directly.`)
+      }
       const baseOptions = getHybridObjectPlatformsForType(baseType)[platform]
       if (baseOptions == null) {
         throw new Error(`${name}: Base ${baseType.getText()} does not support ${platform}.`)
