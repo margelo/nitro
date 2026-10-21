@@ -6,6 +6,7 @@ import { createType, type TypeParsingTarget } from './createType.js'
 import { Parameter } from './Parameter.js'
 import type { SourceFile, SourceImport } from './SourceFile.js'
 import type { Type } from './types/Type.js'
+import { SourceError, withSourceLocation } from '../SourceError.js'
 
 export type MethodBody = string
 
@@ -73,12 +74,12 @@ export abstract class Method<Options extends MethodOptions = MethodOptions> impl
       const [declaration, target, options] = args
       const name = declaration.getSymbolOrThrow().getName()
       if (declaration.getOverloads().length > 1) {
-        throw new Error(`Function overloading is not supported, but \`${name}(...)\` is declared multiple times!`)
+        throw new SourceError(declaration, `Function overloading is not supported, but \`${name}(...)\` is declared multiple times!`)
       }
       const returnType = declaration.getReturnType()
       const isOptional = returnType.getUnionTypes().some((type) => type.isUndefined())
       this.name = name
-      this.returnType = createType(target, returnType, isOptional, declaration.getReturnTypeNode())
+      this.returnType = withSourceLocation(declaration, () => createType(target, returnType, isOptional, declaration.getReturnTypeNode()))
       this.parameters = declaration.getParameters().map((parameter) => new Parameter(parameter, target))
       this.options = freezeOptions(options)
     }

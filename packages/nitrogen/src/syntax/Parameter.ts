@@ -6,6 +6,7 @@ import { type SourceFile, type SourceImport } from './SourceFile.js'
 import type { GetCodeOptions, NamedType, Type } from './types/Type.js'
 import { NamedWrappingType } from './types/NamedWrappingType.js'
 import { createNamedType, type TypeParsingTarget } from './createType.js'
+import { SourceError, withSourceLocation } from '../SourceError.js'
 
 interface ParameterOptions {
   generated?: boolean
@@ -33,10 +34,15 @@ export class Parameter implements CodeNode {
     } else {
       // constructor(...) #2
       const [param, target] = args
+      if (param.isRestParameter()) {
+        throw new SourceError(param, 'Rest parameters are not supported by Nitrogen. Declare a single array parameter instead.')
+      }
       const name = param.getSymbolOrThrow().getEscapedName()
       const type = param.getType()
       const isOptional = param.hasQuestionToken() || param.isOptional() || type.getUnionTypes().some((t) => t.isUndefined())
-      this.type = createNamedType(target, name, type, isOptional, param.getTypeNode(), { isParameter: true })
+      this.type = withSourceLocation(param, () =>
+        createNamedType(target, name, type, isOptional, param.getTypeNode(), { isParameter: true })
+      )
     }
     if (this.type.name.startsWith('__') && args[2]?.generated !== true) {
       throw new Error(`Parameter names are not allowed to start with two underscores (__)! (In ${this.jsSignature})`)
