@@ -8,6 +8,10 @@ import com.margelo.nitro.core.resolved
 @Keep
 @DoNotStrip
 class HybridSharedSpecializations : HybridSharedSpecializationsSpec() {
+  companion object : HybridSharedSpecializationsSpec.Companion {
+    override fun constructor(): HybridSharedSpecializations = HybridSharedSpecializations()
+  }
+
   override var numberCallback: (value: Double) -> Unit = {}
 
   override fun resolveVoid(): Promise<Unit> {

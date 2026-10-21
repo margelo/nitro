@@ -4,6 +4,10 @@ import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.resolved
 
 class HybridBase : HybridBaseSpec() {
+  companion object : HybridBaseSpec.Companion {
+    override fun constructor(): HybridBase = HybridBase()
+  }
+
   override fun createExternalObject(): HybridSomeExternalObjectSpec = HybridSomeExternalObject()
 
   override val baseValue: Double

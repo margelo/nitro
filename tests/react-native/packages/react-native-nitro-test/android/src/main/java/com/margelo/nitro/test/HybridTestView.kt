@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class HybridTestView(
   val context: ThemedReactContext,
 ) : HybridTestViewSpec() {
+  companion object : HybridTestViewSpec.Companion {}
+
   // View
   override val view: View = View(context)
   private val onDropViewCount = AtomicInteger()

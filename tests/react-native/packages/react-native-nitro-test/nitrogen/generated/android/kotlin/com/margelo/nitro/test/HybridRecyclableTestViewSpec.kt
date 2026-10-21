@@ -91,5 +91,8 @@ abstract class HybridRecyclableTestViewSpec: HybridView() {
 
   protected companion object Bridge {
     protected const val TAG = "HybridRecyclableTestViewSpec"
+
+    private val implementationCompanion: Companion
+      get() = HybridRecyclableTestView
   }
 }

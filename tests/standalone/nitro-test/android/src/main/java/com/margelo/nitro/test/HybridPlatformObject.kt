@@ -7,7 +7,11 @@ import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 
 @Keep
 @DoNotStrip
-class HybridPlatformObject : HybridPlatformObjectSpec() {
+class HybridPlatformObject private constructor() : HybridPlatformObjectSpec() {
+  companion object : HybridPlatformObjectSpec.Companion {
+    override fun constructor(): HybridPlatformObject = HybridPlatformObject()
+  }
+
   override fun createBase(): HybridBaseSpec = HybridBase()
 
   override fun createChild(): HybridChildSpec = HybridChild()

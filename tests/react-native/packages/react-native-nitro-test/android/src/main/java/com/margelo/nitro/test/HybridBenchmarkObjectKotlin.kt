@@ -14,8 +14,10 @@ import kotlinx.coroutines.launch
 class HybridBenchmarkObjectKotlin : HybridBenchmarkObjectSwiftKotlinSpec() {
   private var pendingPromise: Promise<Double>? = null
 
-  private companion object {
-    val promiseScope = CoroutineScope(Dispatchers.Default)
+  companion object : HybridBenchmarkObjectSwiftKotlinSpec.Companion {
+    override fun constructor(): HybridBenchmarkObjectKotlin = HybridBenchmarkObjectKotlin()
+
+    private val promiseScope = CoroutineScope(Dispatchers.Default)
   }
 
   override var numberValue: Double = 0.0

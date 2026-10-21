@@ -80,18 +80,22 @@ abstract class HybridPlatformObjectSpec: HybridObject() {
 
 
     // Static Methods
-
+    /** Creates an instance for JavaScript's `new PlatformObject(...)`. */
+    fun constructor(): HybridPlatformObject
   }
 
   protected companion object Bridge {
     protected const val TAG = "HybridPlatformObjectSpec"
+
+    private val implementationCompanion: Companion
+      get() = HybridPlatformObject
 
     // Constructor
     @JvmStatic
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridPlatformObjectSpec {
-      val __result = HybridPlatformObject()
+      val __result = HybridPlatformObject.constructor()
       return __result
     }
   }
