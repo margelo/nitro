@@ -51,12 +51,35 @@
 #include "CustomString.hpp"
 #include <utility>
 #include "HybridTestObjectCpp.hpp"
-#include <memory>
+#include <concepts>
 #include <type_traits>
+#include <memory>
 
 namespace margelo::nitro::test {
 
   namespace {
+    template <typename TActual, typename TExpected>
+    concept HybridTestObjectCppSpecBindingsReturn = std::same_as<std::remove_cv_t<TActual>, std::remove_cv_t<TExpected>> ||
+                              std::convertible_to<TActual, TExpected>;
+
+    template <typename TImplementation>
+    concept HybridTestObjectCppSpecBindings_getReadonlyNumber = requires() {
+      { TImplementation::getReadonlyNumber() } -> HybridTestObjectCppSpecBindingsReturn<double>;
+    };
+    static_assert(HybridTestObjectCppSpecBindings_getReadonlyNumber<::margelo::nitro::test::HybridTestObjectCpp>, "TestObjectCpp.getReadonlyNumber: ::margelo::nitro::test::HybridTestObjectCpp must provide static double getReadonlyNumber();");
+
+    template <typename TImplementation>
+    concept HybridTestObjectCppSpecBindings_getSharedNumber = requires() {
+      { TImplementation::getSharedNumber() } -> HybridTestObjectCppSpecBindingsReturn<double>;
+    };
+    static_assert(HybridTestObjectCppSpecBindings_getSharedNumber<::margelo::nitro::test::HybridTestObjectCpp>, "TestObjectCpp.getSharedNumber: ::margelo::nitro::test::HybridTestObjectCpp must provide static double getSharedNumber();");
+
+    template <typename TImplementation>
+    concept HybridTestObjectCppSpecBindings_setSharedNumber = requires(double value0) {
+      { TImplementation::setSharedNumber(std::forward<decltype(value0)>(value0)) } -> HybridTestObjectCppSpecBindingsReturn<void>;
+    };
+    static_assert(HybridTestObjectCppSpecBindings_setSharedNumber<::margelo::nitro::test::HybridTestObjectCpp>, "TestObjectCpp.setSharedNumber: ::margelo::nitro::test::HybridTestObjectCpp must provide static void setSharedNumber(double sharedNumber);");
+
     struct HybridTestObjectCppSpecBindings final {
       static std::shared_ptr<HybridTestObjectCppSpec> constructor() {
         static_assert(std::is_constructible_v<::margelo::nitro::test::HybridTestObjectCpp>,

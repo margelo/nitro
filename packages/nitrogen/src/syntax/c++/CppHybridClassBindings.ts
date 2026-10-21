@@ -3,6 +3,7 @@ import type { SourceImport } from '../SourceFile.js'
 import { getHybridObjectName } from '../getHybridObjectName.js'
 import { CustomType } from '../types/CustomType.js'
 import { indent } from '../../utils.js'
+import type { StaticMethod } from '../StaticMethod.js'
 
 /** Code that binds a spec's constructor and static members in its `Class::get()`. */
 export interface HybridClassBindings {
@@ -31,7 +32,20 @@ export function createCppHybridClassBindings(spec: HybridObjectSpec<'c++'>): Hyb
   const { HybridTSpec } = getHybridObjectName(spec.name)
   const helper = `${HybridTSpec}Bindings`
   const adapters: string[] = []
+  const requirements: string[] = []
   imports.push({ language: 'c++', declaration: { header: 'utility', space: 'system' } }, spec.implementation.include)
+  if (spec.staticMethods.length > 0 || spec.staticProperties.length > 0) {
+    imports.push(
+      { language: 'c++', declaration: { header: 'concepts', space: 'system' } },
+      { language: 'c++', declaration: { header: 'type_traits', space: 'system' } }
+    )
+    const returnRequirement = `
+template <typename TActual, typename TExpected>
+concept ${helper}Return = std::same_as<std::remove_cv_t<TActual>, std::remove_cv_t<TExpected>> ||
+                          std::convertible_to<TActual, TExpected>;
+`.trim()
+    requirements.push(returnRequirement)
+  }
   if (spec.constructor != null) {
     // JS construction returns the native object even when its public C++ API
     // uses a facade to keep signatures consistent with another platform.
@@ -71,6 +85,7 @@ clazz.registerHybridConstructor(&${helper}::constructor);
     registrations.push(constructorRegistration)
   }
   for (const method of spec.staticMethods) {
+    requirements.push(createCppStaticRequirement({ specName: spec.name, implementation: implementation, helper: helper, method: method }))
     const argumentsCode = method.parameters.map(
       (parameter) => `std::forward<decltype(${parameter.type.escapedName})>(${parameter.type.escapedName})`
     )
@@ -91,6 +106,7 @@ clazz.registerStaticHybridMethod("${method.name}", &${helper}::${method.name});
   for (const property of spec.staticProperties) {
     const accessors = property.getStaticMethods()
     for (const method of accessors) {
+      requirements.push(createCppStaticRequirement({ specName: spec.name, implementation: implementation, helper: helper, method: method }))
       const argumentsCode = method.parameters.map(
         (parameter) => `std::forward<decltype(${parameter.type.escapedName})>(${parameter.type.escapedName})`
       )
@@ -104,11 +120,15 @@ clazz.registerStaticHybridMethod("${method.name}", &${helper}::${method.name});
     const accessorReferences = accessors.map((method) => `&${helper}::${method.name}`)
     registrations.push(`clazz.registerStaticHybridProperty("${property.name}", ${accessorReferences.join(', ')});`)
   }
+  const bindingDefinition = `
+struct ${helper} final {
+  ${indent(adapters.join('\n\n'), '  ')}
+};
+`.trim()
+  const helperDefinitions = [...requirements, bindingDefinition]
   const helperDefinition = `
 namespace {
-  struct ${helper} final {
-    ${indent(adapters.join('\n\n'), '    ')}
-  };
+  ${indent(helperDefinitions.join('\n\n'), '  ')}
 }
 `.trim()
   definitions.push(helperDefinition)
@@ -117,4 +137,30 @@ namespace {
     definitions: definitions,
     registrations: registrations,
   }
+}
+
+interface CppStaticRequirementOptions {
+  specName: string
+  implementation: string
+  helper: string
+  method: StaticMethod
+}
+
+function createCppStaticRequirement({ specName, implementation, helper, method }: CppStaticRequirementOptions): string {
+  const conceptName = `${helper}_${method.name}`
+  const parameters = method.parameters.map((parameter, index) => {
+    const type = parameter.type.getCode('c++', { context: 'parameter' })
+    return `${type} value${index}`
+  })
+  const argumentsCode = method.parameters.map((_parameter, index) => `std::forward<decltype(value${index})>(value${index})`)
+  const returnType = method.returnType.getCode('c++', { context: 'return' })
+  const expectedSignature = method.getDeclaration('c++')
+  const diagnostic = JSON.stringify(`${specName}.${method.name}: ${implementation} must provide ${expectedSignature}`)
+  return `
+template <typename TImplementation>
+concept ${conceptName} = requires(${parameters.join(', ')}) {
+  { TImplementation::${method.name}(${argumentsCode.join(', ')}) } -> ${helper}Return<${returnType}>;
+};
+static_assert(${conceptName}<${implementation}>, ${diagnostic});
+`.trim()
 }
