@@ -1,4 +1,4 @@
-import { EnumDeclaration } from 'ts-morph'
+import { EnumDeclaration, SyntaxKind } from 'ts-morph'
 import { Type as TSMorphType, type ts } from 'ts-morph'
 import type { Language } from '../../getPlatformSpecs.js'
 import { type SourceFile, type SourceImport } from '../SourceFile.js'
@@ -7,6 +7,7 @@ import { createCppEnum } from '../c++/CppEnum.js'
 import { escapeCppName } from '../helpers.js'
 import { createCppUnion } from '../c++/CppUnion.js'
 import { NitroConfig } from '../../config/NitroConfig.js'
+import { SourceError } from '../../SourceError.js'
 
 export interface EnumMember {
   name: string
@@ -56,7 +57,6 @@ export class EnumType implements Type {
             stringValue: name,
           }
         })
-        this.declarationFile = createCppEnum(enumName, this.enumMembers)
       } else {
         // It's a TS union '..' | '..'
         this.jsType = 'union'
@@ -77,8 +77,28 @@ export class EnumType implements Type {
               throw new Error(`${enumName}: Value "${t.getText()}" is not a string literal - it cannot be represented in a C++ enum!`)
             }
           })
-        this.declarationFile = createCppUnion(enumName, this.enumMembers)
       }
+      const memberNames = new Map<string, string>()
+      for (const member of this.enumMembers) {
+        const previous = memberNames.get(member.name)
+        if (previous != null) {
+          const message = `${enumName}: "${previous}" and "${member.stringValue}" both generate the native enum case ${member.name}. Rename one of them.`
+          if (declaration instanceof EnumDeclaration) {
+            const source = declaration.getMemberOrThrow(member.stringValue)
+            throw new SourceError(source, message)
+          }
+          const source = declaration.getAliasSymbol()?.getDeclarations()[0]
+          if (source != null) {
+            const literal = source
+              .getDescendantsOfKind(SyntaxKind.StringLiteral)
+              .find((node) => node.getLiteralText() === member.stringValue)
+            throw new SourceError(literal ?? source, message)
+          }
+          throw new Error(message)
+        }
+        memberNames.set(member.name, member.stringValue)
+      }
+      this.declarationFile = this.jsType === 'enum' ? createCppEnum(enumName, this.enumMembers) : createCppUnion(enumName, this.enumMembers)
       if (this.enumName.startsWith('__')) {
         throw new Error(
           `Enum name cannot start with two underscores (__) as this is reserved syntax for Nitrogen! (In ${this.enumName}: ${this.enumMembers.map((m) => m.name).join(' | ')})`

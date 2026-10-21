@@ -1,4 +1,5 @@
 import { Node, ts, Type as TSMorphType, type Project, type Signature } from 'ts-morph'
+import { SourceError, withSourceLocation } from '../SourceError.js'
 import type { Type } from './types/Type.js'
 import { BooleanType } from './types/BooleanType.js'
 import { NumberType } from './types/NumberType.js'
@@ -283,9 +284,12 @@ export function createType(
       const returnType = createType(target, callbackReturnType, isOptionalType(callbackReturnType), undefined)
       const parameters = callSignature.getParameters().map((p) => {
         const declaration = p.getValueDeclarationOrThrow()
+        if (Node.isParameterDeclaration(declaration) && declaration.isRestParameter()) {
+          throw new SourceError(declaration, 'Rest parameters are not supported by Nitrogen. Declare a single array parameter instead.')
+        }
         const parameterType = p.getTypeAtLocation(declaration)
         const isParameterOptional = isOptionalType(parameterType) || p.isOptional()
-        return createNamedType(target, p.getName(), parameterType, isParameterOptional, undefined)
+        return withSourceLocation(declaration, () => createNamedType(target, p.getName(), parameterType, isParameterOptional, undefined))
       })
       return new CallbackType(returnType, parameters, isInlineCallback(type))
     } else if (isPromise(type)) {
@@ -438,7 +442,7 @@ export function createType(
     }
   }
 
-  const result = get()
+  const result = typeNode == null ? get() : withSourceLocation(typeNode, get)
   cache?.set(key, result)
   return result
 }

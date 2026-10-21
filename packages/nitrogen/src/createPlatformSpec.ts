@@ -24,6 +24,7 @@ import { Parameter } from './syntax/Parameter.js'
 import { getDirectBaseTypes, getHybridObjectNitroModuleConfig } from './utils.js'
 import { NitroConfig } from './config/NitroConfig.js'
 import { isMemberOverridingFromBase } from './syntax/isMemberOverridingFromBase.js'
+import { SourceError, withSourceLocation } from './SourceError.js'
 
 export function generatePlatformFiles(
   hybridType: Type,
@@ -113,50 +114,55 @@ export function getHybridObjectSpec(
   const staticMethods: StaticMethod[] = []
   const staticProperties: StaticProperty[] = []
   for (const member of declaration.getStaticMembers()) {
-    if (!Node.isMethodDeclaration(member) && !Node.isPropertyDeclaration(member)) {
-      throw new Error(`${name}.${member.getName()}: Static accessors are not supported. Declare a static property instead.`)
-    }
-    const scope = member.getScope()
-    const isPrivate = Node.isPrivateIdentifier(member.getNameNode())
-    if (scope !== Scope.Public || isPrivate) {
-      throw new Error(`${name}.${member.getName()}: HybridObject members must be public.`)
-    }
-    if (options.implementation == null) {
-      throw new Error(
-        `${name}.${member.getName()}: Static members require a concrete implementation on ${platform}. Move static members to a HybridObject with an \`implementation\`.`
-      )
-    }
-    if (Node.isMethodDeclaration(member)) {
-      staticMethods.push(new StaticMethod(member, target))
-    } else if (Node.isPropertyDeclaration(member)) {
-      const memberType = member.getType()
-      const isOptional = member.getSymbolOrThrow().isOptional() || memberType.getUnionTypes().some((unionType) => unionType.isUndefined())
-      const propType = createType(target, memberType, isOptional, member.getTypeNode())
-      staticProperties.push(new StaticProperty(member.getSymbolOrThrow().getName(), propType, member.isReadonly()))
-    }
+    withSourceLocation(member, () => {
+      if (!Node.isMethodDeclaration(member) && !Node.isPropertyDeclaration(member)) {
+        throw new Error(`${name}.${member.getName()}: Static accessors are not supported. Declare a static property instead.`)
+      }
+      const scope = member.getScope()
+      const isPrivate = Node.isPrivateIdentifier(member.getNameNode())
+      if (scope !== Scope.Public || isPrivate) {
+        throw new Error(`${name}.${member.getName()}: HybridObject members must be public.`)
+      }
+      if (options.implementation == null) {
+        throw new Error(
+          `${name}.${member.getName()}: Static members require a concrete implementation on ${platform}. Move static members to a HybridObject with an \`implementation\`.`
+        )
+      }
+      if (Node.isMethodDeclaration(member)) {
+        staticMethods.push(new StaticMethod(member, target))
+      } else if (Node.isPropertyDeclaration(member)) {
+        const memberType = member.getType()
+        const isOptional = member.getSymbolOrThrow().isOptional() || memberType.getUnionTypes().some((unionType) => unionType.isUndefined())
+        const propType = createType(target, memberType, isOptional, member.getTypeNode())
+        staticProperties.push(new StaticProperty(member.getSymbolOrThrow().getName(), propType, member.isReadonly()))
+      }
+    })
   }
+
   const allowMultipleImplementations = options.allowMultipleImplementations === true
 
   const properties: Property[] = []
   const methods: InstanceMethod[] = []
   for (const member of declaration.getInstanceMembers()) {
-    const scope = member.getScope()
-    const isPrivate = Node.isPrivateIdentifier(member.getNameNode())
-    if (scope !== Scope.Public || isPrivate) {
-      throw new Error(`${name}.${member.getName()}: HybridObject members must be public.`)
-    }
-    const memberSymbol = member.getSymbolOrThrow()
-    const memberName = memberSymbol.getName()
-    if (Node.isPropertyDeclaration(member)) {
-      const memberType = member.getType()
-      const isOptional = memberSymbol.isOptional() || memberType.getUnionTypes().some((unionType) => unionType.isUndefined())
-      const propType = createType(target, memberType, isOptional, member.getTypeNode())
-      properties.push(new Property(memberName, propType, member.isReadonly()))
-    } else if (Node.isMethodDeclaration(member)) {
-      methods.push(new InstanceMethod(member, target))
-    } else {
-      throw new Error(`${name}: Property "${memberName}" is neither a property, nor a method!`)
-    }
+    withSourceLocation(member, () => {
+      const scope = member.getScope()
+      const isPrivate = Node.isPrivateIdentifier(member.getNameNode())
+      if (scope !== Scope.Public || isPrivate) {
+        throw new Error(`${name}.${member.getName()}: HybridObject members must be public.`)
+      }
+      const memberSymbol = member.getSymbolOrThrow()
+      const memberName = memberSymbol.getName()
+      if (Node.isPropertyDeclaration(member)) {
+        const memberType = member.getType()
+        const isOptional = memberSymbol.isOptional() || memberType.getUnionTypes().some((unionType) => unionType.isUndefined())
+        const propType = createType(target, memberType, isOptional, member.getTypeNode())
+        properties.push(new Property(memberName, propType, member.isReadonly()))
+      } else if (Node.isMethodDeclaration(member)) {
+        methods.push(new InstanceMethod(member, target))
+      } else {
+        throw new Error(`${name}: Property "${memberName}" is neither a property, nor a method!`)
+      }
+    })
   }
 
   const bases = getDirectBaseTypes(type)
@@ -205,21 +211,42 @@ export function getHybridObjectSpec(
     config: config,
   }
 
+  const memberSources = new Map<string, Node>()
+  for (const member of [...declaration.getInstanceMembers(), ...declaration.getStaticMembers()]) {
+    memberSources.set(member.getName(), member)
+  }
+  for (const property of staticProperties) {
+    const source = memberSources.get(property.name)
+    if (source != null) {
+      for (const accessor of property.getStaticMethods()) {
+        memberSources.set(accessor.name, source)
+      }
+    }
+  }
   const accessorNames = new Set(getPropertyAccessorNames(spec))
   const staticMembers = [...staticMethods, ...staticProperties]
   for (const member of staticMembers) {
     if (type.getProperty(member.name) != null || accessorNames.has(member.name)) {
-      throw new Error(`${name}.${member.name}: Static members cannot share a name with an instance member or its generated accessor.`)
+      throw new SourceError(
+        memberSources.get(member.name) ?? declaration,
+        `${name}.${member.name}: Static members cannot share a name with an instance member or its generated accessor.`
+      )
     }
   }
   const staticCallables = [...staticMethods, ...staticProperties.flatMap((property) => property.getStaticMethods())]
   const callableNames = new Set<string>()
   for (const method of staticCallables) {
     if (callableNames.has(method.name)) {
-      throw new Error(`${name}.${method.name}: Static methods and generated property accessors must have distinct names.`)
+      throw new SourceError(
+        memberSources.get(method.name) ?? declaration,
+        `${name}.${method.name}: Static methods and generated property accessors must have distinct names.`
+      )
     }
     if (type.getProperty(method.name) != null || accessorNames.has(method.name)) {
-      throw new Error(`${name}.${method.name}: Static members cannot share a name with an instance member or its generated accessor.`)
+      throw new SourceError(
+        memberSources.get(method.name) ?? declaration,
+        `${name}.${method.name}: Static members cannot share a name with an instance member or its generated accessor.`
+      )
     }
     callableNames.add(method.name)
   }
@@ -230,7 +257,8 @@ export function getHybridObjectSpec(
       const jvmNames = new Set([...getInstanceMethodNames(spec), ...getJvmAccessorNames(spec)])
       for (const method of staticCallables) {
         if (jvmNames.has(method.name) || jvmNames.has(`${method.name}_cxx`)) {
-          throw new Error(
+          throw new SourceError(
+            memberSources.get(method.name) ?? declaration,
             `${name}.${method.name}: Static members cannot share a JVM name with an instance member or its accessor on ${platform}.`
           )
         }
@@ -261,7 +289,8 @@ export function getHybridObjectSpec(
     }
     for (const methodName of methodNames) {
       if (constructorMethodNames.has(methodName)) {
-        throw new Error(
+        throw new SourceError(
+          memberSources.get(methodName) ?? declaration,
           `${name}.${methodName}: Method name is reserved for a generated constructor binding on ${platform}. Rename the method or omit the public constructor.`
         )
       }
@@ -271,7 +300,8 @@ export function getHybridObjectSpec(
   for (const member of [...properties, ...methods]) {
     const isOverridingBaseMember = isMemberOverridingFromBase(member.name, spec, language)
     if (isOverridingBaseMember) {
-      throw new Error(
+      throw new SourceError(
+        memberSources.get(member.name) ?? declaration,
         `\`${name}.${member.name}\` is overriding a member of one of it's base classes. ` +
           `This is unsupported, override on the native side instead!`
       )

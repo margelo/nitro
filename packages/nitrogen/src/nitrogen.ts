@@ -33,6 +33,7 @@ import { getRuntimeImportsErrors } from './checkHybridClassRuntimeImports.js'
 import { getHybridViewExportErrors } from './checkHybridViewExports.js'
 import { getBobPackageScopeWarnings } from './checkBobPackageScopes.js'
 import { writeHybridClassManifest, type HybridClassManifestEntry } from './hybridClassManifest.js'
+import { SourceError } from './SourceError.js'
 
 interface NitrogenOptions {
   baseDirectory: string
@@ -245,8 +246,12 @@ export async function runNitrogen({ baseDirectory, outputDirectory }: NitrogenOp
         // Done!
         generatedSpecs++
       } catch (error) {
-        const location = `${sourceFile.getFilePath()}:${declaration.getStartLineNumber()}`
-        generationErrors.push(new Error(`${location}: Failed to generate ${typeName}: ${errorToString(error)}`, { cause: error }))
+        if (error instanceof SourceError) {
+          generationErrors.push(error)
+        } else {
+          const location = `${sourceFile.getFilePath()}:${declaration.getStartLineNumber()}`
+          generationErrors.push(new Error(`${location}: Failed to generate ${typeName}: ${errorToString(error)}`, { cause: error }))
+        }
       }
     }
 
