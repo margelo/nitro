@@ -1,39 +1,33 @@
 import { NitroModules } from 'nitro-core'
 import { TestObjectCpp, TestObjectSwiftKotlin } from 'nitro-test'
 import { SharedSpecializations, SharedSpecializationsCpp } from 'nitro-test-external'
+import { casesForImplementationPairs, casesForImplementations, type TestCase } from './suites'
+
+export { namedCases, withTestTimeout, type TestCase } from './suites'
 
 type Timeout = { timeoutMs?: number }
-export type TestCase = (() => void | Promise<void>) & Timeout
 type TestObject = TestObjectCpp | TestObjectSwiftKotlin
 type TestObjectCase = ((object: TestObject) => void | Promise<void>) & Timeout
+type Implementation = 'TestObjectCpp' | 'TestObjectSwiftKotlin'
 type SharedSpecializationsObject = SharedSpecializationsCpp | SharedSpecializations
 type SharedSpecializationsCase = ((external: SharedSpecializationsObject, local: TestObject) => void | Promise<void>) & Timeout
 type ExternalImplementation = 'SharedSpecializationsCpp' | 'SharedSpecializations'
 
-/** Give an expensive case an explicit native execution budget. */
-export function withTestTimeout<Test extends (...args: never[]) => void | Promise<void>>(
-  timeoutMs: number,
-  test: Test
-): Test & { timeoutMs: number } {
-  return Object.assign(test, { timeoutMs })
+const testObjects: Record<Implementation, () => TestObject> = {
+  TestObjectCpp: () => new TestObjectCpp(),
+  TestObjectSwiftKotlin: () => new TestObjectSwiftKotlin(),
 }
-type Implementation = 'TestObjectCpp' | 'TestObjectSwiftKotlin'
+const sharedSpecializations: Record<ExternalImplementation, () => SharedSpecializationsObject> = {
+  SharedSpecializationsCpp: () => new SharedSpecializationsCpp(),
+  SharedSpecializations: () => new SharedSpecializations(),
+}
 
 /** Bind each case lazily so one fresh native object belongs to one native test. */
 export function casesForTestObjects<Suite extends string, Cases extends Record<string, TestObjectCase>>(
   suite: Suite,
   cases: Cases
 ): Record<`${Suite} / ${Implementation} / ${keyof Cases & string}`, TestCase> {
-  const result: Record<string, TestCase> = {}
-  for (const implementation of ['TestObjectCpp', 'TestObjectSwiftKotlin'] as const) {
-    for (const [name, test] of Object.entries(cases)) {
-      result[`${suite} / ${implementation} / ${name}`] = Object.assign(
-        () => test(implementation === 'TestObjectCpp' ? new TestObjectCpp() : new TestObjectSwiftKotlin()),
-        { timeoutMs: test.timeoutMs }
-      )
-    }
-  }
-  return result
+  return casesForImplementations(suite, testObjects, cases)
 }
 
 /**
@@ -44,32 +38,7 @@ export function casesForSharedSpecializations<Suite extends string, Cases extend
   suite: Suite,
   cases: Cases
 ): Record<`${Suite} / ${ExternalImplementation} + ${Implementation} / ${keyof Cases & string}`, TestCase> {
-  const result: Record<string, TestCase> = {}
-  for (const external of ['SharedSpecializationsCpp', 'SharedSpecializations'] as const) {
-    for (const local of ['TestObjectCpp', 'TestObjectSwiftKotlin'] as const) {
-      for (const [name, test] of Object.entries(cases)) {
-        result[`${suite} / ${external} + ${local} / ${name}`] = Object.assign(
-          () =>
-            test(
-              external === 'SharedSpecializationsCpp' ? new SharedSpecializationsCpp() : new SharedSpecializations(),
-              local === 'TestObjectCpp' ? new TestObjectCpp() : new TestObjectSwiftKotlin()
-            ),
-          { timeoutMs: test.timeoutMs }
-        )
-      }
-    }
-  }
-  return result
-}
-
-export function namedCases<Suite extends string, Cases extends Record<string, TestCase>>(
-  suite: Suite,
-  cases: Cases
-): Record<`${Suite} / ${keyof Cases & string}`, TestCase> {
-  return Object.fromEntries(Object.entries(cases).map(([name, test]) => [`${suite} / ${name}`, test])) as Record<
-    `${Suite} / ${keyof Cases & string}`,
-    TestCase
-  >
+  return casesForImplementationPairs(suite, sharedSpecializations, testObjects, cases)
 }
 
 // A recorder only stores calls and invokes the supplied callback. Assertions use

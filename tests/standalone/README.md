@@ -158,9 +158,9 @@ Fulfillment passes. An assertion, JS exception, rejection, native exception, or 
 containing the case name and JS stack. The helper returns a message across the native boundary rather than exposing JSI values or throwing
 C++ exceptions into Swift. Bundle setup and each case get a 10-second timeout. Setup cannot consume the case's budget.
 `withTestTimeout(150_000, test)` gives the four 55,000-object allocation/disposal cases 150 seconds to complete. Other tests retain the
-default, and the override never extends bundle setup. Native runner contracts pass shorter explicit limits to check timeouts. Hermes
-interrupts synchronous JS loops and endless microtask chains in either phase; timeout errors identify the phase. Late native callbacks
-cannot re-enter the runtime after it closes.
+default, which a `Memory budgets` case checks, and the override never extends bundle setup. Native runner contracts pass shorter explicit
+limits to check timeouts. Hermes interrupts synchronous JS loops and endless microtask chains in either phase; timeout errors identify the
+phase. Late native callbacks cannot re-enter the runtime after it closes.
 
 Chai includes expected/actual values in assertion messages with truncation disabled. There is no custom property-diff reporter or source-map
 symbolicator yet. The unminified bundle and its source map are available as build artifacts; reported stack locations refer to the bundle,

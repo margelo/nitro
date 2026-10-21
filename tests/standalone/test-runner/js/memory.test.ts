@@ -156,4 +156,18 @@ export const cases = {
       expect(Object.is(externalBytesAfter - externalBytesBefore, size)).to.equal(true)
     },
   }),
+  ...namedCases('Memory budgets', {
+    'only the four allocation stress cases receive a longer budget': () => {
+      const overrides = Object.entries(cases).filter(([, test]) => test.timeoutMs !== undefined)
+      expect(overrides.map(([name]) => name).sort()).to.deep.equal([
+        'Memory / TestObjectCpp / newTestObject() objects are reclaimed by JS GC',
+        'Memory / TestObjectCpp / newTestObject() objects are released by manual dispose()',
+        'Memory / TestObjectSwiftKotlin / newTestObject() objects are reclaimed by JS GC',
+        'Memory / TestObjectSwiftKotlin / newTestObject() objects are released by manual dispose()',
+      ])
+      for (const [, test] of overrides) {
+        expect(test.timeoutMs).to.equal(150_000)
+      }
+    },
+  }),
 }
