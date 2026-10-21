@@ -27,6 +27,7 @@ export class SwiftInstanceMethod extends InstanceMethod {
     const callable = prepareSwiftMethod(method, accessor == null, config)
     const parameters = callable.parameters.map((parameter) => parameter.swift)
     super(method.name, callable.returnType, parameters, {
+      documentation: method.documentation,
       generated: true,
     })
     this.returnType = callable.returnType

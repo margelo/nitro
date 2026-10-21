@@ -5,6 +5,7 @@ import type { Property } from './Property.js'
 import type { Constructor } from './Constructor.js'
 import type { StaticMethod } from './StaticMethod.js'
 import type { StaticProperty } from './StaticProperty.js'
+import type { Documentation } from './Documentation.js'
 
 type LanguagePlatformOptions<L extends Language> = Extract<HybridObjectPlatformOptions, { language: L }>
 
@@ -24,6 +25,7 @@ type NativePlatformSpec<L extends Language> = L extends Language
 
 export type HybridObjectSpec<L extends Language = Language> = NativePlatformSpec<L> & {
   name: string
+  documentation?: Documentation
   platforms: HybridObjectPlatforms
   isHybridView: boolean
   allowMultipleImplementations: boolean

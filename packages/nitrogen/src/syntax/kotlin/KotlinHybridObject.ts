@@ -19,16 +19,31 @@ import type { KotlinStaticProperty } from './KotlinStaticProperty.js'
 import { wrapKotlinType } from './wrapKotlinType.js'
 import { getImportCode } from '../getImportCode.js'
 import { KotlinHybridObjectType } from './types/KotlinHybridObjectType.js'
+import { withDocumentation } from '../Documentation.js'
 
 export function createKotlinHybridObject(spec: HybridObjectSpec<'kotlin'>): SourceFile[] {
   const hybridObject = new KotlinHybridObjectType(new HybridObjectType(spec))
   const name = getHybridObjectName(spec.name)
   const properties = spec.properties.map(getKotlinPropertyCode).join('\n\n')
   const methods = spec.methods.map(getKotlinMethodCode).join('\n\n')
-  const companionProperties = spec.staticProperties.map((property) => property.getCode('kotlin')).join('\n\n')
+  const companionProperties = spec.staticProperties
+    .map((property) =>
+      withDocumentation({
+        code: property.getCode('kotlin'),
+        documentation: property.documentation,
+        language: 'kotlin',
+      })
+    )
+    .join('\n\n')
   const companionMethodRequirements = spec.staticMethods.map((method) => {
-    const requirement = new InstanceMethod(method.name, method.returnType, method.parameters)
-    return requirement.getDeclaration('kotlin')
+    const requirement = new InstanceMethod(method.name, method.returnType, method.parameters, {
+      documentation: method.documentation,
+    })
+    return withDocumentation({
+      code: requirement.getDeclaration('kotlin'),
+      documentation: requirement.documentation,
+      language: 'kotlin',
+    })
   })
   if (spec.constructor != null) {
     const constructorRequirement = getKotlinConstructorRequirement(spec)
@@ -86,6 +101,12 @@ export function createKotlinHybridObject(spec: HybridObjectSpec<'kotlin'>): Sour
 
   const javaPackage = spec.config.getAndroidPackage('java/kotlin')
 
+  const classAttributes = withDocumentation({
+    code: '@DoNotStrip',
+    documentation: spec.documentation,
+    language: 'kotlin',
+    emitDeprecation: false,
+  })
   // 1. Create Kotlin abstract class definition
   const abstractClassCode = `
 ${createFileMetadataString(`${name.HybridTSpec}.kt`)}
@@ -102,7 +123,7 @@ ${imports.join('\n')}
  * A Kotlin class representing the ${spec.name} HybridObject.
  * Implement this abstract class to create Kotlin-based instances of ${spec.name}.
  */
-@DoNotStrip
+${classAttributes}
 @Keep
 @Suppress(
   "KotlinJniMissingFunction", "unused",
@@ -199,9 +220,14 @@ function getKotlinConstructorRequirement(spec: HybridObjectSpec<'kotlin'>): stri
   const requirement = `
 fun constructor(${parameters.join(', ')}): ${returnType}
 `.trim()
+  const documentedRequirement = withDocumentation({
+    code: requirement,
+    documentation: constructor.documentation,
+    language: 'kotlin',
+  })
   return `
 /** Creates an instance for JavaScript's \`new ${spec.name}(...)\`. */
-${requirement}
+${documentedRequirement}
 `.trim()
 }
 
@@ -269,9 +295,13 @@ private val implementationCompanion: Companion
     sections.push(companionRequirement)
   }
   for (const group of groups) {
-    const bridges = group.callables
-      .flatMap((callable) => callable.createBridge().kotlinMethods)
-      .map(({ method, body }) => method.getDefinition('kotlin', { body: body }))
+    const bridges = group.callables.flatMap((callable) => {
+      const deprecated = callable.documentation?.deprecated != null
+      return callable.createBridge().kotlinMethods.map(({ method, body }) => {
+        const code = method.getDefinition('kotlin', { body: body })
+        return suppressBridgeDeprecation(code, deprecated)
+      })
+    })
     const groupCode = `
 // ${group.comment}
 ${bridges.join('\n\n')}
@@ -293,10 +323,16 @@ function getKotlinMethodCode(method: InstanceMethod): string {
     doNotStrip: !kotlinMethod.needsKotlinBridge,
     pureVirtual: true,
   })
-  const bridges = kotlinMethod
-    .createBridge()
-    .kotlinMethods.map(({ method: bridge, body }) => bridge.getDefinition('kotlin', { body: body }))
-  return [declaration.getDeclaration('kotlin'), ...bridges].join('\n\n')
+  const bridges = kotlinMethod.createBridge().kotlinMethods.map(({ method: bridge, body }) => {
+    const code = bridge.getDefinition('kotlin', { body: body })
+    return suppressBridgeDeprecation(code, method.documentation?.deprecated != null)
+  })
+  const documentedDeclaration = withDocumentation({
+    code: declaration.getDeclaration('kotlin'),
+    documentation: method.documentation,
+    language: 'kotlin',
+  })
+  return [documentedDeclaration, ...bridges].join('\n\n')
 }
 
 function getKotlinPropertyCode(property: Property): string {
@@ -309,8 +345,16 @@ function getKotlinPropertyCode(property: Property): string {
   })
   const bridges = accessors
     .flatMap((accessor) => accessor.createBridge().kotlinMethods)
-    .map(({ method, body }) => method.getDefinition('kotlin', { body: body }))
-  return [declaration, ...bridges].join('\n\n')
+    .map(({ method, body }) => {
+      const code = method.getDefinition('kotlin', { body: body })
+      return suppressBridgeDeprecation(code, property.documentation?.deprecated != null)
+    })
+  const documentedDeclaration = withDocumentation({
+    code: declaration,
+    documentation: property.documentation,
+    language: 'kotlin',
+  })
+  return [documentedDeclaration, ...bridges].join('\n\n')
 }
 
 function getImplementedInterfaceImport(implementedInterface: KotlinImplementedInterface): SourceImport<'kotlin'> {
@@ -318,4 +362,12 @@ function getImplementedInterfaceImport(implementedInterface: KotlinImplementedIn
     name: `${implementedInterface.package}.${implementedInterface.interface}`,
     language: 'kotlin',
   }
+}
+
+function suppressBridgeDeprecation(code: string, deprecated: boolean): string {
+  if (!deprecated) return code
+  return `
+@Suppress("DEPRECATION")
+${code}
+`.trim()
 }

@@ -64,6 +64,7 @@ export class KotlinInstanceMethod extends InstanceMethod {
       parameters = callable.parameters.map((parameter) => parameter.kotlin)
     }
     super(name, callable.returnType, parameters, {
+      documentation: method.documentation,
       access: 'private',
       doNotStrip: true,
       generated: true,

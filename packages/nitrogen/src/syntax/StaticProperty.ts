@@ -19,6 +19,7 @@ export class StaticProperty extends Property {
     const methods = this.getCppMethods().map(
       (method) =>
         new StaticMethod(method.name, method.returnType, method.parameters, {
+          documentation: method.documentation,
           generated: true,
         })
     )

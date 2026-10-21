@@ -32,7 +32,7 @@ export class KotlinStaticProperty extends StaticProperty {
   private readonly setter: KotlinStaticAccessor | undefined
 
   constructor({ spec, property }: KotlinStaticPropertyOptions) {
-    super(property.name, property.type, property.isReadonly)
+    super(property.name, property.type, property.isReadonly, property.documentation)
     this.implementationClassName = getKotlinImplementation(spec).className
     const { JHybridTSpec } = getHybridObjectName(spec.name)
     this.jniClass = `${JHybridTSpec}::JavaPart::javaClassStatic()`

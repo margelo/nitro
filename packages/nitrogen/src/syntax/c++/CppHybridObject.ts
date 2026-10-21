@@ -8,6 +8,7 @@ import { getImportCode, getImportsCode } from '../getImportCode.js'
 import type { Platform } from '../../getPlatformSpecs.js'
 import { createCppHybridClassBindings, type HybridClassBindings } from './CppHybridClassBindings.js'
 import { createKotlinHybridClassBindings } from '../kotlin/KotlinHybridClassBindings.js'
+import { withDocumentation } from '../Documentation.js'
 
 export function createCppHybridObject(spec: HybridObjectSpec, platform: Platform): SourceFile[] {
   if (spec.baseTypes.length > 1) {
@@ -82,14 +83,27 @@ export function createCppHybridObject(spec: HybridObjectSpec, platform: Platform
   const cppSpecInclude = getImportCode(specImport)
   const cppImplementationIncludes = getImportsCode([specImport, ...memberImports], 'implementation')
 
-  const properties = spec.properties.map((p) => p.getCode('c++', { virtual: true }))
+  const properties = spec.properties.map((property) =>
+    withDocumentation({
+      code: property.getCode('c++', { virtual: true }),
+      documentation: property.documentation,
+      language: 'c++',
+    })
+  )
   const abstractMethods = spec.methods.map(
     (method) =>
       new InstanceMethod(method.name, method.returnType, method.parameters, {
         pureVirtual: true,
+        documentation: method.documentation,
       })
   )
-  const methods = abstractMethods.map((method) => method.getDeclaration('c++'))
+  const methods = abstractMethods.map((method) =>
+    withDocumentation({
+      code: method.getDeclaration('c++'),
+      documentation: method.documentation,
+      language: 'c++',
+    })
+  )
 
   const bases = ['public virtual HybridObject']
   for (const base of spec.baseTypes) {
@@ -98,6 +112,14 @@ export function createCppHybridObject(spec: HybridObjectSpec, platform: Platform
     bases.push(`public virtual ${fullName}`)
   }
 
+  const classDeclaration = withDocumentation({
+    code: `
+class ${name.HybridTSpec} : ${bases.join(', ')}
+`.trim(),
+    documentation: spec.documentation,
+    language: 'c++',
+    emitDeprecation: false,
+  })
   // Generate the full header / code
   const cppHeaderCode = `
 ${createFileMetadataString(`${name.HybridTSpec}.hpp`)}
@@ -122,7 +144,7 @@ namespace ${cxxNamespace} {
    * };
    * \`\`\`
    */
-  class ${name.HybridTSpec} : ${bases.join(', ')} {
+  ${indent(classDeclaration, '  ')} {
     public:
       struct Class {
         using Base = ${hybridClassBase}::Class;

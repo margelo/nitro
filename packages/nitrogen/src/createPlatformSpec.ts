@@ -25,6 +25,7 @@ import { getDirectBaseTypes, getHybridObjectNitroModuleConfig } from './utils.js
 import { NitroConfig } from './config/NitroConfig.js'
 import { isMemberOverridingFromBase } from './syntax/isMemberOverridingFromBase.js'
 import { SourceError, withSourceLocation } from './SourceError.js'
+import { getDocumentation } from './syntax/Documentation.js'
 
 export function generatePlatformFiles(
   hybridType: Type,
@@ -134,7 +135,9 @@ export function getHybridObjectSpec(
         const memberType = member.getType()
         const isOptional = member.getSymbolOrThrow().isOptional() || memberType.getUnionTypes().some((unionType) => unionType.isUndefined())
         const propType = createType(target, memberType, isOptional, member.getTypeNode())
-        staticProperties.push(new StaticProperty(member.getSymbolOrThrow().getName(), propType, member.isReadonly()))
+        staticProperties.push(
+          new StaticProperty(member.getSymbolOrThrow().getName(), propType, member.isReadonly(), getDocumentation(member))
+        )
       }
     })
   }
@@ -168,7 +171,7 @@ export function getHybridObjectSpec(
         const memberType = member.getType()
         const isOptional = memberSymbol.isOptional() || memberType.getUnionTypes().some((unionType) => unionType.isUndefined())
         const propType = createType(target, memberType, isOptional, member.getTypeNode())
-        properties.push(new Property(memberName, propType, member.isReadonly()))
+        properties.push(new Property(memberName, propType, member.isReadonly(), getDocumentation(member)))
       } else if (Node.isMethodDeclaration(member)) {
         methods.push(new InstanceMethod(member, target))
       } else {
@@ -210,7 +213,9 @@ export function getHybridObjectSpec(
       bases.map((base) => new HybridObjectType(base)),
       config
     )
-    constructor = new Constructor(getHybridObjectName(name).HybridTSpec, constructedType, constructorParameters)
+    constructor = new Constructor(getHybridObjectName(name).HybridTSpec, constructedType, constructorParameters, {
+      documentation: getDocumentation(constructorDeclaration),
+    })
   }
 
   const spec: HybridObjectSpec = {
@@ -218,6 +223,7 @@ export function getHybridObjectSpec(
     allowMultipleImplementations: allowMultipleImplementations,
     allowInheritance: options.allowInheritance === true,
     name: name,
+    documentation: getDocumentation(declaration),
     platforms: platforms,
     isHybridView: view,
     properties: properties,

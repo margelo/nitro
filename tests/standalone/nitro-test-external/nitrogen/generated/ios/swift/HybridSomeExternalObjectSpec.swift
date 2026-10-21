@@ -8,6 +8,8 @@
 public import NitroModules
 
 /// See ``HybridSomeExternalObjectSpec``
+/// This hybrid object is implemented in Swift and Kotlin.
+/// It can be called from Swift/Kotlin, as well as C++ directly.
 public protocol HybridSomeExternalObjectSpec_protocol: HybridSomeExternalObjectSpec_base, HybridObject {
   // Constructor
 

@@ -34,7 +34,7 @@ export class SwiftStaticProperty extends StaticProperty {
   private readonly setter: SwiftStaticAccessor | undefined
 
   constructor({ spec, property }: SwiftStaticPropertyOptions) {
-    super(property.name, property.type, property.isReadonly)
+    super(property.name, property.type, property.isReadonly, property.documentation)
     const implementation = spec.implementation
     if (implementation == null) {
       throw new Error(`${spec.name}: Cannot generate a static property without a Swift implementation.`)

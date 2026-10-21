@@ -23,6 +23,7 @@ export class Constructor extends Method<ConstructorOptions> {
 
   toStaticMethod(returnType: Type = this.returnType, name: string = 'constructor', options: StaticMethodOptions = {}): StaticMethod {
     return new StaticMethod(name, returnType, this.parameters, {
+      documentation: this.documentation,
       ...options,
       generated: true,
     })

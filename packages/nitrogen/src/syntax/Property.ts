@@ -6,6 +6,7 @@ import type { Type } from './types/Type.js'
 import { InstanceMethod, type InstanceMethodOptions } from './InstanceMethod.js'
 import { VoidType } from './types/VoidType.js'
 import { Parameter } from './Parameter.js'
+import type { Documentation } from './Documentation.js'
 
 export interface PropertyBody {
   getter: string
@@ -56,7 +57,12 @@ export class Property implements CodeNode {
   readonly type: Type
   readonly isReadonly: boolean
 
-  constructor(name: string, type: Type, isReadonly: boolean) {
+  constructor(
+    name: string,
+    type: Type,
+    isReadonly: boolean,
+    readonly documentation?: Documentation
+  ) {
     this.name = name
     this.type = type
     this.isReadonly = isReadonly
@@ -117,10 +123,11 @@ export class Property implements CodeNode {
   }
 
   getCppMethods(options: InstanceMethodOptions = {}): [getter: InstanceMethod] | [getter: InstanceMethod, setter: InstanceMethod] {
-    const getter = new InstanceMethod(this.getGetterName('other'), this.type, [], options)
+    const accessorOptions = { ...options, documentation: this.documentation }
+    const getter = new InstanceMethod(this.getGetterName('other'), this.type, [], accessorOptions)
     if (this.isReadonly) return [getter]
     const parameter = new Parameter(this.name, this.type)
-    const setter = new InstanceMethod(this.getSetterName('other'), new VoidType(), [parameter], options)
+    const setter = new InstanceMethod(this.getSetterName('other'), new VoidType(), [parameter], accessorOptions)
     return [getter, setter]
   }
 

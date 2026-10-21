@@ -118,6 +118,11 @@ A Nitro spec file consists of one or more `declare class` statements and combine
 See [Platform decorators](platform-decorators) for all `@iOS` and `@Android` options, including multiple implementations, inheritance, and
 native protocol/interface requirements.
 
+JSDoc on classes, constructors, methods, and properties appears in the generated native specs. `@deprecated` also adds Kotlin's
+`@Deprecated` and Swift's `@available` on requirements. Swift instance requirements with `allowMultipleImplementations: true` keep the
+deprecation message in their documentation, because annotating them would warn inside the generated bridge. C++ keeps deprecations in
+comments for the same reason.
+
 ```ts title="Math.nitro.ts"
 import { iOS, type HybridObject } from 'nitro-core'
 

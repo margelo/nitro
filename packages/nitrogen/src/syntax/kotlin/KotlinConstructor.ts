@@ -36,6 +36,7 @@ export class KotlinConstructor extends Constructor {
     const callable = prepareKotlinMethod(nativeFactory, { directReturn: false })
     const parameters = callable.parameters.map((parameter) => parameter.kotlin)
     super(constructor.name, callable.returnType, parameters, {
+      documentation: constructor.documentation,
       generated: true,
     })
     this.returnType = callable.returnType

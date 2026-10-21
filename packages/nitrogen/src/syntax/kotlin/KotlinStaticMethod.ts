@@ -31,6 +31,7 @@ export class KotlinStaticMethod extends StaticMethod {
     const callable = prepareKotlinMethod(method)
     const parameters = callable.parameters.map((parameter) => parameter.kotlin)
     super(`${method.name}_cxx`, callable.returnType, parameters, {
+      documentation: method.documentation,
       access: 'private',
       doNotStrip: true,
       generated: true,

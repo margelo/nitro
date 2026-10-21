@@ -12,6 +12,7 @@ import { getImportsCode } from '../getImportCode.js'
 import { getAllTypes } from '../getAllTypes.js'
 import { getProtocolConformanceImports } from './getSwiftImports.js'
 import { SwiftHybridObjectType } from './types/SwiftHybridObjectType.js'
+import { withDocumentation } from '../Documentation.js'
 
 export function createSwiftHybridObject(spec: HybridObjectSpec<'swift'>): SourceFile[] {
   const hybridObjectType = new HybridObjectType(spec)
@@ -19,17 +20,54 @@ export function createSwiftHybridObject(spec: HybridObjectSpec<'swift'>): Source
   const conformances = swiftType.getProtocolConformances()
   const name = getHybridObjectName(spec.name)
   const protocolName = name.HybridTSpec
-  const constructor = spec.constructor?.getDeclaration('swift') ?? ''
-  const properties = spec.properties.map((p) => p.getCode('swift')).join('\n')
-  const methods = spec.methods.map((method) => method.getDeclaration('swift')).join('\n')
-  const staticProperties = spec.staticProperties.map((property) => property.getCode('swift')).join('\n')
+  // Existential calls would otherwise warn inside the generated bridge.
+  const emitInstanceDeprecation = !spec.allowMultipleImplementations
+  const constructor = withDocumentation({
+    code: spec.constructor?.getDeclaration('swift') ?? '',
+    documentation: spec.constructor?.documentation,
+    language: 'swift',
+  })
+  const properties = spec.properties
+    .map((property) =>
+      withDocumentation({
+        code: property.getCode('swift'),
+        documentation: property.documentation,
+        language: 'swift',
+        emitDeprecation: emitInstanceDeprecation,
+      })
+    )
+    .join('\n')
+  const methods = spec.methods
+    .map((method) =>
+      withDocumentation({
+        code: method.getDeclaration('swift'),
+        documentation: method.documentation,
+        language: 'swift',
+        emitDeprecation: emitInstanceDeprecation,
+      })
+    )
+    .join('\n')
+  const staticProperties = spec.staticProperties
+    .map((property) =>
+      withDocumentation({
+        code: property.getCode('swift'),
+        documentation: property.documentation,
+        language: 'swift',
+      })
+    )
+    .join('\n')
   const staticMethods = spec.staticMethods
     .map((method) => {
       const requirement = new StaticMethod(method.name, method.returnType, method.parameters, {
         ...method.options,
+        documentation: method.documentation,
         protocolRequirement: true,
       })
-      return requirement.getDeclaration('swift')
+      return withDocumentation({
+        code: requirement.getDeclaration('swift'),
+        documentation: requirement.documentation,
+        language: 'swift',
+      })
     })
     .join('\n')
   let instanceConstructor: string
@@ -140,13 +178,21 @@ ${wrapperAccessorModifiers} func getCxxWrapper() -> ${name.HybridTSpecCxx} {
 
   const imports = getImportsCode([{ language: 'swift', name: 'NitroModules', access: 'public' }, ...extraImports, ...conformanceImports])
 
+  const protocolDeclaration = withDocumentation({
+    code: `
+public protocol ${protocolName}_protocol: ${protocolBaseClasses.join(', ')}
+`.trim(),
+    documentation: spec.documentation,
+    language: 'swift',
+    emitDeprecation: false,
+  })
   const protocolCode = `
 ${createFileMetadataString(`${protocolName}.swift`)}
 
 ${imports}
 
 /// See \`\`${protocolName}\`\`
-public protocol ${protocolName}_protocol: ${protocolBaseClasses.join(', ')} {
+${protocolDeclaration} {
   // Constructor
   ${indent(instanceConstructor, '  ')}
 

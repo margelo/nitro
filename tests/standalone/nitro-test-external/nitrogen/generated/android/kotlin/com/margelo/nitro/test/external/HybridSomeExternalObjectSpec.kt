@@ -18,6 +18,10 @@ import com.margelo.nitro.core.HybridObject
  * A Kotlin class representing the SomeExternalObject HybridObject.
  * Implement this abstract class to create Kotlin-based instances of SomeExternalObject.
  */
+/**
+ * This hybrid object is implemented in Swift and Kotlin.
+ * It can be called from Swift/Kotlin, as well as C++ directly.
+ */
 @DoNotStrip
 @Keep
 @Suppress(

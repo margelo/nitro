@@ -7,6 +7,7 @@ import { Parameter } from './Parameter.js'
 import type { SourceFile, SourceImport } from './SourceFile.js'
 import type { Type } from './types/Type.js'
 import { SourceError, withSourceLocation } from '../SourceError.js'
+import { getDocumentation, type Documentation } from './Documentation.js'
 
 export type MethodBody = string
 
@@ -18,6 +19,7 @@ export interface MethodOptions {
   readonly throwing?: boolean
   /** Internal generated names may use the reserved __ prefix. */
   readonly generated?: boolean
+  readonly documentation?: Documentation
 }
 
 export type MethodArguments<Options extends MethodOptions = MethodOptions> =
@@ -62,6 +64,7 @@ export abstract class Method<Options extends MethodOptions = MethodOptions> impl
   readonly returnType: Type
   readonly parameters: Parameter[]
   readonly options: Readonly<Partial<Options>>
+  readonly documentation: Documentation | undefined
 
   constructor(...args: MethodArguments<Options>) {
     if (!isDeclarationArguments(args)) {
@@ -70,6 +73,7 @@ export abstract class Method<Options extends MethodOptions = MethodOptions> impl
       this.returnType = returnType
       this.parameters = parameters
       this.options = freezeOptions(options)
+      this.documentation = options?.documentation
     } else {
       const [declaration, target, options] = args
       const name = declaration.getSymbolOrThrow().getName()
@@ -82,6 +86,7 @@ export abstract class Method<Options extends MethodOptions = MethodOptions> impl
       this.returnType = withSourceLocation(declaration, () => createType(target, returnType, isOptional, declaration.getReturnTypeNode()))
       this.parameters = declaration.getParameters().map((parameter) => new Parameter(parameter, target))
       this.options = freezeOptions(options)
+      this.documentation = getDocumentation(declaration)
     }
     if (!this.options.generated && this.name.startsWith('__')) {
       throw new Error(`Method names are not allowed to start with two underscores (__)! (In ${this.jsSignature})`)

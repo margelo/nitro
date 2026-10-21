@@ -37,6 +37,7 @@ export class SwiftConstructor extends Constructor {
     const callable = prepareSwiftMethod(nativeFactory, true, spec.config)
     const parameters = callable.parameters.map((parameter) => parameter.swift)
     super(constructor.name, callable.returnType, parameters, {
+      documentation: constructor.documentation,
       generated: true,
     })
     this.returnType = callable.returnType
