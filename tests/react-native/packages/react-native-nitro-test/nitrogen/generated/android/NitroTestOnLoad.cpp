@@ -19,12 +19,12 @@
 namespace margelo::nitro::test {
   void registerAllNatives() {
     margelo::nitro::test::JHybridBenchmarkObjectSwiftKotlinSpec::CxxPart::registerNatives();
-    margelo::nitro::test::JCallback_double_cxx::registerNatives();
+    margelo::nitro::test::JCallback_double::registerNatives();
     margelo::nitro::test::JHybridRecyclableTestViewSpec::CxxPart::registerNatives();
     margelo::nitro::test::views::JHybridRecyclableTestViewStateUpdater::registerNatives();
     margelo::nitro::test::JHybridTestViewSpec::CxxPart::registerNatives();
     margelo::nitro::test::views::JHybridTestViewStateUpdater::registerNatives();
-    margelo::nitro::test::JCallback_void_cxx::registerNatives();
+    margelo::nitro::test::JCallback_void::registerNatives();
 
     HybridClassRegistry::registerHybridClass("test.BenchmarkObjectCpp", HybridBenchmarkObjectCppSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.BenchmarkObjectSwiftKotlin", JHybridBenchmarkObjectSwiftKotlinSpec::Class::get());

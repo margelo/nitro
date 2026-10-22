@@ -10,38 +10,15 @@ package com.margelo.nitro.test
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-
-
-/**
- * Represents the JavaScript callback `(value: uint64) => uint64_t`.
- * This can be either implemented in C++ (in which case it might be a callback coming from JS),
- * or in Kotlin/Java (in which case it is a native callback).
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType")
-fun interface Callback_uint64_t_uint64_t: (ULong) -> ULong {
-  /**
-   * Call the given JS callback.
-   * @throws Throwable if the JS function itself throws an error, or if the JS function/runtime has already been deleted.
-   */
-  @DoNotStrip
-  @Keep
-  override fun invoke(value: ULong): ULong
-
-  // JNI uses this signature to avoid erased FunctionN and unsigned value types.
-  @DoNotStrip
-  @Keep
-  fun invoke_jni(value: Long): Long {
-    val __result = invoke(value.toULong())
-    return __result.toLong()
-  }
-}
+import com.margelo.nitro.core.Callback
+import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.CxxCallback
+import com.margelo.nitro.core.callSync
 
 /**
- * Represents the JavaScript callback `(value: uint64) => uint64_t`.
- * This is implemented in C++, via a `Callback<...>`.
- * The callback might be coming from JS.
+ * The JNI representation of `Callback<(value: ULong) -> ULong>`, for the JavaScript callback `(value: uint64) => uint64_t`.
+ * It holds a C++ `Callback<...>`, which calls either a JS function or a native function.
+ * Use `Callback<(value: ULong) -> ULong>` instead of this class in your code.
  */
 @DoNotStrip
 @Keep
@@ -49,42 +26,72 @@ fun interface Callback_uint64_t_uint64_t: (ULong) -> ULong {
   "KotlinJniMissingFunction", "unused",
   "RedundantSuppression", "RedundantUnitReturnType", "FunctionName",
   "ConvertSecondaryConstructorToPrimary", "ClassName", "LocalVariableName",
+  "PARAMETER_NAME_CHANGED_ON_OVERRIDE",
 )
-class Callback_uint64_t_uint64_t_cxx: Callback_uint64_t_uint64_t {
-  @DoNotStrip
-  @Keep
-  private val mHybridData: HybridData
-
-  @DoNotStrip
-  @Keep
-  private constructor(hybridData: HybridData) {
-    mHybridData = hybridData
-  }
-
-  @DoNotStrip
-  @Keep
-  override fun invoke(value: ULong): ULong {
-    val __result = invoke_cxx(value.toLong())
+class Callback_uint64_t_uint64_t @DoNotStrip @Keep private constructor(hybridData: HybridData): CxxCallback(hybridData), Callback.Arity1<ULong, ULong> {
+  override fun callSync(value: ULong): ULong {
+    val __result = callSync_cxx(value.toLong())
     return __result.toULong()
   }
 
-  @DoNotStrip
-  @Keep
-  private external fun invoke_cxx(value: Long): Long
-}
+  override fun callAsync(value: ULong): Promise<ULong> {
+    val __result = callAsync_cxx(value.toLong())
+    return __result.let { __source -> Promise<ULong>().also { __promise -> __source.then { __result -> __promise.resolve(__result.toULong()) }.catch { __promise.reject(it) } } }
+  }
 
-/**
- * Represents the JavaScript callback `(value: uint64) => uint64_t`.
- * This is implemented in Java/Kotlin, via a `(ULong) -> ULong`.
- * The callback is always coming from native.
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType", "unused")
-class Callback_uint64_t_uint64_t_java(private val callback: (ULong) -> ULong): Callback_uint64_t_uint64_t {
+  override fun callAndForget(value: ULong): Unit {
+    callAndForget_cxx(value.toLong())
+  }
+
+  /**
+   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   */
   @DoNotStrip
   @Keep
-  override fun invoke(value: ULong): ULong {
-    return this.callback(value)
+  private class Function_cxx(private val callback: Callback<(value: ULong) -> ULong>) {
+    @DoNotStrip
+    @Keep
+    fun call(value: Long): Long {
+      val __result = this.callback.callSync(value.toULong())
+      return __result.toLong()
+    }
+  }
+
+  @DoNotStrip
+  @Keep
+  private external fun callSync_cxx(value: Long): Long
+
+  @DoNotStrip
+  @Keep
+  private external fun callAsync_cxx(value: Long): Promise<Long>
+
+  @DoNotStrip
+  @Keep
+  private external fun callAndForget_cxx(value: Long): Unit
+
+  companion object {
+    /**
+     * Returns the given [callback] as its JNI representation.
+     * A callback from another module keeps its C++ `Callback<...>`, and
+     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     */
+    @JvmStatic
+    fun fromKotlin(callback: Callback<(value: ULong) -> ULong>): Callback_uint64_t_uint64_t {
+      return when (callback) {
+        is Callback_uint64_t_uint64_t -> callback
+        is CxxCallback -> fromCxx_cxx(callback) ?: fromFunction_cxx(Function_cxx(callback))
+        else -> fromFunction_cxx(Function_cxx(callback))
+      }
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromCxx_cxx(callback: CxxCallback): Callback_uint64_t_uint64_t?
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromFunction_cxx(function: Function_cxx): Callback_uint64_t_uint64_t
   }
 }

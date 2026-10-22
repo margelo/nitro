@@ -26,7 +26,7 @@ namespace margelo::nitro::test::views {
     hasBeenCalled(nitro::ReactProp<jboolean>::fromRawValue("TestView", "hasBeenCalled", rawProps, sourceProps.hasBeenCalled)),
     int64Value(nitro::ReactProp<jlong>::fromRawValue("TestView", "int64Value", rawProps, sourceProps.int64Value)),
     colorScheme(nitro::ReactProp<jni::alias_ref<JColorScheme>>::fromRawValue("TestView", "colorScheme", rawProps, sourceProps.colorScheme)),
-    someCallback(nitro::ReactProp<jni::global_ref<margelo::nitro::test::JCallback_void>>::fromRawValue("TestView", "someCallback", rawProps, sourceProps.someCallback)),
+    someCallback(nitro::ReactProp<jni::global_ref<margelo::nitro::test::JCallback_void::JavaPart>>::fromRawValue("TestView", "someCallback", rawProps, sourceProps.someCallback)),
     nativeDefaultValue(nitro::ReactProp<jni::global_ref<JOptional<jni::JDouble>>>::fromRawValue("TestView", "nativeDefaultValue", rawProps, sourceProps.nativeDefaultValue)),
     hybridRef(nitro::ReactProp<std::optional<Callback<void(const std::shared_ptr<HybridObject>& /* ref */)>>>::fromRawValue("TestView", "hybridRef", rawProps, sourceProps.hybridRef)) {
 #ifdef ANDROID

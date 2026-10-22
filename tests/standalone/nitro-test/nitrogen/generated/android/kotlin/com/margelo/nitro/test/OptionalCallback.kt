@@ -10,7 +10,7 @@ package com.margelo.nitro.test
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import java.util.Objects
-
+import com.margelo.nitro.core.Callback
 
 /**
  * Represents the JavaScript object/struct "OptionalCallback".
@@ -20,7 +20,7 @@ import java.util.Objects
 data class OptionalCallback(
   @DoNotStrip
   @Keep
-  val callback: Variant_______Unit_Double?
+  val callback: Variant_Callback_______Unit__Double?
 ) {
 
 
@@ -44,7 +44,7 @@ data class OptionalCallback(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(callback: Variant_______Unit_Double?): OptionalCallback {
+    private fun fromCpp(callback: Variant_Callback_______Unit__Double?): OptionalCallback {
       return OptionalCallback(callback)
     }
   }

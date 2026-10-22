@@ -10,37 +10,15 @@ package com.margelo.nitro.test
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-
-
-/**
- * Represents the JavaScript callback `(value: string) => void`.
- * This can be either implemented in C++ (in which case it might be a callback coming from JS),
- * or in Kotlin/Java (in which case it is a native callback).
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType")
-fun interface Callback_void_std__string: (String) -> Unit {
-  /**
-   * Call the given JS callback.
-   * @throws Throwable if the JS function itself throws an error, or if the JS function/runtime has already been deleted.
-   */
-  @DoNotStrip
-  @Keep
-  override fun invoke(value: String): Unit
-
-  // JNI uses this signature to avoid erased FunctionN and unsigned value types.
-  @DoNotStrip
-  @Keep
-  fun invoke_jni(value: String): Unit {
-    invoke(value)
-  }
-}
+import com.margelo.nitro.core.Callback
+import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.CxxCallback
+import com.margelo.nitro.core.callSync
 
 /**
- * Represents the JavaScript callback `(value: string) => void`.
- * This is implemented in C++, via a `Callback<...>`.
- * The callback might be coming from JS.
+ * The JNI representation of `Callback<(value: String) -> Unit>`, for the JavaScript callback `(value: string) => void`.
+ * It holds a C++ `Callback<...>`, which calls either a JS function or a native function.
+ * Use `Callback<(value: String) -> Unit>` instead of this class in your code.
  */
 @DoNotStrip
 @Keep
@@ -48,41 +26,69 @@ fun interface Callback_void_std__string: (String) -> Unit {
   "KotlinJniMissingFunction", "unused",
   "RedundantSuppression", "RedundantUnitReturnType", "FunctionName",
   "ConvertSecondaryConstructorToPrimary", "ClassName", "LocalVariableName",
+  "PARAMETER_NAME_CHANGED_ON_OVERRIDE",
 )
-class Callback_void_std__string_cxx: Callback_void_std__string {
-  @DoNotStrip
-  @Keep
-  private val mHybridData: HybridData
+class Callback_void_std__string @DoNotStrip @Keep private constructor(hybridData: HybridData): CxxCallback(hybridData), Callback.Arity1<String, Unit> {
+  override fun callSync(value: String): Unit {
+    callSync_cxx(value)
+  }
 
+  override fun callAsync(value: String): Promise<Unit> {
+    return callAsync_cxx(value)
+  }
+
+  override fun callAndForget(value: String): Unit {
+    callAndForget_cxx(value)
+  }
+
+  /**
+   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   */
   @DoNotStrip
   @Keep
-  private constructor(hybridData: HybridData) {
-    mHybridData = hybridData
+  private class Function_cxx(private val callback: Callback<(value: String) -> Unit>) {
+    @DoNotStrip
+    @Keep
+    fun call(value: String): Unit {
+      this.callback.callSync(value)
+    }
   }
 
   @DoNotStrip
   @Keep
-  override fun invoke(value: String): Unit {
-    invoke_cxx(value)
-  }
+  private external fun callSync_cxx(value: String): Unit
 
   @DoNotStrip
   @Keep
-  private external fun invoke_cxx(value: String): Unit
-}
+  private external fun callAsync_cxx(value: String): Promise<Unit>
 
-/**
- * Represents the JavaScript callback `(value: string) => void`.
- * This is implemented in Java/Kotlin, via a `(String) -> Unit`.
- * The callback is always coming from native.
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType", "unused")
-class Callback_void_std__string_java(private val callback: (String) -> Unit): Callback_void_std__string {
   @DoNotStrip
   @Keep
-  override fun invoke(value: String): Unit {
-    return this.callback(value)
+  private external fun callAndForget_cxx(value: String): Unit
+
+  companion object {
+    /**
+     * Returns the given [callback] as its JNI representation.
+     * A callback from another module keeps its C++ `Callback<...>`, and
+     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     */
+    @JvmStatic
+    fun fromKotlin(callback: Callback<(value: String) -> Unit>): Callback_void_std__string {
+      return when (callback) {
+        is Callback_void_std__string -> callback
+        is CxxCallback -> fromCxx_cxx(callback) ?: fromFunction_cxx(Function_cxx(callback))
+        else -> fromFunction_cxx(Function_cxx(callback))
+      }
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromCxx_cxx(callback: CxxCallback): Callback_void_std__string?
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromFunction_cxx(function: Function_cxx): Callback_void_std__string
   }
 }

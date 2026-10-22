@@ -53,6 +53,7 @@ sealed class StringOrExternal private constructor(@DoNotStrip private val index:
 
   companion object {
     @JvmStatic
+    @JvmName("createFirst")
     @DoNotStrip
     fun create(value: com.margelo.nitro.test.external.HybridSomeExternalObjectSpec): StringOrExternal = First(value)
 
@@ -60,6 +61,7 @@ sealed class StringOrExternal private constructor(@DoNotStrip private val index:
     @DoNotStrip
     private fun fromCpp_0(value: com.margelo.nitro.test.external.HybridSomeExternalObjectSpec): StringOrExternal = First(value)
     @JvmStatic
+    @JvmName("createSecond")
     @DoNotStrip
     fun create(value: String): StringOrExternal = Second(value)
 

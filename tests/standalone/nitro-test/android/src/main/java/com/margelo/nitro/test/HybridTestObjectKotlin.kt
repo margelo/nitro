@@ -6,10 +6,15 @@ import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.core.AnyJSON
 import com.margelo.nitro.core.ArrayBuffer
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.NullType
 import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.callAndForget
+import com.margelo.nitro.core.callAsync
+import com.margelo.nitro.core.callSync
 import com.margelo.nitro.core.decode
 import com.margelo.nitro.core.encode
+import com.margelo.nitro.core.invoke
 import com.margelo.nitro.core.resolved
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 import kotlinx.coroutines.CoroutineScope
@@ -84,7 +89,7 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
   override var optionalEnum: Powertrain? = null
   override var optionalOldEnum: OldEnum? = null
   override var optionalEnumPlusOne: TruckPowertrain? = null
-  override var optionalCallback: ((value: Double) -> Unit)? = null
+  override var optionalCallback: Callback<(value: Double) -> Unit>? = null
 
   override val hasBoolean = false
   override val isBoolean = false
@@ -160,27 +165,25 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
 
   override fun complexEnumCallback(
     array: Array<Powertrain>,
-    callback: (array: Array<Powertrain>) -> Unit,
+    callback: Callback<(array: Array<Powertrain>) -> Unit>,
   ) {
     callback(array)
   }
 
   override fun callEnumArrayCallback(
     array: Array<Powertrain>,
-    callback: (Array<Powertrain>) -> Array<Powertrain>,
+    callback: Callback<(array: Array<Powertrain>) -> Array<Powertrain>>,
   ): Array<Powertrain> {
-    return callback(array)
+    return callback.callSync(array)
   }
 
-  override fun getEnumArrayCallback(): (Array<Powertrain>) -> Array<Powertrain> {
-    return { array -> array }
+  override fun getEnumArrayCallback(): Callback<(array: Array<Powertrain>) -> Array<Powertrain>> {
+    return Callback.native { array -> array }
   }
 
-  override fun callEnumArrayPromiseCallback(callback: () -> Promise<Array<Powertrain>>): Promise<Array<Powertrain>> {
-    return try {
-      callback()
-    } catch (error: Throwable) {
-      Promise.rejected(error)
+  override fun callEnumArrayPromiseCallback(callback: Callback<() -> Promise<Array<Powertrain>>>): Promise<Array<Powertrain>> {
+    return Promise.async {
+      callback().await().await()
     }
   }
 
@@ -192,16 +195,16 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
 
   override fun callNestedStructCallback(
     value: Array<Array<Person?>>,
-    callback: (Array<Array<Person?>>) -> Array<Array<Person?>>,
+    callback: Callback<(value: Array<Array<Person?>>) -> Array<Array<Person?>>>,
   ): Array<Array<Person?>> {
-    return callback(value)
+    return callback.callSync(value)
   }
 
   override fun bounceHybridObjects(array: Array<HybridChildSpec>): Array<HybridChildSpec> {
     return array
   }
 
-  override fun bounceFunctions(functions: Array<() -> Unit>): Array<() -> Unit> {
+  override fun bounceFunctions(functions: Array<Callback<() -> Unit>>): Array<Callback<() -> Unit>> {
     return functions
   }
 
@@ -430,100 +433,126 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     }
   }
 
-  override fun callCallback(callback: () -> Unit) {
+  override fun callCallback(callback: Callback<() -> Unit>) {
     callback()
   }
 
-  override fun callInlineCallback(callback: () -> Unit) {
-    callback()
+  override fun callInlineCallback(callback: Callback<() -> Unit>) {
+    callback.callSync()
   }
 
   override fun callInlineCallbackWithValue(
     value: Double,
-    callback: (Double) -> Double,
+    callback: Callback<(value: Double) -> Double>,
   ): Double {
-    return callback(value)
+    return callback.callSync(value)
   }
 
-  override fun callCallbackThatReturnsPromiseVoid(callback: () -> Promise<Unit>): Promise<Unit> {
-    return try {
-      callback()
-    } catch (error: Throwable) {
-      Promise.rejected(error)
+  override fun callCallbackThatReturnsPromiseVoid(callback: Callback<() -> Promise<Unit>>): Promise<Unit> {
+    return Promise.async {
+      callback().await().await()
     }
   }
 
-  override fun createNativeCallback(wrappingJsCallback: (num: Double) -> Unit): (Double) -> Unit {
-    return { num ->
+  override fun createNativeCallback(wrappingJsCallback: Callback<(num: Double) -> Unit>): Callback<(num: Double) -> Unit> {
+    return Callback.native { num ->
       wrappingJsCallback(num)
     }
   }
 
   override fun callWithOptional(
     value: Double?,
-    callback: (maybe: Double?) -> Unit,
+    callback: Callback<(maybe: Double?) -> Unit>,
   ) {
     callback(value)
   }
 
-  override fun getValueFromJSCallbackAndWait(getValue: () -> Double): Promise<Double> {
-    return asPromise { getValue() }
+  override fun getValueFromJSCallbackAndWait(getValue: Callback<() -> Double>): Promise<Double> {
+    return Promise.async {
+      getValue().await()
+    }
   }
 
   override fun getValueFromJsCallback(
-    callback: () -> String,
-    andThenCall: ((valueFromJs: String) -> Unit),
+    callback: Callback<() -> String>,
+    andThenCall: Callback<(valueFromJs: String) -> Unit>,
   ): Promise<Unit> {
-    return asPromise { andThenCall(callback()) }
+    return Promise.async {
+      val jsResult = callback().await()
+      andThenCall.callAndForget(jsResult)
+    }
   }
 
-  // Kotlin callbacks are lambdas, so these cannot choose a calling convention yet.
   override fun callSyncCallback(
     value: Double,
-    callback: (value: Double) -> Unit,
-  ): Unit = unsupportedCallingConvention()
+    callback: Callback<(value: Double) -> Unit>,
+  ) {
+    callback.callSync(value)
+  }
 
   override fun callAsyncCallback(
     value: Double,
-    callback: (value: Double) -> Double,
-  ): Promise<Double> = unsupportedCallingConvention()
+    callback: Callback<(value: Double) -> Double>,
+  ): Promise<Double> {
+    return callback.callAsync(value)
+  }
 
-  override fun callAsyncVoidCallback(callback: () -> Unit): Promise<Unit> = unsupportedCallingConvention()
+  override fun callAsyncVoidCallback(callback: Callback<() -> Unit>): Promise<Unit> {
+    return callback.callAsync()
+  }
 
   override fun callAsyncBooleanCallback(
     value: Boolean,
-    callback: (value: Boolean) -> Boolean,
-  ): Promise<Boolean> = unsupportedCallingConvention()
+    callback: Callback<(value: Boolean) -> Boolean>,
+  ): Promise<Boolean> {
+    return callback.callAsync(value)
+  }
 
   override fun awaitAsyncCallback(
     value: Double,
-    callback: (value: Double) -> Double,
-  ): Promise<Double> = unsupportedCallingConvention()
+    callback: Callback<(value: Double) -> Double>,
+  ): Promise<Double> {
+    return Promise.async {
+      val result = callback.callAsync(value).await()
+      return@async result + 1
+    }
+  }
 
   override fun callAndForgetCallback(
     value: Double,
-    callback: (value: Double) -> Double,
-  ): Unit = unsupportedCallingConvention()
+    callback: Callback<(value: Double) -> Double>,
+  ) {
+    callback.callAndForget(value)
+  }
 
-  override fun callNativeCallbackAsync(value: Double): Promise<Double> = unsupportedCallingConvention()
+  override fun callNativeCallbackAsync(value: Double): Promise<Double> {
+    val callback: Callback<(value: Double) -> Double> = Callback.native { input -> input * 2 }
+    return callback.callAsync(value)
+  }
 
-  override fun callThrowingNativeCallbackAsync(message: String): Promise<Unit> = unsupportedCallingConvention()
+  override fun callThrowingNativeCallbackAsync(message: String): Promise<Unit> {
+    val callback: Callback<() -> Unit> = Callback.native { throw Error(message) }
+    return callback.callAsync()
+  }
 
-  override fun callThrowingNativeCallbackAndForget(message: String): Unit = unsupportedCallingConvention()
+  override fun callThrowingNativeCallbackAndForget(message: String) {
+    val callback: Callback<() -> Unit> = Callback.native { throw Error(message) }
+    callback.callAndForget()
+  }
 
   override fun callInlineCallbackThenEscape(
     value: Double,
-    callback: (value: Double) -> Double,
-  ): Promise<Double> = unsupportedCallingConvention()
-
-  private fun unsupportedCallingConvention(): Nothing {
-    throw UnsupportedOperationException("Kotlin callbacks cannot choose a calling convention yet")
+    callback: Callback<(value: Double) -> Double>,
+  ): Promise<Double> {
+    // Kotlin cannot borrow callbacks, so this one is already escaped.
+    val first = callback.callSync(value)
+    return callback.callAsync(first)
   }
 
   override fun callAll(
-    first: () -> Unit,
-    second: () -> Unit,
-    third: () -> Unit,
+    first: Callback<() -> Unit>,
+    second: Callback<() -> Unit>,
+    third: Callback<() -> Unit>,
   ) {
     first()
     second()
@@ -531,42 +560,43 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
   }
 
   override fun callSumUpNTimes(
-    callback: () -> Double,
+    callback: Callback<() -> Double>,
     n: Double,
   ): Promise<Double> {
-    return asPromise {
+    return Promise.async {
       var result = 0.0
-      repeat(n.toInt()) { result += callback() }
+      repeat(n.toInt()) { result += callback().await() }
       result
     }
   }
 
-  override fun callbackAsyncPromise(callback: () -> Promise<Double>): Promise<Double> {
-    return try {
-      callback()
-    } catch (error: Throwable) {
-      Promise.rejected(error)
+  override fun callbackAsyncPromise(callback: Callback<() -> Promise<Double>>): Promise<Double> {
+    return Promise.async {
+      callback().await().await()
     }
   }
 
-  override fun callbackAsyncPromiseBuffer(callback: () -> Promise<ArrayBuffer>): Promise<ArrayBuffer> {
-    return try {
-      callback()
-    } catch (error: Throwable) {
-      Promise.rejected(error)
-    }
+  override fun callbackAsyncPromiseBuffer(callback: Callback<() -> Promise<ArrayBuffer>>): Promise<ArrayBuffer> {
+    val result = Promise<ArrayBuffer>()
+    callback()
+      .then { promise ->
+        promise
+          .then { buffer -> result.resolve(buffer) }
+          .catch { error -> result.reject(error) }
+      }.catch { error -> result.reject(error) }
+    return result
   }
 
-  override fun getComplexCallback(): (Double) -> Unit {
-    return { value ->
+  override fun getComplexCallback(): Callback<(value: Double) -> Unit> {
+    return Callback.native { value ->
       Log.i(TAG, "Callback called with $value.")
     }
   }
 
   override fun twoOptionalCallbacks(
     value: Double,
-    first: ((value: Double) -> Unit)?,
-    second: ((value: String) -> Unit)?,
+    first: Callback<(value: Double) -> Unit>?,
+    second: Callback<(value: String) -> Unit>?,
   ) {
     first?.let { first ->
       first(value)
@@ -576,7 +606,7 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     }
   }
 
-  override fun errorCallback(onError: (error: Throwable) -> Unit) {
+  override fun errorCallback(onError: Callback<(error: Throwable) -> Unit>) {
     val error = Error("Some Error!")
     onError(error)
   }
@@ -804,16 +834,16 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     }
   }
 
-  override fun callbackSync(callback: () -> Double): Double {
-    val value = callback()
+  override fun callbackSync(callback: Callback<() -> Double>): Double {
+    val value = callback.callSync()
     return value
   }
 
-  override fun getSyncNumberCallback(): () -> Double {
-    return { 55.0 }
+  override fun getSyncNumberCallback(): Callback<() -> Double> {
+    return Callback.native { 55.0 }
   }
 
-  override fun bounceSyncInt64Callback(callback: (Long) -> Long): (Long) -> Long {
+  override fun bounceSyncInt64Callback(callback: Callback<(value: Long) -> Long>): Callback<(value: Long) -> Long> {
     return callback
   }
 
@@ -831,8 +861,8 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return variant
   }
 
-  override fun createExternalVariantFromFunc(factory: () -> HybridSomeExternalObjectSpec): HybridSomeExternalObjectSpec {
-    val obj = factory()
+  override fun createExternalVariantFromFunc(factory: Callback<() -> HybridSomeExternalObjectSpec>): HybridSomeExternalObjectSpec {
+    val obj = factory.callSync()
     return obj
   }
 
@@ -844,14 +874,6 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     super.dispose()
     this.optionalCallback?.let { callback ->
       callback(13.0)
-    }
-  }
-
-  private inline fun <T> asPromise(action: () -> T): Promise<T> {
-    return try {
-      Promise.resolved(action())
-    } catch (error: Throwable) {
-      Promise.rejected(error)
     }
   }
 

@@ -7,8 +7,11 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 #include <exception>
 #include <NitroModules/JNIConverter+Error.hpp>
 #include <NitroModules/JSIConverter+JThrowable.hpp>
@@ -17,30 +20,42 @@ namespace margelo::nitro::test {
 
   namespace jni = facebook::jni;
 
-  class JCallback_void_std__exception_ptr_cxx;
-
-  struct JCallback_void_std__exception_ptr : jni::JavaClass<JCallback_void_std__exception_ptr> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_std__exception_ptr;";
-    using CxxPart = JCallback_void_std__exception_ptr_cxx;
-    using NativeSignature = JNICallbackState<void(jni::local_ref<jni::JThrowable>)>::Signature;
-
-    JNIRetainedValue<void>::Type invoke(JNIRetainedValue<jni::local_ref<jni::JThrowable>>::Type error) const;
-  };
-
-  class JCallback_void_std__exception_ptr_cxx final : public jni::HybridClass<JCallback_void_std__exception_ptr_cxx, JCallback_void_std__exception_ptr> {
+  /**
+   * The C++ part of the Kotlin `Callback_void_std__exception_ptr`, which holds a `Callback<...>`.
+   */
+  class JCallback_void_std__exception_ptr final : public jni::HybridClass<JCallback_void_std__exception_ptr, JCxxCallback> {
   public:
-    using CallbackType = Callback<JCallback_void_std__exception_ptr::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_std__exception_ptr_cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_std__exception_ptr;";
+    using State = JNICallbackState<void(jni::local_ref<jni::JThrowable>)>;
+    using NativeSignature = State::Signature;
+    using CallbackType = State::CallbackType;
 
-    static jni::local_ref<JCallback_void_std__exception_ptr> create(CallbackType callback, bool isInline);
-    void invoke_cxx(jni::alias_ref<jni::JThrowable> error);
+    /**
+     * The Kotlin `Callback_void_std__exception_ptr.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_std__exception_ptr$Function_cxx;";
+      JNIRetainedValue<void>::Type invoke(JNIRetainedValue<jni::local_ref<jni::JThrowable>>::Type error) const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     const CallbackType& getCallback() const { return _state.getCallback(); }
     static void registerNatives();
 
   private:
+    void callSync_cxx(jni::alias_ref<jni::JThrowable> error);
+    jni::local_ref<JTypedPromise<void>> callAsync_cxx(jni::alias_ref<jni::JThrowable> error);
+    void callAndForget_cxx(jni::alias_ref<jni::JThrowable> error);
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+    const std::type_info& getCallbackType() const override { return typeid(CallbackType); }
+    const void* getCallbackPointer() const override { return &_state.getCallback(); }
+
+  private:
     friend HybridBase;
-    explicit JCallback_void_std__exception_ptr_cxx(CallbackType callback, bool isInline);
-    JNICallbackState<void(jni::local_ref<jni::JThrowable>)> _state;
+    explicit JCallback_void_std__exception_ptr(CallbackType callback);
+    State _state;
   };
 
 } // namespace margelo::nitro::test

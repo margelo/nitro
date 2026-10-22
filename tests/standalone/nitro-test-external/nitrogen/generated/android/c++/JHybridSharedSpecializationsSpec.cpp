@@ -19,7 +19,6 @@
 #include <NitroTestExternal/private/JCallback_double_double.hpp>
 #include <NitroTestExternal/private/JCallback_Promise_void_.hpp>
 #include <NitroTestExternal/private/JCallback_Promise_double_.hpp>
-#include <NitroModules/JSIConverter+JInlineCallback.hpp>
 #include <memory>
 #include <NitroModules/JNIConverter+HybridObject.hpp>
 
@@ -89,13 +88,13 @@ namespace margelo::nitro::test::external {
   }
 
   // Properties
-  jni::local_ref<margelo::nitro::test::external::JCallback_void_double> JHybridSharedSpecializationsSpec::getNumberCallback() {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<margelo::nitro::test::external::JCallback_void_double>()>("getNumberCallback_cxx");
+  jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> JHybridSharedSpecializationsSpec::getNumberCallback() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>()>("getNumberCallback_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass());
     return __result;
   }
-  void JHybridSharedSpecializationsSpec::setNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double>& numberCallback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void_double> /* numberCallback */)>("setNumberCallback_cxx");
+  void JHybridSharedSpecializationsSpec::setNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>& numberCallback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> /* numberCallback */)>("setNumberCallback_cxx");
     __method(_javaPart, CxxPart::getClass(), numberCallback);
   }
 
@@ -125,44 +124,44 @@ namespace margelo::nitro::test::external {
     auto __result = __method(_javaPart, CxxPart::getClass(), promise);
     return __result;
   }
-  void JHybridSharedSpecializationsSpec::callVoid(const jni::local_ref<margelo::nitro::test::external::JCallback_void>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void> /* callback */)>("callVoid_cxx");
+  void JHybridSharedSpecializationsSpec::callVoid(const jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void::JavaPart> /* callback */)>("callVoid_cxx");
     __method(_javaPart, CxxPart::getClass(), callback);
   }
-  void JHybridSharedSpecializationsSpec::callWithNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_void_double>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jdouble /* value */, jni::alias_ref<margelo::nitro::test::external::JCallback_void_double> /* callback */)>("callWithNumber_cxx");
+  void JHybridSharedSpecializationsSpec::callWithNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jdouble /* value */, jni::alias_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> /* callback */)>("callWithNumber_cxx");
     __method(_javaPart, CxxPart::getClass(), value, callback);
   }
-  void JHybridSharedSpecializationsSpec::callWithString(const jni::local_ref<jni::JString>& value, const jni::local_ref<margelo::nitro::test::external::JCallback_void_std__string>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<jni::JString> /* value */, jni::alias_ref<margelo::nitro::test::external::JCallback_void_std__string> /* callback */)>("callWithString_cxx");
+  void JHybridSharedSpecializationsSpec::callWithString(const jni::local_ref<jni::JString>& value, const jni::local_ref<margelo::nitro::test::external::JCallback_void_std__string::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<jni::JString> /* value */, jni::alias_ref<margelo::nitro::test::external::JCallback_void_std__string::JavaPart> /* callback */)>("callWithString_cxx");
     __method(_javaPart, CxxPart::getClass(), value, callback);
   }
-  jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> JHybridSharedSpecializationsSpec::mapNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_double_double>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>(jdouble /* value */, jni::alias_ref<margelo::nitro::test::external::JCallback_double_double> /* callback */)>("mapNumber_cxx");
+  jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> JHybridSharedSpecializationsSpec::mapNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_double_double::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>(jdouble /* value */, jni::alias_ref<margelo::nitro::test::external::JCallback_double_double::JavaPart> /* callback */)>("mapNumber_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), value, callback);
     return __result;
   }
-  jni::local_ref<margelo::nitro::test::external::JCallback_void_double> JHybridSharedSpecializationsSpec::wrapNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<margelo::nitro::test::external::JCallback_void_double>(jni::alias_ref<margelo::nitro::test::external::JCallback_void_double> /* callback */)>("wrapNumberCallback_cxx");
+  jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> JHybridSharedSpecializationsSpec::wrapNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>(jni::alias_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> /* callback */)>("wrapNumberCallback_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), callback);
     return __result;
   }
-  jni::local_ref<JTypedPromise<void>> JHybridSharedSpecializationsSpec::callVoidPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_void_>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<void>>(jni::alias_ref<margelo::nitro::test::external::JCallback_Promise_void_> /* callback */)>("callVoidPromiseCallback_cxx");
+  jni::local_ref<JTypedPromise<void>> JHybridSharedSpecializationsSpec::callVoidPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_void_::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<void>>(jni::alias_ref<margelo::nitro::test::external::JCallback_Promise_void_::JavaPart> /* callback */)>("callVoidPromiseCallback_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), callback);
     return __result;
   }
-  jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> JHybridSharedSpecializationsSpec::callNumberPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_double_>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>(jni::alias_ref<margelo::nitro::test::external::JCallback_Promise_double_> /* callback */)>("callNumberPromiseCallback_cxx");
+  jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> JHybridSharedSpecializationsSpec::callNumberPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_double_::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>(jni::alias_ref<margelo::nitro::test::external::JCallback_Promise_double_::JavaPart> /* callback */)>("callNumberPromiseCallback_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), callback);
     return __result;
   }
-  void JHybridSharedSpecializationsSpec::callInline(const jni::local_ref<margelo::nitro::JInlineCallback<margelo::nitro::test::external::JCallback_void>>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void> /* callback */)>("callInline_cxx");
+  void JHybridSharedSpecializationsSpec::callInline(const jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void::JavaPart> /* callback */)>("callInline_cxx");
     __method(_javaPart, CxxPart::getClass(), callback);
   }
-  jdouble JHybridSharedSpecializationsSpec::callInlineWithNumber(jdouble value, const jni::local_ref<margelo::nitro::JInlineCallback<margelo::nitro::test::external::JCallback_double_double>>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jdouble(jdouble /* value */, jni::alias_ref<margelo::nitro::test::external::JCallback_double_double> /* callback */)>("callInlineWithNumber_cxx");
+  jdouble JHybridSharedSpecializationsSpec::callInlineWithNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_double_double::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jdouble(jdouble /* value */, jni::alias_ref<margelo::nitro::test::external::JCallback_double_double::JavaPart> /* callback */)>("callInlineWithNumber_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), value, callback);
     return __result;
   }

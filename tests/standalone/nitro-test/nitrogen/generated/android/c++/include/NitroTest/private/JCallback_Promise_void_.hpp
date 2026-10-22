@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
 #include <NitroModules/JNIConverter+Promise.hpp>
@@ -16,30 +17,42 @@ namespace margelo::nitro::test {
 
   namespace jni = facebook::jni;
 
-  class JCallback_Promise_void__cxx;
-
-  struct JCallback_Promise_void_ : jni::JavaClass<JCallback_Promise_void_> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Promise_void_;";
-    using CxxPart = JCallback_Promise_void__cxx;
-    using NativeSignature = JNICallbackState<jni::local_ref<JTypedPromise<void>>()>::Signature;
-
-    JNIRetainedValue<jni::local_ref<JTypedPromise<void>>>::Type invoke() const;
-  };
-
-  class JCallback_Promise_void__cxx final : public jni::HybridClass<JCallback_Promise_void__cxx, JCallback_Promise_void_> {
+  /**
+   * The C++ part of the Kotlin `Callback_Promise_void_`, which holds a `Callback<...>`.
+   */
+  class JCallback_Promise_void_ final : public jni::HybridClass<JCallback_Promise_void_, JCxxCallback> {
   public:
-    using CallbackType = Callback<JCallback_Promise_void_::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Promise_void__cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Promise_void_;";
+    using State = JNICallbackState<jni::local_ref<JTypedPromise<void>>()>;
+    using NativeSignature = State::Signature;
+    using CallbackType = State::CallbackType;
 
-    static jni::local_ref<JCallback_Promise_void_> create(CallbackType callback, bool isInline);
-    jni::local_ref<JTypedPromise<void>> invoke_cxx();
+    /**
+     * The Kotlin `Callback_Promise_void_.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Promise_void_$Function_cxx;";
+      JNIRetainedValue<jni::local_ref<JTypedPromise<void>>>::Type invoke() const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     const CallbackType& getCallback() const { return _state.getCallback(); }
     static void registerNatives();
 
   private:
+    jni::local_ref<JTypedPromise<void>> callSync_cxx();
+    jni::local_ref<JTypedPromise<jni::local_ref<JTypedPromise<void>>>> callAsync_cxx();
+    void callAndForget_cxx();
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+    const std::type_info& getCallbackType() const override { return typeid(CallbackType); }
+    const void* getCallbackPointer() const override { return &_state.getCallback(); }
+
+  private:
     friend HybridBase;
-    explicit JCallback_Promise_void__cxx(CallbackType callback, bool isInline);
-    JNICallbackState<jni::local_ref<JTypedPromise<void>>()> _state;
+    explicit JCallback_Promise_void_(CallbackType callback);
+    State _state;
   };
 
 } // namespace margelo::nitro::test

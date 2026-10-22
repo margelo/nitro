@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
 #include <NitroTest/private/JPerson.hpp>
@@ -14,35 +15,49 @@
 #include <NitroModules/JSIConverter+JOptional.hpp>
 #include <NitroModules/JNIConverter+Array.hpp>
 #include <NitroModules/JSIConverter+JArrayClass.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
   namespace jni = facebook::jni;
 
-  class JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person____cxx;
-
-  struct JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___ : jni::JavaClass<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___;";
-    using CxxPart = JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person____cxx;
-    using NativeSignature = JNICallbackState<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>(jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>)>::Signature;
-
-    JNIRetainedValue<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>>::Type invoke(JNIRetainedValue<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>>::Type value) const;
-  };
-
-  class JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person____cxx final : public jni::HybridClass<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person____cxx, JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___> {
+  /**
+   * The C++ part of the Kotlin `Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___`, which holds a `Callback<...>`.
+   */
+  class JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___ final : public jni::HybridClass<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___, JCxxCallback> {
   public:
-    using CallbackType = Callback<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person____cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___;";
+    using State = JNICallbackState<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>(jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>)>;
+    using NativeSignature = State::Signature;
+    using CallbackType = State::CallbackType;
 
-    static jni::local_ref<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___> create(CallbackType callback, bool isInline);
-    jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> invoke_cxx(jni::alias_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> value);
+    /**
+     * The Kotlin `Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___$Function_cxx;";
+      JNIRetainedValue<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>>::Type invoke(JNIRetainedValue<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>>::Type value) const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     const CallbackType& getCallback() const { return _state.getCallback(); }
     static void registerNatives();
 
   private:
+    jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> callSync_cxx(jni::alias_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> value);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>>> callAsync_cxx(jni::alias_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> value);
+    void callAndForget_cxx(jni::alias_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> value);
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+    const std::type_info& getCallbackType() const override { return typeid(CallbackType); }
+    const void* getCallbackPointer() const override { return &_state.getCallback(); }
+
+  private:
     friend HybridBase;
-    explicit JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person____cxx(CallbackType callback, bool isInline);
-    JNICallbackState<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>(jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>)> _state;
+    explicit JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___(CallbackType callback);
+    State _state;
   };
 
 } // namespace margelo::nitro::test

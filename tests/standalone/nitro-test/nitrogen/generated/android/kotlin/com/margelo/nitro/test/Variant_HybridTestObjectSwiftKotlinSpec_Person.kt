@@ -53,6 +53,7 @@ sealed class Variant_HybridTestObjectSwiftKotlinSpec_Person private constructor(
 
   companion object {
     @JvmStatic
+    @JvmName("createFirst")
     @DoNotStrip
     fun create(value: HybridTestObjectSwiftKotlinSpec): Variant_HybridTestObjectSwiftKotlinSpec_Person = First(value)
 
@@ -60,6 +61,7 @@ sealed class Variant_HybridTestObjectSwiftKotlinSpec_Person private constructor(
     @DoNotStrip
     private fun fromCpp_0(value: HybridTestObjectSwiftKotlinSpec): Variant_HybridTestObjectSwiftKotlinSpec_Person = First(value)
     @JvmStatic
+    @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Person): Variant_HybridTestObjectSwiftKotlinSpec_Person = Second(value)
 

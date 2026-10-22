@@ -41,11 +41,7 @@ export class OptionalType implements Type {
           return `${wrapping}?`
         }
       case 'kotlin':
-        if (this.needsBraces) {
-          return `(${wrapping})?`
-        } else {
-          return `${wrapping}?`
-        }
+        return `${wrapping}?`
       default:
         throw new Error(`Language ${language} is not yet supported for OptionalType!`)
     }

@@ -8,27 +8,56 @@
 #include <NitroTest/private/JCallback_uint64_t_uint64_t.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
+#include <NitroModules/JUInt64.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<uint64_t>::Type JCallback_uint64_t_uint64_t::invoke(JNIRetainedValue<uint64_t>::Type value) const {
-    static const auto __method = javaClassStatic()->getMethod<jlong(jlong)>("invoke_jni");
+  JNIRetainedValue<uint64_t>::Type JCallback_uint64_t_uint64_t::JFunction_cxx::invoke(JNIRetainedValue<uint64_t>::Type value) const {
+    static const auto __method = javaClassStatic()->getMethod<jlong(jlong)>("call");
     auto result = __method(self(), JNIConverter<uint64_t, jlong>::toJNI(JNIRetainedValue<uint64_t>::borrow(value)));
     return JNIRetainedValue<uint64_t>::retain(JNIConverter<uint64_t, jlong>::fromJNI(result));
   }
 
-  jni::local_ref<JCallback_uint64_t_uint64_t> JCallback_uint64_t_uint64_t_cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_uint64_t_uint64_t::JavaPart> JCallback_uint64_t_uint64_t::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  jlong JCallback_uint64_t_uint64_t_cxx::invoke_cxx(jlong value) {
-    return JNIConverter<uint64_t, jlong>::toJNI(_state.invoke(JNIConverter<uint64_t, jlong>::fromJNI(value)));
+  jlong JCallback_uint64_t_uint64_t::callSync_cxx(jlong value) {
+    return JNIConverter<uint64_t, jlong>::toJNI(_state.callSync(JNIConverter<uint64_t, jlong>::fromJNI(value)));
   }
 
-  void JCallback_uint64_t_uint64_t_cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_uint64_t_uint64_t_cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<jni::local_ref<JUInt64>>> JCallback_uint64_t_uint64_t::callAsync_cxx(jlong value) {
+    return _state.callAsync<JTypedPromise<jni::local_ref<JUInt64>>>(JNIConverter<uint64_t, jlong>::fromJNI(value));
   }
 
-  JCallback_uint64_t_uint64_t_cxx::JCallback_uint64_t_uint64_t_cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_uint64_t_uint64_t::callAndForget_cxx(jlong value) {
+    _state.callAndForget(JNIConverter<uint64_t, jlong>::fromJNI(value));
+  }
+
+  jni::local_ref<JCallback_uint64_t_uint64_t::JavaPart> JCallback_uint64_t_uint64_t::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    const CallbackType* held = callback->cthis()->getCallbackAs<CallbackType>();
+    if (held == nullptr) {
+      return nullptr;
+    }
+    return create(*held);
+  }
+
+  jni::local_ref<JCallback_uint64_t_uint64_t::JavaPart> JCallback_uint64_t_uint64_t::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_uint64_t_uint64_t::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_uint64_t_uint64_t::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_uint64_t_uint64_t::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_uint64_t_uint64_t::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_uint64_t_uint64_t::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_uint64_t_uint64_t::fromFunction_cxx),
+    });
+  }
+
+  JCallback_uint64_t_uint64_t::JCallback_uint64_t_uint64_t(CallbackType callback) : _state(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

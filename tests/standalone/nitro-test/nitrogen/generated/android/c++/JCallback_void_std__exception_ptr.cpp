@@ -6,29 +6,57 @@
 ///
 
 #include <NitroTest/private/JCallback_void_std__exception_ptr.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 #include <exception>
 #include <NitroModules/JNIConverter+Error.hpp>
 #include <NitroModules/JSIConverter+JThrowable.hpp>
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<void>::Type JCallback_void_std__exception_ptr::invoke(JNIRetainedValue<jni::local_ref<jni::JThrowable>>::Type error) const {
-    static const auto __method = javaClassStatic()->getMethod<void(jni::alias_ref<jni::JThrowable>)>("invoke_jni");
+  JNIRetainedValue<void>::Type JCallback_void_std__exception_ptr::JFunction_cxx::invoke(JNIRetainedValue<jni::local_ref<jni::JThrowable>>::Type error) const {
+    static const auto __method = javaClassStatic()->getMethod<void(jni::alias_ref<jni::JThrowable>)>("call");
     __method(self(), JNIRetainedValue<jni::local_ref<jni::JThrowable>>::borrow(error));
   }
 
-  jni::local_ref<JCallback_void_std__exception_ptr> JCallback_void_std__exception_ptr_cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_void_std__exception_ptr::JavaPart> JCallback_void_std__exception_ptr::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  void JCallback_void_std__exception_ptr_cxx::invoke_cxx(jni::alias_ref<jni::JThrowable> error) {
-    return _state.invoke(error);
+  void JCallback_void_std__exception_ptr::callSync_cxx(jni::alias_ref<jni::JThrowable> error) {
+    return _state.callSync(error);
   }
 
-  void JCallback_void_std__exception_ptr_cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_void_std__exception_ptr_cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<void>> JCallback_void_std__exception_ptr::callAsync_cxx(jni::alias_ref<jni::JThrowable> error) {
+    return _state.callAsync<JTypedPromise<void>>(error);
   }
 
-  JCallback_void_std__exception_ptr_cxx::JCallback_void_std__exception_ptr_cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_void_std__exception_ptr::callAndForget_cxx(jni::alias_ref<jni::JThrowable> error) {
+    _state.callAndForget(error);
+  }
+
+  jni::local_ref<JCallback_void_std__exception_ptr::JavaPart> JCallback_void_std__exception_ptr::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    const CallbackType* held = callback->cthis()->getCallbackAs<CallbackType>();
+    if (held == nullptr) {
+      return nullptr;
+    }
+    return create(*held);
+  }
+
+  jni::local_ref<JCallback_void_std__exception_ptr::JavaPart> JCallback_void_std__exception_ptr::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_void_std__exception_ptr::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_void_std__exception_ptr::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_void_std__exception_ptr::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_void_std__exception_ptr::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_void_std__exception_ptr::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_void_std__exception_ptr::fromFunction_cxx),
+    });
+  }
+
+  JCallback_void_std__exception_ptr::JCallback_void_std__exception_ptr(CallbackType callback) : _state(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

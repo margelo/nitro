@@ -15,7 +15,7 @@ namespace margelo::nitro::test::external {
   void registerAllNatives() {
     margelo::nitro::test::external::JHybridTestViewSpec::CxxPart::registerNatives();
     margelo::nitro::test::external::views::JHybridTestViewStateUpdater::registerNatives();
-    margelo::nitro::test::external::JCallback_void_cxx::registerNatives();
+    margelo::nitro::test::external::JCallback_void::registerNatives();
 
     HybridClassRegistry::registerHybridClass("test.external.TestView", JHybridTestViewSpec::Class::get());
   }

@@ -6,28 +6,56 @@
 ///
 
 #include <NitroTest/private/JCallback_void_std__string.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<void>::Type JCallback_void_std__string::invoke(JNIRetainedValue<jni::local_ref<jni::JString>>::Type value) const {
-    static const auto __method = javaClassStatic()->getMethod<void(jni::alias_ref<jni::JString>)>("invoke_jni");
+  JNIRetainedValue<void>::Type JCallback_void_std__string::JFunction_cxx::invoke(JNIRetainedValue<jni::local_ref<jni::JString>>::Type value) const {
+    static const auto __method = javaClassStatic()->getMethod<void(jni::alias_ref<jni::JString>)>("call");
     __method(self(), JNIRetainedValue<jni::local_ref<jni::JString>>::borrow(value));
   }
 
-  jni::local_ref<JCallback_void_std__string> JCallback_void_std__string_cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_void_std__string::JavaPart> JCallback_void_std__string::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  void JCallback_void_std__string_cxx::invoke_cxx(jni::alias_ref<jni::JString> value) {
-    return _state.invoke(value);
+  void JCallback_void_std__string::callSync_cxx(jni::alias_ref<jni::JString> value) {
+    return _state.callSync(value);
   }
 
-  void JCallback_void_std__string_cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_void_std__string_cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<void>> JCallback_void_std__string::callAsync_cxx(jni::alias_ref<jni::JString> value) {
+    return _state.callAsync<JTypedPromise<void>>(value);
   }
 
-  JCallback_void_std__string_cxx::JCallback_void_std__string_cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_void_std__string::callAndForget_cxx(jni::alias_ref<jni::JString> value) {
+    _state.callAndForget(value);
+  }
+
+  jni::local_ref<JCallback_void_std__string::JavaPart> JCallback_void_std__string::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    const CallbackType* held = callback->cthis()->getCallbackAs<CallbackType>();
+    if (held == nullptr) {
+      return nullptr;
+    }
+    return create(*held);
+  }
+
+  jni::local_ref<JCallback_void_std__string::JavaPart> JCallback_void_std__string::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_void_std__string::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_void_std__string::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_void_std__string::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_void_std__string::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_void_std__string::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_void_std__string::fromFunction_cxx),
+    });
+  }
+
+  JCallback_void_std__string::JCallback_void_std__string(CallbackType callback) : _state(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

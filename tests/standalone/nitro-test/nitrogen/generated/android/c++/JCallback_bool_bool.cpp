@@ -8,27 +8,55 @@
 #include <NitroTest/private/JCallback_bool_bool.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<jboolean>::Type JCallback_bool_bool::invoke(JNIRetainedValue<jboolean>::Type value) const {
-    static const auto __method = javaClassStatic()->getMethod<jboolean(jboolean)>("invoke_jni");
+  JNIRetainedValue<jboolean>::Type JCallback_bool_bool::JFunction_cxx::invoke(JNIRetainedValue<jboolean>::Type value) const {
+    static const auto __method = javaClassStatic()->getMethod<jboolean(jboolean)>("call");
     auto result = __method(self(), JNIRetainedValue<jboolean>::borrow(value));
     return JNIRetainedValue<jboolean>::retain(result);
   }
 
-  jni::local_ref<JCallback_bool_bool> JCallback_bool_bool_cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_bool_bool::JavaPart> JCallback_bool_bool::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  jboolean JCallback_bool_bool_cxx::invoke_cxx(jboolean value) {
-    return _state.invoke(value);
+  jboolean JCallback_bool_bool::callSync_cxx(jboolean value) {
+    return _state.callSync(value);
   }
 
-  void JCallback_bool_bool_cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_bool_bool_cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<jni::local_ref<jni::JBoolean>>> JCallback_bool_bool::callAsync_cxx(jboolean value) {
+    return _state.callAsync<JTypedPromise<jni::local_ref<jni::JBoolean>>>(value);
   }
 
-  JCallback_bool_bool_cxx::JCallback_bool_bool_cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_bool_bool::callAndForget_cxx(jboolean value) {
+    _state.callAndForget(value);
+  }
+
+  jni::local_ref<JCallback_bool_bool::JavaPart> JCallback_bool_bool::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    const CallbackType* held = callback->cthis()->getCallbackAs<CallbackType>();
+    if (held == nullptr) {
+      return nullptr;
+    }
+    return create(*held);
+  }
+
+  jni::local_ref<JCallback_bool_bool::JavaPart> JCallback_bool_bool::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_bool_bool::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_bool_bool::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_bool_bool::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_bool_bool::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_bool_bool::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_bool_bool::fromFunction_cxx),
+    });
+  }
+
+  JCallback_bool_bool::JCallback_bool_bool(CallbackType callback) : _state(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

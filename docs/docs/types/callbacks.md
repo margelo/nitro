@@ -33,7 +33,7 @@ safely deleted from memory.
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
-    fun start(onNewUserJoined: Callback<User, Void>) {
+    fun start(onNewUserJoined: Callback<(user: User) -> Unit>) {
       onNewUserJoined(user)
     }
     ```
@@ -88,7 +88,7 @@ simply a function you store in memory and call later, just like in a normal JS c
   </TabItem>
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin
-    fun listenToOrientation(onChanged: Callback<Orientation, Unit>) {
+    fun listenToOrientation(onChanged: Callback<(o: Orientation) -> Unit>) {
       this.listeners.add(onChanged)
     }
 

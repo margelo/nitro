@@ -10,7 +10,7 @@ package com.margelo.nitro.test
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import java.util.Objects
-
+import com.margelo.nitro.core.Callback
 
 /**
  * Represents the JavaScript object/struct "JsStyleStruct".
@@ -23,13 +23,13 @@ data class JsStyleStruct(
   val value: Double,
   @DoNotStrip
   @Keep
-  val onChanged: (num: Double) -> Unit
+  val onChanged: Callback<(num: Double) -> Unit>
 ) {
   @DoNotStrip
   @Keep
   @Suppress("unused", "FunctionName")
   private fun getOnChanged_cxx(): Callback_void_double {
-    return onChanged.let { if (it is Callback_void_double) it else Callback_void_double_java(it) }
+    return Callback_void_double.fromKotlin(onChanged)
   }
 
   override fun equals(other: Any?): Boolean {

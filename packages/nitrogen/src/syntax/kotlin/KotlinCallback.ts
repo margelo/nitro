@@ -1,8 +1,10 @@
 import { convertJniValue, getJniCode } from './types/KotlinType.js'
+import { KotlinPromiseType } from './types/KotlinPromiseType.js'
 import { indent } from '../../utils.js'
 import { createFileMetadataString, isNotDuplicate } from '../helpers.js'
-import type { SourceFile } from '../SourceFile.js'
+import type { SourceFile, SourceImport } from '../SourceFile.js'
 import type { KotlinCallbackType } from './types/KotlinCallbackType.js'
+import { PromiseType } from '../types/PromiseType.js'
 import { getImportCode, getImportsCode } from '../getImportCode.js'
 
 export function createKotlinCallback(callbackType: KotlinCallbackType): SourceFile[] {
@@ -10,55 +12,75 @@ export function createKotlinCallback(callbackType: KotlinCallbackType): SourceFi
   const name = callbackType.specializationName
   const jniName = callbackType.jniName
   const packageName = callbackType.config.getAndroidPackage('java/kotlin')
-  const kotlinReturnType = publicType.returnType.getCode('kotlin', {
-    context: 'return',
-  })
-  const kotlinParams = publicType.parameters.map((p) => {
-    const type = p.getCode('kotlin', { context: 'parameter' })
-    return `${p.escapedName}: ${type}`
-  })
-  const kotlinParamTypes = publicType.parameters.map((p) => p.getCode('kotlin', { context: 'parameter' }))
-  const kotlinParamsForward = publicType.parameters.map((p) => p.escapedName)
-  const lambdaSignature = `(${kotlinParamTypes.join(', ')}) -> ${kotlinReturnType}`
+  const isVoid = publicType.returnType.kind === 'void'
+  const asyncType = new KotlinPromiseType(new PromiseType(publicType.returnType), { config: callbackType.config })
 
-  const bridgeReturnType = callbackType.returnType.getCode('kotlin', {
-    context: 'return',
-  })
+  // The public Kotlin API, e.g. `ULong`.
+  const kotlinCallbackType = publicType.getCode('kotlin', { context: 'type-argument' })
+  const kotlinReturnType = publicType.returnType.getCode('kotlin', { context: 'type-argument' })
+  const kotlinAsyncType = asyncType.type.getCode('kotlin', { context: 'return' })
+  const kotlinParams = publicType.parameters.map((p) => `${p.escapedName}: ${p.getCode('kotlin', { context: 'parameter' })}`)
+  const kotlinParamTypes = publicType.parameters.map((p) => p.getCode('kotlin', { context: 'type-argument' }))
+  const arityType = `Callback.Arity${publicType.parameters.length}<${[...kotlinParamTypes, kotlinReturnType].join(', ')}>`
+
+  // The Kotlin types JNI uses, e.g. `Long` for `ULong`.
+  const bridgeReturnType = callbackType.returnType.getCode('kotlin', { context: 'return' })
+  const bridgeAsyncType = asyncType.getCode('kotlin', { context: 'return' })
   const bridgeParams = callbackType.parameters.map((p) => `${p.escapedName}: ${p.getCode('kotlin', { context: 'parameter' })}`)
   const toBridgeArguments = callbackType.parameters.map((p) => p.convert(p.escapedName, { from: 'kotlin', to: 'c++', in: 'kotlin' }))
   const fromBridgeArguments = callbackType.parameters.map((p) => p.convert(p.escapedName, { from: 'c++', to: 'kotlin', in: 'kotlin' }))
-  const invokeNative = `invoke_cxx(${toBridgeArguments.join(', ')})`
-  const invokeKotlin = `invoke(${fromBridgeArguments.join(', ')})`
-  const nativeResult = callbackType.returnType.convert('__result', {
-    from: 'c++',
-    to: 'kotlin',
-    in: 'kotlin',
-  })
-  const kotlinResult = callbackType.returnType.convert('__result', {
-    from: 'kotlin',
-    to: 'c++',
-    in: 'kotlin',
-  })
-  let kotlinToCppBody: string
-  let cppToKotlinBody: string
-  if (publicType.returnType.kind === 'void') {
-    kotlinToCppBody = invokeNative
-    cppToKotlinBody = invokeKotlin
+
+  const callSyncNative = `callSync_cxx(${toBridgeArguments.join(', ')})`
+  let callSyncBody: string
+  if (isVoid) {
+    callSyncBody = callSyncNative
+  } else if (callbackType.returnType.needsKotlinConversion) {
+    const result = callbackType.returnType.convert('__result', { from: 'c++', to: 'kotlin', in: 'kotlin' })
+    callSyncBody = `
+val __result = ${callSyncNative}
+return ${result}
+`.trim()
   } else {
-    kotlinToCppBody = `
-val __result = ${invokeNative}
-return ${nativeResult}
-`.trim()
-    cppToKotlinBody = `
-val __result = ${invokeKotlin}
-return ${kotlinResult}
-`.trim()
+    callSyncBody = `return ${callSyncNative}`
   }
 
+  const callAsyncNative = `callAsync_cxx(${toBridgeArguments.join(', ')})`
+  let callAsyncBody: string
+  if (asyncType.needsKotlinConversion) {
+    const result = asyncType.convert('__result', { from: 'c++', to: 'kotlin', in: 'kotlin' })
+    callAsyncBody = `
+val __result = ${callAsyncNative}
+return ${result}
+`.trim()
+  } else {
+    callAsyncBody = `return ${callAsyncNative}`
+  }
+
+  // A parameter may have the same name as the property, so qualify it with `this`.
+  const callKotlin = `this.callback.callSync(${fromBridgeArguments.join(', ')})`
+  let callKotlinBody: string
+  if (isVoid) {
+    callKotlinBody = callKotlin
+  } else if (callbackType.returnType.needsKotlinConversion) {
+    const result = callbackType.returnType.convert('__result', { from: 'kotlin', to: 'c++', in: 'kotlin' })
+    callKotlinBody = `
+val __result = ${callKotlin}
+return ${result}
+`.trim()
+  } else {
+    callKotlinBody = `return ${callKotlin}`
+  }
+
+  const coreImports: SourceImport[] = [
+    { language: 'kotlin', name: 'com.margelo.nitro.core.CxxCallback' },
+    { language: 'kotlin', name: 'com.margelo.nitro.core.callSync' },
+  ]
   const callbackImports = [
     ...publicType.getRequiredImports('kotlin'),
+    ...asyncType.getRequiredImports('kotlin'),
     ...callbackType.returnType.getRequiredImports('kotlin'),
     ...callbackType.parameters.flatMap((parameter) => parameter.getRequiredImports('kotlin')),
+    ...coreImports,
   ]
   const extraImports = callbackImports.map((i) => getImportCode(i)).filter(isNotDuplicate)
 
@@ -73,34 +95,9 @@ import com.facebook.proguard.annotations.DoNotStrip
 ${extraImports.join('\n')}
 
 /**
- * Represents the JavaScript callback \`${publicType.jsName}\`.
- * This can be either implemented in C++ (in which case it might be a callback coming from JS),
- * or in Kotlin/Java (in which case it is a native callback).
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType")
-fun interface ${name}: ${lambdaSignature} {
-  /**
-   * Call the given JS callback.
-   * @throws Throwable if the JS function itself throws an error, or if the JS function/runtime has already been deleted.
-   */
-  @DoNotStrip
-  @Keep
-  override fun invoke(${kotlinParams.join(', ')}): ${kotlinReturnType}
-
-  // JNI uses this signature to avoid erased FunctionN and unsigned value types.
-  @DoNotStrip
-  @Keep
-  fun invoke_jni(${bridgeParams.join(', ')}): ${bridgeReturnType} {
-    ${indent(cppToKotlinBody, '    ')}
-  }
-}
-
-/**
- * Represents the JavaScript callback \`${publicType.jsName}\`.
- * This is implemented in C++, via a \`Callback<...>\`.
- * The callback might be coming from JS.
+ * The JNI representation of \`${kotlinCallbackType}\`, for the JavaScript callback \`${publicType.jsName}\`.
+ * It holds a C++ \`Callback<...>\`, which calls either a JS function or a native function.
+ * Use \`${kotlinCallbackType}\` instead of this class in your code.
  */
 @DoNotStrip
 @Keep
@@ -108,48 +105,76 @@ fun interface ${name}: ${lambdaSignature} {
   "KotlinJniMissingFunction", "unused",
   "RedundantSuppression", "RedundantUnitReturnType", "FunctionName",
   "ConvertSecondaryConstructorToPrimary", "ClassName", "LocalVariableName",
+  "PARAMETER_NAME_CHANGED_ON_OVERRIDE",
 )
-class ${name}_cxx: ${name} {
-  @DoNotStrip
-  @Keep
-  private val mHybridData: HybridData
+class ${name} @DoNotStrip @Keep private constructor(hybridData: HybridData): CxxCallback(hybridData), ${arityType} {
+  override fun callSync(${kotlinParams.join(', ')}): ${kotlinReturnType} {
+    ${indent(callSyncBody, '    ')}
+  }
 
+  override fun callAsync(${kotlinParams.join(', ')}): ${kotlinAsyncType} {
+    ${indent(callAsyncBody, '    ')}
+  }
+
+  override fun callAndForget(${kotlinParams.join(', ')}): Unit {
+    callAndForget_cxx(${toBridgeArguments.join(', ')})
+  }
+
+  /**
+   * Lets C++ call a Kotlin callback with JNI types, e.g. \`Long\` instead of \`ULong\`.
+   */
   @DoNotStrip
   @Keep
-  private constructor(hybridData: HybridData) {
-    mHybridData = hybridData
+  private class Function_cxx(private val callback: ${kotlinCallbackType}) {
+    @DoNotStrip
+    @Keep
+    fun call(${bridgeParams.join(', ')}): ${bridgeReturnType} {
+      ${indent(callKotlinBody, '      ')}
+    }
   }
 
   @DoNotStrip
   @Keep
-  override fun invoke(${kotlinParams.join(', ')}): ${kotlinReturnType} {
-    ${indent(kotlinToCppBody, '    ')}
-  }
+  private external fun callSync_cxx(${bridgeParams.join(', ')}): ${bridgeReturnType}
 
   @DoNotStrip
   @Keep
-  private external fun invoke_cxx(${bridgeParams.join(', ')}): ${bridgeReturnType}
-}
+  private external fun callAsync_cxx(${bridgeParams.join(', ')}): ${bridgeAsyncType}
 
-/**
- * Represents the JavaScript callback \`${publicType.jsName}\`.
- * This is implemented in Java/Kotlin, via a \`${lambdaSignature}\`.
- * The callback is always coming from native.
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType", "unused")
-class ${name}_java(private val callback: ${lambdaSignature}): ${name} {
   @DoNotStrip
   @Keep
-  override fun invoke(${kotlinParams.join(', ')}): ${kotlinReturnType} {
-    return this.callback(${kotlinParamsForward.join(', ')})
+  private external fun callAndForget_cxx(${bridgeParams.join(', ')}): Unit
+
+  companion object {
+    /**
+     * Returns the given [callback] as its JNI representation.
+     * A callback from another module keeps its C++ \`Callback<...>\`, and
+     * a callback created in Kotlin is wrapped in a C++ \`Callback<...>\` that calls it.
+     */
+    @JvmStatic
+    fun fromKotlin(callback: ${kotlinCallbackType}): ${name} {
+      return when (callback) {
+        is ${name} -> callback
+        is CxxCallback -> fromCxx_cxx(callback) ?: fromFunction_cxx(Function_cxx(callback))
+        else -> fromFunction_cxx(Function_cxx(callback))
+      }
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromCxx_cxx(callback: CxxCallback): ${name}?
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromFunction_cxx(function: Function_cxx): ${name}
   }
 }
   `.trim()
 
-  const jniInterfaceDescriptor = callbackType.config.getAndroidPackage('c++/jni', name)
-  const jniClassDescriptor = callbackType.config.getAndroidPackage('c++/jni', `${name}_cxx`)
+  const jniClassDescriptor = callbackType.config.getAndroidPackage('c++/jni', name)
+  const jniFunctionDescriptor = `${jniClassDescriptor}$Function_cxx`
   const returnType = callbackType.returnType
   const cxxNamespace = callbackType.config.getCxxNamespace('c++')
   const valueReturnType = returnType.getCode('c++', { context: 'value', fullyQualified: true })
@@ -168,23 +193,28 @@ class ${name}_java(private val callback: ${lambdaSignature}): ${name} {
     return convertJniValue(p, value, 'to-jni')
   })
   const jniReturnType = getJniCode(returnType, { context: 'return' })
+  const jniAsyncReturnType = asyncType.getCode('c++', { context: 'return', fullyQualified: true })
+  const jniAsyncPromiseType = asyncType.getCode('c++', { context: 'type-argument', fullyQualified: true })
   const jniParamTypes = callbackType.parameters.map((p) => getJniCode(p, { context: 'parameter' }))
   const jniSignature = `${jniReturnType}(${jniParamTypes.join(', ')})`
-  let invokeCode: string
+  const callArgumentsCode = ['self()', ...jniParamsForward].join(', ')
+  let callFunctionCode: string
   if (returnType.kind === 'void') {
-    const argumentsCode = ['self()', ...jniParamsForward].join(', ')
-    invokeCode = `
-__method(${argumentsCode});
+    callFunctionCode = `
+__method(${callArgumentsCode});
 `.trim()
   } else {
-    const argumentsCode = ['self()', ...jniParamsForward].join(', ')
     const result = convertJniValue(returnType, 'result', 'from-jni')
-    invokeCode = `
-auto result = __method(${argumentsCode});
+    callFunctionCode = `
+auto result = __method(${callArgumentsCode});
 return JNIRetainedValue<${valueReturnType}>::retain(${result});
 `.trim()
   }
-  const imports = [...returnType.getRequiredImports('c++'), ...callbackType.parameters.flatMap((p) => p.getRequiredImports('c++'))]
+  const imports = [
+    ...returnType.getRequiredImports('c++'),
+    ...asyncType.getRequiredImports('c++'),
+    ...callbackType.parameters.flatMap((p) => p.getRequiredImports('c++')),
+  ]
   const declarationIncludes = getImportsCode(imports, 'declaration')
   const implementationIncludes = getImportsCode(
     [{ language: 'c++', declaration: callbackType.config.getCxxHeader(`${jniName}.hpp`, 'private') }, ...imports],
@@ -195,6 +225,7 @@ ${createFileMetadataString(`${jniName}.hpp`)}
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
 ${declarationIncludes}
@@ -203,36 +234,48 @@ namespace ${cxxNamespace} {
 
   namespace jni = facebook::jni;
 
-  class ${jniName}_cxx;
-
-  struct ${jniName} : jni::JavaClass<${jniName}> {
-    static constexpr auto kJavaDescriptor = "L${jniInterfaceDescriptor};";
-    using CxxPart = ${jniName}_cxx;
-    using NativeSignature = JNICallbackState<${valueSignature}>::Signature;
-
-    ${retainedReturnType} invoke(${retainedParameters.join(', ')}) const;
-  };
-
-  class ${jniName}_cxx final : public jni::HybridClass<${jniName}_cxx, ${jniName}> {
+  /**
+   * The C++ part of the Kotlin \`${name}\`, which holds a \`Callback<...>\`.
+   */
+  class ${jniName} final : public jni::HybridClass<${jniName}, JCxxCallback> {
   public:
-    using CallbackType = Callback<${jniName}::NativeSignature>;
     static constexpr auto kJavaDescriptor = "L${jniClassDescriptor};";
+    using State = JNICallbackState<${valueSignature}>;
+    using NativeSignature = State::Signature;
+    using CallbackType = State::CallbackType;
 
-    static jni::local_ref<${jniName}> create(CallbackType callback, bool isInline);
-    ${jniReturnType} invoke_cxx(${nativeParams.join(', ')});
+    /**
+     * The Kotlin \`${name}.Function_cxx\`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "L${jniFunctionDescriptor};";
+      ${retainedReturnType} invoke(${retainedParameters.join(', ')}) const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     const CallbackType& getCallback() const { return _state.getCallback(); }
     static void registerNatives();
 
   private:
+    ${jniReturnType} callSync_cxx(${nativeParams.join(', ')});
+    ${jniAsyncReturnType} callAsync_cxx(${nativeParams.join(', ')});
+    void callAndForget_cxx(${nativeParams.join(', ')});
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+    const std::type_info& getCallbackType() const override { return typeid(CallbackType); }
+    const void* getCallbackPointer() const override { return &_state.getCallback(); }
+
+  private:
     friend HybridBase;
-    explicit ${jniName}_cxx(CallbackType callback, bool isInline);
-    JNICallbackState<${valueSignature}> _state;
+    explicit ${jniName}(CallbackType callback);
+    State _state;
   };
 
 } // namespace ${cxxNamespace}
 `.trim()
 
-  const invokeResult = convertJniValue(returnType, `_state.invoke(${paramsForward.join(', ')})`, 'to-jni')
+  const callSyncResult = convertJniValue(returnType, `_state.callSync(${paramsForward.join(', ')})`, 'to-jni')
   const fbjniImplementationCode = `
 ${createFileMetadataString(`${jniName}.cpp`)}
 
@@ -240,24 +283,50 @@ ${implementationIncludes}
 
 namespace ${cxxNamespace} {
 
-  ${retainedReturnType} ${jniName}::invoke(${retainedParameters.join(', ')}) const {
-    static const auto __method = javaClassStatic()->getMethod<${jniSignature}>("invoke_jni");
-    ${indent(invokeCode, '    ')}
+  ${retainedReturnType} ${jniName}::JFunction_cxx::invoke(${retainedParameters.join(', ')}) const {
+    static const auto __method = javaClassStatic()->getMethod<${jniSignature}>("call");
+    ${indent(callFunctionCode, '    ')}
   }
 
-  jni::local_ref<${jniName}> ${jniName}_cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<${jniName}::JavaPart> ${jniName}::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  ${jniReturnType} ${jniName}_cxx::invoke_cxx(${nativeParams.join(', ')}) {
-    return ${invokeResult};
+  ${jniReturnType} ${jniName}::callSync_cxx(${nativeParams.join(', ')}) {
+    return ${callSyncResult};
   }
 
-  void ${jniName}_cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", ${jniName}_cxx::invoke_cxx)});
+  ${jniAsyncReturnType} ${jniName}::callAsync_cxx(${nativeParams.join(', ')}) {
+    return _state.callAsync<${jniAsyncPromiseType}>(${paramsForward.join(', ')});
   }
 
-  ${jniName}_cxx::${jniName}_cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void ${jniName}::callAndForget_cxx(${nativeParams.join(', ')}) {
+    _state.callAndForget(${paramsForward.join(', ')});
+  }
+
+  jni::local_ref<${jniName}::JavaPart> ${jniName}::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    const CallbackType* held = callback->cthis()->getCallbackAs<CallbackType>();
+    if (held == nullptr) {
+      return nullptr;
+    }
+    return create(*held);
+  }
+
+  jni::local_ref<${jniName}::JavaPart> ${jniName}::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void ${jniName}::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", ${jniName}::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", ${jniName}::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", ${jniName}::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", ${jniName}::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", ${jniName}::fromFunction_cxx),
+    });
+  }
+
+  ${jniName}::${jniName}(CallbackType callback) : _state(std::move(callback)) {}
 
 } // namespace ${cxxNamespace}
 `.trim()

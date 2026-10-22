@@ -1,7 +1,8 @@
 #pragma once
 
-#include "JNICallable.hpp"
+#include "JCxxCallback.hpp"
 #include "JNIConverter+GlobalRef.hpp"
+#include "JNIConverter+Promise.hpp"
 #include "JSIConverter+JNIGlobalRef.hpp"
 #include <NitroModules/Callback.hpp>
 #include <NitroModules/InlineCallback.hpp>
@@ -51,28 +52,38 @@ struct JNIRetainedValue<void> {
 template <typename Signature>
 class JNICallbackState;
 
-/** A Kotlin callback keeps Nitro's existing native/JS callback state. */
+/**
+ * The C++ `Callback` of a generated Kotlin callback class, called with JNI values.
+ * Arguments are retained, because `callAsync` and `callAndForget` use them later on the JS thread.
+ */
 template <typename R, typename... Args>
 class JNICallbackState<R(Args...)> final {
 public:
   using Signature = typename JNIRetainedValue<R>::Type(typename JNIRetainedValue<Args>::Type...);
   using CallbackType = Callback<Signature>;
 
-  explicit JNICallbackState(CallbackType callback, bool isInline) : _callback(std::move(callback)), _isInline(isInline) {}
+  explicit JNICallbackState(CallbackType callback) : _callback(std::move(callback)) {}
 
-  typename JNIRetainedValue<R>::Local invoke(typename JNIRetainedValue<Args>::Borrowed... args) const {
-    // Invocation can reentrantly release this callback's HybridData.
+  typename JNIRetainedValue<R>::Local callSync(typename JNIRetainedValue<Args>::Borrowed... args) const {
+    // Calling the callback can reentrantly release this callback's HybridData.
     const auto callback = _callback;
-    const bool isInline = _isInline;
     if constexpr (std::is_void_v<R>) {
-      if (isInline) {
-        callback.callSync(JNIRetainedValue<Args>::retain(args)...);
-      } else {
-        callback.callAndForget(JNIRetainedValue<Args>::retain(args)...);
-      }
+      callback.callSync(JNIRetainedValue<Args>::retain(args)...);
     } else {
       return JNIRetainedValue<R>::toLocal(callback.callSync(JNIRetainedValue<Args>::retain(args)...));
     }
+  }
+
+  template <typename JavaPromise>
+  jni::local_ref<JavaPromise> callAsync(typename JNIRetainedValue<Args>::Borrowed... args) const {
+    const auto callback = _callback;
+    Promise<typename JNIRetainedValue<R>::Type> promise = callback.callAsync(JNIRetainedValue<Args>::retain(args)...);
+    return JNIConverter<Promise<typename JNIRetainedValue<R>::Type>, jni::local_ref<JavaPromise>>::toJNI(promise);
+  }
+
+  void callAndForget(typename JNIRetainedValue<Args>::Borrowed... args) const {
+    const auto callback = _callback;
+    callback.callAndForget(JNIRetainedValue<Args>::retain(args)...);
   }
 
   const CallbackType& getCallback() const {
@@ -81,20 +92,12 @@ public:
 
 private:
   CallbackType _callback;
-  bool _isInline;
 };
 
-/** Obtain the existing native callback or retain a Kotlin implementation. */
+/** Obtain the C++ `Callback` held by a generated Kotlin callback class. */
 template <typename JavaCallback>
-Callback<typename JavaCallback::NativeSignature> getJNICallback(jni::alias_ref<JavaCallback> value) {
-  using CxxPart = typename JavaCallback::CxxPart;
-  using NativeSignature = typename JavaCallback::NativeSignature;
-  using NativeCallback = Callback<NativeSignature>;
-  if (value->isInstanceOf(CxxPart::javaClassStatic())) {
-    auto native = jni::static_ref_cast<typename CxxPart::javaobject>(value);
-    return native->cthis()->getCallback();
-  }
-  return NativeCallback::make(JNICallable<JavaCallback, NativeSignature>(jni::make_global(value)));
+Callback<typename JavaCallback::HybridType::NativeSignature> getJNICallback(jni::alias_ref<JavaCallback> value) {
+  return value->cthis()->getCallback();
 }
 
 } // namespace margelo::nitro

@@ -5,6 +5,8 @@ import android.view.View
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.uimanager.ThemedReactContext
+import com.margelo.nitro.core.Callback
+import com.margelo.nitro.core.invoke
 import java.util.concurrent.atomic.AtomicInteger
 
 @Keep
@@ -31,7 +33,7 @@ class HybridTestView(
   override var hasBeenCalled: Boolean = false
   override var int64Value: Long = 0L
   override var colorScheme: ColorScheme = ColorScheme.LIGHT
-  override var someCallback: () -> Unit = {}
+  override var someCallback: Callback<() -> Unit> = Callback.native {}
   override var nativeDefaultValue: Double? = 42.0
     set(value) {
       field = value

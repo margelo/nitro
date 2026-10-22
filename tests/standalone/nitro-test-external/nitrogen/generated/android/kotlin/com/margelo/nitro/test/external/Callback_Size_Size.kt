@@ -10,38 +10,15 @@ package com.margelo.nitro.test.external
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-
-
-/**
- * Represents the JavaScript callback `(size: struct) => Size`.
- * This can be either implemented in C++ (in which case it might be a callback coming from JS),
- * or in Kotlin/Java (in which case it is a native callback).
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType")
-fun interface Callback_Size_Size: (Size) -> Size {
-  /**
-   * Call the given JS callback.
-   * @throws Throwable if the JS function itself throws an error, or if the JS function/runtime has already been deleted.
-   */
-  @DoNotStrip
-  @Keep
-  override fun invoke(size: Size): Size
-
-  // JNI uses this signature to avoid erased FunctionN and unsigned value types.
-  @DoNotStrip
-  @Keep
-  fun invoke_jni(size: Size): Size {
-    val __result = invoke(size)
-    return __result
-  }
-}
+import com.margelo.nitro.core.Callback
+import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.CxxCallback
+import com.margelo.nitro.core.callSync
 
 /**
- * Represents the JavaScript callback `(size: struct) => Size`.
- * This is implemented in C++, via a `Callback<...>`.
- * The callback might be coming from JS.
+ * The JNI representation of `Callback<(size: Size) -> Size>`, for the JavaScript callback `(size: struct) => Size`.
+ * It holds a C++ `Callback<...>`, which calls either a JS function or a native function.
+ * Use `Callback<(size: Size) -> Size>` instead of this class in your code.
  */
 @DoNotStrip
 @Keep
@@ -49,42 +26,69 @@ fun interface Callback_Size_Size: (Size) -> Size {
   "KotlinJniMissingFunction", "unused",
   "RedundantSuppression", "RedundantUnitReturnType", "FunctionName",
   "ConvertSecondaryConstructorToPrimary", "ClassName", "LocalVariableName",
+  "PARAMETER_NAME_CHANGED_ON_OVERRIDE",
 )
-class Callback_Size_Size_cxx: Callback_Size_Size {
-  @DoNotStrip
-  @Keep
-  private val mHybridData: HybridData
+class Callback_Size_Size @DoNotStrip @Keep private constructor(hybridData: HybridData): CxxCallback(hybridData), Callback.Arity1<Size, Size> {
+  override fun callSync(size: Size): Size {
+    return callSync_cxx(size)
+  }
 
+  override fun callAsync(size: Size): Promise<Size> {
+    return callAsync_cxx(size)
+  }
+
+  override fun callAndForget(size: Size): Unit {
+    callAndForget_cxx(size)
+  }
+
+  /**
+   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   */
   @DoNotStrip
   @Keep
-  private constructor(hybridData: HybridData) {
-    mHybridData = hybridData
+  private class Function_cxx(private val callback: Callback<(size: Size) -> Size>) {
+    @DoNotStrip
+    @Keep
+    fun call(size: Size): Size {
+      return this.callback.callSync(size)
+    }
   }
 
   @DoNotStrip
   @Keep
-  override fun invoke(size: Size): Size {
-    val __result = invoke_cxx(size)
-    return __result
-  }
+  private external fun callSync_cxx(size: Size): Size
 
   @DoNotStrip
   @Keep
-  private external fun invoke_cxx(size: Size): Size
-}
+  private external fun callAsync_cxx(size: Size): Promise<Size>
 
-/**
- * Represents the JavaScript callback `(size: struct) => Size`.
- * This is implemented in Java/Kotlin, via a `(Size) -> Size`.
- * The callback is always coming from native.
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType", "unused")
-class Callback_Size_Size_java(private val callback: (Size) -> Size): Callback_Size_Size {
   @DoNotStrip
   @Keep
-  override fun invoke(size: Size): Size {
-    return this.callback(size)
+  private external fun callAndForget_cxx(size: Size): Unit
+
+  companion object {
+    /**
+     * Returns the given [callback] as its JNI representation.
+     * A callback from another module keeps its C++ `Callback<...>`, and
+     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     */
+    @JvmStatic
+    fun fromKotlin(callback: Callback<(size: Size) -> Size>): Callback_Size_Size {
+      return when (callback) {
+        is Callback_Size_Size -> callback
+        is CxxCallback -> fromCxx_cxx(callback) ?: fromFunction_cxx(Function_cxx(callback))
+        else -> fromFunction_cxx(Function_cxx(callback))
+      }
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromCxx_cxx(callback: CxxCallback): Callback_Size_Size?
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromFunction_cxx(function: Function_cxx): Callback_Size_Size
   }
 }
