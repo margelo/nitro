@@ -25,6 +25,36 @@
         "language": "c++"
       }
     },
+    "SharedSpecializations": {
+      "android": {
+        "implementation": {
+          "className": "HybridSharedSpecializations"
+        },
+        "language": "kotlin"
+      },
+      "ios": {
+        "implementation": {
+          "className": "HybridSharedSpecializations"
+        },
+        "language": "swift"
+      }
+    },
+    "SharedSpecializationsCpp": {
+      "android": {
+        "implementation": {
+          "className": "HybridSharedSpecializationsCpp",
+          "include": "\"HybridSharedSpecializationsCpp.hpp\""
+        },
+        "language": "c++"
+      },
+      "ios": {
+        "implementation": {
+          "className": "HybridSharedSpecializationsCpp",
+          "include": "\"HybridSharedSpecializationsCpp.hpp\""
+        },
+        "language": "c++"
+      }
+    },
     "SomeExternalObject": {
       "android": {
         "allowMultipleImplementations": true,

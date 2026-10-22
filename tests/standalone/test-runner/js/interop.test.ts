@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { namedCases, casesForTestObjects, recordCallback } from './utils/cases'
+import { namedCases, casesForSharedSpecializations, casesForTestObjects, recordCallback, rejection, waitFor } from './utils/cases'
 import { NitroModules } from 'nitro-core'
 import {
   Base,
@@ -51,6 +51,8 @@ const EXTERNAL_SIZE: ExternalSize = {
   unit: ExternalSizeUnit.Pixels,
   scale: 2,
 }
+
+const CALLBACK_TIMEOUT = { timeout: 2000 }
 
 const SIZE: Size = { width: 640, height: 480, unit: SizeUnit.Pixels }
 
@@ -590,6 +592,89 @@ export const cases = {
       expect(externalCalls).to.equal(1)
       expect(local).to.deep.equal(localResult)
       expect(external).to.deep.equal(externalResult)
+    },
+  }),
+  // Both modules bridge these C++ specializations. Each case pairs one external
+  // implementation (C++ or Swift/Kotlin) with one local implementation.
+  ...casesForSharedSpecializations('Promise and Callback specializations shared across modules', {
+    'Promises resolve from both modules': async (external, local) => {
+      await external.resolveVoid()
+      await local.promiseThatResolvesVoidInstantly()
+      expect(await external.resolveNumber(13)).to.equal(13)
+      expect(await local.promiseReturnsInstantly()).to.equal(55)
+      expect(await external.resolveString('external')).to.equal('external')
+    },
+
+    'both modules await JS Promises': async (external, local) => {
+      await external.awaitVoid(Promise.resolve())
+      await local.awaitPromise(Promise.resolve())
+      expect(await external.awaitNumber(Promise.resolve(7))).to.equal(7)
+      expect(await local.awaitAndGetPromise(Promise.resolve(8))).to.equal(8)
+    },
+
+    'both modules forward JS Promise rejections': async (external, local) => {
+      const externalError = await rejection(external.awaitNumber(Promise.reject(new Error('external rejection'))))
+      expect(externalError).to.be.instanceOf(Error)
+      expect((externalError as Error).message).to.include('external rejection')
+      const localError = await rejection(local.awaitAndGetPromise(Promise.reject(new Error('local rejection'))))
+      expect(localError).to.be.instanceOf(Error)
+      expect((localError as Error).message).to.include('local rejection')
+    },
+
+    'both modules call JS callbacks': async (external, local) => {
+      const voidCallback = recordCallback()
+      external.callVoid(voidCallback)
+      local.callCallback(voidCallback)
+      const numberCallback = recordCallback()
+      external.callWithNumber(3, numberCallback)
+      const stringCallback = recordCallback()
+      external.callWithString('external', stringCallback)
+      await waitFor(() => expect(voidCallback.calls).to.have.length(2), CALLBACK_TIMEOUT)
+      await waitFor(() => expect(numberCallback.calls).to.deep.equal([[3]]), CALLBACK_TIMEOUT)
+      await waitFor(() => expect(stringCallback.calls).to.deep.equal([['external']]), CALLBACK_TIMEOUT)
+    },
+
+    'both modules return native callbacks': async (external, local) => {
+      const wrapped = recordCallback()
+      external.wrapNumberCallback(wrapped)(1)
+      local.createNativeCallback(wrapped)(2)
+      await waitFor(() => expect(wrapped.calls).to.have.deep.members([[1], [2]]), CALLBACK_TIMEOUT)
+    },
+
+    'both modules await callbacks with results': async (external, local) => {
+      expect(await external.mapNumber(20, (value) => value + 1)).to.equal(21)
+      let localCalls = 0
+      await local.callCallbackThatReturnsPromiseVoid(async () => {
+        localCalls += 1
+      })
+      let externalCalls = 0
+      await external.callVoidPromiseCallback(async () => {
+        externalCalls += 1
+      })
+      expect(localCalls).to.equal(1)
+      expect(externalCalls).to.equal(1)
+      expect(await external.callNumberPromiseCallback(async () => 34)).to.equal(34)
+      expect(await local.callbackAsyncPromise(async () => 35)).to.equal(35)
+    },
+
+    'callback properties keep their value': async (external) => {
+      const callback = recordCallback()
+      external.numberCallback = callback
+      external.numberCallback(5)
+      await waitFor(() => expect(callback.calls).to.deep.equal([[5]]), CALLBACK_TIMEOUT)
+    },
+
+    'both modules call inline callbacks': (external, local) => {
+      let calls = 0
+      external.callInline(() => {
+        calls += 1
+      })
+      local.callInlineCallback(() => {
+        calls += 1
+      })
+      expect(calls).to.equal(2)
+      expect(external.callInlineWithNumber(6, (value) => value * 2)).to.equal(12)
+      expect(local.callInlineCallbackWithValue(7, (value) => value * 2)).to.equal(14)
     },
   }),
   ...namedCases('SomeExternalObject optional primitives', {

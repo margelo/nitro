@@ -12,6 +12,10 @@
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Callback.hpp>
 #include <NitroModules/SwiftResult.hpp>
+#include <NitroTestExternal/private/HybridSharedSpecializationsSpecSwift.hpp>
+#include <NitroModules/NitroModules-Swift-Cxx-Umbrella.hpp>
+#include <NitroModules/JSIConverter+SwiftString.hpp>
+#include <NitroModules/InlineCallback.hpp>
 #include <NitroTestExternal/private/HybridSomeExternalObjectSpecSwift.hpp>
 
 namespace margelo::nitro::test::external::swift_bridge {
@@ -72,6 +76,185 @@ namespace margelo::nitro::test::external::swift_bridge {
       }
       return std::move(__result.value());
     });
+  }
+
+  std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_ create_std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_(void* NON_NULL pointer) {
+    return std::make_shared<margelo::nitro::test::external::HybridSharedSpecializationsSpecSwift>(::NitroTestExternal::HybridSharedSpecializationsSpec_cxx::fromUnsafe(pointer));
+  }
+
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_(const std::shared_ptr<HybridObject>& value) {
+    auto wrapper = std::dynamic_pointer_cast<margelo::nitro::test::external::HybridSharedSpecializationsSpecSwift>(value);
+    if (!wrapper) throw std::runtime_error("HybridSharedSpecializationsSpec is not implemented in Swift");
+    return wrapper->getSwiftPart().toUnsafe();
+  }
+
+  Result<void, margelo::nitro::test::external::swift_bridge::ResultTag> callSync_Callback_void_double(const Callback_void_double& callback, double param0) noexcept {
+    try {
+      callback.callSync(param0);
+      return Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>::withValue();
+    } catch (...) {
+      return Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
+  }
+
+  Callback_void_double create_Callback_void_double(std::function<Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>(double param0)> closure) {
+    return Callback_void_double::make([closure = std::move(closure)](double param0) -> void {
+      auto __result = closure(param0);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+    });
+  }
+
+  Promise_swift__String create_Promise_swift__String() { return Promise_swift__String::pending(); }
+
+  void reject_Promise_swift__String(const Promise_swift__String& promise, std::exception_ptr error) { promise.reject(std::move(error)); }
+
+  void listenRejected_Promise_swift__String(const Promise_swift__String& promise, std::function<void(const std::exception_ptr&)> listener) { promise.addOnRejectedListener(std::move(listener)); }
+
+  void resolve_Promise_swift__String(const Promise_swift__String& promise, const void* NON_NULL value) {
+    promise.resolve(NitroModules::copySwiftValue<swift::String>(value));
+  }
+
+  void listen_Promise_swift__String(const Promise_swift__String& promise, std::function<void(const void* NON_NULL)> listener) {
+    promise.addOnResolvedListener([listener = std::move(listener)](const swift::String& value) {
+      NitroModules::withSwiftValue(value, [&](const void* pointer) {
+        listener(pointer);
+      });
+    });
+  }
+
+  Result<void, margelo::nitro::test::external::swift_bridge::ResultTag> callSync_Callback_void(const Callback_void& callback) noexcept {
+    try {
+      callback.callSync();
+      return Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>::withValue();
+    } catch (...) {
+      return Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
+  }
+
+  Callback_void create_Callback_void(std::function<Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>()> closure) {
+    return Callback_void::make([closure = std::move(closure)]() -> void {
+      auto __result = closure();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+    });
+  }
+
+  Result<void, margelo::nitro::test::external::swift_bridge::ResultTag> callSync_Callback_void_swift__String(const Callback_void_swift__String& callback, const void* NON_NULL param0) noexcept {
+    try {
+      callback.callSync(NitroModules::copySwiftValue<swift::String>(param0));
+      return Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>::withValue();
+    } catch (...) {
+      return Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
+  }
+
+  Promise<void> callAsync_Callback_void_swift__String(const Callback_void_swift__String& callback, const void* NON_NULL param0) {
+    return callback.callAsync(NitroModules::copySwiftValue<swift::String>(param0));
+  }
+
+  void callAndForget_Callback_void_swift__String(const Callback_void_swift__String& callback, const void* NON_NULL param0) {
+    callback.callAndForget(NitroModules::copySwiftValue<swift::String>(param0));
+  }
+
+  Callback_void_swift__String create_Callback_void_swift__String(std::function<Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>(const void* NON_NULL param0)> closure) {
+    return Callback_void_swift__String::make([closure = std::move(closure)](const swift::String& param0) -> void {
+      auto __result = borrowSwiftValue(param0, [&](const void* param0) {
+        return closure(param0);
+      });
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+    });
+  }
+
+  Result<double, margelo::nitro::test::external::swift_bridge::ResultTag> callSync_Callback_double_double(const Callback_double_double& callback, double param0) noexcept {
+    try {
+      return Result<double, margelo::nitro::test::external::swift_bridge::ResultTag>::withValue(callback.callSync(param0));
+    } catch (...) {
+      return Result<double, margelo::nitro::test::external::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
+  }
+
+  Callback_double_double create_Callback_double_double(std::function<Result<double, margelo::nitro::test::external::swift_bridge::ResultTag>(double param0)> closure) {
+    return Callback_double_double::make([closure = std::move(closure)](double param0) -> double {
+      auto __result = closure(param0);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      return std::move(__result.value());
+    });
+  }
+
+  Result<Promise<void>, margelo::nitro::test::external::swift_bridge::ResultTag> callSync_Callback_Promise_void_(const Callback_Promise_void_& callback) noexcept {
+    try {
+      return Result<Promise<void>, margelo::nitro::test::external::swift_bridge::ResultTag>::withValue(callback.callSync());
+    } catch (...) {
+      return Result<Promise<void>, margelo::nitro::test::external::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
+  }
+
+  Promise<Promise<void>> callAsync_Callback_Promise_void_(const Callback_Promise_void_& callback) {
+    return callback.callAsync();
+  }
+
+  void callAndForget_Callback_Promise_void_(const Callback_Promise_void_& callback) {
+    callback.callAndForget();
+  }
+
+  Callback_Promise_void_ create_Callback_Promise_void_(std::function<Result<Promise<void>, margelo::nitro::test::external::swift_bridge::ResultTag>()> closure) {
+    return Callback_Promise_void_::make([closure = std::move(closure)]() -> Promise<void> {
+      auto __result = closure();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      return std::move(__result.value());
+    });
+  }
+
+  Result<Promise<double>, margelo::nitro::test::external::swift_bridge::ResultTag> callSync_Callback_Promise_double_(const Callback_Promise_double_& callback) noexcept {
+    try {
+      return Result<Promise<double>, margelo::nitro::test::external::swift_bridge::ResultTag>::withValue(callback.callSync());
+    } catch (...) {
+      return Result<Promise<double>, margelo::nitro::test::external::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
+  }
+
+  Promise<Promise<double>> callAsync_Callback_Promise_double_(const Callback_Promise_double_& callback) {
+    return callback.callAsync();
+  }
+
+  void callAndForget_Callback_Promise_double_(const Callback_Promise_double_& callback) {
+    callback.callAndForget();
+  }
+
+  Callback_Promise_double_ create_Callback_Promise_double_(std::function<Result<Promise<double>, margelo::nitro::test::external::swift_bridge::ResultTag>()> closure) {
+    return Callback_Promise_double_::make([closure = std::move(closure)]() -> Promise<double> {
+      auto __result = closure();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      return std::move(__result.value());
+    });
+  }
+
+  Result<void, margelo::nitro::test::external::swift_bridge::ResultTag> call_InlineCallback_void(const InlineCallback_void& callback) noexcept {
+    try {
+      callback.call();
+      return Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>::withValue();
+    } catch (...) {
+      return Result<void, margelo::nitro::test::external::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
+  }
+
+  Result<double, margelo::nitro::test::external::swift_bridge::ResultTag> call_InlineCallback_double_double(const InlineCallback_double_double& callback, double param0) noexcept {
+    try {
+      return Result<double, margelo::nitro::test::external::swift_bridge::ResultTag>::withValue(callback.call(param0));
+    } catch (...) {
+      return Result<double, margelo::nitro::test::external::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
   }
 
   std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ create_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(void* NON_NULL pointer) {

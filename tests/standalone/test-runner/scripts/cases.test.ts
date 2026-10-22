@@ -17,8 +17,18 @@ mock.module('nitro-test', () => ({
 }))
 mock.module('nitro-test-external', () => ({
   SomeExternalObject: class SomeExternalObject {},
+  SharedSpecializationsCpp: class SharedSpecializationsCpp {
+    constructor() {
+      created.push('SharedSpecializationsCpp')
+    }
+  },
+  SharedSpecializations: class SharedSpecializations {
+    constructor() {
+      created.push('SharedSpecializations')
+    }
+  },
 }))
-const { casesForTestObjects, namedCases, withTestTimeout } = await import('../js/utils/cases')
+const { casesForSharedSpecializations, casesForTestObjects, namedCases, withTestTimeout } = await import('../js/utils/cases')
 
 const originalRun = globalThis.runNitroTest
 const originalTimeout = globalThis.getNitroTestTimeoutMs
@@ -60,6 +70,37 @@ test('fixture binding preserves timeouts without allocating the fixture', async 
   await globalThis.runNitroTest('Memory / TestObjectSwiftKotlin / allocate')
   expect(created).toEqual(['TestObjectCpp', 'TestObjectSwiftKotlin'])
   expect(received).toEqual(created)
+})
+
+test('shared specialization binding pairs every external and local implementation', async () => {
+  const received: string[][] = []
+  const cases = casesForSharedSpecializations('Shared', {
+    pair: withTestTimeout(700, (external, local) => {
+      received.push([external.constructor.name, local.constructor.name])
+    }),
+    ordinary: () => {},
+  })
+  registerTests(cases)
+
+  const pairs = [
+    ['SharedSpecializationsCpp', 'TestObjectCpp'],
+    ['SharedSpecializationsCpp', 'TestObjectSwiftKotlin'],
+    ['SharedSpecializations', 'TestObjectCpp'],
+    ['SharedSpecializations', 'TestObjectSwiftKotlin'],
+  ]
+  expect(Object.keys(cases).sort()).toEqual(
+    pairs.flatMap(([external, local]) => [`Shared / ${external} + ${local} / ordinary`, `Shared / ${external} + ${local} / pair`]).sort()
+  )
+  for (const [external, local] of pairs) {
+    expect(globalThis.getNitroTestTimeoutMs(`Shared / ${external} + ${local} / pair`)).toBe(700)
+    expect(globalThis.getNitroTestTimeoutMs(`Shared / ${external} + ${local} / ordinary`)).toBeUndefined()
+  }
+  expect(created).toEqual([])
+  for (const [external, local] of pairs) {
+    await globalThis.runNitroTest(`Shared / ${external} + ${local} / pair`)
+  }
+  expect(received).toEqual(pairs)
+  expect(created).toEqual(pairs.flat())
 })
 
 test('named cases retain an explicit timeout', () => {

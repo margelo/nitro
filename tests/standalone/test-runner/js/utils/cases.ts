@@ -1,10 +1,14 @@
 import { NitroModules } from 'nitro-core'
 import { TestObjectCpp, TestObjectSwiftKotlin } from 'nitro-test'
+import { SharedSpecializations, SharedSpecializationsCpp } from 'nitro-test-external'
 
 type Timeout = { timeoutMs?: number }
 export type TestCase = (() => void | Promise<void>) & Timeout
 type TestObject = TestObjectCpp | TestObjectSwiftKotlin
 type TestObjectCase = ((object: TestObject) => void | Promise<void>) & Timeout
+type SharedSpecializationsObject = SharedSpecializationsCpp | SharedSpecializations
+type SharedSpecializationsCase = ((external: SharedSpecializationsObject, local: TestObject) => void | Promise<void>) & Timeout
+type ExternalImplementation = 'SharedSpecializationsCpp' | 'SharedSpecializations'
 
 /** Give an expensive case an explicit native execution budget. */
 export function withTestTimeout<Test extends (...args: never[]) => void | Promise<void>>(
@@ -27,6 +31,32 @@ export function casesForTestObjects<Suite extends string, Cases extends Record<s
         () => test(implementation === 'TestObjectCpp' ? new TestObjectCpp() : new TestObjectSwiftKotlin()),
         { timeoutMs: test.timeoutMs }
       )
+    }
+  }
+  return result
+}
+
+/**
+ * Pair each external implementation with each local one, so the C++, Swift and
+ * Kotlin objects of both modules share one native test process in every combination.
+ */
+export function casesForSharedSpecializations<Suite extends string, Cases extends Record<string, SharedSpecializationsCase>>(
+  suite: Suite,
+  cases: Cases
+): Record<`${Suite} / ${ExternalImplementation} + ${Implementation} / ${keyof Cases & string}`, TestCase> {
+  const result: Record<string, TestCase> = {}
+  for (const external of ['SharedSpecializationsCpp', 'SharedSpecializations'] as const) {
+    for (const local of ['TestObjectCpp', 'TestObjectSwiftKotlin'] as const) {
+      for (const [name, test] of Object.entries(cases)) {
+        result[`${suite} / ${external} + ${local} / ${name}`] = Object.assign(
+          () =>
+            test(
+              external === 'SharedSpecializationsCpp' ? new SharedSpecializationsCpp() : new SharedSpecializations(),
+              local === 'TestObjectCpp' ? new TestObjectCpp() : new TestObjectSwiftKotlin()
+            ),
+          { timeoutMs: test.timeoutMs }
+        )
+      }
     }
   }
   return result

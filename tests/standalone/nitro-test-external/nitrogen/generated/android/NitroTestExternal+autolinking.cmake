@@ -14,14 +14,23 @@ target_include_directories(NitroTestExternal PRIVATE
 target_sources(NitroTestExternal PRIVATE
   "${CMAKE_CURRENT_LIST_DIR}/NitroTestExternalOnLoad.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridCppValueSourceSpecClass.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridSharedSpecializationsCppSpecClass.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_Promise_double_.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_Promise_void_.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_Size_Size.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_double_double.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_void.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_void_double.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_void_std__string.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridBaseSpec.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridSharedSpecializationsSpec.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridSomeExternalObjectSpec.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JOptionalPrimitivesHolder.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JSize.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JSizeUnit.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../shared/c++/CppOnlyValue.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../shared/c++/HybridCppValueSourceSpec.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../shared/c++/HybridSharedSpecializationsCppSpec.cpp"
 )
 
 find_package(fbjni REQUIRED CONFIG)
