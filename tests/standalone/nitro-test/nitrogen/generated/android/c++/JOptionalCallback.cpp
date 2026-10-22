@@ -6,7 +6,7 @@
 ///
 
 #include <NitroTest/private/JOptionalCallback.hpp>
-#include <NitroTest/private/JVariant_______Unit_Double.hpp>
+#include <NitroTest/private/JVariant_Callback_______Unit__Double.hpp>
 #include <NitroTest/private/JCallback_void.hpp>
 #include <NitroModules/JNIConverter+Callback.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
@@ -20,12 +20,12 @@ namespace margelo::nitro {
 
   jni::local_ref<margelo::nitro::test::JOptionalCallback> JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalCallback>>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
     auto object = value.asObject(runtime);
-    return margelo::nitro::test::JOptionalCallback::create(JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_______Unit_Double>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callback"))));
+    return margelo::nitro::test::JOptionalCallback::create(JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Callback_______Unit__Double>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callback"))));
   }
 
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalCallback>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JOptionalCallback> value) {
     jsi::Object object(runtime);
-    object.setProperty(runtime, PropNameIDCache::get(runtime, "callback"), JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_______Unit_Double>>>::toJSI(runtime, value->getCallback()));
+    object.setProperty(runtime, PropNameIDCache::get(runtime, "callback"), JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Callback_______Unit__Double>>>::toJSI(runtime, value->getCallback()));
     return object;
   }
 
@@ -33,7 +33,7 @@ namespace margelo::nitro {
     if (!value.isObject()) return false;
     auto object = value.getObject(runtime);
     if (!isPlainObject(runtime, object)) return false;
-    return JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_______Unit_Double>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callback")));
+    return JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Callback_______Unit__Double>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callback")));
   }
 
 } // namespace margelo::nitro

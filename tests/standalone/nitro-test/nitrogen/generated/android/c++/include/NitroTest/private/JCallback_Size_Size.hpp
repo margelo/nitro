@@ -7,38 +7,46 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
 #include <NitroTest/private/JSize.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
   namespace jni = facebook::jni;
 
-  class JCallback_Size_Size_cxx;
-
-  struct JCallback_Size_Size : jni::JavaClass<JCallback_Size_Size> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Size_Size;";
-    using CxxPart = JCallback_Size_Size_cxx;
-    using NativeSignature = JNICallbackState<jni::local_ref<margelo::nitro::test::JSize>(jni::local_ref<margelo::nitro::test::JSize>)>::Signature;
-
-    JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::Type invoke(JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::Type size) const;
-  };
-
-  class JCallback_Size_Size_cxx final : public jni::HybridClass<JCallback_Size_Size_cxx, JCallback_Size_Size> {
+  /**
+   * The C++ part of the Kotlin `Callback_Size_Size`, which holds a `Callback<...>` in `JNICallback`.
+   */
+  class JCallback_Size_Size final : public jni::HybridClass<JCallback_Size_Size, JNICallback<jni::local_ref<margelo::nitro::test::JSize>(jni::local_ref<margelo::nitro::test::JSize>)>> {
   public:
-    using CallbackType = Callback<JCallback_Size_Size::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Size_Size_cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Size_Size;";
 
-    static jni::local_ref<JCallback_Size_Size> create(CallbackType callback, bool isInline);
-    jni::local_ref<JSize> invoke_cxx(jni::alias_ref<JSize> size);
-    const CallbackType& getCallback() const { return _state.getCallback(); }
+    /**
+     * The Kotlin `Callback_Size_Size.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Size_Size$Function_cxx;";
+      JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::Type invoke(JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::Type size) const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     static void registerNatives();
 
   private:
+    jni::local_ref<JSize> callSync_cxx(jni::alias_ref<JSize> size);
+    jni::local_ref<JTypedPromise<jni::local_ref<margelo::nitro::test::JSize>>> callAsync_cxx(jni::alias_ref<JSize> size);
+    void callAndForget_cxx(jni::alias_ref<JSize> size);
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+
+  private:
     friend HybridBase;
-    explicit JCallback_Size_Size_cxx(CallbackType callback, bool isInline);
-    JNICallbackState<jni::local_ref<margelo::nitro::test::JSize>(jni::local_ref<margelo::nitro::test::JSize>)> _state;
+    explicit JCallback_Size_Size(CallbackType callback);
   };
 
 } // namespace margelo::nitro::test

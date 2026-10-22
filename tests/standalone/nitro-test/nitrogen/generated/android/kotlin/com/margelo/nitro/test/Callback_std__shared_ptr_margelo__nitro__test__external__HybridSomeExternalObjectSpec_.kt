@@ -11,37 +11,15 @@ import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
+import com.margelo.nitro.core.Callback
+import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.CxxCallback
+import com.margelo.nitro.core.callSync
 
 /**
- * Represents the JavaScript callback `() => std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>`.
- * This can be either implemented in C++ (in which case it might be a callback coming from JS),
- * or in Kotlin/Java (in which case it is a native callback).
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType")
-fun interface Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_: () -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
-  /**
-   * Call the given JS callback.
-   * @throws Throwable if the JS function itself throws an error, or if the JS function/runtime has already been deleted.
-   */
-  @DoNotStrip
-  @Keep
-  override fun invoke(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
-
-  // JNI uses this signature to avoid erased FunctionN and unsigned value types.
-  @DoNotStrip
-  @Keep
-  fun invoke_jni(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
-    val __result = invoke()
-    return __result
-  }
-}
-
-/**
- * Represents the JavaScript callback `() => std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>`.
- * This is implemented in C++, via a `Callback<...>`.
- * The callback might be coming from JS.
+ * The JNI representation of `Callback<() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>`, for the JavaScript callback `() => std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>`.
+ * It holds a C++ `Callback<...>`, which calls either a JS function or a native function.
+ * Use `Callback<() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>` instead of this class in your code.
  */
 @DoNotStrip
 @Keep
@@ -49,42 +27,69 @@ fun interface Callback_std__shared_ptr_margelo__nitro__test__external__HybridSom
   "KotlinJniMissingFunction", "unused",
   "RedundantSuppression", "RedundantUnitReturnType", "FunctionName",
   "ConvertSecondaryConstructorToPrimary", "ClassName", "LocalVariableName",
+  "PARAMETER_NAME_CHANGED_ON_OVERRIDE",
 )
-class Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__cxx: Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ {
-  @DoNotStrip
-  @Keep
-  private val mHybridData: HybridData
+class Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ @DoNotStrip @Keep private constructor(hybridData: HybridData): CxxCallback(hybridData), Callback.Arity0<com.margelo.nitro.test.external.HybridSomeExternalObjectSpec> {
+  override fun callSync(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
+    return callSync_cxx()
+  }
 
+  override fun callAsync(): Promise<com.margelo.nitro.test.external.HybridSomeExternalObjectSpec> {
+    return callAsync_cxx()
+  }
+
+  override fun callAndForget(): Unit {
+    callAndForget_cxx()
+  }
+
+  /**
+   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   */
   @DoNotStrip
   @Keep
-  private constructor(hybridData: HybridData) {
-    mHybridData = hybridData
+  private class Function_cxx(private val callback: Callback<() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>) {
+    @DoNotStrip
+    @Keep
+    fun call(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
+      return this.callback.callSync()
+    }
   }
 
   @DoNotStrip
   @Keep
-  override fun invoke(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
-    val __result = invoke_cxx()
-    return __result
-  }
+  private external fun callSync_cxx(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 
   @DoNotStrip
   @Keep
-  private external fun invoke_cxx(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
-}
+  private external fun callAsync_cxx(): Promise<com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>
 
-/**
- * Represents the JavaScript callback `() => std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec>`.
- * This is implemented in Java/Kotlin, via a `() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec`.
- * The callback is always coming from native.
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType", "unused")
-class Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__java(private val callback: () -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec): Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ {
   @DoNotStrip
   @Keep
-  override fun invoke(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
-    return this.callback()
+  private external fun callAndForget_cxx(): Unit
+
+  companion object {
+    /**
+     * Returns the given [callback] as its JNI representation.
+     * A callback from another module keeps its C++ `Callback<...>`, and
+     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     */
+    @JvmStatic
+    fun fromKotlin(callback: Callback<() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>): Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ {
+      return when (callback) {
+        is Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ -> callback
+        is CxxCallback -> fromCxx_cxx(callback)
+        else -> fromFunction_cxx(Function_cxx(callback))
+      }
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromCxx_cxx(callback: CxxCallback): Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromFunction_cxx(function: Function_cxx): Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_
   }
 }

@@ -9,7 +9,7 @@
 
 #include <fbjni/fbjni.h>
 #include <NitroModules/JSIConverter.hpp>
-#include <NitroTest/private/JVariant_______Unit_Double.hpp>
+#include <NitroTest/private/JVariant_Callback_______Unit__Double.hpp>
 #include <NitroTest/private/JCallback_void.hpp>
 #include <NitroModules/JNIConverter+Callback.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
@@ -25,14 +25,14 @@ namespace margelo::nitro::test {
   struct JOptionalCallback final : public jni::JavaClass<JOptionalCallback> {
     static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/OptionalCallback;";
 
-    static jni::local_ref<JOptionalCallback> create(jni::alias_ref<JOptional<JVariant_______Unit_Double>> callback) {
+    static jni::local_ref<JOptionalCallback> create(jni::alias_ref<JOptional<JVariant_Callback_______Unit__Double>> callback) {
       static const auto clazz = javaClassStatic();
-      static const auto create = clazz->getStaticMethod<JOptionalCallback(jni::alias_ref<JOptional<JVariant_______Unit_Double>>)>("fromCpp");
+      static const auto create = clazz->getStaticMethod<JOptionalCallback(jni::alias_ref<JOptional<JVariant_Callback_______Unit__Double>>)>("fromCpp");
       return create(clazz, callback);
     }
 
-    jni::local_ref<JOptional<JVariant_______Unit_Double>> getCallback() const {
-      static const auto field = javaClassStatic()->getField<JOptional<JVariant_______Unit_Double>>("callback");
+    jni::local_ref<JOptional<JVariant_Callback_______Unit__Double>> getCallback() const {
+      static const auto field = javaClassStatic()->getField<JOptional<JVariant_Callback_______Unit__Double>>("callback");
       return getFieldValue(field);
     }
   };

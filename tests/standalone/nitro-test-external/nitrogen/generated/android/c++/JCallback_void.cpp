@@ -6,26 +6,50 @@
 ///
 
 #include <NitroTestExternal/private/JCallback_void.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test::external {
 
-  JNIRetainedValue<void>::Type JCallback_void::invoke() const {
-    static const auto __method = javaClassStatic()->getMethod<void()>("invoke_jni");
+  JNIRetainedValue<void>::Type JCallback_void::JFunction_cxx::invoke() const {
+    static const auto __method = javaClassStatic()->getMethod<void()>("call");
     __method(self());
   }
 
-  jni::local_ref<JCallback_void> JCallback_void_cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_void::JavaPart> JCallback_void::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  void JCallback_void_cxx::invoke_cxx() {
-    return _state.invoke();
+  void JCallback_void::callSync_cxx() {
+    return callSync();
   }
 
-  void JCallback_void_cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_void_cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<void>> JCallback_void::callAsync_cxx() {
+    return callAsync<JTypedPromise<void>>();
   }
 
-  JCallback_void_cxx::JCallback_void_cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_void::callAndForget_cxx() {
+    callAndForget();
+  }
+
+  jni::local_ref<JCallback_void::JavaPart> JCallback_void::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    return create(getCallback(callback));
+  }
+
+  jni::local_ref<JCallback_void::JavaPart> JCallback_void::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_void::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_void::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_void::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_void::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_void::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_void::fromFunction_cxx),
+    });
+  }
+
+  JCallback_void::JCallback_void(CallbackType callback) : HybridBase(std::move(callback)) {}
 
 } // namespace margelo::nitro::test::external

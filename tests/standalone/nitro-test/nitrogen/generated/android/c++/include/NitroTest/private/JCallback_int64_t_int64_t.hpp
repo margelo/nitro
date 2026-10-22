@@ -7,39 +7,47 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
   namespace jni = facebook::jni;
 
-  class JCallback_int64_t_int64_t_cxx;
-
-  struct JCallback_int64_t_int64_t : jni::JavaClass<JCallback_int64_t_int64_t> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_int64_t_int64_t;";
-    using CxxPart = JCallback_int64_t_int64_t_cxx;
-    using NativeSignature = JNICallbackState<jlong(jlong)>::Signature;
-
-    JNIRetainedValue<jlong>::Type invoke(JNIRetainedValue<jlong>::Type value) const;
-  };
-
-  class JCallback_int64_t_int64_t_cxx final : public jni::HybridClass<JCallback_int64_t_int64_t_cxx, JCallback_int64_t_int64_t> {
+  /**
+   * The C++ part of the Kotlin `Callback_int64_t_int64_t`, which holds a `Callback<...>` in `JNICallback`.
+   */
+  class JCallback_int64_t_int64_t final : public jni::HybridClass<JCallback_int64_t_int64_t, JNICallback<jlong(jlong)>> {
   public:
-    using CallbackType = Callback<JCallback_int64_t_int64_t::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_int64_t_int64_t_cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_int64_t_int64_t;";
 
-    static jni::local_ref<JCallback_int64_t_int64_t> create(CallbackType callback, bool isInline);
-    jlong invoke_cxx(jlong value);
-    const CallbackType& getCallback() const { return _state.getCallback(); }
+    /**
+     * The Kotlin `Callback_int64_t_int64_t.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_int64_t_int64_t$Function_cxx;";
+      JNIRetainedValue<jlong>::Type invoke(JNIRetainedValue<jlong>::Type value) const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     static void registerNatives();
 
   private:
+    jlong callSync_cxx(jlong value);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JLong>>> callAsync_cxx(jlong value);
+    void callAndForget_cxx(jlong value);
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+
+  private:
     friend HybridBase;
-    explicit JCallback_int64_t_int64_t_cxx(CallbackType callback, bool isInline);
-    JNICallbackState<jlong(jlong)> _state;
+    explicit JCallback_int64_t_int64_t(CallbackType callback);
   };
 
 } // namespace margelo::nitro::test

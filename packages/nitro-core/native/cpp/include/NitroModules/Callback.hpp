@@ -179,11 +179,17 @@ private:
       return dispatcher->runAsyncAwaitable([&runtime, function = _function, ... args = std::move(args)]() mutable -> R {
         assertFunctionNotNull(function);
 
-        if constexpr (std::is_void_v<R>) {
-          function->call(runtime, JSIConverter<std::decay_t<Args>>::toJSI(runtime, std::forward<Args>(args))...);
-        } else {
-          jsi::Value result = function->call(runtime, JSIConverter<std::decay_t<Args>>::toJSI(runtime, std::forward<Args>(args))...);
-          return JSIConverter<R>::fromJSI(runtime, result);
+        try {
+          if constexpr (std::is_void_v<R>) {
+            function->call(runtime, JSIConverter<std::decay_t<Args>>::toJSI(runtime, std::forward<Args>(args))...);
+          } else {
+            jsi::Value result = function->call(runtime, JSIConverter<std::decay_t<Args>>::toJSI(runtime, std::forward<Args>(args))...);
+            return JSIConverter<R>::fromJSI(runtime, result);
+          }
+        } catch (const jsi::JSError& error) {
+          // A JSError holds a JS value, but the rejected Promise can outlive the Runtime,
+          // e.g. in a garbage-collected Kotlin Promise. Keep only its message.
+          throw std::runtime_error(error.what());
         }
       });
     }

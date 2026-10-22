@@ -11,6 +11,7 @@ import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import dalvik.annotation.optimization.FastNative
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.test.external.HybridTestView
 import com.margelo.nitro.core.HybridObject
 import com.margelo.nitro.views.HybridView
@@ -34,12 +35,12 @@ abstract class HybridTestViewSpec: HybridView() {
   @set:Keep
   abstract var isBlue: Boolean
 
-  abstract var someCallback: () -> Unit
+  abstract var someCallback: Callback<() -> Unit>
 
   @DoNotStrip
   @Keep
   private fun getSomeCallback_cxx(): Callback_void {
-    return this.someCallback.let { if (it is Callback_void) it else Callback_void_java(it) }
+    return Callback_void.fromKotlin(this.someCallback)
   }
 
   @DoNotStrip

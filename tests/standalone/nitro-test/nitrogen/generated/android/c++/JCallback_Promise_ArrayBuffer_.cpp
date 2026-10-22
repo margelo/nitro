@@ -14,24 +14,46 @@
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>>>::Type JCallback_Promise_ArrayBuffer_::invoke() const {
-    static const auto __method = javaClassStatic()->getMethod<jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>>()>("invoke_jni");
+  JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>>>::Type JCallback_Promise_ArrayBuffer_::JFunction_cxx::invoke() const {
+    static const auto __method = javaClassStatic()->getMethod<jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>>()>("call");
     auto result = __method(self());
     return JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>>>::retain(result);
   }
 
-  jni::local_ref<JCallback_Promise_ArrayBuffer_> JCallback_Promise_ArrayBuffer__cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_Promise_ArrayBuffer_::JavaPart> JCallback_Promise_ArrayBuffer_::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>> JCallback_Promise_ArrayBuffer__cxx::invoke_cxx() {
-    return _state.invoke();
+  jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>> JCallback_Promise_ArrayBuffer_::callSync_cxx() {
+    return callSync();
   }
 
-  void JCallback_Promise_ArrayBuffer__cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_Promise_ArrayBuffer__cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>>>> JCallback_Promise_ArrayBuffer_::callAsync_cxx() {
+    return callAsync<JTypedPromise<jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>>>>();
   }
 
-  JCallback_Promise_ArrayBuffer__cxx::JCallback_Promise_ArrayBuffer__cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_Promise_ArrayBuffer_::callAndForget_cxx() {
+    callAndForget();
+  }
+
+  jni::local_ref<JCallback_Promise_ArrayBuffer_::JavaPart> JCallback_Promise_ArrayBuffer_::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    return create(getCallback(callback));
+  }
+
+  jni::local_ref<JCallback_Promise_ArrayBuffer_::JavaPart> JCallback_Promise_ArrayBuffer_::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_Promise_ArrayBuffer_::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_Promise_ArrayBuffer_::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_Promise_ArrayBuffer_::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_Promise_ArrayBuffer_::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_Promise_ArrayBuffer_::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_Promise_ArrayBuffer_::fromFunction_cxx),
+    });
+  }
+
+  JCallback_Promise_ArrayBuffer_::JCallback_Promise_ArrayBuffer_(CallbackType callback) : HybridBase(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

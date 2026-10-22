@@ -9,11 +9,12 @@ package com.margelo.nitro.test
 
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.core.ArrayBuffer
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.AnyJSON
 
 /**
- * Represents the TypeScript variant "ArrayBuffer | (value: Double) -> Unit | WrappedJsStruct | Promise<Double> | AnyJSON".
+ * Represents the TypeScript variant "ArrayBuffer | Callback<(value: Double) -> Unit> | WrappedJsStruct | Promise<Double> | AnyJSON".
  */
 @Suppress("ClassName")
 @DoNotStrip
@@ -41,7 +42,7 @@ sealed class CoreTypesVariant private constructor(@DoNotStrip private val index:
   inline fun <reified T> isType(): Boolean {
     return asType<T>() != null
   }
-  inline fun <R> match(first: (ArrayBuffer) -> R, second: ((value: Double) -> Unit) -> R, third: (WrappedJsStruct) -> R, fourth: (Promise<Double>) -> R, fifth: (AnyJSON) -> R): R {
+  inline fun <R> match(first: (ArrayBuffer) -> R, second: (Callback<(value: Double) -> Unit>) -> R, third: (WrappedJsStruct) -> R, fourth: (Promise<Double>) -> R, fifth: (AnyJSON) -> R): R {
     return when (this) {
       is First -> first(value)
       is Second -> second(value)
@@ -66,7 +67,7 @@ sealed class CoreTypesVariant private constructor(@DoNotStrip private val index:
     val value = (this as? First)?.value ?: return null
     return value
   }
-  fun asSecondOrNull(): ((value: Double) -> Unit)? {
+  fun asSecondOrNull(): Callback<(value: Double) -> Unit>? {
     val value = (this as? Second)?.value ?: return null
     return value
   }
@@ -85,6 +86,7 @@ sealed class CoreTypesVariant private constructor(@DoNotStrip private val index:
 
   companion object {
     @JvmStatic
+    @JvmName("createFirst")
     @DoNotStrip
     fun create(value: ArrayBuffer): CoreTypesVariant = First(value)
 
@@ -92,13 +94,15 @@ sealed class CoreTypesVariant private constructor(@DoNotStrip private val index:
     @DoNotStrip
     private fun fromCpp_0(value: ArrayBuffer): CoreTypesVariant = First(value)
     @JvmStatic
+    @JvmName("createSecond")
     @DoNotStrip
-    fun create(value: (value: Double) -> Unit): CoreTypesVariant = Second(value.let { if (it is Callback_void_double) it else Callback_void_double_java(it) })
+    fun create(value: Callback<(value: Double) -> Unit>): CoreTypesVariant = Second(Callback_void_double.fromKotlin(value))
 
     @JvmStatic
     @DoNotStrip
     private fun fromCpp_1(value: Callback_void_double): CoreTypesVariant = Second(value)
     @JvmStatic
+    @JvmName("createThird")
     @DoNotStrip
     fun create(value: WrappedJsStruct): CoreTypesVariant = Third(value)
 
@@ -106,6 +110,7 @@ sealed class CoreTypesVariant private constructor(@DoNotStrip private val index:
     @DoNotStrip
     private fun fromCpp_2(value: WrappedJsStruct): CoreTypesVariant = Third(value)
     @JvmStatic
+    @JvmName("createFourth")
     @DoNotStrip
     fun create(value: Promise<Double>): CoreTypesVariant = Fourth(value)
 
@@ -113,6 +118,7 @@ sealed class CoreTypesVariant private constructor(@DoNotStrip private val index:
     @DoNotStrip
     private fun fromCpp_3(value: Promise<Double>): CoreTypesVariant = Fourth(value)
     @JvmStatic
+    @JvmName("createFifth")
     @DoNotStrip
     fun create(value: AnyJSON): CoreTypesVariant = Fifth(value)
 

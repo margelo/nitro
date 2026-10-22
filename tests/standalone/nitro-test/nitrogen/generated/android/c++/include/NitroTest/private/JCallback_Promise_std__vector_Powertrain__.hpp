@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
 #include <NitroTest/private/JPowertrain.hpp>
@@ -19,30 +20,35 @@ namespace margelo::nitro::test {
 
   namespace jni = facebook::jni;
 
-  class JCallback_Promise_std__vector_Powertrain___cxx;
-
-  struct JCallback_Promise_std__vector_Powertrain__ : jni::JavaClass<JCallback_Promise_std__vector_Powertrain__> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Promise_std__vector_Powertrain__;";
-    using CxxPart = JCallback_Promise_std__vector_Powertrain___cxx;
-    using NativeSignature = JNICallbackState<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>()>::Signature;
-
-    JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>>::Type invoke() const;
-  };
-
-  class JCallback_Promise_std__vector_Powertrain___cxx final : public jni::HybridClass<JCallback_Promise_std__vector_Powertrain___cxx, JCallback_Promise_std__vector_Powertrain__> {
+  /**
+   * The C++ part of the Kotlin `Callback_Promise_std__vector_Powertrain__`, which holds a `Callback<...>` in `JNICallback`.
+   */
+  class JCallback_Promise_std__vector_Powertrain__ final : public jni::HybridClass<JCallback_Promise_std__vector_Powertrain__, JNICallback<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>()>> {
   public:
-    using CallbackType = Callback<JCallback_Promise_std__vector_Powertrain__::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Promise_std__vector_Powertrain___cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Promise_std__vector_Powertrain__;";
 
-    static jni::local_ref<JCallback_Promise_std__vector_Powertrain__> create(CallbackType callback, bool isInline);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>> invoke_cxx();
-    const CallbackType& getCallback() const { return _state.getCallback(); }
+    /**
+     * The Kotlin `Callback_Promise_std__vector_Powertrain__.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_Promise_std__vector_Powertrain__$Function_cxx;";
+      JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>>::Type invoke() const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     static void registerNatives();
 
   private:
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>> callSync_cxx();
+    jni::local_ref<JTypedPromise<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>>> callAsync_cxx();
+    void callAndForget_cxx();
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+
+  private:
     friend HybridBase;
-    explicit JCallback_Promise_std__vector_Powertrain___cxx(CallbackType callback, bool isInline);
-    JNICallbackState<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>()> _state;
+    explicit JCallback_Promise_std__vector_Powertrain__(CallbackType callback);
   };
 
 } // namespace margelo::nitro::test

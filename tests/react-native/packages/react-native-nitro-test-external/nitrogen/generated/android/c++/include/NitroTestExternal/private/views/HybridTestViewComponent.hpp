@@ -50,7 +50,7 @@ namespace margelo::nitro::test::external::views {
 
   public:
     nitro::ReactProp<jboolean> isBlue;
-    nitro::ReactProp<jni::global_ref<margelo::nitro::test::external::JCallback_void>> someCallback;
+    nitro::ReactProp<jni::global_ref<margelo::nitro::test::external::JCallback_void::JavaPart>> someCallback;
     nitro::ReactProp<std::optional<Callback<void(const std::shared_ptr<HybridObject>& /* ref */)>>> hybridRef;
 
     [[nodiscard]]

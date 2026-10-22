@@ -53,6 +53,7 @@ sealed class Variant_Person_Car private constructor(@DoNotStrip private val inde
 
   companion object {
     @JvmStatic
+    @JvmName("createFirst")
     @DoNotStrip
     fun create(value: Person): Variant_Person_Car = First(value)
 
@@ -60,6 +61,7 @@ sealed class Variant_Person_Car private constructor(@DoNotStrip private val inde
     @DoNotStrip
     private fun fromCpp_0(value: Person): Variant_Person_Car = First(value)
     @JvmStatic
+    @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Car): Variant_Person_Car = Second(value)
 

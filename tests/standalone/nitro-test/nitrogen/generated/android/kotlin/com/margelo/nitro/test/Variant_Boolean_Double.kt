@@ -53,6 +53,7 @@ sealed class Variant_Boolean_Double private constructor(@DoNotStrip private val 
 
   companion object {
     @JvmStatic
+    @JvmName("createFirst")
     @DoNotStrip
     fun create(value: Boolean): Variant_Boolean_Double = First(value)
 
@@ -60,6 +61,7 @@ sealed class Variant_Boolean_Double private constructor(@DoNotStrip private val 
     @DoNotStrip
     private fun fromCpp_0(value: Boolean): Variant_Boolean_Double = First(value)
     @JvmStatic
+    @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Double): Variant_Boolean_Double = Second(value)
 

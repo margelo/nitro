@@ -11,6 +11,7 @@ import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import dalvik.annotation.optimization.FastNative
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -26,12 +27,12 @@ import com.margelo.nitro.core.HybridObject
 )
 abstract class HybridSomeExternalObjectSpec: HybridObject() {
   // Properties
-  abstract var numberCallback: (value: Double) -> Unit
+  abstract var numberCallback: Callback<(value: Double) -> Unit>
 
   @DoNotStrip
   @Keep
   private fun getNumberCallback_cxx(): Callback_void_double {
-    return this.numberCallback.let { if (it is Callback_void_double) it else Callback_void_double_java(it) }
+    return Callback_void_double.fromKotlin(this.numberCallback)
   }
 
   @DoNotStrip

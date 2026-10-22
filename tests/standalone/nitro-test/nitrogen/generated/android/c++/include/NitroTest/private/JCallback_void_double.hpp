@@ -7,8 +7,11 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
 
@@ -16,30 +19,35 @@ namespace margelo::nitro::test {
 
   namespace jni = facebook::jni;
 
-  class JCallback_void_double_cxx;
-
-  struct JCallback_void_double : jni::JavaClass<JCallback_void_double> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_double;";
-    using CxxPart = JCallback_void_double_cxx;
-    using NativeSignature = JNICallbackState<void(jdouble)>::Signature;
-
-    JNIRetainedValue<void>::Type invoke(JNIRetainedValue<jdouble>::Type value) const;
-  };
-
-  class JCallback_void_double_cxx final : public jni::HybridClass<JCallback_void_double_cxx, JCallback_void_double> {
+  /**
+   * The C++ part of the Kotlin `Callback_void_double`, which holds a `Callback<...>` in `JNICallback`.
+   */
+  class JCallback_void_double final : public jni::HybridClass<JCallback_void_double, JNICallback<void(jdouble)>> {
   public:
-    using CallbackType = Callback<JCallback_void_double::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_double_cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_double;";
 
-    static jni::local_ref<JCallback_void_double> create(CallbackType callback, bool isInline);
-    void invoke_cxx(jdouble value);
-    const CallbackType& getCallback() const { return _state.getCallback(); }
+    /**
+     * The Kotlin `Callback_void_double.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_double$Function_cxx;";
+      JNIRetainedValue<void>::Type invoke(JNIRetainedValue<jdouble>::Type value) const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     static void registerNatives();
 
   private:
+    void callSync_cxx(jdouble value);
+    jni::local_ref<JTypedPromise<void>> callAsync_cxx(jdouble value);
+    void callAndForget_cxx(jdouble value);
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+
+  private:
     friend HybridBase;
-    explicit JCallback_void_double_cxx(CallbackType callback, bool isInline);
-    JNICallbackState<void(jdouble)> _state;
+    explicit JCallback_void_double(CallbackType callback);
   };
 
 } // namespace margelo::nitro::test

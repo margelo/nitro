@@ -100,7 +100,7 @@ namespace margelo::nitro::test {
     jni::local_ref<JVariant_Double_String> passVariant(const jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>& either);
     jni::local_ref<JArrayBuffer::JavaPart> bounceArrayBuffer(const jni::local_ref<JArrayBuffer::JavaPart>& buffer);
     jni::local_ref<JArrayBuffer::JavaPart> copyBuffer(const jni::local_ref<JArrayBuffer::JavaPart>& buffer);
-    jdouble callbackSync(const jni::local_ref<margelo::nitro::test::JCallback_double>& callback);
+    jdouble callbackSync(const jni::local_ref<margelo::nitro::test::JCallback_double::JavaPart>& callback);
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> promiseReturnsInstantly();
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> createPendingPromise();
     void resolvePendingPromiseOnWorker();

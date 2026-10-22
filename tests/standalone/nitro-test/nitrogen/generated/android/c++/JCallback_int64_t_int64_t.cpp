@@ -8,27 +8,51 @@
 #include <NitroTest/private/JCallback_int64_t_int64_t.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<jlong>::Type JCallback_int64_t_int64_t::invoke(JNIRetainedValue<jlong>::Type value) const {
-    static const auto __method = javaClassStatic()->getMethod<jlong(jlong)>("invoke_jni");
+  JNIRetainedValue<jlong>::Type JCallback_int64_t_int64_t::JFunction_cxx::invoke(JNIRetainedValue<jlong>::Type value) const {
+    static const auto __method = javaClassStatic()->getMethod<jlong(jlong)>("call");
     auto result = __method(self(), JNIRetainedValue<jlong>::borrow(value));
     return JNIRetainedValue<jlong>::retain(result);
   }
 
-  jni::local_ref<JCallback_int64_t_int64_t> JCallback_int64_t_int64_t_cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_int64_t_int64_t::JavaPart> JCallback_int64_t_int64_t::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  jlong JCallback_int64_t_int64_t_cxx::invoke_cxx(jlong value) {
-    return _state.invoke(value);
+  jlong JCallback_int64_t_int64_t::callSync_cxx(jlong value) {
+    return callSync(value);
   }
 
-  void JCallback_int64_t_int64_t_cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_int64_t_int64_t_cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<jni::local_ref<jni::JLong>>> JCallback_int64_t_int64_t::callAsync_cxx(jlong value) {
+    return callAsync<JTypedPromise<jni::local_ref<jni::JLong>>>(value);
   }
 
-  JCallback_int64_t_int64_t_cxx::JCallback_int64_t_int64_t_cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_int64_t_int64_t::callAndForget_cxx(jlong value) {
+    callAndForget(value);
+  }
+
+  jni::local_ref<JCallback_int64_t_int64_t::JavaPart> JCallback_int64_t_int64_t::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    return create(getCallback(callback));
+  }
+
+  jni::local_ref<JCallback_int64_t_int64_t::JavaPart> JCallback_int64_t_int64_t::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_int64_t_int64_t::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_int64_t_int64_t::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_int64_t_int64_t::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_int64_t_int64_t::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_int64_t_int64_t::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_int64_t_int64_t::fromFunction_cxx),
+    });
+  }
+
+  JCallback_int64_t_int64_t::JCallback_int64_t_int64_t(CallbackType callback) : HybridBase(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

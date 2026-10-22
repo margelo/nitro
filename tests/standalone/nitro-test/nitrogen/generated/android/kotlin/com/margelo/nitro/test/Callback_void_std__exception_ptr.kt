@@ -10,37 +10,15 @@ package com.margelo.nitro.test
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-
-
-/**
- * Represents the JavaScript callback `(error: error) => void`.
- * This can be either implemented in C++ (in which case it might be a callback coming from JS),
- * or in Kotlin/Java (in which case it is a native callback).
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType")
-fun interface Callback_void_std__exception_ptr: (Throwable) -> Unit {
-  /**
-   * Call the given JS callback.
-   * @throws Throwable if the JS function itself throws an error, or if the JS function/runtime has already been deleted.
-   */
-  @DoNotStrip
-  @Keep
-  override fun invoke(error: Throwable): Unit
-
-  // JNI uses this signature to avoid erased FunctionN and unsigned value types.
-  @DoNotStrip
-  @Keep
-  fun invoke_jni(error: Throwable): Unit {
-    invoke(error)
-  }
-}
+import com.margelo.nitro.core.Callback
+import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.CxxCallback
+import com.margelo.nitro.core.callSync
 
 /**
- * Represents the JavaScript callback `(error: error) => void`.
- * This is implemented in C++, via a `Callback<...>`.
- * The callback might be coming from JS.
+ * The JNI representation of `Callback<(error: Throwable) -> Unit>`, for the JavaScript callback `(error: error) => void`.
+ * It holds a C++ `Callback<...>`, which calls either a JS function or a native function.
+ * Use `Callback<(error: Throwable) -> Unit>` instead of this class in your code.
  */
 @DoNotStrip
 @Keep
@@ -48,41 +26,69 @@ fun interface Callback_void_std__exception_ptr: (Throwable) -> Unit {
   "KotlinJniMissingFunction", "unused",
   "RedundantSuppression", "RedundantUnitReturnType", "FunctionName",
   "ConvertSecondaryConstructorToPrimary", "ClassName", "LocalVariableName",
+  "PARAMETER_NAME_CHANGED_ON_OVERRIDE",
 )
-class Callback_void_std__exception_ptr_cxx: Callback_void_std__exception_ptr {
-  @DoNotStrip
-  @Keep
-  private val mHybridData: HybridData
+class Callback_void_std__exception_ptr @DoNotStrip @Keep private constructor(hybridData: HybridData): CxxCallback(hybridData), Callback.Arity1<Throwable, Unit> {
+  override fun callSync(error: Throwable): Unit {
+    callSync_cxx(error)
+  }
 
+  override fun callAsync(error: Throwable): Promise<Unit> {
+    return callAsync_cxx(error)
+  }
+
+  override fun callAndForget(error: Throwable): Unit {
+    callAndForget_cxx(error)
+  }
+
+  /**
+   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   */
   @DoNotStrip
   @Keep
-  private constructor(hybridData: HybridData) {
-    mHybridData = hybridData
+  private class Function_cxx(private val callback: Callback<(error: Throwable) -> Unit>) {
+    @DoNotStrip
+    @Keep
+    fun call(error: Throwable): Unit {
+      this.callback.callSync(error)
+    }
   }
 
   @DoNotStrip
   @Keep
-  override fun invoke(error: Throwable): Unit {
-    invoke_cxx(error)
-  }
+  private external fun callSync_cxx(error: Throwable): Unit
 
   @DoNotStrip
   @Keep
-  private external fun invoke_cxx(error: Throwable): Unit
-}
+  private external fun callAsync_cxx(error: Throwable): Promise<Unit>
 
-/**
- * Represents the JavaScript callback `(error: error) => void`.
- * This is implemented in Java/Kotlin, via a `(Throwable) -> Unit`.
- * The callback is always coming from native.
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType", "unused")
-class Callback_void_std__exception_ptr_java(private val callback: (Throwable) -> Unit): Callback_void_std__exception_ptr {
   @DoNotStrip
   @Keep
-  override fun invoke(error: Throwable): Unit {
-    return this.callback(error)
+  private external fun callAndForget_cxx(error: Throwable): Unit
+
+  companion object {
+    /**
+     * Returns the given [callback] as its JNI representation.
+     * A callback from another module keeps its C++ `Callback<...>`, and
+     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     */
+    @JvmStatic
+    fun fromKotlin(callback: Callback<(error: Throwable) -> Unit>): Callback_void_std__exception_ptr {
+      return when (callback) {
+        is Callback_void_std__exception_ptr -> callback
+        is CxxCallback -> fromCxx_cxx(callback)
+        else -> fromFunction_cxx(Function_cxx(callback))
+      }
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromCxx_cxx(callback: CxxCallback): Callback_void_std__exception_ptr
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromFunction_cxx(function: Function_cxx): Callback_void_std__exception_ptr
   }
 }

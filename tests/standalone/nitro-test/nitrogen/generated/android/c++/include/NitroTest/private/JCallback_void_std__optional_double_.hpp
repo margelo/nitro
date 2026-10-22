@@ -7,8 +7,11 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
 #include <NitroModules/JNIConverter+Optional.hpp>
@@ -18,30 +21,35 @@ namespace margelo::nitro::test {
 
   namespace jni = facebook::jni;
 
-  class JCallback_void_std__optional_double__cxx;
-
-  struct JCallback_void_std__optional_double_ : jni::JavaClass<JCallback_void_std__optional_double_> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_std__optional_double_;";
-    using CxxPart = JCallback_void_std__optional_double__cxx;
-    using NativeSignature = JNICallbackState<void(jni::local_ref<JOptional<jni::JDouble>>)>::Signature;
-
-    JNIRetainedValue<void>::Type invoke(JNIRetainedValue<jni::local_ref<JOptional<jni::JDouble>>>::Type maybe) const;
-  };
-
-  class JCallback_void_std__optional_double__cxx final : public jni::HybridClass<JCallback_void_std__optional_double__cxx, JCallback_void_std__optional_double_> {
+  /**
+   * The C++ part of the Kotlin `Callback_void_std__optional_double_`, which holds a `Callback<...>` in `JNICallback`.
+   */
+  class JCallback_void_std__optional_double_ final : public jni::HybridClass<JCallback_void_std__optional_double_, JNICallback<void(jni::local_ref<JOptional<jni::JDouble>>)>> {
   public:
-    using CallbackType = Callback<JCallback_void_std__optional_double_::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_std__optional_double__cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_std__optional_double_;";
 
-    static jni::local_ref<JCallback_void_std__optional_double_> create(CallbackType callback, bool isInline);
-    void invoke_cxx(jni::alias_ref<JOptional<jni::JDouble>> maybe);
-    const CallbackType& getCallback() const { return _state.getCallback(); }
+    /**
+     * The Kotlin `Callback_void_std__optional_double_.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_std__optional_double_$Function_cxx;";
+      JNIRetainedValue<void>::Type invoke(JNIRetainedValue<jni::local_ref<JOptional<jni::JDouble>>>::Type maybe) const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     static void registerNatives();
 
   private:
+    void callSync_cxx(jni::alias_ref<JOptional<jni::JDouble>> maybe);
+    jni::local_ref<JTypedPromise<void>> callAsync_cxx(jni::alias_ref<JOptional<jni::JDouble>> maybe);
+    void callAndForget_cxx(jni::alias_ref<JOptional<jni::JDouble>> maybe);
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+
+  private:
     friend HybridBase;
-    explicit JCallback_void_std__optional_double__cxx(CallbackType callback, bool isInline);
-    JNICallbackState<void(jni::local_ref<JOptional<jni::JDouble>>)> _state;
+    explicit JCallback_void_std__optional_double_(CallbackType callback);
   };
 
 } // namespace margelo::nitro::test

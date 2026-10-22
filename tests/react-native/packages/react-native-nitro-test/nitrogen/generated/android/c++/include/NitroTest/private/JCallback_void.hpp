@@ -7,38 +7,45 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
-
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
   namespace jni = facebook::jni;
 
-  class JCallback_void_cxx;
-
-  struct JCallback_void : jni::JavaClass<JCallback_void> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void;";
-    using CxxPart = JCallback_void_cxx;
-    using NativeSignature = JNICallbackState<void()>::Signature;
-
-    JNIRetainedValue<void>::Type invoke() const;
-  };
-
-  class JCallback_void_cxx final : public jni::HybridClass<JCallback_void_cxx, JCallback_void> {
+  /**
+   * The C++ part of the Kotlin `Callback_void`, which holds a `Callback<...>` in `JNICallback`.
+   */
+  class JCallback_void final : public jni::HybridClass<JCallback_void, JNICallback<void()>> {
   public:
-    using CallbackType = Callback<JCallback_void::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void_cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void;";
 
-    static jni::local_ref<JCallback_void> create(CallbackType callback, bool isInline);
-    void invoke_cxx();
-    const CallbackType& getCallback() const { return _state.getCallback(); }
+    /**
+     * The Kotlin `Callback_void.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void$Function_cxx;";
+      JNIRetainedValue<void>::Type invoke() const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     static void registerNatives();
 
   private:
+    void callSync_cxx();
+    jni::local_ref<JTypedPromise<void>> callAsync_cxx();
+    void callAndForget_cxx();
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+
+  private:
     friend HybridBase;
-    explicit JCallback_void_cxx(CallbackType callback, bool isInline);
-    JNICallbackState<void()> _state;
+    explicit JCallback_void(CallbackType callback);
   };
 
 } // namespace margelo::nitro::test

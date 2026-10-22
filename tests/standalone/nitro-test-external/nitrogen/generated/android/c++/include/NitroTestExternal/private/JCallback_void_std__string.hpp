@@ -7,8 +7,11 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
 
@@ -16,30 +19,35 @@ namespace margelo::nitro::test::external {
 
   namespace jni = facebook::jni;
 
-  class JCallback_void_std__string_cxx;
-
-  struct JCallback_void_std__string : jni::JavaClass<JCallback_void_std__string> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/Callback_void_std__string;";
-    using CxxPart = JCallback_void_std__string_cxx;
-    using NativeSignature = JNICallbackState<void(jni::local_ref<jni::JString>)>::Signature;
-
-    JNIRetainedValue<void>::Type invoke(JNIRetainedValue<jni::local_ref<jni::JString>>::Type value) const;
-  };
-
-  class JCallback_void_std__string_cxx final : public jni::HybridClass<JCallback_void_std__string_cxx, JCallback_void_std__string> {
+  /**
+   * The C++ part of the Kotlin `Callback_void_std__string`, which holds a `Callback<...>` in `JNICallback`.
+   */
+  class JCallback_void_std__string final : public jni::HybridClass<JCallback_void_std__string, JNICallback<void(jni::local_ref<jni::JString>)>> {
   public:
-    using CallbackType = Callback<JCallback_void_std__string::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/Callback_void_std__string_cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/Callback_void_std__string;";
 
-    static jni::local_ref<JCallback_void_std__string> create(CallbackType callback, bool isInline);
-    void invoke_cxx(jni::alias_ref<jni::JString> value);
-    const CallbackType& getCallback() const { return _state.getCallback(); }
+    /**
+     * The Kotlin `Callback_void_std__string.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/Callback_void_std__string$Function_cxx;";
+      JNIRetainedValue<void>::Type invoke(JNIRetainedValue<jni::local_ref<jni::JString>>::Type value) const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     static void registerNatives();
 
   private:
+    void callSync_cxx(jni::alias_ref<jni::JString> value);
+    jni::local_ref<JTypedPromise<void>> callAsync_cxx(jni::alias_ref<jni::JString> value);
+    void callAndForget_cxx(jni::alias_ref<jni::JString> value);
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+
+  private:
     friend HybridBase;
-    explicit JCallback_void_std__string_cxx(CallbackType callback, bool isInline);
-    JNICallbackState<void(jni::local_ref<jni::JString>)> _state;
+    explicit JCallback_void_std__string(CallbackType callback);
   };
 
 } // namespace margelo::nitro::test::external

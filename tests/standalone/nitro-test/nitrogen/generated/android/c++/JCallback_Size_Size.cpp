@@ -7,27 +7,51 @@
 
 #include <NitroTest/private/JCallback_Size_Size.hpp>
 #include <NitroTest/private/JSize.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::Type JCallback_Size_Size::invoke(JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::Type size) const {
-    static const auto __method = javaClassStatic()->getMethod<jni::local_ref<JSize>(jni::alias_ref<JSize>)>("invoke_jni");
+  JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::Type JCallback_Size_Size::JFunction_cxx::invoke(JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::Type size) const {
+    static const auto __method = javaClassStatic()->getMethod<jni::local_ref<JSize>(jni::alias_ref<JSize>)>("call");
     auto result = __method(self(), JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::borrow(size));
     return JNIRetainedValue<jni::local_ref<margelo::nitro::test::JSize>>::retain(result);
   }
 
-  jni::local_ref<JCallback_Size_Size> JCallback_Size_Size_cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_Size_Size::JavaPart> JCallback_Size_Size::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  jni::local_ref<JSize> JCallback_Size_Size_cxx::invoke_cxx(jni::alias_ref<JSize> size) {
-    return _state.invoke(size);
+  jni::local_ref<JSize> JCallback_Size_Size::callSync_cxx(jni::alias_ref<JSize> size) {
+    return callSync(size);
   }
 
-  void JCallback_Size_Size_cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_Size_Size_cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<jni::local_ref<margelo::nitro::test::JSize>>> JCallback_Size_Size::callAsync_cxx(jni::alias_ref<JSize> size) {
+    return callAsync<JTypedPromise<jni::local_ref<margelo::nitro::test::JSize>>>(size);
   }
 
-  JCallback_Size_Size_cxx::JCallback_Size_Size_cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_Size_Size::callAndForget_cxx(jni::alias_ref<JSize> size) {
+    callAndForget(size);
+  }
+
+  jni::local_ref<JCallback_Size_Size::JavaPart> JCallback_Size_Size::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    return create(getCallback(callback));
+  }
+
+  jni::local_ref<JCallback_Size_Size::JavaPart> JCallback_Size_Size::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_Size_Size::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_Size_Size::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_Size_Size::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_Size_Size::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_Size_Size::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_Size_Size::fromFunction_cxx),
+    });
+  }
+
+  JCallback_Size_Size::JCallback_Size_Size(CallbackType callback) : HybridBase(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

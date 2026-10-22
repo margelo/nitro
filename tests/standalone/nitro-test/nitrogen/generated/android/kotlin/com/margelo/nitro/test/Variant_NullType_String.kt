@@ -53,6 +53,7 @@ sealed class Variant_NullType_String private constructor(@DoNotStrip private val
 
   companion object {
     @JvmStatic
+    @JvmName("createFirst")
     @DoNotStrip
     fun create(value: NullType): Variant_NullType_String = First(value)
 
@@ -60,6 +61,7 @@ sealed class Variant_NullType_String private constructor(@DoNotStrip private val
     @DoNotStrip
     private fun fromCpp_0(value: NullType): Variant_NullType_String = First(value)
     @JvmStatic
+    @JvmName("createSecond")
     @DoNotStrip
     fun create(value: String): Variant_NullType_String = Second(value)
 

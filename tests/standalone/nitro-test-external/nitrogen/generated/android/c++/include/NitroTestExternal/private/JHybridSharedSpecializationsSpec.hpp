@@ -25,7 +25,6 @@
 #include <NitroTestExternal/private/JCallback_double_double.hpp>
 #include <NitroTestExternal/private/JCallback_Promise_void_.hpp>
 #include <NitroTestExternal/private/JCallback_Promise_double_.hpp>
-#include <NitroModules/JSIConverter+JInlineCallback.hpp>
 #include <NitroTestExternal/private/JHybridSharedSpecializationsSpec.hpp>
 #include <memory>
 #include <NitroModules/JNIConverter+HybridObject.hpp>
@@ -76,8 +75,8 @@ namespace margelo::nitro::test::external {
 
   public:
     // Properties
-    jni::local_ref<margelo::nitro::test::external::JCallback_void_double> getNumberCallback();
-    void setNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double>& numberCallback);
+    jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> getNumberCallback();
+    void setNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>& numberCallback);
 
   public:
     // Methods
@@ -86,15 +85,15 @@ namespace margelo::nitro::test::external {
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JString>>> resolveString(const jni::local_ref<jni::JString>& value);
     jni::local_ref<JTypedPromise<void>> awaitVoid(const jni::local_ref<JTypedPromise<void>>& promise);
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> awaitNumber(const jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>& promise);
-    void callVoid(const jni::local_ref<margelo::nitro::test::external::JCallback_void>& callback);
-    void callWithNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_void_double>& callback);
-    void callWithString(const jni::local_ref<jni::JString>& value, const jni::local_ref<margelo::nitro::test::external::JCallback_void_std__string>& callback);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> mapNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_double_double>& callback);
-    jni::local_ref<margelo::nitro::test::external::JCallback_void_double> wrapNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double>& callback);
-    jni::local_ref<JTypedPromise<void>> callVoidPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_void_>& callback);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callNumberPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_double_>& callback);
-    void callInline(const jni::local_ref<margelo::nitro::JInlineCallback<margelo::nitro::test::external::JCallback_void>>& callback);
-    jdouble callInlineWithNumber(jdouble value, const jni::local_ref<margelo::nitro::JInlineCallback<margelo::nitro::test::external::JCallback_double_double>>& callback);
+    void callVoid(const jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart>& callback);
+    void callWithNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>& callback);
+    void callWithString(const jni::local_ref<jni::JString>& value, const jni::local_ref<margelo::nitro::test::external::JCallback_void_std__string::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> mapNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_double_double::JavaPart>& callback);
+    jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> wrapNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<void>> callVoidPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_void_::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callNumberPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_double_::JavaPart>& callback);
+    void callInline(const jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart>& callback);
+    jdouble callInlineWithNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_double_double::JavaPart>& callback);
 
   public:
     // Constructor and static members

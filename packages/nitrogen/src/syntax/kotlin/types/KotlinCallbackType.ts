@@ -18,9 +18,12 @@ import {
   type KotlinType,
 } from './KotlinType.js'
 
+/** nitro-core defines `Callback.Arity0` to `Callback.Arity22`, so a Kotlin callback has at most 22 parameters. */
+const MAX_KOTLIN_CALLBACK_PARAMETERS = 22
+
 /**
- * JNI represents a callback as a Kotlin `fun interface`.
- * C++ callbacks implement it in `<name>_cxx`, and Kotlin lambdas in `<name>_java`.
+ * Kotlin APIs use the generic `Callback<(...) -> R>`. JNI uses the generated
+ * `<name>` class, which holds the C++ `Callback<...>` and implements `Callback<(...) -> R>`.
  */
 export class KotlinCallbackType extends CallbackType implements KotlinType {
   override readonly returnType: KotlinType
@@ -32,6 +35,11 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
     readonly type: CallbackType,
     readonly config: NitroConfig = NitroConfig.current
   ) {
+    if (type.parameters.length > MAX_KOTLIN_CALLBACK_PARAMETERS) {
+      throw new Error(
+        `The callback \`${type.jsName}\` has ${type.parameters.length} parameters, but Kotlin callbacks support at most ${MAX_KOTLIN_CALLBACK_PARAMETERS}.`
+      )
+    }
     const returnType = wrapKotlinType(type.returnType, { config: config })
     const parameters = type.parameters.map((p) => new KotlinNamedType(p.name, wrapKotlinType(p, { config: config })))
     super(returnType, parameters, type.isInline)
@@ -39,7 +47,7 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
     this.parameters = parameters
   }
 
-  /** The interface name, derived from the C++ callback signature. */
+  /** The generated class name, derived from the C++ callback signature. */
   override get specializationName(): string {
     return this.type.specializationName
   }
@@ -54,7 +62,7 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
     switch (language) {
       case 'kotlin':
         if (from === 'kotlin') {
-          return `${value}.let { if (it is ${this.specializationName}) it else ${this.specializationName}_java(it) }`
+          return `${this.specializationName}.fromKotlin(${value})`
         }
         return value
       case 'c++': {
@@ -76,12 +84,9 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
   override getCode(language: Language, options: GetKotlinCodeOptions): string {
     switch (language) {
       case 'c++': {
+        // Kotlin has no borrowed callbacks, so `Inline<...>` uses the same escaped type.
         const jniClass = this.config.getCxxNamespace('c++', this.jniName)
-        if (this.isBorrowed(options)) {
-          // Kotlin can retain the callback, but JS Inline calls must stay synchronous.
-          return getJniReferenceCode(`margelo::nitro::JInlineCallback<${jniClass}>`, options)
-        }
-        return getJniReferenceCode(jniClass, options)
+        return getJniReferenceCode(`${jniClass}::JavaPart`, options)
       }
       case 'kotlin':
         return this.specializationName
@@ -90,17 +95,12 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
     }
   }
 
-  getJniCode(options: GetKotlinCodeOptions): string {
-    const jniClass = this.config.getCxxNamespace('c++', this.jniName)
-    return getJniReferenceCode(jniClass, options)
-  }
-
   getJniNativeRegistrations(): readonly JNINativeRegistration[] {
     if (this.config.isExternalConfig) return []
     return [
       {
         namespace: this.config.getCxxNamespace('c++').split('::'),
-        className: `${this.jniName}_cxx`,
+        className: this.jniName,
         import: {
           language: 'c++',
           declaration: this.config.getCxxHeader(`${this.jniName}.hpp`, 'private'),
@@ -143,12 +143,6 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
             },
           }
         )
-        if (this.isInline) {
-          imports.push({
-            language: language,
-            declaration: { header: 'NitroModules/JSIConverter+JInlineCallback.hpp', space: 'system' },
-          })
-        }
         break
     }
     imports.push(...this.returnType.getRequiredImports(language), ...this.parameters.flatMap((p) => p.getRequiredImports(language)))

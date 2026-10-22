@@ -1,7 +1,8 @@
 package com.margelo.nitro.test
 
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.Promise
-import com.margelo.nitro.core.resolved
+import com.margelo.nitro.core.invoke
 
 class HybridGrandchild : HybridGrandchildSpec() {
   companion object : HybridGrandchildSpec.Companion {
@@ -21,9 +22,9 @@ class HybridGrandchild : HybridGrandchildSpec() {
 
   override fun mapSize(
     size: Size,
-    callback: (Size) -> Size,
+    callback: Callback<(size: Size) -> Size>,
   ): Promise<Size> {
-    return Promise.resolved(callback(size))
+    return callback(size)
   }
 
   override fun bounceVariant(variant: NamedVariant): NamedVariant = variant

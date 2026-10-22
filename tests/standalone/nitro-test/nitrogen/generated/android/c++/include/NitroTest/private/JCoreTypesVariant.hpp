@@ -64,9 +64,9 @@ namespace margelo::nitro::test {
     class Second final : public jni::JavaClass<Second, JCoreTypesVariant> {
     public:
       static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/CoreTypesVariant$Second;";
-      using Value = jni::local_ref<margelo::nitro::test::JCallback_void_double>;
+      using Value = jni::local_ref<margelo::nitro::test::JCallback_void_double::JavaPart>;
 
-      static jni::local_ref<JCoreTypesVariant> create(jni::alias_ref<margelo::nitro::test::JCallback_void_double> value);
+      static jni::local_ref<JCoreTypesVariant> create(jni::alias_ref<margelo::nitro::test::JCallback_void_double::JavaPart> value);
       [[nodiscard]] Value getValue() const;
     };
 
