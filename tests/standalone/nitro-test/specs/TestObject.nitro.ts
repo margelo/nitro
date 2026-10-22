@@ -63,6 +63,13 @@ export type Person = {
   age: number
 }
 
+// A struct of numbers and a boolean that static methods pass by value.
+export interface StaticPoint {
+  x: number
+  y: number
+  visible: boolean
+}
+
 export interface UnsignedScalar {
   value: UInt64
 }
@@ -156,6 +163,13 @@ export declare class TestObjectCpp extends HybridObject {
 
   static readonly readonlyNumber: number
   static sharedNumber: number
+
+  // Test Static Methods
+  static staticAdd(a: number, b: number): number
+  static staticNegate(value: boolean): boolean
+  static staticConcat(a: string, b: string): string
+  static staticBouncePoint(point: StaticPoint): StaticPoint
+  static staticThrow(message: string): void
 
   // Test Primitives
   computedValue: number
@@ -419,6 +433,13 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
 
   static readonly readonlyNumber: number
   static sharedNumber: number
+
+  // Test Static Methods
+  static staticAdd(a: number, b: number): number
+  static staticNegate(value: boolean): boolean
+  static staticConcat(a: string, b: string): string
+  static staticBouncePoint(point: StaticPoint): StaticPoint
+  static staticThrow(message: string): void
 
   // Test Primitives
   computedValue: number

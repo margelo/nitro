@@ -170,7 +170,11 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridTestObjectSwiftK
   static var sharedNumber: Double { get set }
 
   // Static Methods
-
+  static func staticAdd(a: Double, b: Double) throws -> Double
+  static func staticNegate(value: Bool) throws -> Bool
+  static func staticConcat(a: String, b: String) throws -> String
+  static func staticBouncePoint(point: StaticPoint) throws -> StaticPoint
+  static func staticThrow(message: String) throws -> Void
 }
 
 public extension HybridTestObjectSwiftKotlinSpec_protocol {

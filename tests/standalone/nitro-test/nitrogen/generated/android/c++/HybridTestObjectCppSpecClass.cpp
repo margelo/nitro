@@ -49,6 +49,7 @@
 #include <NitroTest/ExternalObjectStruct.hpp>
 #include <NitroModules/HybridObject.hpp>
 #include "CustomString.hpp"
+#include <NitroTest/StaticPoint.hpp>
 #include <NitroTest/HybridPlatformObjectSpecCxx.hpp>
 #include <utility>
 #include "HybridTestObjectCpp.hpp"
@@ -63,6 +64,26 @@ namespace margelo::nitro::test {
         static_assert(std::is_constructible_v<::margelo::nitro::test::HybridTestObjectCpp, decltype(nativeFactory)>,
                       "TestObjectCpp: ::margelo::nitro::test::HybridTestObjectCpp must implement the declared public constructor.");
         return std::make_shared<::margelo::nitro::test::HybridTestObjectCpp>(std::forward<decltype(nativeFactory)>(nativeFactory));
+      }
+
+      static double staticAdd(double a, double b) {
+        return ::margelo::nitro::test::HybridTestObjectCpp::staticAdd(std::forward<decltype(a)>(a), std::forward<decltype(b)>(b));
+      }
+
+      static bool staticNegate(bool value) {
+        return ::margelo::nitro::test::HybridTestObjectCpp::staticNegate(std::forward<decltype(value)>(value));
+      }
+
+      static std::string staticConcat(const std::string& a, const std::string& b) {
+        return ::margelo::nitro::test::HybridTestObjectCpp::staticConcat(std::forward<decltype(a)>(a), std::forward<decltype(b)>(b));
+      }
+
+      static StaticPoint staticBouncePoint(const StaticPoint& point) {
+        return ::margelo::nitro::test::HybridTestObjectCpp::staticBouncePoint(std::forward<decltype(point)>(point));
+      }
+
+      static void staticThrow(const std::string& message) {
+        return ::margelo::nitro::test::HybridTestObjectCpp::staticThrow(std::forward<decltype(message)>(message));
       }
 
       static double getReadonlyNumber() {
@@ -256,6 +277,11 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("bounceAnyHybrid", &HybridTestObjectCppSpec::bounceAnyHybrid);
       clazz.registerHybridMethod("bounceCustomType", &HybridTestObjectCppSpec::bounceCustomType);
       clazz.registerHybridConstructor(&HybridTestObjectCppSpecBindings::constructor);
+      clazz.registerStaticHybridMethod("staticAdd", &HybridTestObjectCppSpecBindings::staticAdd);
+      clazz.registerStaticHybridMethod("staticNegate", &HybridTestObjectCppSpecBindings::staticNegate);
+      clazz.registerStaticHybridMethod("staticConcat", &HybridTestObjectCppSpecBindings::staticConcat);
+      clazz.registerStaticHybridMethod("staticBouncePoint", &HybridTestObjectCppSpecBindings::staticBouncePoint);
+      clazz.registerStaticHybridMethod("staticThrow", &HybridTestObjectCppSpecBindings::staticThrow);
       clazz.registerStaticHybridProperty("readonlyNumber", &HybridTestObjectCppSpecBindings::getReadonlyNumber);
       clazz.registerStaticHybridProperty("sharedNumber", &HybridTestObjectCppSpecBindings::getSharedNumber, &HybridTestObjectCppSpecBindings::setSharedNumber);
     });
