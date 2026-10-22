@@ -91,11 +91,11 @@ Create a `nitro.json` file in the root directory of your Nitro Module (next to `
   "$schema": "https://nitro.margelo.com/nitro.schema.json",
   "cxxNamespace": ["math"],
   "apple": {
-    "appleModuleName": "NitroMath"
+    "moduleName": "NitroMath"
   },
   "android": {
-    "androidNamespace": ["math"],
-    "androidCxxLibName": "NitroMath"
+    "namespace": ["math"],
+    "cxxLibName": "NitroMath"
   }
 }
 ```
@@ -273,7 +273,7 @@ Add `swiftpmConfig` to your library's `package.json` so React Native links the g
 }
 ```
 
-`name` must match `apple.appleModuleName` in `nitro.json`. Add the npm names of any other Nitro modules your library depends on to
+`name` must match `apple.moduleName` in `nitro.json`. Add the npm names of any other Nitro modules your library depends on to
 `dependencies`.
 
 Keep a `.podspec` with your library's metadata so React Native CLI can discover the iOS dependency, as in the

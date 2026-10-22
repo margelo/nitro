@@ -3,11 +3,11 @@
   "environment": "react-native",
   "cxxNamespace": ["test", "external"],
   "apple": {
-    "appleModuleName": "NitroTestExternal"
+    "moduleName": "NitroTestExternal"
   },
   "android": {
-    "androidNamespace": ["test", "external"],
-    "androidCxxLibName": "NitroTestExternal"
+    "namespace": ["test", "external"],
+    "cxxLibName": "NitroTestExternal"
   },
   "ignorePaths": ["**/node_modules"]
 }

@@ -3,11 +3,11 @@
   "environment": "bare",
   "cxxNamespace": ["test"],
   "apple": {
-    "appleModuleName": "NitroTest"
+    "moduleName": "NitroTest"
   },
   "android": {
-    "androidNamespace": ["test"],
-    "androidCxxLibName": "NitroTest"
+    "namespace": ["test"],
+    "cxxLibName": "NitroTest"
   },
   "ignorePaths": ["**/node_modules", "**/build"]
 }

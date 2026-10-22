@@ -36,7 +36,7 @@ export class NitroConfig {
    * @example `NitroTest`
    */
   getAndroidCxxLibName(): string {
-    return this.config.android.androidCxxLibName
+    return this.config.android.cxxLibName
   }
 
   /**
@@ -44,7 +44,7 @@ export class NitroConfig {
    * @example `NitroTest`
    */
   getAppleModuleName(): string {
-    return this.config.apple.appleModuleName
+    return this.config.apple.moduleName
   }
 
   /** Returns the registry key for a HybridObject in this module. */
@@ -76,7 +76,7 @@ export class NitroConfig {
    * @example `['image']` -> `com.margelo.nitro.image`
    */
   getAndroidPackage(language: 'java/kotlin' | 'c++/jni', ...subPackage: string[]): string {
-    const userPackage = this.config.android.androidNamespace
+    const userPackage = this.config.android.namespace
     const namespace = [...ANDROID_BASE_NAMESPACE, ...userPackage, ...subPackage]
 
     switch (language) {
@@ -94,7 +94,7 @@ export class NitroConfig {
    * This will be used on android to put files from a package in their respective package folder.
    */
   getAndroidPackageDirectory(...subPackage: string[]): string[] {
-    const userPackage = this.config.android.androidNamespace
+    const userPackage = this.config.android.namespace
     return [...ANDROID_BASE_NAMESPACE, ...userPackage, ...subPackage]
   }
 

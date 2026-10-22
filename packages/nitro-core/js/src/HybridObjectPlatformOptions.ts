@@ -37,7 +37,7 @@ export interface CppHybridObjectImplementation {
  */
 export interface KotlinHybridObjectImplementation {
   /**
-   * The implementation's sub-package within the declaring spec's `androidNamespace` in nitro.json.
+   * The implementation's sub-package within the declaring spec's `android.namespace` in nitro.json.
    * Omit this or use an empty array to select that project's package.
    * @example ["internal"] // com.margelo.nitro.<project package>.internal
    */
@@ -77,7 +77,7 @@ export interface KotlinImplementedInterface {
    */
   interface: string
   /**
-   * The full package declaring the interface, not relative to `androidNamespace`.
+   * The full package declaring the interface, not relative to `android.namespace`.
    * For a nested interface, this includes its outer class, e.g. "android.view.SurfaceHolder".
    * The generated spec imports the interface from there.
    * @example "com.margelo.nitro.renderer"

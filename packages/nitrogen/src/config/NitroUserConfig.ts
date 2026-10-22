@@ -33,7 +33,7 @@ export const NitroUserConfigSchema = z.object({
      * Use the same name in the library's `swiftpmConfig` in package.json.
      * @example `NitroTest`
      */
-    appleModuleName: z.string().regex(safeNamePattern).refine(isNotReservedKeyword, isReservedKeywordError),
+    moduleName: z.string().regex(safeNamePattern).refine(isNotReservedKeyword, isReservedKeywordError),
   }),
   /**
    * Android specific options.
@@ -45,14 +45,14 @@ export const NitroUserConfigSchema = z.object({
      * This can have multiple sub-namespaces, and is always relative to `com.margelo.nitro`.
      * @example `['image']` -> `com.margelo.nitro.image`
      */
-    androidNamespace: z.array(z.string().regex(safeNamePattern).refine(isNotReservedKeyword, isReservedKeywordError)).min(1),
+    namespace: z.array(z.string().regex(safeNamePattern).refine(isNotReservedKeyword, isReservedKeywordError)).min(1),
 
     /**
      * Represents the name of the Android C++ library (aka name in CMakeLists.txt `add_library(..)`).
      * This will be loaded via `System.loadLibrary(...)`.
      * @example `NitroTest`
      */
-    androidCxxLibName: z.string().regex(safeNamePattern).refine(isNotReservedKeyword, isReservedKeywordError),
+    cxxLibName: z.string().regex(safeNamePattern).refine(isNotReservedKeyword, isReservedKeywordError),
   }),
   /**
    * A list of paths relative to the project directory that should be ignored by nitrogen.

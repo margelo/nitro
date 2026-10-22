@@ -29,9 +29,9 @@
     },
     "apple": {
       "type": "object",
-      "required": ["appleModuleName"],
+      "required": ["moduleName"],
       "properties": {
-        "appleModuleName": {
+        "moduleName": {
           "$ref": "#/definitions/name",
           "description": "Represents the Apple module name of the module that will be generated. It names the generated Swift module and SwiftPM library product. Use the same name in the library's `swiftpmConfig` in package.json."
         }
@@ -40,9 +40,9 @@
     },
     "android": {
       "type": "object",
-      "required": ["androidNamespace", "androidCxxLibName"],
+      "required": ["namespace", "cxxLibName"],
       "properties": {
-        "androidNamespace": {
+        "namespace": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/name"
@@ -50,7 +50,7 @@
           "minItems": 1,
           "description": "Represents the Android namespace ('package') of the module that will be generated. This can have multiple sub-namespaces, and is always relative to `com.margelo.nitro`."
         },
-        "androidCxxLibName": {
+        "cxxLibName": {
           "$ref": "#/definitions/name",
           "description": "Represents the name of the Android C++ library (aka name in CMakeLists.txt `add_library(..)`). This will be loaded via `System.loadLibrary(...)`."
         }

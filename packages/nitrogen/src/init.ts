@@ -35,9 +35,9 @@ export async function initNewNitroModule(baseDirectory: string, moduleName: stri
   }
 
   await replaceTemplate(modulePath, `cxxNamespace`, cxxNamespace)
-  await replaceTemplate(modulePath, `androidNamespace`, cxxNamespace)
-  await replaceTemplate(modulePath, `androidCxxLibName`, camelCaseName)
-  await replaceTemplate(modulePath, `appleModuleName`, camelCaseName)
+  await replaceTemplate(modulePath, `android.namespace`, cxxNamespace)
+  await replaceTemplate(modulePath, `android.cxxLibName`, camelCaseName)
+  await replaceTemplate(modulePath, `apple.moduleName`, camelCaseName)
   await replaceTemplate(modulePath, `packageName`, moduleName)
   await replaceTemplate(modulePath, `packageDescription`, moduleName)
   await replaceTemplate(modulePath, `nitroVersion`, NITROGEN_VERSION)

@@ -32,7 +32,7 @@ export function checkSwiftPMConfig(packageDirectory: string): void {
   if (swiftName !== moduleName) {
     Logger.warn(
       `⚠️  ${chalk.dim('package.json')} should set ${chalk.bold(`"swiftpmConfig": { "name": "${moduleName}" }`)} ` +
-        `(the \`appleModuleName\` in nitro.json), so React Native's Swift Package Manager autolinking links the \`${moduleName}\` product.`
+        `(\`apple.moduleName\` in nitro.json), so React Native's Swift Package Manager autolinking links the \`${moduleName}\` product.`
     )
   }
   const dependencies = packageJson.swiftpmConfig?.dependencies ?? []

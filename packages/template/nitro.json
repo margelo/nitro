@@ -3,11 +3,11 @@
   "environment": "react-native",
   "cxxNamespace": ["$$cxxNamespace$$"],
   "apple": {
-    "appleModuleName": "$$appleModuleName$$"
+    "moduleName": "$$appleModuleName$$"
   },
   "android": {
-    "androidNamespace": ["$$androidNamespace$$"],
-    "androidCxxLibName": "$$androidCxxLibName$$"
+    "namespace": ["$$androidNamespace$$"],
+    "cxxLibName": "$$androidCxxLibName$$"
   },
   "ignorePaths": ["**/node_modules"]
 }

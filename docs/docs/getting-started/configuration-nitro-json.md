@@ -16,11 +16,11 @@ description:
   "environment": "react-native",
   "cxxNamespace": ["$$cxxNamespace$$"],
   "apple": {
-    "appleModuleName": "$$appleModuleName$$"
+    "moduleName": "$$appleModuleName$$"
   },
   "android": {
-    "androidNamespace": ["$$androidNamespace$$"],
-    "androidCxxLibName": "$$androidCxxLibName$$"
+    "namespace": ["$$androidNamespace$$"],
+    "cxxLibName": "$$androidCxxLibName$$"
   },
   "ignorePaths": ["**/node_modules"]
 }
@@ -64,16 +64,16 @@ have multiple sub-namespaces:
 
 Settings for the Apple platforms: iOS, macOS, tvOS and visionOS.
 
-### `appleModuleName`
+### `moduleName`
 
-The `appleModuleName` names the generated Swift module and SwiftPM library product. Use the same name in your library's `swiftpmConfig`:
+The `moduleName` names the generated Swift module and SwiftPM library product. Use the same name in your library's `swiftpmConfig`:
 
 <div className="side-by-side-container">
   <div className="side-by-side-block">
   ```json
   {
     "apple": {
-      "appleModuleName": "NitroMath"
+      "moduleName": "NitroMath"
     }
   }
   ```
@@ -97,19 +97,19 @@ configuration.
 
 Settings specifically for the Android platform.
 
-### `androidNamespace`
+### `namespace`
 
-The `androidNamespace` represents the package namespace in which all Java/Kotlin files are generated and written in. Similar to the
-`cxxNamespace`, this is always relative to `com.margelo.nitro`, and can also have multiple sub-namespaces.
+The `namespace` represents the package namespace in which all Java/Kotlin files are generated and written in. Similar to the `cxxNamespace`,
+this is always relative to `com.margelo.nitro`, and can also have multiple sub-namespaces.
 
-In most cases, you should keep this in sync with the `namespace` specified in your `build.gradle`.
+In most cases, keep it in sync with the `namespace` in your `build.gradle`, which holds the full package (`com.margelo.nitro.math.extra`).
 
 <div className="side-by-side-container">
   <div className="side-by-side-block">
   ```json
   {
     "android": {
-      "androidNamespace": ["math", "extra"]
+      "namespace": ["math", "extra"]
     }
   }
   ```
@@ -124,9 +124,9 @@ In most cases, you should keep this in sync with the `namespace` specified in yo
 </div>
 </div>
 
-### `androidCxxLibName`
+### `cxxLibName`
 
-The `androidCxxLibName` represents the name of the native C++ library that JNI will load to connect Java/Kotlin to C++.
+The `cxxLibName` represents the name of the native C++ library that JNI will load to connect Java/Kotlin to C++.
 
 When this Nitro Module is using CMake, this is the same thing as the library defined in `CMakeLists.txt`.
 Nitro will load this library at runtime using `System.loadLibrary`.
@@ -136,7 +136,7 @@ Nitro will load this library at runtime using `System.loadLibrary`.
 ```json
 {
   "android": {
-    "androidCxxLibName": "NitroMath"
+    "cxxLibName": "NitroMath"
   }
 }
 ````
