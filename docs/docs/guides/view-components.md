@@ -37,6 +37,9 @@ export declare class CameraView extends HybridView {
 export * from '#nitro/CameraView'
 ```
 
+Each view must extend `HybridView` directly and select one concrete Swift or Kotlin implementation per platform. Leave
+`allowMultipleImplementations` omitted (false), and leave `allowInheritance` omitted or set it to `false`.
+
 Fabric creates the native view. Omit a public constructor from the spec.
 
 ### 2. Code Generation
@@ -94,6 +97,8 @@ Now it's time to implement the View - simply create a new Swift/Kotlin class/fil
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin title="HybridCameraView.kt"
     class HybridCameraView(val context: ThemedReactContext) : HybridCameraViewSpec() {
+      companion object : HybridCameraViewSpec.Companion {}
+
       // Props
       override var enableFlash: Boolean = false
 
@@ -212,6 +217,8 @@ To batch prop changes, you can override `beforeUpdate()` and `afterUpdate()` in 
   <TabItem value="kotlin" label="Kotlin">
     ```kotlin title="HybridCameraView.kt"
     class HybridCameraView(context: ThemedReactContext): HybridCameraViewSpec() {
+      companion object : HybridCameraViewSpec.Companion {}
+
       // View
       override val view: View = View(context)
 
@@ -263,6 +270,8 @@ For improved performance and lower memory footprint, Nitro Views can be _recycle
     import com.margelo.nitro.views.RecyclableView
 
     class HybridMyView: HybridMyViewSpec(), RecyclableView {
+      companion object : HybridMyViewSpec.Companion {}
+
       // ...
       override fun prepareForRecycle() {}
     }

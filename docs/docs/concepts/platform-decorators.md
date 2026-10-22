@@ -85,6 +85,8 @@ Now, ensure `HybridMath` is implemented:
     package com.margelo.nitro.math
 
     class HybridMath: HybridMathSpec() {
+      companion object : HybridMathSpec.Companion {}
+
       ...
     }
     ```
