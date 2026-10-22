@@ -1401,6 +1401,51 @@ namespace margelo::nitro::test {
     return ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::fromUnsafe(__result.value());
   }
 
+  // Static methods
+
+  double HybridTestObjectSwiftKotlinSpecSwift::staticAdd(double a, double b) {
+    auto __result = ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::staticAdd(a, b);
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  bool HybridTestObjectSwiftKotlinSpecSwift::staticNegate(bool value) {
+    auto __result = ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::staticNegate(value);
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  swift::String HybridTestObjectSwiftKotlinSpecSwift::staticConcat(const swift::String& a, const swift::String& b) {
+    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
+      return ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::staticConcat(a, b, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  ::NitroTest::StaticPoint HybridTestObjectSwiftKotlinSpecSwift::staticBouncePoint(const ::NitroTest::StaticPoint& point) {
+    auto __result = withSwiftResult<::NitroTest::StaticPoint>([&](void* __outResult) {
+      return ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::staticBouncePoint(point, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  void HybridTestObjectSwiftKotlinSpecSwift::staticThrow(const swift::String& message) {
+    auto __result = ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::staticThrow(message);
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+  }
+
   // Static properties
 
   double HybridTestObjectSwiftKotlinSpecSwift::getReadonlyNumber() {
@@ -1568,6 +1613,11 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("newTestObjectAsync", &HybridTestObjectSwiftKotlinSpecSwift::newTestObjectAsync);
       clazz.registerHybridMethod("getVariantHybrid", &HybridTestObjectSwiftKotlinSpecSwift::getVariantHybrid);
       clazz.registerHybridConstructor(&HybridTestObjectSwiftKotlinSpecSwift::constructor);
+      clazz.registerStaticHybridMethod("staticAdd", &HybridTestObjectSwiftKotlinSpecSwift::staticAdd);
+      clazz.registerStaticHybridMethod("staticNegate", &HybridTestObjectSwiftKotlinSpecSwift::staticNegate);
+      clazz.registerStaticHybridMethod("staticConcat", &HybridTestObjectSwiftKotlinSpecSwift::staticConcat);
+      clazz.registerStaticHybridMethod("staticBouncePoint", &HybridTestObjectSwiftKotlinSpecSwift::staticBouncePoint);
+      clazz.registerStaticHybridMethod("staticThrow", &HybridTestObjectSwiftKotlinSpecSwift::staticThrow);
     });
     return hybridClass;
   }

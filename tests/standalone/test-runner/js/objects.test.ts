@@ -90,6 +90,85 @@ export function registeredGrandchildConstructor(): void {
 
 type TestObjectConstructor = typeof TestObjectCpp | typeof TestObjectSwiftKotlin
 
+function staticMethodCases(Constructor: TestObjectConstructor) {
+  return {
+    'numbers and booleans round-trip': () => {
+      expect(Constructor.staticAdd(1.5, 2.25)).to.equal(3.75)
+      expect(Constructor.staticAdd(-1, 1)).to.equal(0)
+      expect(Constructor.staticAdd(Number.MAX_SAFE_INTEGER, 1)).to.equal(Number.MAX_SAFE_INTEGER + 1)
+      expect(Number.isNaN(Constructor.staticAdd(Number.NaN, 1))).to.equal(true)
+      expect(Constructor.staticNegate(true)).to.equal(false)
+      expect(Constructor.staticNegate(false)).to.equal(true)
+    },
+
+    'strings keep every character': () => {
+      expect(Constructor.staticConcat('hello ', 'world')).to.equal('hello world')
+      expect(Constructor.staticConcat('', '')).to.equal('')
+      expect(Constructor.staticConcat('h\u00e9llo ', 'w\u00f6rld \ud83d\ude00')).to.equal('h\u00e9llo w\u00f6rld \ud83d\ude00')
+      expect(Constructor.staticConcat('a\u0000b', 'c')).to.equal('a\u0000bc')
+    },
+
+    'long and runtime-built strings round-trip': () => {
+      const long = 'a'.repeat(300)
+      expect(Constructor.staticConcat(long, 'b'.repeat(300))).to.equal(long + 'b'.repeat(300))
+      const accented = '\u00e9'.repeat(40)
+      expect(Constructor.staticConcat(accented, 'x')).to.equal(accented + 'x')
+      // Strings built at runtime can be stored in several pieces.
+      const pieces = ['x', 'y', 'z'].join('-') + String(Math.random() >= 0)
+      expect(Constructor.staticConcat(pieces, 'q')).to.equal(pieces + 'q')
+    },
+
+    'structs round-trip': () => {
+      expect(Constructor.staticBouncePoint({ x: 1.5, y: -2, visible: true })).to.deep.equal({ x: 1.5, y: -2, visible: true })
+      const withGetter = {
+        get x() {
+          return 3
+        },
+        y: 4,
+        visible: false,
+        extra: 'ignored',
+      }
+      expect(Constructor.staticBouncePoint(withGetter)).to.deep.equal({ x: 3, y: 4, visible: false })
+    },
+
+    'functions work detached and from JavaScript subclasses': () => {
+      const add = Constructor.staticAdd
+      expect(add(2, 3)).to.equal(5)
+      expect(add.call(undefined, 4, 5)).to.equal(9)
+      class Subclass extends (Constructor as typeof TestObjectCpp) {}
+      expect(Subclass.staticAdd(1, 2)).to.equal(3)
+    },
+
+    'functions report their name and arity': () => {
+      expect(Constructor.staticAdd.name).to.equal('staticAdd')
+      expect(Constructor.staticAdd.length).to.equal(2)
+      expect(Constructor.staticBouncePoint.length).to.equal(1)
+    },
+
+    'invalid arguments throw': () => {
+      // @ts-expect-error - exercise native argument validation.
+      expect(() => Constructor.staticAdd('1', 2)).to.throw('staticAdd: ')
+      // @ts-expect-error - exercise native argument count validation.
+      expect(() => Constructor.staticAdd(1, 2, 3)).to.throw('arguments')
+      // @ts-expect-error - exercise native argument count validation.
+      expect(() => Constructor.staticAdd(1)).to.throw('arguments')
+      // @ts-expect-error - exercise native argument validation.
+      expect(() => Constructor.staticNegate(1)).to.throw('staticNegate: ')
+      // @ts-expect-error - exercise native argument validation.
+      expect(() => Constructor.staticConcat(1, 'b')).to.throw('staticConcat: ')
+      // @ts-expect-error - exercise native struct validation.
+      expect(() => Constructor.staticBouncePoint({ x: 1, y: 'a', visible: true })).to.throw('staticBouncePoint: ')
+      // @ts-expect-error - exercise native struct validation.
+      expect(() => Constructor.staticBouncePoint(undefined)).to.throw('staticBouncePoint: ')
+    },
+
+    'native errors carry the method name and message': () => {
+      expect(() => Constructor.staticThrow('Static methods can throw.')).to.throw('staticThrow: ')
+      expect(() => Constructor.staticThrow('Static methods can throw.')).to.throw('Static methods can throw.')
+    },
+  }
+}
+
 function staticPropertyCases(Constructor: TestObjectConstructor) {
   return {
     'readonlyNumber cannot be changed': () => {
@@ -747,6 +826,8 @@ export const cases = {
   }),
   ...namedCases('Static properties / TestObjectCpp', staticPropertyCases(TestObjectCpp)),
   ...namedCases('Static properties / TestObjectSwiftKotlin', staticPropertyCases(TestObjectSwiftKotlin)),
+  ...namedCases('Static methods / TestObjectCpp', staticMethodCases(TestObjectCpp)),
+  ...namedCases('Static methods / TestObjectSwiftKotlin', staticMethodCases(TestObjectSwiftKotlin)),
 }
 
 export const skips = {

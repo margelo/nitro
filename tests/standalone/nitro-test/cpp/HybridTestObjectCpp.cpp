@@ -45,6 +45,26 @@ void HybridTestObjectCpp::setSharedNumber(double value) {
   _sharedNumber.store(value, std::memory_order_relaxed);
 }
 
+double HybridTestObjectCpp::staticAdd(double a, double b) {
+  return a + b;
+}
+
+bool HybridTestObjectCpp::staticNegate(bool value) {
+  return !value;
+}
+
+std::string HybridTestObjectCpp::staticConcat(const std::string& a, const std::string& b) {
+  return a + b;
+}
+
+StaticPoint HybridTestObjectCpp::staticBouncePoint(const StaticPoint& point) {
+  return point;
+}
+
+void HybridTestObjectCpp::staticThrow(const std::string& message) {
+  throw std::runtime_error(message);
+}
+
 // Properties
 double HybridTestObjectCpp::getComputedValue() {
   return _computedValueStorage * 2;

@@ -836,6 +836,16 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     // Static Methods
     /** Creates an instance for JavaScript's `new TestObjectSwiftKotlin(...)`. */
     fun constructor(): HybridTestObjectKotlin
+
+    fun staticAdd(a: Double, b: Double): Double
+
+    fun staticNegate(value: Boolean): Boolean
+
+    fun staticConcat(a: String, b: String): String
+
+    fun staticBouncePoint(point: StaticPoint): StaticPoint
+
+    fun staticThrow(message: String): Unit
   }
 
   protected companion object Bridge {
@@ -851,6 +861,46 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     private fun constructor_cxx(): HybridTestObjectSwiftKotlinSpec {
       val __result = HybridTestObjectKotlin.constructor()
       return __result
+    }
+
+    // Static methods
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private fun staticAdd_cxx(a: Double, b: Double): Double {
+      val __result = HybridTestObjectKotlin.staticAdd(a, b)
+      return __result
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private fun staticNegate_cxx(value: Boolean): Boolean {
+      val __result = HybridTestObjectKotlin.staticNegate(value)
+      return __result
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private fun staticConcat_cxx(a: String, b: String): String {
+      val __result = HybridTestObjectKotlin.staticConcat(a, b)
+      return __result
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private fun staticBouncePoint_cxx(point: StaticPoint): StaticPoint {
+      val __result = HybridTestObjectKotlin.staticBouncePoint(point)
+      return __result
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private fun staticThrow_cxx(message: String): Unit {
+      HybridTestObjectKotlin.staticThrow(message)
     }
 
     // Static properties

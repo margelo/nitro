@@ -68,6 +68,7 @@
 #include <NitroTest/private/JStringOrExternal.hpp>
 #include <NitroTest/private/JCppOnlyValue.hpp>
 #include <NitroTest/private/JVariant_HybridTestObjectSwiftKotlinSpec_Person.hpp>
+#include <NitroTest/private/JStaticPoint.hpp>
 #include <NitroTest/private/JCallback_void_std__vector_Powertrain_.hpp>
 #include <NitroTest/private/JCallback_Promise_std__vector_Powertrain__.hpp>
 #include <NitroTest/private/JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___.hpp>
@@ -98,6 +99,35 @@ namespace margelo::nitro::test {
     static const auto __method = JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic()->getStaticMethod<jni::local_ref<JHybridTestObjectSwiftKotlinSpecJavaPart>()>("constructor_cxx");
     auto __result = __method(JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic());
     return JNIConverter<std::shared_ptr<JHybridTestObjectSwiftKotlinSpec>, jni::local_ref<JHybridTestObjectSwiftKotlinSpecJavaPart>>::fromJNI(__result);
+  }
+
+  jdouble JHybridTestObjectSwiftKotlinSpec::staticAdd(jdouble a, jdouble b) {
+    static const auto __method = JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic()->getStaticMethod<jdouble(jdouble /* a */, jdouble /* b */)>("staticAdd_cxx");
+    auto __result = __method(JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic(), a, b);
+    return __result;
+  }
+
+  jboolean JHybridTestObjectSwiftKotlinSpec::staticNegate(jboolean value) {
+    static const auto __method = JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic()->getStaticMethod<jboolean(jboolean /* value */)>("staticNegate_cxx");
+    auto __result = __method(JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic(), value);
+    return __result;
+  }
+
+  jni::local_ref<jni::JString> JHybridTestObjectSwiftKotlinSpec::staticConcat(const jni::local_ref<jni::JString>& a, const jni::local_ref<jni::JString>& b) {
+    static const auto __method = JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic()->getStaticMethod<jni::local_ref<jni::JString>(jni::alias_ref<jni::JString> /* a */, jni::alias_ref<jni::JString> /* b */)>("staticConcat_cxx");
+    auto __result = __method(JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic(), a, b);
+    return __result;
+  }
+
+  jni::local_ref<JStaticPoint> JHybridTestObjectSwiftKotlinSpec::staticBouncePoint(const jni::local_ref<JStaticPoint>& point) {
+    static const auto __method = JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic()->getStaticMethod<jni::local_ref<JStaticPoint>(jni::alias_ref<JStaticPoint> /* point */)>("staticBouncePoint_cxx");
+    auto __result = __method(JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic(), point);
+    return __result;
+  }
+
+  void JHybridTestObjectSwiftKotlinSpec::staticThrow(const jni::local_ref<jni::JString>& message) {
+    static const auto __method = JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic()->getStaticMethod<void(jni::alias_ref<jni::JString> /* message */)>("staticThrow_cxx");
+    __method(JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic(), message);
   }
 
   jdouble JHybridTestObjectSwiftKotlinSpec::getReadonlyNumber() {
@@ -268,6 +298,11 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("newTestObjectAsync", &JHybridTestObjectSwiftKotlinSpec::newTestObjectAsync);
       clazz.registerHybridMethod("getVariantHybrid", &JHybridTestObjectSwiftKotlinSpec::getVariantHybrid);
       clazz.registerHybridConstructor(&JHybridTestObjectSwiftKotlinSpec::constructor);
+      clazz.registerStaticHybridMethod("staticAdd", &JHybridTestObjectSwiftKotlinSpec::staticAdd);
+      clazz.registerStaticHybridMethod("staticNegate", &JHybridTestObjectSwiftKotlinSpec::staticNegate);
+      clazz.registerStaticHybridMethod("staticConcat", &JHybridTestObjectSwiftKotlinSpec::staticConcat);
+      clazz.registerStaticHybridMethod("staticBouncePoint", &JHybridTestObjectSwiftKotlinSpec::staticBouncePoint);
+      clazz.registerStaticHybridMethod("staticThrow", &JHybridTestObjectSwiftKotlinSpec::staticThrow);
       clazz.registerStaticHybridProperty("readonlyNumber", &JHybridTestObjectSwiftKotlinSpec::getReadonlyNumber);
       clazz.registerStaticHybridProperty("sharedNumber", &JHybridTestObjectSwiftKotlinSpec::getSharedNumber, &JHybridTestObjectSwiftKotlinSpec::setSharedNumber);
     });
