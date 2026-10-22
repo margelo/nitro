@@ -94,11 +94,18 @@ inline constexpr size_t kScratchSize = 256;
  */
 struct JavaContext final {
   JNIEnv* env = nullptr;
-  // A global reference to a direct `ByteBuffer` in native byte order over `scratch`.
+  // A global reference to a direct `ByteBuffer` in native byte order over `scratchData`.
   // Kotlin bridges write struct results into it, so C++ reads them without another JNI call.
   jobject scratchBuffer = nullptr;
   // A global reference to the `byte[]` Kotlin bridges read and write strings through.
   jbyteArray scratchBytes = nullptr;
+  // The memory of `scratchBuffer`. C++ writes a bridge's input strings here and reads its results.
+  uint8_t* scratchData = nullptr;
+  // The index of `scratchData` in `scratchBytes` when `scratchShared` is set, otherwise 0.
+  jint scratchBase = 0;
+  // Whether `scratchBytes` shares `scratchData`'s memory, so strings need no JNI copies.
+  bool scratchShared = false;
+  // The scratch memory if it is not shared with Java.
   alignas(8) uint8_t scratch[kScratchSize] = {};
 
   JavaContext() = default;
@@ -116,11 +123,23 @@ struct JavaContext final {
  */
 bool appendASCII(jsi::Runtime& runtime, const jsi::Value& value, JavaContext& context, size_t& offset, jint& length);
 
-/** Copies the first `length` scratch bytes to the scratch `byte[]` for a Kotlin bridge. */
-void copyScratchToJavaBytes(JavaContext& context, size_t length);
+void copyScratchToJavaBytesSlow(JavaContext& context, size_t length);
+void copyJavaBytesToScratchSlow(JavaContext& context, jint length);
+
+/** Makes the first `length` scratch bytes visible to a Kotlin bridge. This is free when the memory is shared. */
+inline void copyScratchToJavaBytes(JavaContext& context, size_t length) {
+  if (!context.scratchShared) [[unlikely]] {
+    copyScratchToJavaBytesSlow(context, length);
+  }
+}
 
 /** Creates a JavaScript string from the `length` ASCII bytes a Kotlin bridge wrote to the scratch `byte[]`. */
-jsi::Value stringFromJavaBytes(jsi::Runtime& runtime, JavaContext& context, jint length);
+inline jsi::Value stringFromJavaBytes(jsi::Runtime& runtime, JavaContext& context, jint length) {
+  if (!context.scratchShared) [[unlikely]] {
+    copyJavaBytesToScratchSlow(context, length);
+  }
+  return jsi::String::createFromAscii(runtime, reinterpret_cast<const char*>(context.scratchData), static_cast<size_t>(length));
+}
 
 /** Returns the string a Kotlin bridge kept in `DirectCall` because it was not ASCII or did not fit. */
 jsi::Value takePendingJavaString(jsi::Runtime& runtime, JavaContext& context);

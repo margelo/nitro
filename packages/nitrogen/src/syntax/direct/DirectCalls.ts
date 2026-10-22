@@ -481,6 +481,12 @@ function createKotlinBridge(implementationClassName: string, method: DirectMetho
   const kotlinStatements: string[] = []
   const kotlinArguments: string[] = []
   const cppCall: string[] = ['JavaContext& __java = *__context;']
+  if (usesBytes) {
+    // Where the scratch memory starts in the shared `byte[]`.
+    descriptors.push('I')
+    jvalues.push('i = __java.scratchBase')
+    kotlinParameters.push('__base: Int')
+  }
   const stringParameters = method.parameters.filter((parameter) => parameter.value.kind === 'string')
   if (stringParameters.length > 0) {
     const lengths = stringParameters.map((parameter) => `jint __${parameter.name}_length;`)
@@ -499,7 +505,7 @@ copyScratchToJavaBytes(__java, __offset);
 `.trim()
     )
   }
-  let stringOffset = '0'
+  let stringOffset = '__base'
   for (const parameter of method.parameters) {
     const value = parameter.value
     const local = getCppLocal(parameter)
@@ -521,7 +527,7 @@ copyScratchToJavaBytes(__java, __offset);
         kotlinStatements.push(
           `val ${parameter.name} = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, ${stringOffset}, ${length})`
         )
-        stringOffset = stringOffset === '0' ? length : `${stringOffset} + ${length}`
+        stringOffset = `${stringOffset} + ${length}`
         kotlinArguments.push(parameter.name)
         break
       }
@@ -583,7 +589,7 @@ copyScratchToJavaBytes(__java, __offset);
       returnDescriptor = 'I'
       kotlinReturn = ': Int'
       kotlinStatements.push(`val __result = ${invocation}`)
-      kotlinStatements.push('return com.margelo.nitro.core.DirectCall.writeASCII(__result, __bytes)')
+      kotlinStatements.push('return com.margelo.nitro.core.DirectCall.writeASCII(__result, __bytes, __base)')
       jniCall = `jint __length = __java.env->CallStaticIntMethodA(gDirectMethods.clazz, ${methodID}, ${jniArguments});`
       cppResult = `
 if (__length < 0) [[unlikely]] {
@@ -600,10 +606,10 @@ return stringFromJavaBytes(__runtime, __java, __length);
         const offset = fieldIndex * 8
         if (field.kind === 'number') {
           kotlinStatements.push(`__out.putDouble(${offset}, __result.${field.name})`)
-          reads.push(`double __result__${field.name};`, `memcpy(&__result__${field.name}, __java.scratch + ${offset}, sizeof(double));`)
+          reads.push(`double __result__${field.name};`, `memcpy(&__result__${field.name}, __java.scratchData + ${offset}, sizeof(double));`)
         } else {
           kotlinStatements.push(`__out.put(${offset}, (if (__result.${field.name}) 1 else 0).toByte())`)
-          reads.push(`bool __result__${field.name} = __java.scratch[${offset}] != 0;`)
+          reads.push(`bool __result__${field.name} = __java.scratchData[${offset}] != 0;`)
         }
       })
       jniCall = `__java.env->CallStaticVoidMethodA(gDirectMethods.clazz, ${methodID}, ${jniArguments});`
@@ -698,8 +704,8 @@ void resolveDirectMethods() {
 /**
  * The static entry points the direct JSI host functions in \`${jHybridTSpec}.cpp\` call through JNI.
  * They are real static methods, so each call reaches the implementation without companion accessors.
- * Strings arrive as ASCII in the Runtime's scratch \`byte[]\`, and struct results leave through the
- * Runtime's scratch \`ByteBuffer\`.
+ * Strings arrive as ASCII in the Runtime's scratch \`byte[]\` at \`__base\`, and struct results leave
+ * through the Runtime's scratch \`ByteBuffer\`.
  */
 @DoNotStrip
 @Keep

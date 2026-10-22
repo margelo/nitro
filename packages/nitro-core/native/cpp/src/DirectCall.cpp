@@ -73,8 +73,70 @@ namespace {
     return clazz;
   }
 
+  /**
+   * Uses a `ByteBuffer.allocateDirect()` buffer as the scratch memory if its backing `byte[]` shares the buffer's
+   * memory. ART backs direct buffers with non-movable arrays, so strings then need no `Set/GetByteArrayRegion`.
+   * A write in each direction checks the sharing, and any failure leaves the context on the copying path.
+   */
+  bool useSharedScratch(JNIEnv* env, JavaContext& context) {
+    jclass clazz = directCallClass(env);
+    static const jmethodID createScratch = env->GetStaticMethodID(clazz, "createScratch", "(I)Ljava/nio/ByteBuffer;");
+    jobject buffer = env->CallStaticObjectMethod(clazz, createScratch, static_cast<jint>(kScratchSize));
+    if (env->ExceptionCheck() || buffer == nullptr) {
+      env->ExceptionClear();
+      return false;
+    }
+    jclass bufferClass = env->GetObjectClass(buffer);
+    jmethodID hasArray = env->GetMethodID(bufferClass, "hasArray", "()Z");
+    jmethodID array = env->GetMethodID(bufferClass, "array", "()[B");
+    jmethodID arrayOffset = env->GetMethodID(bufferClass, "arrayOffset", "()I");
+    env->DeleteLocalRef(bufferClass);
+    auto* data = static_cast<uint8_t*>(env->GetDirectBufferAddress(buffer));
+    jlong capacity = env->GetDirectBufferCapacity(buffer);
+    if (data == nullptr || capacity < static_cast<jlong>(kScratchSize) || !env->CallBooleanMethod(buffer, hasArray) ||
+        env->ExceptionCheck()) {
+      env->ExceptionClear();
+      env->DeleteLocalRef(buffer);
+      return false;
+    }
+    auto bytes = static_cast<jbyteArray>(env->CallObjectMethod(buffer, array));
+    jint base = env->CallIntMethod(buffer, arrayOffset);
+    if (env->ExceptionCheck() || bytes == nullptr || base < 0 || env->GetArrayLength(bytes) - base < static_cast<jint>(kScratchSize)) {
+      env->ExceptionClear();
+      if (bytes != nullptr) {
+        env->DeleteLocalRef(bytes);
+      }
+      env->DeleteLocalRef(buffer);
+      return false;
+    }
+    // Check the sharing in both directions over the whole scratch area.
+    jbyte expected[kScratchSize];
+    jbyte actual[kScratchSize];
+    for (size_t i = 0; i < kScratchSize; i++) {
+      expected[i] = static_cast<jbyte>(0xA5 ^ i);
+      data[i] = static_cast<uint8_t>(expected[i]);
+    }
+    env->GetByteArrayRegion(bytes, base, static_cast<jsize>(kScratchSize), actual);
+    bool shared = memcmp(expected, actual, kScratchSize) == 0;
+    for (size_t i = 0; i < kScratchSize; i++) {
+      expected[i] = static_cast<jbyte>(0x5A ^ i);
+    }
+    env->SetByteArrayRegion(bytes, base, static_cast<jsize>(kScratchSize), expected);
+    shared = shared && memcmp(expected, data, kScratchSize) == 0;
+    if (shared) {
+      context.scratchBuffer = env->NewGlobalRef(buffer);
+      context.scratchBytes = static_cast<jbyteArray>(env->NewGlobalRef(bytes));
+      context.scratchData = data;
+      context.scratchBase = base;
+      context.scratchShared = true;
+    }
+    env->DeleteLocalRef(bytes);
+    env->DeleteLocalRef(buffer);
+    return shared;
+  }
+
   /** Wraps `JavaContext::scratch` in a direct `ByteBuffer`, with a separate `byte[]` that strings are copied through. */
-  void createScratch(JNIEnv* env, JavaContext& context) {
+  void useCopyingScratch(JNIEnv* env, JavaContext& context) {
     jobject buffer = env->NewDirectByteBuffer(context.scratch, sizeof(context.scratch));
     // Use native byte order, so Kotlin writes values the way C++ reads them.
     jclass bufferClass = env->GetObjectClass(buffer);
@@ -86,6 +148,9 @@ namespace {
     jbyteArray bytes = env->NewByteArray(sizeof(context.scratch));
     context.scratchBytes = static_cast<jbyteArray>(env->NewGlobalRef(bytes));
     context.scratchBuffer = env->NewGlobalRef(buffer);
+    context.scratchData = context.scratch;
+    context.scratchBase = 0;
+    context.scratchShared = false;
     env->DeleteLocalRef(bytes);
     env->DeleteLocalRef(order);
     env->DeleteLocalRef(orderClass);
@@ -115,14 +180,16 @@ std::shared_ptr<JavaContext> JavaContext::get(jsi::Runtime& runtime) {
     auto context = std::make_shared<JavaContext>();
     JNIEnv* env = facebook::jni::Environment::current();
     context->env = env;
-    createScratch(env, *context);
+    if (!useSharedScratch(env, *context)) {
+      useCopyingScratch(env, *context);
+    }
     return context;
   });
 }
 
 bool appendASCII(jsi::Runtime& runtime, const jsi::Value& value, JavaContext& context, size_t& offset, jint& length) {
   jsi::String string = value.getString(runtime);
-  uint8_t* target = context.scratch + offset;
+  uint8_t* target = context.scratchData + offset;
   size_t capacity = kScratchSize - offset;
   size_t written = 0;
   bool fits = true;
@@ -154,13 +221,12 @@ bool appendASCII(jsi::Runtime& runtime, const jsi::Value& value, JavaContext& co
   return true;
 }
 
-void copyScratchToJavaBytes(JavaContext& context, size_t length) {
-  context.env->SetByteArrayRegion(context.scratchBytes, 0, static_cast<jsize>(length), reinterpret_cast<const jbyte*>(context.scratch));
+void copyScratchToJavaBytesSlow(JavaContext& context, size_t length) {
+  context.env->SetByteArrayRegion(context.scratchBytes, 0, static_cast<jsize>(length), reinterpret_cast<const jbyte*>(context.scratchData));
 }
 
-jsi::Value stringFromJavaBytes(jsi::Runtime& runtime, JavaContext& context, jint length) {
-  context.env->GetByteArrayRegion(context.scratchBytes, 0, length, reinterpret_cast<jbyte*>(context.scratch));
-  return jsi::String::createFromAscii(runtime, reinterpret_cast<const char*>(context.scratch), static_cast<size_t>(length));
+void copyJavaBytesToScratchSlow(JavaContext& context, jint length) {
+  context.env->GetByteArrayRegion(context.scratchBytes, 0, length, reinterpret_cast<jbyte*>(context.scratchData));
 }
 
 jsi::Value takePendingJavaString(jsi::Runtime& runtime, JavaContext& context) {

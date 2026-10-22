@@ -116,9 +116,9 @@ namespace margelo::nitro::test {
       gDirectMethods.clazz = static_cast<jclass>(env->NewGlobalRef(clazz.get()));
       gDirectMethods.staticAdd = env->GetStaticMethodID(gDirectMethods.clazz, "staticAdd", "(DD)D");
       gDirectMethods.staticNegate = env->GetStaticMethodID(gDirectMethods.clazz, "staticNegate", "(Z)Z");
-      gDirectMethods.staticConcat = env->GetStaticMethodID(gDirectMethods.clazz, "staticConcat", "(II[B)I");
+      gDirectMethods.staticConcat = env->GetStaticMethodID(gDirectMethods.clazz, "staticConcat", "(III[B)I");
       gDirectMethods.staticBouncePoint = env->GetStaticMethodID(gDirectMethods.clazz, "staticBouncePoint", "(DDZLjava/nio/ByteBuffer;)V");
-      gDirectMethods.staticThrow = env->GetStaticMethodID(gDirectMethods.clazz, "staticThrow", "(I[B)V");
+      gDirectMethods.staticThrow = env->GetStaticMethodID(gDirectMethods.clazz, "staticThrow", "(II[B)V");
     }
 
     // The properties of `StaticPoint`, in the order direct host functions read and write them.
@@ -179,10 +179,11 @@ namespace margelo::nitro::test {
           return __fallback(__runtime, __this, __args, __count);
         }
         copyScratchToJavaBytes(__java, __offset);
-        jvalue __jargs[3];
-        __jargs[0].i = __a_length;
-        __jargs[1].i = __b_length;
-        __jargs[2].l = __java.scratchBytes;
+        jvalue __jargs[4];
+        __jargs[0].i = __java.scratchBase;
+        __jargs[1].i = __a_length;
+        __jargs[2].i = __b_length;
+        __jargs[3].l = __java.scratchBytes;
         jint __length = __java.env->CallStaticIntMethodA(gDirectMethods.clazz, gDirectMethods.staticConcat, __jargs);
         if (__java.env->ExceptionCheck()) [[unlikely]] {
           throwJavaException(__runtime, __java, "staticConcat");
@@ -227,10 +228,10 @@ namespace margelo::nitro::test {
           throwJavaException(__runtime, __java, "staticBouncePoint");
         }
         double __result__x;
-        memcpy(&__result__x, __java.scratch + 0, sizeof(double));
+        memcpy(&__result__x, __java.scratchData + 0, sizeof(double));
         double __result__y;
-        memcpy(&__result__y, __java.scratch + 8, sizeof(double));
-        bool __result__visible = __java.scratch[16] != 0;
+        memcpy(&__result__y, __java.scratchData + 8, sizeof(double));
+        bool __result__visible = __java.scratchData[16] != 0;
         jsi::Object __object(__runtime);
         __object.setProperty(__runtime, (*__names_StaticPoint)[0], __result__x);
         __object.setProperty(__runtime, (*__names_StaticPoint)[1], __result__y);
@@ -252,9 +253,10 @@ namespace margelo::nitro::test {
           return __fallback(__runtime, __this, __args, __count);
         }
         copyScratchToJavaBytes(__java, __offset);
-        jvalue __jargs[2];
-        __jargs[0].i = __message_length;
-        __jargs[1].l = __java.scratchBytes;
+        jvalue __jargs[3];
+        __jargs[0].i = __java.scratchBase;
+        __jargs[1].i = __message_length;
+        __jargs[2].l = __java.scratchBytes;
         __java.env->CallStaticVoidMethodA(gDirectMethods.clazz, gDirectMethods.staticThrow, __jargs);
         if (__java.env->ExceptionCheck()) [[unlikely]] {
           throwJavaException(__runtime, __java, "staticThrow");

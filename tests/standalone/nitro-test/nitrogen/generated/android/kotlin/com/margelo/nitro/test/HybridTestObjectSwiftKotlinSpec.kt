@@ -932,8 +932,8 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 /**
  * The static entry points the direct JSI host functions in `JHybridTestObjectSwiftKotlinSpec.cpp` call through JNI.
  * They are real static methods, so each call reaches the implementation without companion accessors.
- * Strings arrive as ASCII in the Runtime's scratch `byte[]`, and struct results leave through the
- * Runtime's scratch `ByteBuffer`.
+ * Strings arrive as ASCII in the Runtime's scratch `byte[]` at `__base`, and struct results leave
+ * through the Runtime's scratch `ByteBuffer`.
  */
 @DoNotStrip
 @Keep
@@ -956,11 +956,11 @@ internal object HybridTestObjectSwiftKotlinSpec_direct {
   @JvmStatic
   @DoNotStrip
   @Keep
-  fun staticConcat(__a_length: Int, __b_length: Int, __bytes: ByteArray): Int {
-    val a = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, 0, __a_length)
-    val b = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, __a_length, __b_length)
+  fun staticConcat(__base: Int, __a_length: Int, __b_length: Int, __bytes: ByteArray): Int {
+    val a = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, __base, __a_length)
+    val b = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, __base + __a_length, __b_length)
     val __result = HybridTestObjectKotlin.staticConcat(a, b)
-    return com.margelo.nitro.core.DirectCall.writeASCII(__result, __bytes)
+    return com.margelo.nitro.core.DirectCall.writeASCII(__result, __bytes, __base)
   }
 
   @JvmStatic
@@ -976,8 +976,8 @@ internal object HybridTestObjectSwiftKotlinSpec_direct {
   @JvmStatic
   @DoNotStrip
   @Keep
-  fun staticThrow(__message_length: Int, __bytes: ByteArray) {
-    val message = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, 0, __message_length)
+  fun staticThrow(__base: Int, __message_length: Int, __bytes: ByteArray) {
+    val message = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, __base, __message_length)
     HybridTestObjectKotlin.staticThrow(message)
   }
 }
