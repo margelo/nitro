@@ -20,9 +20,9 @@
 Declaration (TypeScript):
 
 ```ts
-import { iOS, type HybridObject } from 'nitro-core'
+import { Apple, type HybridObject } from 'nitro-core'
 
-@iOS({
+@Apple({
   language: 'c++',
   implementation: { className: 'HybridMath', include: '"HybridMath.hpp"' },
 })

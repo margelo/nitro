@@ -12,9 +12,9 @@ For example, if your API returns a map of users with their ages, you _could_ use
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Database extends HybridObject {
       getAllUsers(): Record<string, number>
     }

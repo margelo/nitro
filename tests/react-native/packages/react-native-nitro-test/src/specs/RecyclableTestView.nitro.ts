@@ -1,6 +1,6 @@
-import { Android, iOS, type HybridView } from 'react-native-nitro-modules'
+import { Android, Apple, type HybridView } from 'react-native-nitro-modules'
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridRecyclableTestView' },
 })

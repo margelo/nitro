@@ -11,13 +11,13 @@ A [TypeScript enum](https://www.typescriptlang.org/docs/handbook/enums.html) is 
 ascending integer values. Nitrogen will generate a C++ enum natively, which bridges to JS as a simple integer:
 
 ```ts
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
 enum Gender {
   MALE,
   FEMALE
 }
-@iOS(...)
+@Apple(...)
 export declare class Person extends HybridObject {
   getGender(): Gender
 }
@@ -31,10 +31,10 @@ A [TypeScript union](https://www.typescriptlang.org/docs/handbook/unions-and-int
 variant of literal strings, which is only "typed" via TypeScript.
 
 ```ts
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
 type Gender = 'male' | 'female'
-@iOS(...)
+@Apple(...)
 export declare class Person extends HybridObject {
   getGender(): Gender
 }
@@ -52,10 +52,10 @@ accordingly.
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
 
-@iOS(...)
+@Apple(...)
 export declare class Person extends HybridObject {
   getGender(): 'male' | 'female'
 }
@@ -65,10 +65,10 @@ export declare class Person extends HybridObject {
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
 type Gender = 'male' | 'female'
-@iOS(...)
+@Apple(...)
 export declare class Person extends HybridObject {
   getGender(): Gender
 }

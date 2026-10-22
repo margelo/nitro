@@ -14,9 +14,9 @@ safely deleted from memory.
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Server extends HybridObject {
       start(onNewUserJoined: (user: User) => void): void
     }
@@ -59,7 +59,7 @@ simply a function you store in memory and call later, just like in a normal JS c
   <TabItem value="ts" label="TypeScript" default>
     ```ts
     type Orientation = "portrait" | "landscape"
-    @iOS(...)
+    @Apple(...)
     export declare class DeviceInfo extends HybridObject {
       listenToOrientation(onChanged: (o: Orientation) => void): void
     }
@@ -122,7 +122,7 @@ simply a function you store in memory and call later, just like in a normal JS c
 A `Callback` can also return a value:
 
 ```ts title="Math.nitro.ts"
-@iOS(...)
+@Apple(...)
 export declare class Math extends HybridObject {
   calculate(getValue: () => number): void
 }
@@ -183,7 +183,7 @@ Sharing a callback handle does not synchronize mutable arguments or results. See
 If your callback never escapes the calling function, use `Inline<...>` as a performance optimization:
 
 ```ts title="Math.nitro.ts"
-@iOS(...)
+@Apple(...)
 export declare class Math extends HybridObject {
   calculate(getValue: Inline<() => number>): void
 }

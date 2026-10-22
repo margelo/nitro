@@ -15,9 +15,9 @@ For example, a JS `number` will always be a `double` on the native side:
 <div className="side-by-side-block">
 
 ```ts title="Math.nitro.ts"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS(...)
+@Apple(...)
 export declare class Math extends HybridObject {
   add(a: number, b: number): number
 }

@@ -34,7 +34,7 @@ export class SwiftHybridObjectType extends HybridObjectType implements SwiftType
   getProtocolConformances(): ProtocolConformance[] {
     const apple = this.platforms.apple
     if (apple?.language !== 'swift') {
-      throw new Error(`${this.hybridObjectName}: Swift protocol conformances require an \`@iOS(...)\` declaration with language 'swift'.`)
+      throw new Error(`${this.hybridObjectName}: Swift protocol conformances require an \`@Apple(...)\` declaration with language 'swift'.`)
     }
     const conformances: ProtocolConformance[] = [
       {

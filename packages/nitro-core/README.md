@@ -7,9 +7,9 @@ declarations in `js/lib/`. Native sources and JS use the same package version. C
 React Native dispatchers live in `react-native-nitro-modules`, which stages Core sources for SwiftPM and Android builds.
 
 ```ts
-import { HybridObject, iOS, Android } from 'nitro-core'
+import { HybridObject, Apple, Android } from 'nitro-core'
 
-@iOS({ language: 'swift', allowMultipleImplementations: true })
+@Apple({ language: 'swift', allowMultipleImplementations: true })
 @Android({ language: 'kotlin', allowMultipleImplementations: true })
 export declare class Image extends HybridObject {
   readonly width: number

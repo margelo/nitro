@@ -6,9 +6,9 @@
 A Variant is a type of either one of the values defined in its declaration. Example:
 
 ```ts
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS(...)
+@Apple(...)
 export declare class Math extends HybridObject {
   distance(value: number | Point): number
 }
@@ -26,9 +26,9 @@ other statically defined types. If possible, **avoid variants**.
 A variant can only consist of types, not of literal values.
 
 ```ts
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS(...)
+@Apple(...)
 export declare class Person extends HybridObject {
   // diff-remove
   getGender(): 'male' | 'female'
@@ -47,10 +47,10 @@ Since the generated names are hard to read, it is recommended to declare type-al
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
 
-@iOS(...)
+@Apple(...)
 export declare class Math extends HybridObject {
   calculate(): string | number
 }
@@ -60,10 +60,10 @@ export declare class Math extends HybridObject {
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
 type MathOutput = string | number
-@iOS(...)
+@Apple(...)
 export declare class Math extends HybridObject {
   calculate(): MathOutput
 }

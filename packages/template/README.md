@@ -16,7 +16,7 @@ console.log(example instanceof Example) // true
 
 The package pins Nitro and Nitrogen to the exact alpha version that created it. Keep those versions in sync when upgrading.
 
-- `src/specs/Example.nitro.ts` declares the constructor, methods and native implementations through `@iOS` and `@Android`.
+- `src/specs/Example.nitro.ts` declares the constructor, methods and native implementations through `@Apple` and `@Android`.
 - `apple/HybridExample.swift` implements the generated `HybridExampleSpec`.
 - `android/src/main/java/com/margelo/nitro/$$androidNamespace$$/HybridExample.kt` implements the Kotlin spec.
 - `nitro.json` sets native module names and namespaces.

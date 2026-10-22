@@ -25,9 +25,9 @@ Declare a class extending `HybridView` in a `*.nitro.ts` file. Its writable prop
 through the native ref:
 
 ```ts title="CameraView.nitro.ts"
-import { iOS, type HybridView } from 'react-native-nitro-modules'
+import { Apple, type HybridView } from 'react-native-nitro-modules'
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridCameraView' },
 })
@@ -113,7 +113,7 @@ Now it's time to implement the View - simply create a new Swift/Kotlin class/fil
 
 ### 4. Link the generated sources
 
-The `@iOS` decorator's `implementation` selects `HybridCameraView` to automatically link the native class.
+The `@Apple` decorator's `implementation` selects `HybridCameraView` to automatically link the native class.
 
 #### 4.1. Register View Manager (Android)
 
@@ -156,7 +156,7 @@ For example, a custom `<ImageView>` component can be used to render custom `Imag
 <div className="side-by-side-block">
 
 ```ts title="Image.nitro.ts"
-@iOS(...)
+@Apple(...)
 export declare class Image extends HybridObject {
   readonly width: number
   readonly height: number
@@ -169,7 +169,7 @@ export declare class Image extends HybridObject {
 
 ```ts title="ImageView.nitro.ts"
 import { type Image } from './Image.nitro.ts'
-@iOS(...)
+@Apple(...)
 export declare class ImageView extends HybridView {
   image: Image
 }
@@ -236,7 +236,7 @@ To batch prop changes, you can override `beforeUpdate()` and `afterUpdate()` in 
 Pass functions directly to Nitro View props:
 
 ```tsx
-@iOS(...)
+@Apple(...)
 export declare class CameraView extends HybridView {
   onCaptured: (image: Image) => void
 }
@@ -305,7 +305,7 @@ Since every `HybridView` is also a `HybridObject`, methods can be directly calle
 component has a `takePhoto()` function like so:
 
 ```ts
-@iOS(...)
+@Apple(...)
 export declare class CameraView extends HybridView {
   enableFlash: boolean
   takePhoto(): Promise<Image>

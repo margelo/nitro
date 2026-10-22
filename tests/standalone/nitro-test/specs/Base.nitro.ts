@@ -1,4 +1,4 @@
-import { Android, iOS } from 'nitro-core'
+import { Android, Apple } from 'nitro-core'
 import type { HybridObject } from 'nitro-core'
 
 export * from '#nitro/Base'
@@ -14,7 +14,7 @@ export interface Size {
   unit: SizeUnit
 }
 
-@iOS({
+@Apple({
   language: 'swift',
   allowMultipleImplementations: true,
   allowInheritance: true,

@@ -23,7 +23,7 @@ fields:
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-@iOS(...)
+@Apple(...)
 export declare class BadDatabase extends HybridObject {
   getUser(): AnyJSON
 }
@@ -37,7 +37,7 @@ interface User {
   name: string
   age: number
 }
-@iOS(...)
+@Apple(...)
 export declare class GoodDatabase extends HybridObject {
   getUser(): User
 }
@@ -59,7 +59,7 @@ is it `A` or `B`? Those type-checks are very efficient so this is considered a m
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-@iOS(...)
+@Apple(...)
 export declare class BadDatabase extends HybridObject {
   set(value: number | string): void
 }
@@ -69,7 +69,7 @@ export declare class BadDatabase extends HybridObject {
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-@iOS(...)
+@Apple(...)
 export declare class GoodDatabase extends HybridObject {
   setNumber(value: number): void
   setString(value: string): void
@@ -95,7 +95,7 @@ interface SetPayload {
   value: string
   onCompleted: () => void
 }
-@iOS(...)
+@Apple(...)
 export declare class BadDatabase extends HybridObject {
   set(payload: SetPayload): void
 }
@@ -105,7 +105,7 @@ export declare class BadDatabase extends HybridObject {
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-@iOS(...)
+@Apple(...)
 export declare class GoodDatabase extends HybridObject {
   set(key: string,
       value: string,
@@ -124,9 +124,9 @@ If a callback is only used during the current native call, mark it as [`Inline<.
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS(...)
+@Apple(...)
 export declare class BadDatabase extends HybridObject {
   forEachRow(callback: (row: Row) => void): void
 }
@@ -136,9 +136,9 @@ export declare class BadDatabase extends HybridObject {
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-import { type HybridObject, type Inline, iOS } from 'nitro-core'
+import { type HybridObject, type Inline, Apple } from 'nitro-core'
 
-@iOS(...)
+@Apple(...)
 export declare class GoodDatabase extends HybridObject {
   forEachRow(callback: Inline<(row: Row) => void>): void
 }
@@ -162,7 +162,7 @@ If a method does not need any instance state, make it `static`:
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-@iOS(...)
+@Apple(...)
 export declare class BadHasher extends HybridObject {
   constructor()
   hash(data: ArrayBuffer): string
@@ -177,7 +177,7 @@ const hash = hasher.hash(data)
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-@iOS(...)
+@Apple(...)
 export declare class GoodHasher extends HybridObject {
   static hash(data: ArrayBuffer): string
 }
@@ -202,9 +202,9 @@ If your Hybrid Object has one known native implementation, specify it in the pla
 implementations when you actually need them:
 
 ```ts title="Image.nitro.ts"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridImage' },
   allowInheritance: false,
@@ -249,7 +249,7 @@ processing code on a different thread:
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-@iOS(...)
+@Apple(...)
 export declare class BadDatabase extends HybridObject {
   writeLargeData(data: string): void
 }
@@ -259,7 +259,7 @@ export declare class BadDatabase extends HybridObject {
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-@iOS(...)
+@Apple(...)
 export declare class GoodDatabase extends HybridObject {
   writeLargeData(data: string): Promise<void>
 }
@@ -284,7 +284,7 @@ For example, to return a large list of numbers we could use [array buffers](../t
 <div className="side-by-side-block">
 
 ```ts title="Bad ❌"
-@iOS(...)
+@Apple(...)
 export declare class BadDatabase extends HybridObject {
   getAsBlob(): number[]
 }
@@ -294,7 +294,7 @@ export declare class BadDatabase extends HybridObject {
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-@iOS(...)
+@Apple(...)
 export declare class GoodDatabase extends HybridObject {
   getAsBlob(): ArrayBuffer
 }
@@ -320,7 +320,7 @@ interface AllData {
 }
 
 
-@iOS(...)
+@Apple(...)
 export declare class BadDatabase extends HybridObject {
   getAllData(): AllData
 }
@@ -335,12 +335,12 @@ const row = data.rows
 <div className="side-by-side-block">
 
 ```ts title="Good ✅"
-@iOS(...)
+@Apple(...)
 export declare class AllData extends HybridObject {
   findRowWithName(name: string): DataRow
 }
 
-@iOS(...)
+@Apple(...)
 export declare class GoodDatabase extends HybridObject {
   getAllData(): AllData
 }

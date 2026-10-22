@@ -84,7 +84,7 @@ declare abstract class HybridObject {
  *
  * export * from '#nitro/Image'
  *
- * @iOS({ language: 'swift', allowMultipleImplementations: true })
+ * @Apple({ language: 'swift', allowMultipleImplementations: true })
  * export declare class Image extends HybridObject {
  *   readonly width: number
  *   readonly height: number

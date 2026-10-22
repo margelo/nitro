@@ -13,9 +13,9 @@ parallel, while the JS thread can continue rendering and performing other busine
     In TypeScript, a `Promise<T>` is represented using the built-in `Promise<T>` type, which can be awaited:
 
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Math extends HybridObject {
       fibonacci(n: number): Promise<number>
     }

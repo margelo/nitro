@@ -118,7 +118,7 @@ interface HybridObjectLanguageOptions {
  *
  * @example
  * ```ts
- * @iOS({
+ * @Apple({
  *   language: 'swift',
  *   implementation: { className: 'HybridImage' },
  * })

@@ -10,9 +10,9 @@ A `string` handles like a [primitive](primitives), but technically isn't one. In
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class MyHybrid extends HybridObject {
       concat(a: string, b: string): string
     }

@@ -186,7 +186,7 @@ export async function runNitrogen({ baseDirectory, outputDirectory }: NitrogenOp
         if (platforms.length === 0) {
           throw new Error(
             `${typeName} does not declare any platforms - nothing can be generated. ` +
-              `Add \`@iOS(...)\` or \`@Android(...)\` to the declared class.`
+              `Add \`@Apple(...)\` or \`@Android(...)\` to the declared class.`
           )
         }
 

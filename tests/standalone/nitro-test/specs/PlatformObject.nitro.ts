@@ -1,4 +1,4 @@
-import { Android, iOS } from 'nitro-core'
+import { Android, Apple } from 'nitro-core'
 import type { HybridObject } from 'nitro-core'
 import type { SomeExternalObject } from 'nitro-test-external'
 import type { Base } from './Base.nitro'
@@ -7,7 +7,7 @@ import type { Child } from './Child.nitro'
 export * from '#nitro/PlatformObject'
 
 // This object is implemented in Swift and Kotlin
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridPlatformObject' },
 })

@@ -244,7 +244,7 @@ export function getHybridObjectLiteralOptions(declaration: ClassDeclaration): De
   if (declaration.getSourceFile().getBaseName().endsWith('.nitro.d.ts')) {
     return getHybridClassManifestOptions(declaration, name)
   }
-  throw new Error(`${name}: Declare \`@iOS(...)\` or \`@Android(...)\` on this class in its \`.nitro.ts\` spec.`)
+  throw new Error(`${name}: Declare \`@Apple(...)\` or \`@Android(...)\` on this class in its \`.nitro.ts\` spec.`)
 }
 
 interface ParseHybridObjectPlatformsOptions {
