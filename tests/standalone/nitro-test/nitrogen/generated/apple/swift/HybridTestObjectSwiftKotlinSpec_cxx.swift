@@ -1047,6 +1047,103 @@ public final class HybridTestObjectSwiftKotlinSpec_cxx {
     }
   }
 
+  public final func callSyncCallback(value: Double, callback: UnsafeRawPointer) -> bridge.Result_void {
+    do {
+      try __implementation.callSyncCallback(value: value, callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_void_double.self))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callAsyncCallback(value: Double, callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callAsyncCallback(value: value, callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_double_double.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callAsyncVoidCallback(callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callAsyncVoidCallback(callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_void.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_void.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callAsyncBooleanCallback(value: Bool, callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callAsyncBooleanCallback(value: value, callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_bool_bool.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_bool.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func awaitAsyncCallback(value: Double, callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.awaitAsyncCallback(value: value, callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_double_double.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callAndForgetCallback(value: Double, callback: UnsafeRawPointer) -> bridge.Result_void {
+    do {
+      try __implementation.callAndForgetCallback(value: value, callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_double_double.self))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callNativeCallbackAsync(value: Double, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callNativeCallbackAsync(value: value)
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callThrowingNativeCallbackAsync(message: String, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callThrowingNativeCallbackAsync(message: message)
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_void.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callThrowingNativeCallbackAndForget(message: String) -> bridge.Result_void {
+    do {
+      try __implementation.callThrowingNativeCallbackAndForget(message: message)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callInlineCallbackThenEscape(value: Double, callback: borrowing margelo.nitro.test.swift_bridge.InlineCallback_double_double, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callInlineCallbackThenEscape(value: value, callback: callback)
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
   public final func getCar(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.getCar()

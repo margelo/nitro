@@ -234,6 +234,16 @@ public:
   void errorCallback(const Callback<void(const std::exception_ptr& /* error */)>& onError) override;
   Promise<void> getValueFromJsCallback(const Callback<std::string()>& callback,
                                        const Callback<void(const std::string& /* valueFromJs */)>& andThenCall) override;
+  void callSyncCallback(double value, const Callback<void(double /* value */)>& callback) override;
+  Promise<double> callAsyncCallback(double value, const Callback<double(double /* value */)>& callback) override;
+  Promise<void> callAsyncVoidCallback(const Callback<void()>& callback) override;
+  Promise<bool> callAsyncBooleanCallback(bool value, const Callback<bool(bool /* value */)>& callback) override;
+  Promise<double> awaitAsyncCallback(double value, const Callback<double(double /* value */)>& callback) override;
+  void callAndForgetCallback(double value, const Callback<double(double /* value */)>& callback) override;
+  Promise<double> callNativeCallbackAsync(double value) override;
+  Promise<void> callThrowingNativeCallbackAsync(const std::string& message) override;
+  void callThrowingNativeCallbackAndForget(const std::string& message) override;
+  Promise<double> callInlineCallbackThenEscape(double value, const InlineCallback<double(double /* value */)>& callback) override;
   Promise<double> awaitAndGetPromise(const Promise<double>& promise) override;
   Promise<Car> awaitAndGetComplexPromise(const Promise<Car>& promise) override;
   Promise<void> awaitPromise(const Promise<void>& promise) override;

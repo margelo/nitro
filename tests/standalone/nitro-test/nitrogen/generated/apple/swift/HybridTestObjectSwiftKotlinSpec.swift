@@ -113,6 +113,16 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridTestObjectSwiftK
   func createNativeCallback(wrappingJsCallback: any Callback<(/* num */ Double), Void>) throws -> any Callback<(/* num */ Double), Void>
   func getValueFromJSCallbackAndWait(getValue: any Callback<(), Double>) throws -> any Promise<Double>
   func getValueFromJsCallback(callback: any Callback<(), String>, andThenCall: any Callback<(/* valueFromJs */ String), Void>) throws -> any Promise<Void>
+  func callSyncCallback(value: Double, callback: any Callback<(/* value */ Double), Void>) throws -> Void
+  func callAsyncCallback(value: Double, callback: any Callback<(/* value */ Double), Double>) throws -> any Promise<Double>
+  func callAsyncVoidCallback(callback: any Callback<(), Void>) throws -> any Promise<Void>
+  func callAsyncBooleanCallback(value: Bool, callback: any Callback<(/* value */ Bool), Bool>) throws -> any Promise<Bool>
+  func awaitAsyncCallback(value: Double, callback: any Callback<(/* value */ Double), Double>) throws -> any Promise<Double>
+  func callAndForgetCallback(value: Double, callback: any Callback<(/* value */ Double), Double>) throws -> Void
+  func callNativeCallbackAsync(value: Double) throws -> any Promise<Double>
+  func callThrowingNativeCallbackAsync(message: String) throws -> any Promise<Void>
+  func callThrowingNativeCallbackAndForget(message: String) throws -> Void
+  func callInlineCallbackThenEscape(value: Double, callback: borrowing some InlineCallback<(/* value */ Double), Double> & ~Copyable & ~Escapable) throws -> any Promise<Double>
   func getCar() throws -> Car
   func isCarElectric(car: Car) throws -> Bool
   func areCarsEqual(a: Car, b: Car) throws -> Bool

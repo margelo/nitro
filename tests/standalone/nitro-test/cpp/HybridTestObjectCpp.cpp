@@ -782,6 +782,56 @@ Promise<void> HybridTestObjectCpp::getValueFromJsCallback(const Callback<std::st
   });
 }
 
+void HybridTestObjectCpp::callSyncCallback(double value, const Callback<void(double /* value */)>& callback) {
+  callback.callSync(value);
+}
+
+Promise<double> HybridTestObjectCpp::callAsyncCallback(double value, const Callback<double(double /* value */)>& callback) {
+  return callback.callAsync(value);
+}
+
+Promise<void> HybridTestObjectCpp::callAsyncVoidCallback(const Callback<void()>& callback) {
+  return callback.callAsync();
+}
+
+Promise<bool> HybridTestObjectCpp::callAsyncBooleanCallback(bool value, const Callback<bool(bool /* value */)>& callback) {
+  return callback.callAsync(value);
+}
+
+Promise<double> HybridTestObjectCpp::awaitAsyncCallback(double value, const Callback<double(double /* value */)>& callback) {
+  return Promise<double>::async([=]() {
+    std::future<double> future = callback.callAsync(value).await();
+    double result = future.get();
+    return result + 1;
+  });
+}
+
+void HybridTestObjectCpp::callAndForgetCallback(double value, const Callback<double(double /* value */)>& callback) {
+  callback.callAndForget(value);
+}
+
+Promise<double> HybridTestObjectCpp::callNativeCallbackAsync(double value) {
+  auto callback = Callback<double(double)>::make([](double input) { return input * 2; });
+  return callback.callAsync(value);
+}
+
+Promise<void> HybridTestObjectCpp::callThrowingNativeCallbackAsync(const std::string& message) {
+  auto callback = Callback<void()>::make([message]() { throw std::runtime_error(message); });
+  return callback.callAsync();
+}
+
+void HybridTestObjectCpp::callThrowingNativeCallbackAndForget(const std::string& message) {
+  auto callback = Callback<void()>::make([message]() { throw std::runtime_error(message); });
+  callback.callAndForget();
+}
+
+Promise<double> HybridTestObjectCpp::callInlineCallbackThenEscape(double value,
+                                                                  const InlineCallback<double(double /* value */)>& callback) {
+  double first = callback.call(value);
+  Callback<double(double)> escaped = callback.escape();
+  return escaped.callAsync(first);
+}
+
 Car HybridTestObjectCpp::getCar() {
   return Car(2018, "Lamborghini", "Huracan Performante", 640, Powertrain::GAS, std::nullopt, {}, true, std::nullopt, {100, 10},
              std::nullopt);

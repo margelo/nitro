@@ -240,6 +240,7 @@ namespace margelo::nitro::test::swift_bridge {
   void resolve_Promise___NitroTest__Car(const Promise___NitroTest__Car& promise, const void* NON_NULL value);
   void listen_Promise___NitroTest__Car(const Promise___NitroTest__Car& promise, std::function<void(const void* NON_NULL)> listener);
   using Promise_ArrayBuffer = Promise<ArrayBuffer>;
+  using Promise_bool = Promise<bool>;
   using Promise_uint64_t = Promise<uint64_t>;
   using Result_uint64_t = Result<uint64_t, margelo::nitro::test::swift_bridge::ResultTag>;
   using Callback_uint64_t_uint64_t = Callback<uint64_t(uint64_t)>;
@@ -366,6 +367,10 @@ namespace margelo::nitro::test::swift_bridge {
   Promise<swift::String> callAsync_Callback_swift__String(const Callback_swift__String& callback);
   void callAndForget_Callback_swift__String(const Callback_swift__String& callback);
   Callback_swift__String create_Callback_swift__String(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(void* NON_NULL __outResult)> closure);
+  using Result_bool = Result<bool, margelo::nitro::test::swift_bridge::ResultTag>;
+  using Callback_bool_bool = Callback<bool(bool)>;
+  Result<bool, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_bool_bool(const Callback_bool_bool& callback, bool param0) noexcept;
+  Callback_bool_bool create_Callback_bool_bool(std::function<Result<bool, margelo::nitro::test::swift_bridge::ResultTag>(bool param0)> closure);
   using Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx = Promise<::NitroTestExternal::HybridSomeExternalObjectSpec_cxx>;
   Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx create_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx();
   void reject_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(const Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx& promise, std::exception_ptr error);
@@ -378,6 +383,5 @@ namespace margelo::nitro::test::swift_bridge {
   void callAndForget_Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(const Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx& callback);
   Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx create_Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(void* NON_NULL __outResult)> closure);
   using Result_nitro__NullType = Result<nitro::NullType, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_bool = Result<bool, margelo::nitro::test::swift_bridge::ResultTag>;
   using Result_ArrayBuffer = Result<ArrayBuffer, margelo::nitro::test::swift_bridge::ResultTag>;
 } // namespace margelo::nitro::test::swift_bridge

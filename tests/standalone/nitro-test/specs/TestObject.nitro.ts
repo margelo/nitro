@@ -308,6 +308,18 @@ export declare class TestObjectCpp extends HybridObject {
   getValueFromJSCallbackAndWait(getValue: () => number): Promise<number>
   getValueFromJsCallback(callback: () => string, andThenCall: (valueFromJs: string) => void): Promise<void>
 
+  // Callback calling conventions
+  callSyncCallback(value: number, callback: (value: number) => void): void
+  callAsyncCallback(value: number, callback: (value: number) => number): Promise<number>
+  callAsyncVoidCallback(callback: () => void): Promise<void>
+  callAsyncBooleanCallback(value: boolean, callback: (value: boolean) => boolean): Promise<boolean>
+  awaitAsyncCallback(value: number, callback: (value: number) => number): Promise<number>
+  callAndForgetCallback(value: number, callback: (value: number) => number): void
+  callNativeCallbackAsync(value: number): Promise<number>
+  callThrowingNativeCallbackAsync(message: string): Promise<void>
+  callThrowingNativeCallbackAndForget(message: string): void
+  callInlineCallbackThenEscape(value: number, callback: Inline<(value: number) => number>): Promise<number>
+
   // Objects
   getCar(): Car
   isCarElectric(car: Car): boolean
@@ -573,6 +585,18 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
   // Callbacks that return values
   getValueFromJSCallbackAndWait(getValue: () => number): Promise<number>
   getValueFromJsCallback(callback: () => string, andThenCall: (valueFromJs: string) => void): Promise<void>
+
+  // Callback calling conventions
+  callSyncCallback(value: number, callback: (value: number) => void): void
+  callAsyncCallback(value: number, callback: (value: number) => number): Promise<number>
+  callAsyncVoidCallback(callback: () => void): Promise<void>
+  callAsyncBooleanCallback(value: boolean, callback: (value: boolean) => boolean): Promise<boolean>
+  awaitAsyncCallback(value: number, callback: (value: number) => number): Promise<number>
+  callAndForgetCallback(value: number, callback: (value: number) => number): void
+  callNativeCallbackAsync(value: number): Promise<number>
+  callThrowingNativeCallbackAsync(message: string): Promise<void>
+  callThrowingNativeCallbackAndForget(message: string): void
+  callInlineCallbackThenEscape(value: number, callback: Inline<(value: number) => number>): Promise<number>
 
   // Objects
   getCar(): Car
