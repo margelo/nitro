@@ -17,21 +17,21 @@ extension Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx {
   public typealias T = (any HybridSomeExternalObjectSpec)
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func resolve(result: (any HybridSomeExternalObjectSpec)) {
+  public func __nitroResolve(result: (any HybridSomeExternalObjectSpec)) {
     withUnsafePointer(to: result.getCxxWrapper()) { (pointer: UnsafePointer<HybridSomeExternalObjectSpec_cxx>) -> Void in
       bridge.resolve_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(self, pointer)
     }
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     bridge.reject_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(self, error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable ((any HybridSomeExternalObjectSpec)) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable ((any HybridSomeExternalObjectSpec)) -> Void) {
     bridge.listen_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(self, .init { (value: UnsafeRawPointer!) -> Void in
       listener(value.load(as: HybridSomeExternalObjectSpec_cxx.self).getHybridSomeExternalObjectSpec())
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     bridge.listenRejected_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(self, .init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

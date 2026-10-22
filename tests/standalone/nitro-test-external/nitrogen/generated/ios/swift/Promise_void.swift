@@ -16,19 +16,19 @@ extension Promise_void {
   public typealias T = Void
   private typealias bridge = margelo.nitro.test.external.swift_bridge
 
-  public func resolve(result: ()) {
+  public func __nitroResolve(result: ()) {
     resolve()
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     reject(consuming: error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable (()) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (()) -> Void) {
     addOnResolvedListener(.init { () -> Void in
       listener(())
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     addOnRejectedListener(.init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

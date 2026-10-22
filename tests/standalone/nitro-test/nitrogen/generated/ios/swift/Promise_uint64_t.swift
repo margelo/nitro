@@ -16,19 +16,19 @@ extension Promise_uint64_t {
   public typealias T = UInt64
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func resolve(result: UInt64) {
+  public func __nitroResolve(result: UInt64) {
     resolve(consuming: result)
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     reject(consuming: error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable (UInt64) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (UInt64) -> Void) {
     addOnResolvedListener(.init { (value: UInt64) -> Void in
       listener(value)
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     addOnRejectedListener(.init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

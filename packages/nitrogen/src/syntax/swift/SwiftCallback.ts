@@ -216,13 +216,13 @@ extension ${swiftClassName} {
   public typealias AsyncResult = ${swiftAsyncResultType}
   private typealias bridge = ${bridgeNamespace}
 
-  public ${callingConvention}func callSync(_ arguments: Arguments) throws -> Return {
+  public ${callingConvention}func __nitroCallSync(_ arguments: Arguments) throws -> Return {
     ${indent(swiftToCppCallSyncCode, '    ')}
   }
-  public ${callingConvention}func callAsync(_ arguments: Arguments) -> AsyncResult {
+  public ${callingConvention}func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult {
     ${indent(swiftToCppCallAsyncCode, '    ')}
   }
-  public ${callingConvention}func callAndForget(_ arguments: Arguments) {
+  public ${callingConvention}func __nitroCallAndForget(_ arguments: Arguments) {
     ${indent(swiftToCppCallAndForgetCode, '    ')}
   }
   public init(_ closure: @escaping @Sendable (${swiftParameterTypes.join(', ')}) throws -> Return) {

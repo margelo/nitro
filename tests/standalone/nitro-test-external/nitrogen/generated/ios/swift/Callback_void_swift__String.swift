@@ -17,7 +17,7 @@ extension Callback_void_swift__String {
   public typealias AsyncResult = margelo.nitro.test.external.swift_bridge.Promise_void
   private typealias bridge = margelo.nitro.test.external.swift_bridge
 
-  public func callSync(_ arguments: Arguments) throws -> Return {
+  public func __nitroCallSync(_ arguments: Arguments) throws -> Return {
     return try withUnsafePointer(to: arguments) { (param0: UnsafePointer<String>) -> Return in
       let __result = bridge.callSync_Callback_void_swift__String(self, param0)
       if __result.hasError() {
@@ -25,12 +25,12 @@ extension Callback_void_swift__String {
       }
     }
   }
-  public func callAsync(_ arguments: Arguments) -> AsyncResult {
+  public func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult {
     return withUnsafePointer(to: arguments) { (param0: UnsafePointer<String>) -> AsyncResult in
       return bridge.callAsync_Callback_void_swift__String(self, param0)
     }
   }
-  public func callAndForget(_ arguments: Arguments) {
+  public func __nitroCallAndForget(_ arguments: Arguments) {
     return withUnsafePointer(to: arguments) { (param0: UnsafePointer<String>) -> Void in
       bridge.callAndForget_Callback_void_swift__String(self, param0)
     }

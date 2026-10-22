@@ -17,7 +17,7 @@ extension Callback_swift__String {
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise_swift__String
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func callSync(_ arguments: Arguments) throws -> Return {
+  public func __nitroCallSync(_ arguments: Arguments) throws -> Return {
     return try withUnsafeTemporaryAllocation(of: String.self, capacity: 1) { (result: UnsafeMutableBufferPointer<String>) -> Return in
       let __result = bridge.callSync_Callback_swift__String(self, result.baseAddress!)
       if __result.hasError() {
@@ -27,10 +27,10 @@ extension Callback_swift__String {
       return value
     }
   }
-  public func callAsync(_ arguments: Arguments) -> AsyncResult {
+  public func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult {
     return bridge.callAsync_Callback_swift__String(self)
   }
-  public func callAndForget(_ arguments: Arguments) {
+  public func __nitroCallAndForget(_ arguments: Arguments) {
     bridge.callAndForget_Callback_swift__String(self)
   }
   public init(_ closure: @escaping @Sendable () throws -> Return) {

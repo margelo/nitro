@@ -16,19 +16,19 @@ extension Promise_Promise_double_ {
   public typealias T = any Promise<Double>
   private typealias bridge = margelo.nitro.test.external.swift_bridge
 
-  public func resolve(result: any Promise<Double>) {
+  public func __nitroResolve(result: any Promise<Double>) {
     resolve(consuming: result.toCpp())
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     reject(consuming: error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable (any Promise<Double>) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (any Promise<Double>) -> Void) {
     addOnResolvedListener(.init { (value: margelo.nitro.test.external.swift_bridge.Promise_double) -> Void in
       listener(value)
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     addOnRejectedListener(.init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

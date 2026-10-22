@@ -17,7 +17,7 @@ extension Callback___NitroTest__Size___NitroTest__Size {
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise___NitroTest__Size
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func callSync(_ arguments: Arguments) throws -> Return {
+  public func __nitroCallSync(_ arguments: Arguments) throws -> Return {
     return try withUnsafePointer(to: arguments) { (param0: UnsafePointer<Size>) -> Return in
       return try withUnsafeTemporaryAllocation(of: Size.self, capacity: 1) { (result: UnsafeMutableBufferPointer<Size>) -> Return in
         let __result = bridge.callSync_Callback___NitroTest__Size___NitroTest__Size(self, param0, result.baseAddress!)
@@ -29,12 +29,12 @@ extension Callback___NitroTest__Size___NitroTest__Size {
       }
     }
   }
-  public func callAsync(_ arguments: Arguments) -> AsyncResult {
+  public func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult {
     return withUnsafePointer(to: arguments) { (param0: UnsafePointer<Size>) -> AsyncResult in
       return bridge.callAsync_Callback___NitroTest__Size___NitroTest__Size(self, param0)
     }
   }
-  public func callAndForget(_ arguments: Arguments) {
+  public func __nitroCallAndForget(_ arguments: Arguments) {
     return withUnsafePointer(to: arguments) { (param0: UnsafePointer<Size>) -> Void in
       bridge.callAndForget_Callback___NitroTest__Size___NitroTest__Size(self, param0)
     }

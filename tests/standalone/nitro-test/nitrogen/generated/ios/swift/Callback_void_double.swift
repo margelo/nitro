@@ -17,16 +17,16 @@ extension Callback_void_double {
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise_void
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public borrowing func callSync(_ arguments: Arguments) throws -> Return {
+  public borrowing func __nitroCallSync(_ arguments: Arguments) throws -> Return {
     let __result = bridge.callSync_Callback_void_double(self, arguments)
     if __result.hasError() {
       throw RuntimeError.from(cppError: __result.error())
     }
   }
-  public borrowing func callAsync(_ arguments: Arguments) -> AsyncResult {
+  public borrowing func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult {
     return __callAsync(arguments)
   }
-  public borrowing func callAndForget(_ arguments: Arguments) {
+  public borrowing func __nitroCallAndForget(_ arguments: Arguments) {
     __callAndForget(arguments)
   }
   public init(_ closure: @escaping @Sendable (Double) throws -> Return) {

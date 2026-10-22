@@ -16,21 +16,21 @@ extension Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__O
   public typealias T = [[Person?]]
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func resolve(result: [[Person?]]) {
+  public func __nitroResolve(result: [[Person?]]) {
     withUnsafePointer(to: SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(result)) { (pointer: UnsafePointer<SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___>) -> Void in
       bridge.resolve_Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(self, pointer)
     }
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     bridge.reject_Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(self, error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable ([[Person?]]) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable ([[Person?]]) -> Void) {
     bridge.listen_Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(self, .init { (value: UnsafeRawPointer!) -> Void in
       listener(value.load(as: SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___.self).value)
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     bridge.listenRejected_Promise___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(self, .init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })

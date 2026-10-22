@@ -18,7 +18,7 @@ extension Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx {
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func callSync(_ arguments: Arguments) throws -> Return {
+  public func __nitroCallSync(_ arguments: Arguments) throws -> Return {
     return try withUnsafeTemporaryAllocation(of: HybridSomeExternalObjectSpec_cxx.self, capacity: 1) { (result: UnsafeMutableBufferPointer<HybridSomeExternalObjectSpec_cxx>) -> Return in
       let __result = bridge.callSync_Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(self, result.baseAddress!)
       if __result.hasError() {
@@ -28,10 +28,10 @@ extension Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx {
       return value.getHybridSomeExternalObjectSpec()
     }
   }
-  public func callAsync(_ arguments: Arguments) -> AsyncResult {
+  public func __nitroCallAsync(_ arguments: Arguments) -> AsyncResult {
     return bridge.callAsync_Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(self)
   }
-  public func callAndForget(_ arguments: Arguments) {
+  public func __nitroCallAndForget(_ arguments: Arguments) {
     bridge.callAndForget_Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(self)
   }
   public init(_ closure: @escaping @Sendable () throws -> Return) {

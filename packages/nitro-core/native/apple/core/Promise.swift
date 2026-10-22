@@ -27,8 +27,35 @@ public protocol Promise<T>: Sendable {
   func addOnRejectedListener(_: @escaping @Sendable (Error) -> Void)
 }
 
-/// Conformance imported from the C++ `Promise<T>` declaration.
-public protocol CxxPromise<T>: Promise {}
+/// A C++ `Promise<T>` specialization with its conformance declared by Nitro core.
+///
+/// Generated Swift extensions provide the `__nitro` adapter witnesses. The public
+/// operations live here, so importing several generated modules does not duplicate them.
+public protocol CxxPromise<T>: Promise {
+  func __nitroResolve(result: T)
+  func __nitroReject(error: Error)
+  func __nitroAddOnResolvedListener(_: @escaping @Sendable (T) -> Void)
+  func __nitroAddOnRejectedListener(_: @escaping @Sendable (Error) -> Void)
+}
+
+extension CxxPromise {
+  @inlinable
+  public func resolve(result: T) {
+    __nitroResolve(result: result)
+  }
+  @inlinable
+  public func reject(error: Error) {
+    __nitroReject(error: error)
+  }
+  @inlinable
+  public func addOnResolvedListener(_ listener: @escaping @Sendable (T) -> Void) {
+    __nitroAddOnResolvedListener(listener)
+  }
+  @inlinable
+  public func addOnRejectedListener(_ listener: @escaping @Sendable (Error) -> Void) {
+    __nitroAddOnRejectedListener(listener)
+  }
+}
 
 extension Promise where T == Void {
   public func resolve() {

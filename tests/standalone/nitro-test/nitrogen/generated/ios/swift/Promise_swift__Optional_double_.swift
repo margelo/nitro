@@ -16,21 +16,21 @@ extension Promise_swift__Optional_double_ {
   public typealias T = Double?
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func resolve(result: Double?) {
+  public func __nitroResolve(result: Double?) {
     withUnsafePointer(to: result) { (pointer: UnsafePointer<Double?>) -> Void in
       bridge.resolve_Promise_swift__Optional_double_(self, pointer)
     }
   }
-  public func reject(error: any Error) {
+  public func __nitroReject(error: any Error) {
     bridge.reject_Promise_swift__Optional_double_(self, error.toCpp())
   }
 
-  public func addOnResolvedListener(_ listener: @escaping @Sendable (Double?) -> Void) {
+  public func __nitroAddOnResolvedListener(_ listener: @escaping @Sendable (Double?) -> Void) {
     bridge.listen_Promise_swift__Optional_double_(self, .init { (value: UnsafeRawPointer!) -> Void in
       listener(value.load(as: Double?.self))
     })
   }
-  public func addOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
+  public func __nitroAddOnRejectedListener(_ listener: @escaping @Sendable (any Error) -> Void) {
     bridge.listenRejected_Promise_swift__Optional_double_(self, .init { (exceptionPtr: std.exception_ptr) -> Void in
       listener(RuntimeError.from(cppError: exceptionPtr))
     })
