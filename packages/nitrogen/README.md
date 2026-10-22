@@ -433,9 +433,9 @@ public protocol HybridImageSpec_protocol: HybridObject, ImageSource, Cacheable {
 ```
 
 Each protocol must be public, since the generated spec protocol is public. Without `module`, Nitrogen adds no import, so the protocol must
-be visible without one. Declare it in the spec's own Swift module, e.g. in `ios/`, or use a standard library protocol like `Sendable`. With
-`module`, the generated spec has `public import <module>`. If that module comes from a package rather than an SDK framework like UIKit, pass
-it to `addNitrogenTargets(dependencies:)`.
+be visible without one. Declare it in the spec's own Swift module, e.g. in `apple/`, or use a standard library protocol like `Sendable`.
+With `module`, the generated spec has `public import <module>`. If that module comes from a package rather than an SDK framework like UIKit,
+pass it to `addNitrogenTargets(dependencies:)`.
 
 Implementations must satisfy each protocol's requirements. Extensions of these protocols can implement spec members, so implementations
 don't have to. When `MemberImportVisibility` is enabled, Swift only uses an extension from another module if the file declaring the
@@ -534,10 +534,10 @@ For `ios.iosModuleName: "NitroImage"`, the helper adds the `NitroImage` library 
 
 - `NitroImageCxx`: your C++ sources in `cpp/` and the specs in `nitrogen/generated/shared/c++`.
 - `NitroImageAppleCxx`: the C++ bridge declarations imported by Swift, including the header declaring `registerHybridClasses()`.
-- `NitroImage`: your Swift sources in `ios/` and the specs in `nitrogen/generated/ios/swift`.
+- `NitroImage`: your Swift sources in `apple/` and the specs in `nitrogen/generated/apple/swift`.
 - `NitroImageSwiftBridge`: the generated C++ wrappers and autolinking sources.
 
-Generated C++ headers live in `include/<Module>/` below their `shared/c++` or `ios/c++` directory. Public headers declare user types,
+Generated C++ headers live in `include/<Module>/` below their `shared/c++` or `apple/c++` directory. Public headers declare user types,
 HybridObject specs, and autolinking functions. Swift wrapper and converter headers live in `include/<Module>/private/`. These directories
 contain the declarations themselves, without forwarding headers. Include generated types with their module prefix, for example
 `#include <NitroImage/Size.hpp>`.

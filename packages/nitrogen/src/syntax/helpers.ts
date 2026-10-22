@@ -1,5 +1,5 @@
 import path from 'path'
-import type { SourceFile } from './SourceFile.js'
+import { getPlatformDirectory, type SourceFile } from './SourceFile.js'
 import type { Type } from './types/Type.js'
 import { getTypeAs } from './types/getTypeAs.js'
 import { OptionalType } from './types/OptionalType.js'
@@ -148,7 +148,8 @@ export function isCppFile(file: SourceFile): boolean {
 }
 
 export function getRelativeDirectory(file: SourceFile): string {
-  return path.join('..', 'nitrogen', 'generated', file.platform, file.language, ...file.subdirectory, file.name)
+  const platformDirectory = getPlatformDirectory(file.platform)
+  return path.join('..', 'nitrogen', 'generated', platformDirectory, file.language, ...file.subdirectory, file.name)
 }
 
 export function getRelativeDirectoryGenerated(...subpath: string[]): string {

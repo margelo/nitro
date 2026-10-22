@@ -13,12 +13,12 @@ import { prettifyDirectory } from './prettifyDirectory.js'
 import { capitalizeName, deduplicateFiles, errorToString, getRealPath, toUnixPath } from './utils.js'
 import { writeFile } from './writeFile.js'
 import chalk from 'chalk'
-import { groupByPlatform, type SourceFile } from './syntax/SourceFile.js'
+import { getPlatformDirectory, groupByPlatform, type SourceFile } from './syntax/SourceFile.js'
 import { Logger } from './Logger.js'
 import { NitroConfig } from './config/NitroConfig.js'
 import { createAndroidAutolinking } from './autolinking/createAndroidAutolinking.js'
-import { createIOSAutolinking } from './autolinking/createIOSAutolinking.js'
-import { updateSwiftPackageManifest } from './autolinking/ios/updateSwiftPackageManifest.js'
+import { createAppleAutolinking } from './autolinking/createAppleAutolinking.js'
+import { updateSwiftPackageManifest } from './autolinking/apple/updateSwiftPackageManifest.js'
 import { getImportsCode } from './syntax/getImportCode.js'
 import { getModuleDependencies } from './syntax/getModuleDependencies.js'
 import type { Autolinking } from './autolinking/Autolinking.js'
@@ -237,7 +237,7 @@ export async function runNitrogen({ baseDirectory, outputDirectory }: NitrogenOp
           Logger.info(`        ${chalk.dim(platform)}: Generating ${capitalizeName(language)} code...`)
           // Write the actual files for this specific platform.
           for (const file of files) {
-            const basePath = path.join(outputDirectory, file.platform, file.language)
+            const basePath = path.join(outputDirectory, getPlatformDirectory(file.platform), file.language)
             const actualPath = await writeFile(basePath, file)
             filesAfter.push(actualPath)
           }
@@ -332,7 +332,7 @@ ${imports}
       platform: 'ios',
       subdirectory: [],
     }
-    const actualPath = await writeFile(path.join(outputDirectory, 'ios', 'swift'), anchor)
+    const actualPath = await writeFile(path.join(outputDirectory, getPlatformDirectory(anchor.platform), anchor.language), anchor)
     filesAfter.push(actualPath)
     generatedSources.push(anchor)
   }
@@ -343,7 +343,7 @@ ${imports}
   const autolinkingFiles: Autolinking[] = []
 
   if (usedPlatforms.includes('ios')) {
-    autolinkingFiles.push(createIOSAutolinking(specsByPlatform.ios))
+    autolinkingFiles.push(createAppleAutolinking(specsByPlatform.ios))
   }
   if (usedPlatforms.includes('android')) {
     autolinkingFiles.push(createAndroidAutolinking(specsByPlatform.android, generatedSources))
@@ -352,7 +352,7 @@ ${imports}
   for (const autolinking of autolinkingFiles) {
     Logger.info(`    Creating autolinking build setup for ${chalk.dim(autolinking.platform)}...`)
     for (const file of autolinking.sourceFiles) {
-      const basePath = path.join(outputDirectory, file.platform)
+      const basePath = path.join(outputDirectory, getPlatformDirectory(file.platform))
       const actualPath = await writeFile(basePath, file)
       filesAfter.push(actualPath)
     }

@@ -47,7 +47,7 @@ import Foundation
 // swift-format-ignore
 func addNitrogenTargets(
     to package: Package,
-    swiftSources: [String] = ["ios"],
+    swiftSources: [String] = ["apple"],
     cxxSources: [String] = ["cpp"],
     dependencies: [Target.Dependency] = [],
     swiftSettings: [SwiftSetting] = [],
@@ -110,12 +110,12 @@ func addNitrogenTargets(
     let appleCxxTarget: Target = .target(
         name: "NitroTestExternalAppleCxx",
         dependencies: ["NitroTestExternalCxx"] + nitroModuleDependencies,
-        path: "nitrogen/generated/ios/NitroTestExternalAppleCxx",
-        cxxSettings: commonCxxSettings + userHeaderSearchPaths(relativeTo: "nitrogen/generated/ios/NitroTestExternalAppleCxx")
+        path: "nitrogen/generated/apple/NitroTestExternalAppleCxx",
+        cxxSettings: commonCxxSettings + userHeaderSearchPaths(relativeTo: "nitrogen/generated/apple/NitroTestExternalAppleCxx")
     )
 
     let swiftSourcesInTarget = userSwiftSources + [
-        "nitrogen/generated/ios/swift",
+        "nitrogen/generated/apple/swift",
     ]
     let swiftDependencies: [Target.Dependency] = ["NitroTestExternalAppleCxx"] + nitroModuleDependencies
     let generatedSwiftSettings: [SwiftSetting] = [
@@ -144,7 +144,7 @@ func addNitrogenTargets(
         "NitroTestExternal-Swift-Cxx-Bridge.cpp",
         "NitroTestExternalAutolinking.cpp",
         "NitroTestExternalAutolinking.mm",
-    ].filter { exists("nitrogen/generated/ios/" + $0) }
+    ].filter { exists("nitrogen/generated/apple/" + $0) }
     let swiftBridgeSettings: [CXXSetting] = [
         // Include Swift's generated header textually after the C++ declarations it uses.
         // Swift Build and Xcode provide the generated header directory.
@@ -156,12 +156,12 @@ func addNitrogenTargets(
             "NitroTestExternal",
             "NitroTestExternalAppleCxx",
         ] + nitroModuleDependencies + reactNativeDependencies,
-        path: "nitrogen/generated/ios",
-        exclude: nitrogenExcludes(in: "nitrogen/generated/ios", keeping: swiftBridgeSources)
+        path: "nitrogen/generated/apple",
+        exclude: nitrogenExcludes(in: "nitrogen/generated/apple", keeping: swiftBridgeSources)
             + ["c++/include"],
         sources: swiftBridgeSources,
         publicHeadersPath: "c++/include",
-        cxxSettings: commonCxxSettings + userHeaderSearchPaths(relativeTo: "nitrogen/generated/ios") + swiftBridgeSettings + cxxSettings
+        cxxSettings: commonCxxSettings + userHeaderSearchPaths(relativeTo: "nitrogen/generated/apple") + swiftBridgeSettings + cxxSettings
     )
 
     package.products.append(

@@ -81,3 +81,18 @@ export function groupByPlatform(files: SourceFile[]): GroupedFiles {
   }
   return result
 }
+
+/**
+ * Returns the directory in `nitrogen/generated` that holds the files of `platform`.
+ * The `ios` platform writes to `apple`, since its files build for every Apple platform.
+ */
+export function getPlatformDirectory(platform: SourceFile['platform']): string {
+  switch (platform) {
+    case 'shared':
+      return 'shared'
+    case 'ios':
+      return 'apple'
+    case 'android':
+      return 'android'
+  }
+}

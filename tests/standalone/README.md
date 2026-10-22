@@ -13,7 +13,7 @@ tests/standalone/
     specs/                 # HybridObject specs, importing nitro-core
     src/                   # Package exports for fixture types
     cpp/                   # C++ implementations
-    ios/                   # Swift implementations
+    apple/                 # Swift implementations
     android/               # Kotlin implementations and native library
     nitrogen/generated/    # Committed Nitrogen output
   nitro-test-external/      # Separate Swift/Kotlin fixture module

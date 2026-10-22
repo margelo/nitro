@@ -103,16 +103,16 @@ export declare class Math extends HybridObject {
     cwd: consumer,
   })
   const generated = path.join(consumer, 'nitrogen/generated')
-  const swiftSpec = readFileSync(path.join(generated, 'ios/swift/HybridMathSpec.swift'), 'utf8')
+  const swiftSpec = readFileSync(path.join(generated, 'apple/swift/HybridMathSpec.swift'), 'utf8')
   for (const signature of ['func add(a: Double, b: Double) throws -> Double', 'func greet(name: String) throws -> String']) {
     if (!swiftSpec.includes(signature)) throw new Error(`Packed Nitrogen did not generate the Swift signature: ${signature}`)
   }
-  const bridgeHeader = readFileSync(path.join(generated, 'ios/c++/include/ReleaseCheck/private/HybridMathSpecSwift.hpp'), 'utf8')
+  const bridgeHeader = readFileSync(path.join(generated, 'apple/c++/include/ReleaseCheck/private/HybridMathSpecSwift.hpp'), 'utf8')
   for (const signature of ['double add(double a, double b);', 'swift::String greet(const swift::String& name);']) {
     if (!bridgeHeader.includes(signature)) throw new Error(`Packed Nitrogen did not generate the Swift C++ bridge signature: ${signature}`)
   }
   if (bridgeHeader.includes('std::string greet(')) throw new Error('Packed Nitrogen generated a native C++ method for the Swift-only spec')
-  const bridgeSource = readFileSync(path.join(generated, 'ios/c++/HybridMathSpecSwift.cpp'), 'utf8')
+  const bridgeSource = readFileSync(path.join(generated, 'apple/c++/HybridMathSpecSwift.cpp'), 'utf8')
   for (const method of ['add', 'greet']) {
     if (!bridgeSource.includes(`clazz.registerHybridMethod("${method}", &HybridMathSpecSwift::${method});`))
       throw new Error(`Packed Nitrogen did not register the Swift ${method} method`)
@@ -121,7 +121,7 @@ export declare class Math extends HybridObject {
     'shared/c++/include/ReleaseCheck/HybridMathSpec.hpp',
     'shared/c++/HybridMathSpec.cpp',
     'shared/c++/include/ReleaseCheck/HybridMathSpecCxx.hpp',
-    'ios/c++/HybridMathSpecCxx.ios.cpp',
+    'apple/c++/HybridMathSpecCxx.ios.cpp',
   ]) {
     if (existsSync(path.join(generated, file))) throw new Error(`Packed Nitrogen generated an unused C++ spec or adapter: ${file}`)
   }
@@ -185,11 +185,11 @@ function checkReactNativeConsumer(packed, version) {
     cwd: consumer,
   })
   for (const file of [
-    'ios/c++/views/HybridTestViewComponent.cpp',
+    'apple/c++/views/HybridTestViewComponent.cpp',
     'android/c++/views/HybridTestViewComponent.cpp',
     'shared/c++/include/NitroTest/HybridBenchmarkObjectCppSpec.hpp',
-    'ios/swift/HybridBenchmarkObjectSwiftKotlinSpec.swift',
-    'ios/swift/HybridTestViewSpec.swift',
+    'apple/swift/HybridBenchmarkObjectSwiftKotlinSpec.swift',
+    'apple/swift/HybridTestViewSpec.swift',
   ]) {
     if (!existsSync(path.join(consumer, 'nitrogen/generated', file))) throw new Error(`Packed Nitrogen did not generate ${file}`)
   }

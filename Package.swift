@@ -41,7 +41,7 @@ let package = Package(
     .target(
       name: "Hermes",
       dependencies: ["NitroTestHermes"],
-      path: "tests/standalone/hermes/Sources/Hermes",
+      path: "tests/standalone/hermes/apple",
       linkerSettings: [.linkedFramework("Foundation"), .linkedFramework("CoreFoundation")]
     ),
     .target(
@@ -136,10 +136,10 @@ func addFixtureTargets(
   swiftModules: [String] = []
 ) {
   let generated = "\(directory)/nitrogen/generated"
-  let ios = "\(generated)/ios"
+  let apple = "\(generated)/apple"
   let userCxxSources = ["\(directory)/cpp"].filter(exists)
   let cxxSources = ["\(generated)/shared/c++"] + userCxxSources
-  let swiftSources = ["\(directory)/ios", "\(ios)/swift"]
+  let swiftSources = ["\(directory)/apple", "\(apple)/swift"]
   let exposedModules = ["NitroModules"] + swiftModules
   let exposedFlags = exposedModules.flatMap {
     ["-Xfrontend", "-clang-header-expose-module", "-Xfrontend", "\($0)=\($0)-Swift.h"]
@@ -177,7 +177,7 @@ func addFixtureTargets(
     .target(
       name: "\(name)AppleCxx",
       dependencies: [.target(name: "\(name)Cxx"), "NitroModulesAppleCxx"] + dependencies,
-      path: "\(ios)/\(name)AppleCxx",
+      path: "\(apple)/\(name)AppleCxx",
       cxxSettings: cxxSettings
     ),
     .target(
@@ -192,10 +192,10 @@ func addFixtureTargets(
     .target(
       name: "\(name)SwiftBridge",
       dependencies: [.target(name: name), .target(name: "\(name)AppleCxx"), "NitroModulesSwiftBridge"] + dependencies,
-      path: ios,
+      path: apple,
       sources: bridgeSources,
       publicHeadersPath: "c++/include",
-      cxxSettings: cxxSettings + bridgeSettings + userHeaderSearchPaths(relativeTo: ios)
+      cxxSettings: cxxSettings + bridgeSettings + userHeaderSearchPaths(relativeTo: apple)
     ),
   ]
 }

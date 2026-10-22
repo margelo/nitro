@@ -1,6 +1,6 @@
 import type { Type } from '../types/Type.js'
 import { wrapSwiftType } from './wrapSwiftType.js'
-import { getUmbrellaHeaderName } from '../../autolinking/ios/createSwiftUmbrellaHeader.js'
+import { getUmbrellaHeaderName } from '../../autolinking/apple/createSwiftUmbrellaHeader.js'
 import { NitroConfig } from '../../config/NitroConfig.js'
 import { indent } from '../../utils.js'
 import { getImportsCode } from '../getImportCode.js'
