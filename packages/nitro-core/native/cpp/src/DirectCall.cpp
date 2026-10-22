@@ -167,6 +167,12 @@ JavaContext::~JavaContext() {
   // The Runtime may be destroyed on a thread that is not attached to the JVM yet.
   facebook::jni::ThreadScope scope;
   JNIEnv* currentEnv = facebook::jni::Environment::current();
+  if (scratchSlot >= 0) {
+    jclass clazz = directCallClass(currentEnv);
+    static const jmethodID unregisterScratch = currentEnv->GetStaticMethodID(clazz, "unregisterScratch", "(I)V");
+    currentEnv->CallStaticVoidMethod(clazz, unregisterScratch, scratchSlot);
+    currentEnv->ExceptionClear();
+  }
   if (scratchBuffer != nullptr) {
     currentEnv->DeleteGlobalRef(scratchBuffer);
   }
@@ -183,42 +189,12 @@ std::shared_ptr<JavaContext> JavaContext::get(jsi::Runtime& runtime) {
     if (!useSharedScratch(env, *context)) {
       useCopyingScratch(env, *context);
     }
+    jclass clazz = directCallClass(env);
+    static const jmethodID registerScratch = env->GetStaticMethodID(clazz, "registerScratch", "([BLjava/nio/ByteBuffer;)I");
+    context->scratchSlot = env->CallStaticIntMethod(clazz, registerScratch, context->scratchBytes, context->scratchBuffer);
+    facebook::jni::throwPendingJniExceptionAsCppException();
     return context;
   });
-}
-
-bool appendASCII(jsi::Runtime& runtime, const jsi::Value& value, JavaContext& context, size_t& offset, jint& length) {
-  Borrowed<jsi::String> string(value);
-  uint8_t* target = context.scratchData + offset;
-  size_t capacity = kScratchSize - offset;
-  size_t written = 0;
-  bool fits = true;
-  auto append = [&](bool ascii, const void* data, size_t count) {
-    if (!fits || count > capacity - written) {
-      fits = false;
-      return;
-    }
-    if (ascii) {
-      memcpy(target + written, data, count);
-    } else {
-      const char16_t* characters = static_cast<const char16_t*>(data);
-      for (size_t i = 0; i < count; i++) {
-        if (characters[i] >= 0x80) {
-          fits = false;
-          return;
-        }
-        target[written + i] = static_cast<uint8_t>(characters[i]);
-      }
-    }
-    written += count;
-  };
-  string.get().getStringData(runtime, append);
-  if (!fits) [[unlikely]] {
-    return false;
-  }
-  length = static_cast<jint>(written);
-  offset += written;
-  return true;
 }
 
 void copyScratchToJavaBytesSlow(JavaContext& context, size_t length) {

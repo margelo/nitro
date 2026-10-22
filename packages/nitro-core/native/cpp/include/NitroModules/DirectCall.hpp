@@ -215,6 +215,8 @@ struct JavaContext final {
   jint scratchBase = 0;
   // Whether `scratchBytes` shares `scratchData`'s memory, so strings need no JNI copies.
   bool scratchShared = false;
+  // The slot of `scratchBytes` and `scratchBuffer` in Kotlin's `DirectCall`, which bridges receive instead of the objects.
+  jint scratchSlot = -1;
   // The scratch memory if it is not shared with Java.
   alignas(8) uint8_t scratch[kScratchSize] = {};
 
@@ -231,7 +233,43 @@ struct JavaContext final {
  * Appends the characters of string `value` to the scratch memory at `offset` as ASCII, and returns its length in
  * `length`. Returns false for other characters and strings that do not fit, which take the regular JSI path.
  */
-bool appendASCII(jsi::Runtime& runtime, const jsi::Value& value, JavaContext& context, size_t& offset, jint& length);
+inline bool appendASCII(jsi::Runtime& runtime, const jsi::Value& value, JavaContext& context, size_t& offset, jint& length) {
+  Borrowed<jsi::String> string(value);
+  uint8_t* target = context.scratchData + offset;
+  size_t capacity = kScratchSize - offset;
+  size_t written = 0;
+  bool fits = true;
+  auto append = [&](bool ascii, const void* data, size_t count) {
+    if (!fits || count > capacity - written) [[unlikely]] {
+      fits = false;
+      return;
+    }
+    if (ascii) [[likely]] {
+      // Short strings are common, and a loop beats a call to `memcpy` for them.
+      const uint8_t* source = static_cast<const uint8_t*>(data);
+      for (size_t i = 0; i < count; i++) {
+        target[written + i] = source[i];
+      }
+    } else {
+      const char16_t* characters = static_cast<const char16_t*>(data);
+      for (size_t i = 0; i < count; i++) {
+        if (characters[i] >= 0x80) {
+          fits = false;
+          return;
+        }
+        target[written + i] = static_cast<uint8_t>(characters[i]);
+      }
+    }
+    written += count;
+  };
+  string.get().getStringData(runtime, append);
+  if (!fits) [[unlikely]] {
+    return false;
+  }
+  length = static_cast<jint>(written);
+  offset += written;
+  return true;
+}
 
 void copyScratchToJavaBytesSlow(JavaContext& context, size_t length);
 void copyJavaBytesToScratchSlow(JavaContext& context, jint length);

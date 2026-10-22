@@ -481,11 +481,19 @@ function createKotlinBridge(implementationClassName: string, method: DirectMetho
   const kotlinStatements: string[] = []
   const kotlinArguments: string[] = []
   const cppCall: string[] = ['JavaContext& __java = *__context;']
+  const usesScratch = usesBytes || method.result.kind === 'struct'
+  if (usesScratch) {
+    // The Runtime's scratch slot. JNI passes an `Int` faster than the scratch objects themselves.
+    descriptors.push('I')
+    jvalues.push('i = __java.scratchSlot')
+    kotlinParameters.push('__slot: Int')
+  }
   if (usesBytes) {
     // Where the scratch memory starts in the shared `byte[]`.
     descriptors.push('I')
     jvalues.push('i = __java.scratchBase')
     kotlinParameters.push('__base: Int')
+    kotlinStatements.push('val __bytes = com.margelo.nitro.core.DirectCall.scratchBytes[__slot]!!')
   }
   const stringParameters = method.parameters.filter((parameter) => parameter.value.kind === 'string')
   if (stringParameters.length > 0) {
@@ -546,17 +554,7 @@ copyScratchToJavaBytes(__java, __offset);
       }
     }
   }
-  if (usesBytes) {
-    descriptors.push('[B')
-    jvalues.push('l = __java.scratchBytes')
-    kotlinParameters.push('__bytes: ByteArray')
-  }
   const result = method.result
-  if (result.kind === 'struct') {
-    descriptors.push('Ljava/nio/ByteBuffer;')
-    jvalues.push('l = __java.scratchBuffer')
-    kotlinParameters.push('__out: java.nio.ByteBuffer')
-  }
   const invocation = `${implementationClassName}.${method.name}(${kotlinArguments.join(', ')})`
   let returnDescriptor: string
   let kotlinReturn = ''
@@ -601,6 +599,7 @@ return stringFromJavaBytes(__runtime, __java, __length);
     case 'struct': {
       returnDescriptor = 'V'
       kotlinStatements.push(`val __result = ${invocation}`)
+      kotlinStatements.push('val __out = com.margelo.nitro.core.DirectCall.scratchBuffers[__slot]!!')
       const reads: string[] = []
       result.struct.fields.forEach((field, fieldIndex) => {
         const offset = fieldIndex * 8
@@ -705,7 +704,7 @@ void resolveDirectMethods() {
  * The static entry points the direct JSI host functions in \`${jHybridTSpec}.cpp\` call through JNI.
  * They are real static methods, so each call reaches the implementation without companion accessors.
  * Strings arrive as ASCII in the Runtime's scratch \`byte[]\` at \`__base\`, and struct results leave
- * through the Runtime's scratch \`ByteBuffer\`.
+ * through the Runtime's scratch \`ByteBuffer\`. Both are found by the Runtime's \`__slot\` in \`DirectCall\`.
  */
 @DoNotStrip
 @Keep

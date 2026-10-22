@@ -16,6 +16,54 @@ object DirectCall {
   private val pendingString = ThreadLocal<String?>()
 
   /**
+   * Each Runtime's scratch `byte[]` and `ByteBuffer`, by the slot [registerScratch] returned.
+   * Bridges receive the slot as an `Int`, which JNI passes faster than an object reference.
+   * Registration replaces the arrays instead of mutating them, so readers never need a lock.
+   */
+  @JvmField
+  @Volatile
+  var scratchBytes: Array<ByteArray?> = arrayOfNulls(0)
+
+  @JvmField
+  @Volatile
+  var scratchBuffers: Array<ByteBuffer?> = arrayOfNulls(0)
+
+  /** Stores a Runtime's scratch memory and returns its slot. */
+  @JvmStatic
+  @Keep
+  @DoNotStrip
+  @Synchronized
+  fun registerScratch(
+    bytes: ByteArray,
+    buffer: ByteBuffer,
+  ): Int {
+    var slot = scratchBytes.indexOfFirst { it == null }
+    if (slot < 0) slot = scratchBytes.size
+    val newBytes = scratchBytes.copyOf(maxOf(scratchBytes.size, slot + 1))
+    val newBuffers = scratchBuffers.copyOf(newBytes.size)
+    newBytes[slot] = bytes
+    newBuffers[slot] = buffer
+    // Publish the buffers first, so a reader that sees a slot's bytes also sees its buffer.
+    scratchBuffers = newBuffers
+    scratchBytes = newBytes
+    return slot
+  }
+
+  /** Frees a slot when its Runtime is destroyed. */
+  @JvmStatic
+  @Keep
+  @DoNotStrip
+  @Synchronized
+  fun unregisterScratch(slot: Int) {
+    val newBytes = scratchBytes.copyOf()
+    val newBuffers = scratchBuffers.copyOf()
+    newBytes[slot] = null
+    newBuffers[slot] = null
+    scratchBytes = newBytes
+    scratchBuffers = newBuffers
+  }
+
+  /**
    * Creates a Runtime's scratch buffer. On ART, a direct buffer is backed by a non-movable `byte[]`,
    * so C++ and Kotlin can share its memory. C++ checks that before relying on it.
    */
@@ -57,17 +105,20 @@ object DirectCall {
     base: Int,
   ): Int {
     val length = value.length
-    if (length > bytes.size - base) {
+    // One check up front lets ART drop the bounds checks inside the loop.
+    if (base < 0 || length > bytes.size - base) {
       pendingString.set(value)
       return -1
     }
-    for (i in 0 until length) {
+    var i = 0
+    while (i < length) {
       val code = value[i].code
       if (code >= 0x80) {
         pendingString.set(value)
         return -1
       }
       bytes[base + i] = code.toByte()
+      i++
     }
     return length
   }

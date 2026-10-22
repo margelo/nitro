@@ -933,7 +933,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
  * The static entry points the direct JSI host functions in `JHybridTestObjectSwiftKotlinSpec.cpp` call through JNI.
  * They are real static methods, so each call reaches the implementation without companion accessors.
  * Strings arrive as ASCII in the Runtime's scratch `byte[]` at `__base`, and struct results leave
- * through the Runtime's scratch `ByteBuffer`.
+ * through the Runtime's scratch `ByteBuffer`. Both are found by the Runtime's `__slot` in `DirectCall`.
  */
 @DoNotStrip
 @Keep
@@ -956,7 +956,8 @@ internal object HybridTestObjectSwiftKotlinSpec_direct {
   @JvmStatic
   @DoNotStrip
   @Keep
-  fun staticConcat(__base: Int, __a_length: Int, __b_length: Int, __bytes: ByteArray): Int {
+  fun staticConcat(__slot: Int, __base: Int, __a_length: Int, __b_length: Int): Int {
+    val __bytes = com.margelo.nitro.core.DirectCall.scratchBytes[__slot]!!
     val a = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, __base, __a_length)
     val b = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, __base + __a_length, __b_length)
     val __result = HybridTestObjectKotlin.staticConcat(a, b)
@@ -966,8 +967,9 @@ internal object HybridTestObjectSwiftKotlinSpec_direct {
   @JvmStatic
   @DoNotStrip
   @Keep
-  fun staticBouncePoint(__point__x: Double, __point__y: Double, __point__visible: Boolean, __out: java.nio.ByteBuffer) {
+  fun staticBouncePoint(__slot: Int, __point__x: Double, __point__y: Double, __point__visible: Boolean) {
     val __result = HybridTestObjectKotlin.staticBouncePoint(StaticPoint(__point__x, __point__y, __point__visible))
+    val __out = com.margelo.nitro.core.DirectCall.scratchBuffers[__slot]!!
     __out.putDouble(0, __result.x)
     __out.putDouble(8, __result.y)
     __out.put(16, (if (__result.visible) 1 else 0).toByte())
@@ -976,7 +978,8 @@ internal object HybridTestObjectSwiftKotlinSpec_direct {
   @JvmStatic
   @DoNotStrip
   @Keep
-  fun staticThrow(__base: Int, __message_length: Int, __bytes: ByteArray) {
+  fun staticThrow(__slot: Int, __base: Int, __message_length: Int) {
+    val __bytes = com.margelo.nitro.core.DirectCall.scratchBytes[__slot]!!
     val message = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, __base, __message_length)
     HybridTestObjectKotlin.staticThrow(message)
   }
