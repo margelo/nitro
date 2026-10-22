@@ -687,6 +687,24 @@ namespace margelo::nitro::test::swift_bridge {
     });
   }
 
+  Result<bool, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_bool_bool(const Callback_bool_bool& callback, bool param0) noexcept {
+    try {
+      return Result<bool, margelo::nitro::test::swift_bridge::ResultTag>::withValue(callback.callSync(param0));
+    } catch (...) {
+      return Result<bool, margelo::nitro::test::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
+  }
+
+  Callback_bool_bool create_Callback_bool_bool(std::function<Result<bool, margelo::nitro::test::swift_bridge::ResultTag>(bool param0)> closure) {
+    return Callback_bool_bool::make([closure = std::move(closure)](bool param0) -> bool {
+      auto __result = closure(param0);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      return std::move(__result.value());
+    });
+  }
+
   Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx create_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx() { return Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx::pending(); }
 
   void reject_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(const Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx& promise, std::exception_ptr error) { promise.reject(std::move(error)); }

@@ -579,6 +579,79 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     return __result
   }
 
+  abstract fun callSyncCallback(value: Double, callback: (value: Double) -> Unit): Unit
+
+  @DoNotStrip
+  @Keep
+  private fun callSyncCallback_cxx(value: Double, callback: Callback_void_double): Unit {
+    callSyncCallback(value, callback)
+  }
+
+  abstract fun callAsyncCallback(value: Double, callback: (value: Double) -> Double): Promise<Double>
+
+  @DoNotStrip
+  @Keep
+  private fun callAsyncCallback_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
+    val __result = callAsyncCallback(value, callback)
+    return __result
+  }
+
+  abstract fun callAsyncVoidCallback(callback: () -> Unit): Promise<Unit>
+
+  @DoNotStrip
+  @Keep
+  private fun callAsyncVoidCallback_cxx(callback: Callback_void): Promise<Unit> {
+    val __result = callAsyncVoidCallback(callback)
+    return __result
+  }
+
+  abstract fun callAsyncBooleanCallback(value: Boolean, callback: (value: Boolean) -> Boolean): Promise<Boolean>
+
+  @DoNotStrip
+  @Keep
+  private fun callAsyncBooleanCallback_cxx(value: Boolean, callback: Callback_bool_bool): Promise<Boolean> {
+    val __result = callAsyncBooleanCallback(value, callback)
+    return __result
+  }
+
+  abstract fun awaitAsyncCallback(value: Double, callback: (value: Double) -> Double): Promise<Double>
+
+  @DoNotStrip
+  @Keep
+  private fun awaitAsyncCallback_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
+    val __result = awaitAsyncCallback(value, callback)
+    return __result
+  }
+
+  abstract fun callAndForgetCallback(value: Double, callback: (value: Double) -> Double): Unit
+
+  @DoNotStrip
+  @Keep
+  private fun callAndForgetCallback_cxx(value: Double, callback: Callback_double_double): Unit {
+    callAndForgetCallback(value, callback)
+  }
+
+  @DoNotStrip
+  @Keep
+  abstract fun callNativeCallbackAsync(value: Double): Promise<Double>
+
+  @DoNotStrip
+  @Keep
+  abstract fun callThrowingNativeCallbackAsync(message: String): Promise<Unit>
+
+  @DoNotStrip
+  @Keep
+  abstract fun callThrowingNativeCallbackAndForget(message: String): Unit
+
+  abstract fun callInlineCallbackThenEscape(value: Double, callback: (value: Double) -> Double): Promise<Double>
+
+  @DoNotStrip
+  @Keep
+  private fun callInlineCallbackThenEscape_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
+    val __result = callInlineCallbackThenEscape(value, callback)
+    return __result
+  }
+
   @DoNotStrip
   @Keep
   abstract fun getCar(): Car

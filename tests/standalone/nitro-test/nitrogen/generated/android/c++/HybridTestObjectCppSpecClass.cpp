@@ -206,6 +206,16 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("createNativeCallback", &HybridTestObjectCppSpec::createNativeCallback);
       clazz.registerHybridMethod("getValueFromJSCallbackAndWait", &HybridTestObjectCppSpec::getValueFromJSCallbackAndWait);
       clazz.registerHybridMethod("getValueFromJsCallback", &HybridTestObjectCppSpec::getValueFromJsCallback);
+      clazz.registerHybridMethod("callSyncCallback", &HybridTestObjectCppSpec::callSyncCallback);
+      clazz.registerHybridMethod("callAsyncCallback", &HybridTestObjectCppSpec::callAsyncCallback);
+      clazz.registerHybridMethod("callAsyncVoidCallback", &HybridTestObjectCppSpec::callAsyncVoidCallback);
+      clazz.registerHybridMethod("callAsyncBooleanCallback", &HybridTestObjectCppSpec::callAsyncBooleanCallback);
+      clazz.registerHybridMethod("awaitAsyncCallback", &HybridTestObjectCppSpec::awaitAsyncCallback);
+      clazz.registerHybridMethod("callAndForgetCallback", &HybridTestObjectCppSpec::callAndForgetCallback);
+      clazz.registerHybridMethod("callNativeCallbackAsync", &HybridTestObjectCppSpec::callNativeCallbackAsync);
+      clazz.registerHybridMethod("callThrowingNativeCallbackAsync", &HybridTestObjectCppSpec::callThrowingNativeCallbackAsync);
+      clazz.registerHybridMethod("callThrowingNativeCallbackAndForget", &HybridTestObjectCppSpec::callThrowingNativeCallbackAndForget);
+      clazz.registerHybridMethod("callInlineCallbackThenEscape", &HybridTestObjectCppSpec::callInlineCallbackThenEscape);
       clazz.registerHybridMethod("getCar", &HybridTestObjectCppSpec::getCar);
       clazz.registerHybridMethod("isCarElectric", &HybridTestObjectCppSpec::isCarElectric);
       clazz.registerHybridMethod("areCarsEqual", &HybridTestObjectCppSpec::areCarsEqual);

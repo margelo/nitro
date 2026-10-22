@@ -136,10 +136,10 @@ but cannot prove these ownership and scheduling details.
 ## Execution and failures
 
 Each test file creates a fresh Hermes runtime, installs Nitro, loads the bundle, and calls `runNitroTest(name)` for each enabled case. The
-runtime is destroyed after the file finishes or its first failure. The ten shared test files therefore use ten runtimes per successful run;
-handwritten native runner contracts use separate runtimes. The runner eagerly compiles the bundle once and caches its bytecode by source
-contents. Each runtime evaluates that bytecode with fresh globals and native objects. Compilation happens before the JS deadlines; Hermes'
-watchdog cannot interrupt the native compiler.
+runtime is destroyed after the file finishes or its first failure. The eleven shared test files therefore use eleven runtimes per successful
+run; handwritten native runner contracts use separate runtimes. The runner eagerly compiles the bundle once and caches its bytecode by
+source contents. Each runtime evaluates that bytecode with fresh globals and native objects. Compilation happens before the JS deadlines;
+Hermes' watchdog cannot interrupt the native compiler.
 
 The native thread owns the runtime and pumps its dispatcher. On iOS, an operation queue runs at most two suites at once while Swift awaits
 continuations. This leaves Swift's cooperative executor free to run `Promise.async` tasks that the JavaScript case awaits. The iOS runner

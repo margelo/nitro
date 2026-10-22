@@ -175,6 +175,63 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     }
   }
 
+  func callSyncCallback(value: Double, callback: any Callback<Double, Void>) throws {
+    try callback.callSync(value)
+  }
+
+  func callAsyncCallback(value: Double, callback: any Callback<Double, Double>) throws -> any Promise<
+    Double
+  > {
+    return callback.callAsync(value)
+  }
+
+  func callAsyncVoidCallback(callback: any Callback<(), Void>) throws -> any Promise<Void> {
+    return callback.callAsync()
+  }
+
+  func callAsyncBooleanCallback(value: Bool, callback: any Callback<Bool, Bool>) throws
+    -> any Promise<Bool>
+  {
+    return callback.callAsync(value)
+  }
+
+  func awaitAsyncCallback(value: Double, callback: any Callback<Double, Double>) throws
+    -> any Promise<Double>
+  {
+    return .async {
+      let result = try await callback.callAsync(value)
+      return result + 1
+    }
+  }
+
+  func callAndForgetCallback(value: Double, callback: any Callback<Double, Double>) throws {
+    callback.callAndForget(value)
+  }
+
+  func callNativeCallbackAsync(value: Double) throws -> any Promise<Double> {
+    let callback: any Callback<Double, Double> = .native { input in input * 2 }
+    return callback.callAsync(value)
+  }
+
+  func callThrowingNativeCallbackAsync(message: String) throws -> any Promise<Void> {
+    let callback: any Callback<(), Void> = .native { throw RuntimeError(message) }
+    return callback.callAsync()
+  }
+
+  func callThrowingNativeCallbackAndForget(message: String) throws {
+    let callback: any Callback<(), Void> = .native { throw RuntimeError(message) }
+    callback.callAndForget()
+  }
+
+  func callInlineCallbackThenEscape(
+    value: Double,
+    callback: borrowing some InlineCallback<Double, Double> & ~Copyable & ~Escapable
+  ) throws -> any Promise<Double> {
+    let first = try callback(value)
+    let escaped = callback.escape()
+    return escaped.callAsync(first)
+  }
+
   func callSumUpNTimes(callback: any Callback<(), Double>, n: Double) throws -> any Promise<Double> {
     var result = 0.0
     return .async {
