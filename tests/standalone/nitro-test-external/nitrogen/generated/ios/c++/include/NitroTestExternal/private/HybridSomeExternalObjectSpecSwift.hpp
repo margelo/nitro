@@ -59,8 +59,6 @@ namespace margelo::nitro::test::external {
     // Methods
     swift::String getValue();
     ::NitroTestExternal::OptionalPrimitivesHolder createOptionalPrimitivesHolder(const swift::Optional<double>& optionalNumber, const swift::Optional<bool>& optionalBoolean, const swift::Optional<uint64_t>& optionalUInt64, const swift::Optional<int64_t>& optionalInt64);
-    // Constructor
-    static ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx constructor();
 
   protected:
     const std::shared_ptr<const HybridClass>& getHybridClass() override {

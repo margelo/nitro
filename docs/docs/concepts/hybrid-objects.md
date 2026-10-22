@@ -186,8 +186,8 @@ it in your implementation:
     <TabItem value="kotlin" label="Kotlin">
       ```kotlin title="HybridMath.kt"
       class HybridMath : HybridMathSpec() {
-        companion object {
-          fun add(a: Double, b: Double): Double {
+        companion object : HybridMathSpec.Companion {
+          override fun add(a: Double, b: Double): Double {
             return a + b
           }
         }
@@ -262,7 +262,8 @@ inherit from other Hybrid Objects, or satisfy a common interface.
 
 Each Hybrid Object has a proper JavaScript prototype chain, created automatically and lazily. When a Hybrid Object inherits from another
 Hybrid Object, it extends the prototype chain. Set `allowInheritance: true` and `allowMultipleImplementations: true` on the base spec's
-platform decorators:
+platform decorators and omit `implementation`. The base exposes instance members; concrete child specs can declare their own constructors
+and static members:
 
   <div className="side-by-side-container">
     <div className="side-by-side-block" style={{ flex: 2 }}>

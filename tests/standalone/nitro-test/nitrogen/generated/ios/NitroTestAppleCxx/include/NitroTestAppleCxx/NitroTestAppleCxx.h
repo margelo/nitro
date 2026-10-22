@@ -17,8 +17,6 @@ namespace NitroTest { class SizeUnit; }
 // Forward declaration of `Size` to properly resolve imports.
 namespace NitroTest { class Size; }
 #include <NitroModules/Promise.hpp>
-// Forward declaration of `HybridSomeExternalObjectSpec_cxx` to properly resolve imports.
-namespace NitroTestExternal { class HybridSomeExternalObjectSpec_cxx; }
 #include <NitroModules/Callback.hpp>
 #include <NitroModules/Result.hpp>
 // Forward declaration of `HybridChildSpec_cxx` to properly resolve imports.
@@ -44,6 +42,8 @@ namespace NitroTest { class NamedVariant_cxx; }
 namespace NitroTest { class HybridGrandchildSpec_cxx; }
 // Forward declaration of `HybridPlatformObjectSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridPlatformObjectSpec_cxx; }
+// Forward declaration of `HybridSomeExternalObjectSpec_cxx` to properly resolve imports.
+namespace NitroTestExternal { class HybridSomeExternalObjectSpec_cxx; }
 // Forward declaration of `HybridTestObjectSwiftKotlinSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridTestObjectSwiftKotlinSpec_cxx; }
 #include <NitroModules/Null.hpp>
@@ -133,14 +133,14 @@ namespace NitroTestExternal { class OptionalPrimitivesHolder; }
 // Forward declaration of `HybridBaseSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test { class HybridBaseSpecSwift; }
 #include <NitroModules/NitroDefines.hpp>
-// Forward declaration of `HybridSomeExternalObjectSpecSwift` to properly resolve imports.
-namespace margelo::nitro::test::external { class HybridSomeExternalObjectSpecSwift; }
 // Forward declaration of `HybridChildSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test { class HybridChildSpecSwift; }
 // Forward declaration of `HybridGrandchildSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test { class HybridGrandchildSpecSwift; }
 // Forward declaration of `HybridPlatformObjectSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test { class HybridPlatformObjectSpecSwift; }
+// Forward declaration of `HybridSomeExternalObjectSpecSwift` to properly resolve imports.
+namespace margelo::nitro::test::external { class HybridSomeExternalObjectSpecSwift; }
 // Forward declaration of `HybridTestObjectSwiftKotlinSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test { class HybridTestObjectSwiftKotlinSpecSwift; }
 #include <memory>
@@ -159,13 +159,6 @@ namespace margelo::nitro::test::swift_bridge {
   void listenRejected_Promise___NitroTest__Size(const Promise___NitroTest__Size& promise, std::function<void(const std::exception_ptr&)> listener);
   void resolve_Promise___NitroTest__Size(const Promise___NitroTest__Size& promise, const void* NON_NULL value);
   void listen_Promise___NitroTest__Size(const Promise___NitroTest__Size& promise, std::function<void(const void* NON_NULL)> listener);
-  using std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ = std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift>;
-  using std__weak_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ = std::weak_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift>;
-  inline std__weak_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ weakify_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(const std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_& value) {
-    return value;
-  }
-  std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ create_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(void* NON_NULL pointer);
-  void* NON_NULL get_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(const std::shared_ptr<HybridObject>& value);
   // Distinct specializations prevent duplicate Swift metadata across module headers.
   struct ResultTag {};
   using Result_void = Result<void, margelo::nitro::test::swift_bridge::ResultTag>;
@@ -174,7 +167,6 @@ namespace margelo::nitro::test::swift_bridge {
   Promise<::NitroTest::Size> callAsync_Callback___NitroTest__Size___NitroTest__Size(const Callback___NitroTest__Size___NitroTest__Size& callback, const void* NON_NULL param0);
   void callAndForget_Callback___NitroTest__Size___NitroTest__Size(const Callback___NitroTest__Size___NitroTest__Size& callback, const void* NON_NULL param0);
   Callback___NitroTest__Size___NitroTest__Size create_Callback___NitroTest__Size___NitroTest__Size(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
-  using Result_void_ = Result<void*, margelo::nitro::test::swift_bridge::ResultTag>;
   using std__shared_ptr_margelo__nitro__test__HybridChildSpec_ = std::shared_ptr<margelo::nitro::test::HybridChildSpecSwift>;
   using std__weak_ptr_margelo__nitro__test__HybridChildSpec_ = std::weak_ptr<margelo::nitro::test::HybridChildSpecSwift>;
   inline std__weak_ptr_margelo__nitro__test__HybridChildSpec_ weakify_std__shared_ptr_margelo__nitro__test__HybridChildSpec_(const std__shared_ptr_margelo__nitro__test__HybridChildSpec_& value) {
@@ -191,6 +183,7 @@ namespace margelo::nitro::test::swift_bridge {
   std__shared_ptr_margelo__nitro__test__HybridGrandchildSpec_ create_std__shared_ptr_margelo__nitro__test__HybridGrandchildSpec_(void* NON_NULL pointer);
   void* NON_NULL get_std__shared_ptr_margelo__nitro__test__HybridGrandchildSpec_(const std::shared_ptr<HybridObject>& value);
   std::shared_ptr<margelo::nitro::test::HybridChildSpecSwift> upcast_Grandchild_to_Child(const std__shared_ptr_margelo__nitro__test__HybridGrandchildSpec_& value);
+  using Result_void_ = Result<void*, margelo::nitro::test::swift_bridge::ResultTag>;
   using std__shared_ptr_margelo__nitro__test__HybridPlatformObjectSpec_ = std::shared_ptr<margelo::nitro::test::HybridPlatformObjectSpecSwift>;
   using std__weak_ptr_margelo__nitro__test__HybridPlatformObjectSpec_ = std::weak_ptr<margelo::nitro::test::HybridPlatformObjectSpecSwift>;
   inline std__weak_ptr_margelo__nitro__test__HybridPlatformObjectSpec_ weakify_std__shared_ptr_margelo__nitro__test__HybridPlatformObjectSpec_(const std__shared_ptr_margelo__nitro__test__HybridPlatformObjectSpec_& value) {
@@ -198,6 +191,13 @@ namespace margelo::nitro::test::swift_bridge {
   }
   std__shared_ptr_margelo__nitro__test__HybridPlatformObjectSpec_ create_std__shared_ptr_margelo__nitro__test__HybridPlatformObjectSpec_(void* NON_NULL pointer);
   void* NON_NULL get_std__shared_ptr_margelo__nitro__test__HybridPlatformObjectSpec_(const std::shared_ptr<HybridObject>& value);
+  using std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ = std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift>;
+  using std__weak_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ = std::weak_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift>;
+  inline std__weak_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ weakify_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(const std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_& value) {
+    return value;
+  }
+  std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ create_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(void* NON_NULL pointer);
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(const std::shared_ptr<HybridObject>& value);
   using std__shared_ptr_margelo__nitro__test__HybridTestObjectSwiftKotlinSpec_ = std::shared_ptr<margelo::nitro::test::HybridTestObjectSwiftKotlinSpecSwift>;
   using std__weak_ptr_margelo__nitro__test__HybridTestObjectSwiftKotlinSpec_ = std::weak_ptr<margelo::nitro::test::HybridTestObjectSwiftKotlinSpecSwift>;
   inline std__weak_ptr_margelo__nitro__test__HybridTestObjectSwiftKotlinSpec_ weakify_std__shared_ptr_margelo__nitro__test__HybridTestObjectSwiftKotlinSpec_(const std__shared_ptr_margelo__nitro__test__HybridTestObjectSwiftKotlinSpec_& value) {

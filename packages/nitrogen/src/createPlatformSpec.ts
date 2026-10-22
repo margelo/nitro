@@ -101,7 +101,7 @@ export function getHybridObjectSpec(
   if (constructorDeclaration?.getScope() === Scope.Public) {
     if (options.implementation == null) {
       throw new Error(
-        `${name}: A public constructor requires a concrete implementation on ${platform}. Add \`implementation: ...\` to the ${platform} platform options.`
+        `${name}: A public constructor requires a concrete implementation on ${platform}. Specs with \`allowMultipleImplementations: true\` must be created through another HybridObject's factory methods.`
       )
     }
     if (declaration.isAbstract()) {
@@ -123,7 +123,7 @@ export function getHybridObjectSpec(
     }
     if (options.implementation == null) {
       throw new Error(
-        `${name}.${member.getName()}: Static members require a concrete implementation on ${platform}. Add \`implementation: ...\` to the ${platform} platform options.`
+        `${name}.${member.getName()}: Static members require a concrete implementation on ${platform}. Move static members to a HybridObject with an \`implementation\`.`
       )
     }
     if (Node.isMethodDeclaration(member)) {
@@ -136,18 +136,6 @@ export function getHybridObjectSpec(
     }
   }
   const allowMultipleImplementations = options.allowMultipleImplementations === true
-  if (
-    allowMultipleImplementations &&
-    options.implementation != null &&
-    !view &&
-    constructorParameters == null &&
-    staticMethods.length === 0 &&
-    staticProperties.length === 0
-  ) {
-    throw new Error(
-      `${name}: With \`allowMultipleImplementations: true\`, \`implementation\` on ${platform} is only used by a public constructor or static members. Declare one, or remove \`implementation\`.`
-    )
-  }
 
   const properties: Property[] = []
   const methods: InstanceMethod[] = []
@@ -186,12 +174,6 @@ export function getHybridObjectSpec(
       }
       if (base.language !== language) {
         throw new Error(`${name}: Base ${base.name} uses ${base.language} on ${platform}, but this spec uses ${language}.`)
-      }
-      if (base.constructor != null && constructorDeclaration == null) {
-        // TypeScript would let JavaScript construct this class with the base's constructor.
-        throw new Error(
-          `${name}: ${base.name} has a public constructor, which ${name} would inherit. Declare a public constructor, or a protected constructor for objects created natively.`
-        )
       }
       return base
     })

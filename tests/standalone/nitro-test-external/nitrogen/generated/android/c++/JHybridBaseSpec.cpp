@@ -8,6 +8,9 @@
 #include <NitroTestExternal/private/JHybridBaseSpec.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
+#include <NitroTestExternal/private/JHybridSomeExternalObjectSpec.hpp>
+#include <NitroModules/JNIConverter+HybridObject.hpp>
+#include <NitroModules/JSIConverter+JHybridObject.hpp>
 #include <NitroTestExternal/private/JSize.hpp>
 #include <NitroTestExternal/private/JSizeUnit.hpp>
 #include <NitroModules/JNIConverter+Promise.hpp>
@@ -15,7 +18,6 @@
 #include <NitroTestExternal/private/JCallback_Size_Size.hpp>
 #include <NitroModules/JNIConverter+Callback.hpp>
 #include <memory>
-#include <NitroModules/JNIConverter+HybridObject.hpp>
 
 namespace margelo::nitro::test::external {
 
@@ -30,6 +32,7 @@ namespace margelo::nitro::test::external {
   const std::shared_ptr<const HybridClass>& JHybridBaseSpec::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridProperty("baseValue", &JHybridBaseSpec::getBaseValue);
+      clazz.registerHybridMethod("createExternalObject", &JHybridBaseSpec::createExternalObject);
       clazz.registerHybridMethod("bounceSize", &JHybridBaseSpec::bounceSize);
       clazz.registerHybridMethod("bounceSizeUnit", &JHybridBaseSpec::bounceSizeUnit);
       clazz.registerHybridMethod("mapSize", &JHybridBaseSpec::mapSize);
@@ -79,6 +82,11 @@ namespace margelo::nitro::test::external {
   }
 
   // Methods
+  jni::local_ref<JHybridSomeExternalObjectSpecJavaPart> JHybridBaseSpec::createExternalObject() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JHybridSomeExternalObjectSpecJavaPart>()>("createExternalObject");
+    auto __result = __method(_javaPart, CxxPart::getClass());
+    return __result;
+  }
   jni::local_ref<JSize> JHybridBaseSpec::bounceSize(const jni::local_ref<JSize>& size) {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JSize>(jni::alias_ref<JSize> /* size */)>("bounceSize");
     auto __result = __method(_javaPart, CxxPart::getClass(), size);

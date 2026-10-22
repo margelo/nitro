@@ -59,8 +59,6 @@ namespace margelo::nitro::test {
     double getChildValue();
     // Methods
     ::NitroTest::NamedVariant_cxx bounceVariant(const ::NitroTest::NamedVariant_cxx& variant);
-    // Constructor
-    static ::NitroTest::HybridChildSpec_cxx constructor();
 
   protected:
     const std::shared_ptr<const HybridClass>& getHybridClass() override {

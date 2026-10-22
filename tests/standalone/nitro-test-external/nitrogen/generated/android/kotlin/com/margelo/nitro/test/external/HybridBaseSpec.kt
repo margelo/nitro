@@ -35,6 +35,10 @@ abstract class HybridBaseSpec: HybridObject() {
   // Methods
   @DoNotStrip
   @Keep
+  abstract fun createExternalObject(): HybridSomeExternalObjectSpec
+
+  @DoNotStrip
+  @Keep
   abstract fun bounceSize(size: Size): Size
 
   @DoNotStrip

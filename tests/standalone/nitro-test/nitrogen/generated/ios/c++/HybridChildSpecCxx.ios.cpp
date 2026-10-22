@@ -29,11 +29,6 @@ namespace margelo::nitro::test {
     return HybridChildSpecCxx(implementation);
   }
 
-  HybridChildSpecCxx HybridChildSpecCxx::create() {
-    auto __result = margelo::nitro::test::HybridChildSpecSwift::constructor();
-    return SwiftConverter<margelo::nitro::test::HybridChildSpecCxx, ::NitroTest::HybridChildSpec_cxx>::fromSwift(__result);
-  }
-
   double HybridChildSpecCxx::getChildValue() const {
     auto __implementation = std::dynamic_pointer_cast<margelo::nitro::test::HybridChildSpecSwift>(getNativeObject());
     if (__implementation == nullptr) [[unlikely]] {

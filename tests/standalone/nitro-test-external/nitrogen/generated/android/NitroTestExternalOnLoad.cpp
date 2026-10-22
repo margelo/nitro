@@ -8,6 +8,7 @@
 #include <NitroTestExternal/private/NitroTestExternalOnLoad.hpp>
 #include <NitroModules/HybridClassRegistry.hpp>
 #include <NitroTestExternal/private/JHybridBaseSpec.hpp>
+#include <NitroTestExternal/private/JHybridSomeExternalObjectSpec.hpp>
 #include <NitroTestExternal/private/JCallback_Size_Size.hpp>
 #include <NitroTestExternal/private/JHybridSharedSpecializationsSpec.hpp>
 #include <NitroTestExternal/private/JCallback_void_double.hpp>
@@ -16,13 +17,13 @@
 #include <NitroTestExternal/private/JCallback_double_double.hpp>
 #include <NitroTestExternal/private/JCallback_Promise_void_.hpp>
 #include <NitroTestExternal/private/JCallback_Promise_double_.hpp>
-#include <NitroTestExternal/private/JHybridSomeExternalObjectSpec.hpp>
 #include <NitroTestExternal/HybridCppValueSourceSpec.hpp>
 #include <NitroTestExternal/HybridSharedSpecializationsCppSpec.hpp>
 
 namespace margelo::nitro::test::external {
   void registerAllNatives() {
     margelo::nitro::test::external::JHybridBaseSpec::CxxPart::registerNatives();
+    margelo::nitro::test::external::JHybridSomeExternalObjectSpec::CxxPart::registerNatives();
     margelo::nitro::test::external::JCallback_Size_Size_cxx::registerNatives();
     margelo::nitro::test::external::JHybridSharedSpecializationsSpec::CxxPart::registerNatives();
     margelo::nitro::test::external::JCallback_void_double_cxx::registerNatives();
@@ -31,7 +32,6 @@ namespace margelo::nitro::test::external {
     margelo::nitro::test::external::JCallback_double_double_cxx::registerNatives();
     margelo::nitro::test::external::JCallback_Promise_void__cxx::registerNatives();
     margelo::nitro::test::external::JCallback_Promise_double__cxx::registerNatives();
-    margelo::nitro::test::external::JHybridSomeExternalObjectSpec::CxxPart::registerNatives();
 
     HybridClassRegistry::registerHybridClass("test.external.Base", JHybridBaseSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.external.CppValueSource", HybridCppValueSourceSpec::Class::get());

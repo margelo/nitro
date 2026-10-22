@@ -6,24 +6,15 @@ export * from '#nitro/CppBase'
 
 @iOS({
   language: 'c++',
-  implementation: {
-    className: 'HybridCppBase',
-    include: '"HybridCppBase.hpp"',
-  },
   allowMultipleImplementations: true,
   allowInheritance: true,
 })
 @Android({
   language: 'c++',
-  implementation: {
-    className: 'HybridCppBase',
-    include: '"HybridCppBase.hpp"',
-  },
   allowMultipleImplementations: true,
   allowInheritance: true,
 })
 export declare class CppBase extends HybridObject {
-  constructor()
   readonly baseValue: number
   bounceSize(size: Size): Size
   bounceSizeUnit(unit: SizeUnit): SizeUnit

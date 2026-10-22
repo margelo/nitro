@@ -49,6 +49,7 @@
 #include <NitroTest/ExternalObjectStruct.hpp>
 #include <NitroModules/HybridObject.hpp>
 #include "CustomString.hpp"
+#include <NitroTest/HybridPlatformObjectSpecCxx.hpp>
 #include <utility>
 #include "HybridTestObjectCpp.hpp"
 #include <memory>
@@ -58,10 +59,10 @@ namespace margelo::nitro::test {
 
   namespace {
     struct HybridTestObjectCppSpecBindings final {
-      static std::shared_ptr<HybridTestObjectCppSpec> constructor() {
-        static_assert(std::is_constructible_v<::margelo::nitro::test::HybridTestObjectCpp>,
+      static std::shared_ptr<HybridTestObjectCppSpec> constructor(const std::optional<HybridPlatformObjectSpecCxx>& nativeFactory) {
+        static_assert(std::is_constructible_v<::margelo::nitro::test::HybridTestObjectCpp, decltype(nativeFactory)>,
                       "TestObjectCpp: ::margelo::nitro::test::HybridTestObjectCpp must implement the declared public constructor.");
-        return std::make_shared<::margelo::nitro::test::HybridTestObjectCpp>();
+        return std::make_shared<::margelo::nitro::test::HybridTestObjectCpp>(std::forward<decltype(nativeFactory)>(nativeFactory));
       }
 
       static double getReadonlyNumber() {

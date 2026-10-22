@@ -12,7 +12,7 @@ native `HybridObject`s between JS and native, allowing for safe interface-level 
 ```ts title="Camera.nitro.ts"
 import { type HybridObject, iOS } from 'nitro-core'
 
-@iOS({ allowMultipleImplementations: true })
+@iOS({ language: 'swift', allowMultipleImplementations: true })
 export declare class Image extends HybridObject {
   readonly width: number
   readonly height: number

@@ -9,18 +9,15 @@ export * from '#nitro/Child'
 // The native `Child` Swift/Kotlin class will inherit from the `Base` Swift/Kotlin class.
 @iOS({
   language: 'swift',
-  implementation: { className: 'HybridChild' },
   allowMultipleImplementations: true,
   allowInheritance: true,
 })
 @Android({
   language: 'kotlin',
-  implementation: { className: 'HybridChild' },
   allowMultipleImplementations: true,
   allowInheritance: true,
 })
 export declare class Child extends Base {
-  constructor()
   readonly childValue: number
   // tests if the same variant can be used in a different HybridObject
   bounceVariant(variant: NamedVariant): NamedVariant

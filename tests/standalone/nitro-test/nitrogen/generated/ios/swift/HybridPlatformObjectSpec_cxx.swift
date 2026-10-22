@@ -7,6 +7,7 @@
 internal import NitroModules
 internal import CxxStdlib
 internal import NitroTestAppleCxx
+internal import NitroTestExternal
 
 /**
  * A class implementation that bridges HybridPlatformObjectSpec over to C++.
@@ -136,6 +137,42 @@ public final class HybridPlatformObjectSpec_cxx {
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func createBase() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createBase()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func createChild() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createChild()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func createAlternativeBase() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createAlternativeBase()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
+  public final func createInternalObject() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createInternalObject()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
     }
   }
 

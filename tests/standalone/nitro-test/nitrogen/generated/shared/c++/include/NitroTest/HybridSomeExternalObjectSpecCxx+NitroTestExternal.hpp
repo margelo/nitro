@@ -26,7 +26,6 @@ namespace margelo::nitro::test::adapters::NitroTestExternal {
       return _implementation;
     }
 
-    static HybridSomeExternalObjectSpecCxx create();
     std::string getValue() const;
     margelo::nitro::test::OptionalPrimitivesHolder createOptionalPrimitivesHolder(const std::optional<double>& optionalNumber, const std::optional<bool>& optionalBoolean, const std::optional<uint64_t>& optionalUInt64, const std::optional<int64_t>& optionalInt64) const;
 

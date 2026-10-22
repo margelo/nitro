@@ -28,6 +28,7 @@
 
 
 #include <NitroTestExternal/private/HybridBaseSpec_cxx-Swift.hpp>
+#include <NitroTestExternal/private/HybridSomeExternalObjectSpec_cxx-Swift.hpp>
 #include <NitroTestExternal/private/SizeUnit-Swift.hpp>
 #include <NitroTestExternal/private/Size-Swift.hpp>
 #include <NitroModules/Promise.hpp>
@@ -37,6 +38,5 @@
 #include <NitroModules/NitroModules-Swift-Cxx-Umbrella.hpp>
 #include <NitroModules/JSIConverter+SwiftString.hpp>
 #include <NitroModules/InlineCallback.hpp>
-#include <NitroTestExternal/private/HybridSomeExternalObjectSpec_cxx-Swift.hpp>
 #include <NitroModules/JSIConverter+SwiftOptional.hpp>
 #include <NitroTestExternal/private/OptionalPrimitivesHolder-Swift.hpp>

@@ -14,6 +14,9 @@
 #include <NitroTestExternal/private/JHybridBaseSpecJavaPart.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
+#include <NitroTestExternal/private/JHybridSomeExternalObjectSpecJavaPart.hpp>
+#include <NitroModules/JNIConverter+HybridObject.hpp>
+#include <NitroModules/JSIConverter+JHybridObject.hpp>
 #include <NitroTestExternal/private/JSize.hpp>
 #include <NitroTestExternal/private/JSizeUnit.hpp>
 #include <NitroModules/JNIConverter+Promise.hpp>
@@ -22,7 +25,6 @@
 #include <NitroModules/JNIConverter+Callback.hpp>
 #include <NitroTestExternal/private/JHybridBaseSpec.hpp>
 #include <memory>
-#include <NitroModules/JNIConverter+HybridObject.hpp>
 // Forward declaration of `JHybridBaseSpec` to properly resolve imports.
 namespace margelo::nitro::test::external { class JHybridBaseSpec; }
 
@@ -74,6 +76,7 @@ namespace margelo::nitro::test::external {
 
   public:
     // Methods
+    jni::local_ref<JHybridSomeExternalObjectSpecJavaPart> createExternalObject();
     jni::local_ref<JSize> bounceSize(const jni::local_ref<JSize>& size);
     jni::local_ref<JSizeUnit> bounceSizeUnit(const jni::local_ref<JSizeUnit>& unit);
     jni::local_ref<JTypedPromise<jni::local_ref<JSize>>> mapSize(const jni::local_ref<JSize>& size, const jni::local_ref<margelo::nitro::test::external::JCallback_Size_Size>& callback);

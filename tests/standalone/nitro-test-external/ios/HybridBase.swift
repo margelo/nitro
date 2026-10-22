@@ -5,6 +5,10 @@ class HybridBase: HybridBaseSpec {
     try super.init()
   }
 
+  func createExternalObject() throws -> any HybridSomeExternalObjectSpec {
+    return try HybridSomeExternalObject()
+  }
+
   var baseValue: Double {
     return 20
   }

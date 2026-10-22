@@ -25,7 +25,6 @@ namespace margelo::nitro::test {
 
 
 
-    static HybridChildSpecCxx create();
     double getChildValue() const;
     std::variant<std::string, margelo::nitro::test::Car> bounceVariant(const std::variant<std::string, Car>& variant) const;
 

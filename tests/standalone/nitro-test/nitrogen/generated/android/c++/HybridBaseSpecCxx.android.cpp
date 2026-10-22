@@ -13,7 +13,6 @@
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Callback.hpp>
 #include <functional>
-#include <NitroTest/HybridSomeExternalObjectSpecCxx+NitroTestExternal.hpp>
 #include <NitroModules/JNIConverter+HybridObject.hpp>
 #include <NitroModules/JSIConverter+JHybridObject.hpp>
 #include <NitroTest/private/HybridBaseSpecCxx+JNI.hpp>
@@ -23,8 +22,6 @@
 #include <NitroTest/private/JSize.hpp>
 #include <NitroModules/JNIConverter+Promise.hpp>
 #include <NitroModules/JSIConverter+JTypedPromise.hpp>
-#include <NitroTestExternal/private/JHybridSomeExternalObjectSpec.hpp>
-#include <NitroTest/private/HybridSomeExternalObjectSpecCxx+NitroTestExternal+JNI.hpp>
 #include <NitroTest/private/JCallback_Size_Size.hpp>
 #include <NitroModules/JNIConverter+Callback.hpp>
 
@@ -35,10 +32,6 @@ namespace margelo::nitro::test {
       throw std::invalid_argument("Cannot use a HybridObject that does not implement Base as HybridBaseSpecCxx.");
     }
     return HybridBaseSpecCxx(implementation);
-  }
-
-  HybridBaseSpecCxx HybridBaseSpecCxx::create() {
-    return fromNative(margelo::nitro::test::JHybridBaseSpec::constructor());
   }
 
   double HybridBaseSpecCxx::getBaseValue() const {
@@ -75,16 +68,6 @@ namespace margelo::nitro::test {
     }
     auto __result = __implementation->mapSize(JNIConverter<margelo::nitro::test::Size, jni::local_ref<margelo::nitro::test::JSize>>::toJNI(size), JNIConverter<margelo::nitro::Callback<margelo::nitro::test::Size(const margelo::nitro::test::Size& /* size */)>, jni::local_ref<margelo::nitro::test::JCallback_Size_Size>>::toJNI(callback));
     return JNIConverter<Promise<margelo::nitro::test::Size>, jni::local_ref<JTypedPromise<jni::local_ref<margelo::nitro::test::JSize>>>>::fromJNI(__result);
-  }
-
-  margelo::nitro::test::HybridBaseSpecCxx HybridBaseSpecCxx::createAlternativeBase() {
-    auto __result = margelo::nitro::test::JHybridBaseSpec::createAlternativeBase();
-    return JNIConverter<margelo::nitro::test::HybridBaseSpecCxx, jni::local_ref<margelo::nitro::test::JHybridBaseSpecJavaPart>>::fromJNI(__result);
-  }
-
-  margelo::nitro::test::adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx HybridBaseSpecCxx::createInternalExternalObject() {
-    auto __result = margelo::nitro::test::JHybridBaseSpec::createInternalExternalObject();
-    return JNIConverter<margelo::nitro::test::adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx, jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>>::fromJNI(__result);
   }
 
 } // namespace margelo::nitro::test

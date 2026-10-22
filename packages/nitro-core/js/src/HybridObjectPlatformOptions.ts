@@ -160,12 +160,10 @@ export type HybridObjectPlatformOptions<Language extends keyof HybridObjectImple
            */
           allowMultipleImplementations: true
           /**
-           * The native class that the public constructor creates and whose static methods
-           * JavaScript calls. Other native classes can still implement this spec.
-           * Requires a public constructor or static methods.
-           * @example { className: "HybridView" }
+           * Cannot select a concrete implementation when multiple implementations are allowed.
+           * Create instances through another HybridObject's factory methods.
            */
-          implementation?: HybridObjectImplementations[L]
+          implementation?: never
           /**
            * Allows other HybridObject specs to extend this spec on this platform.
            * Defaults to false.

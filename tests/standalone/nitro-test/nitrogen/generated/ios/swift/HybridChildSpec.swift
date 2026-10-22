@@ -10,7 +10,7 @@ public import NitroModules
 /// See ``HybridChildSpec``
 public protocol HybridChildSpec_protocol: HybridObject, HybridBaseSpec_protocol {
   // Constructor
-  init() throws
+
 
   // Properties
   var childValue: Double { get }

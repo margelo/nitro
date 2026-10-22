@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <NitroTest/HybridPlatformObjectSpecCxx.hpp>
 #include <NitroTest/HybridTestObjectCppSpec.hpp>
 #include <atomic>
 #include <jsi/jsi.h>
@@ -27,7 +28,7 @@ public:
     static const std::shared_ptr<const HybridClass>& get();
   };
 
-  HybridTestObjectCpp() = default;
+  explicit HybridTestObjectCpp(const std::optional<HybridPlatformObjectSpecCxx>& nativeFactory = std::nullopt);
 
   static double getReadonlyNumber();
   static double getSharedNumber();
@@ -37,6 +38,7 @@ protected:
   size_t getExternalMemorySize() noexcept override;
 
 private:
+  HybridPlatformObjectSpecCxx _nativeFactory;
   static inline std::atomic<double> _sharedNumber{0.0};
   double _computedValueStorage = 0.0;
   double _number = 0.0;

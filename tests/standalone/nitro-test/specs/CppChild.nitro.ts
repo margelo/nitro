@@ -6,24 +6,15 @@ export * from '#nitro/CppChild'
 
 @iOS({
   language: 'c++',
-  implementation: {
-    className: 'HybridCppChild',
-    include: '"HybridCppChild.hpp"',
-  },
   allowMultipleImplementations: true,
   allowInheritance: true,
 })
 @Android({
   language: 'c++',
-  implementation: {
-    className: 'HybridCppChild',
-    include: '"HybridCppChild.hpp"',
-  },
   allowMultipleImplementations: true,
   allowInheritance: true,
 })
 export declare class CppChild extends CppBase {
-  constructor()
   readonly childValue: number
   bounceVariant(variant: NamedVariant): NamedVariant
 }

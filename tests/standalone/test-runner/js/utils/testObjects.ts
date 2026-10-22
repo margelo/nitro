@@ -1,7 +1,6 @@
 import { NitroModules } from 'nitro-core'
-import { SomeExternalObject } from 'nitro-test-external'
-import { Child } from 'nitro-test'
-import type { TestObjectCpp, TestObjectSwiftKotlin } from 'nitro-test'
+import { Base as ExternalBase } from 'nitro-test-external'
+import { TestObjectSwiftKotlin, type TestObjectCpp } from 'nitro-test'
 
 export type TestObject = TestObjectCpp | TestObjectSwiftKotlin
 
@@ -10,8 +9,8 @@ declare global {
   function gc(): void
 }
 
-export const HybridChild = new Child()
-export const HybridSomeExternalObject = new SomeExternalObject()
+export const HybridChild = new TestObjectSwiftKotlin().createChild()
+export const HybridSomeExternalObject = new ExternalBase().createExternalObject()
 
 export function isSwift(testObject: TestObject): boolean {
   return testObject.constructor.name === 'TestObjectSwiftKotlin' && globalThis.__nitroTestPlatform === 'ios'

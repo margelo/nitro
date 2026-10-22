@@ -14,24 +14,17 @@
 #include <NitroModules/JNIConverter+Optional.hpp>
 #include <NitroModules/JSIConverter+JOptional.hpp>
 #include <NitroModules/JUInt64.hpp>
-#include <memory>
-#include <NitroModules/JNIConverter+HybridObject.hpp>
 
 namespace margelo::nitro::test::external {
 
   JHybridSomeExternalObjectSpec::~JHybridSomeExternalObjectSpec() = default;
 
-  std::shared_ptr<JHybridSomeExternalObjectSpec> JHybridSomeExternalObjectSpec::constructor() {
-    static const auto __method = JHybridSomeExternalObjectSpec::JavaPart::javaClassStatic()->getStaticMethod<jni::local_ref<JHybridSomeExternalObjectSpecJavaPart>()>("constructor_cxx");
-    auto __result = __method(JHybridSomeExternalObjectSpec::JavaPart::javaClassStatic());
-    return JNIConverter<std::shared_ptr<JHybridSomeExternalObjectSpec>, jni::local_ref<JHybridSomeExternalObjectSpecJavaPart>>::fromJNI(__result);
-  }
+
 
   const std::shared_ptr<const HybridClass>& JHybridSomeExternalObjectSpec::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridMethod("getValue", &JHybridSomeExternalObjectSpec::getValue);
       clazz.registerHybridMethod("createOptionalPrimitivesHolder", &JHybridSomeExternalObjectSpec::createOptionalPrimitivesHolder);
-      clazz.registerHybridConstructor(&JHybridSomeExternalObjectSpec::constructor);
     });
     return hybridClass;
   }

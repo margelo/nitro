@@ -24,6 +24,14 @@ namespace margelo::nitro::test::external {
 
   // Methods
 
+  ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx HybridBaseSpecSwift::createExternalObject() {
+    auto __result = _swiftPart.createExternalObject();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx::fromUnsafe(__result.value());
+  }
+
   ::NitroTestExternal::Size HybridBaseSpecSwift::bounceSize(const ::NitroTestExternal::Size& size) {
     auto __result = withSwiftResult<::NitroTestExternal::Size>([&](void* __outResult) {
       return _swiftPart.bounceSize(size, __outResult);
@@ -69,6 +77,7 @@ namespace margelo::nitro::test::external {
   const std::shared_ptr<const HybridClass>& HybridBaseSpecSwift::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridProperty("baseValue", &HybridBaseSpecSwift::getBaseValue);
+      clazz.registerHybridMethod("createExternalObject", &HybridBaseSpecSwift::createExternalObject);
       clazz.registerHybridMethod("bounceSize", &HybridBaseSpecSwift::bounceSize);
       clazz.registerHybridMethod("bounceSizeUnit", &HybridBaseSpecSwift::bounceSizeUnit);
       clazz.registerHybridMethod("mapSize", &HybridBaseSpecSwift::mapSize);

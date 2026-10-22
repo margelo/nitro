@@ -43,7 +43,6 @@
 #include <NitroTest/private/SizeUnit-Swift.hpp>
 #include <NitroTest/private/Size-Swift.hpp>
 #include <NitroModules/Promise.hpp>
-#include <NitroTestExternal/private/HybridSomeExternalObjectSpec_cxx-Swift.hpp>
 #include <NitroModules/Callback.hpp>
 #include <NitroModules/Result.hpp>
 #include <NitroTest/private/HybridChildSpec_cxx-Swift.hpp>
@@ -58,6 +57,7 @@
 #include <NitroTest/private/NamedVariant-Swift.hpp>
 #include <NitroTest/private/HybridGrandchildSpec_cxx-Swift.hpp>
 #include <NitroTest/private/HybridPlatformObjectSpec_cxx-Swift.hpp>
+#include <NitroTestExternal/private/HybridSomeExternalObjectSpec_cxx-Swift.hpp>
 #include <NitroTest/private/HybridTestObjectSwiftKotlinSpec_cxx-Swift.hpp>
 #include <NitroModules/Null.hpp>
 #include <NitroTest/private/Variant_NullType_String-Swift.hpp>

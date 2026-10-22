@@ -4,17 +4,13 @@ import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.resolved
-import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 
 @Keep
 @DoNotStrip
 open class HybridBase : HybridBaseSpec() {
   companion object : HybridBaseSpec.Companion {
     @JvmStatic
-    override fun createAlternativeBase(): HybridBaseSpec = HybridAlternativeBase()
-
-    @JvmStatic
-    override fun createInternalExternalObject(): HybridSomeExternalObjectSpec = HybridSomeInternalObject()
+    fun createAlternativeBase(): HybridBaseSpec = HybridAlternativeBase()
   }
 
   override val baseValue: Double

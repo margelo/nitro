@@ -25,11 +25,6 @@ namespace margelo::nitro::test::adapters::NitroTestExternal {
     return HybridSomeExternalObjectSpecCxx(implementation);
   }
 
-  HybridSomeExternalObjectSpecCxx HybridSomeExternalObjectSpecCxx::create() {
-    auto __result = margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift::constructor();
-    return SwiftConverter<margelo::nitro::test::adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx, ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx>::fromSwift(__result);
-  }
-
   std::string HybridSomeExternalObjectSpecCxx::getValue() const {
     auto __implementation = std::dynamic_pointer_cast<margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift>(getNativeObject());
     if (__implementation == nullptr) [[unlikely]] {

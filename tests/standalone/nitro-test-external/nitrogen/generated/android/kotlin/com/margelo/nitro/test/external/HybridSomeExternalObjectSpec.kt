@@ -11,7 +11,6 @@ import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import dalvik.annotation.optimization.FastNative
-import com.margelo.nitro.test.external.HybridSomeExternalObject
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -70,14 +69,5 @@ abstract class HybridSomeExternalObjectSpec: HybridObject() {
 
   protected companion object Bridge {
     protected const val TAG = "HybridSomeExternalObjectSpec"
-
-    // Constructor
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    private fun constructor_cxx(): HybridSomeExternalObjectSpec {
-      val __result = HybridSomeExternalObject()
-      return __result
-    }
   }
 }

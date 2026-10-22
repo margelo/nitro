@@ -17,10 +17,6 @@ namespace margelo::nitro::test { struct Size; }
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Callback.hpp>
 #include <functional>
-// Forward declaration of `HybridBaseSpecCxx` to properly resolve imports.
-namespace margelo::nitro::test { class HybridBaseSpecCxx; }
-// Forward declaration of `HybridSomeExternalObjectSpecCxx` to properly resolve imports.
-namespace margelo::nitro::test::adapters::NitroTestExternal { class HybridSomeExternalObjectSpecCxx; }
 
 namespace margelo::nitro::test {
 
@@ -32,13 +28,10 @@ namespace margelo::nitro::test {
       return _implementation;
     }
 
-    static HybridBaseSpecCxx create();
     double getBaseValue() const;
     margelo::nitro::test::Size bounceSize(const Size& size) const;
     margelo::nitro::test::SizeUnit bounceSizeUnit(SizeUnit unit) const;
     Promise<margelo::nitro::test::Size> mapSize(const Size& size, const Callback<Size(const Size& /* size */)>& callback) const;
-    static margelo::nitro::test::HybridBaseSpecCxx createAlternativeBase();
-    static margelo::nitro::test::adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx createInternalExternalObject();
 
     friend bool operator==(const HybridBaseSpecCxx& lhs, const HybridBaseSpecCxx& rhs) noexcept {
       return lhs.getNativeObject() == rhs.getNativeObject();

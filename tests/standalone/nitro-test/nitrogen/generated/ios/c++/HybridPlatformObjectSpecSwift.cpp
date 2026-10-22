@@ -30,6 +30,38 @@ namespace margelo::nitro::test {
     return std::move(__result.value());
   }
 
+  ::NitroTest::HybridBaseSpec_cxx HybridPlatformObjectSpecSwift::createBase() {
+    auto __result = _swiftPart.createBase();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return ::NitroTest::HybridBaseSpec_cxx::fromUnsafe(__result.value());
+  }
+
+  ::NitroTest::HybridChildSpec_cxx HybridPlatformObjectSpecSwift::createChild() {
+    auto __result = _swiftPart.createChild();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return ::NitroTest::HybridChildSpec_cxx::fromUnsafe(__result.value());
+  }
+
+  ::NitroTest::HybridBaseSpec_cxx HybridPlatformObjectSpecSwift::createAlternativeBase() {
+    auto __result = _swiftPart.createAlternativeBase();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return ::NitroTest::HybridBaseSpec_cxx::fromUnsafe(__result.value());
+  }
+
+  ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx HybridPlatformObjectSpecSwift::createInternalObject() {
+    auto __result = _swiftPart.createInternalObject();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx::fromUnsafe(__result.value());
+  }
+
   // Constructor
 
   ::NitroTest::HybridPlatformObjectSpec_cxx HybridPlatformObjectSpecSwift::constructor() {
@@ -43,6 +75,10 @@ namespace margelo::nitro::test {
   const std::shared_ptr<const HybridClass>& HybridPlatformObjectSpecSwift::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridMethod("getOSVersion", &HybridPlatformObjectSpecSwift::getOSVersion);
+      clazz.registerHybridMethod("createBase", &HybridPlatformObjectSpecSwift::createBase);
+      clazz.registerHybridMethod("createChild", &HybridPlatformObjectSpecSwift::createChild);
+      clazz.registerHybridMethod("createAlternativeBase", &HybridPlatformObjectSpecSwift::createAlternativeBase);
+      clazz.registerHybridMethod("createInternalObject", &HybridPlatformObjectSpecSwift::createInternalObject);
       clazz.registerHybridConstructor(&HybridPlatformObjectSpecSwift::constructor);
     });
     return hybridClass;

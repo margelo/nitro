@@ -56,43 +56,12 @@ namespace margelo::nitro::test {
     return std::move(__result.value());
   }
 
-  // Constructor
-
-  ::NitroTest::HybridBaseSpec_cxx HybridBaseSpecSwift::constructor() {
-    auto __result = ::NitroTest::HybridBaseSpec_cxx::constructor();
-    if (__result.hasError()) [[unlikely]] {
-      std::rethrow_exception(__result.error());
-    }
-    return ::NitroTest::HybridBaseSpec_cxx::fromUnsafe(__result.value());
-  }
-
-  // Static methods
-
-  ::NitroTest::HybridBaseSpec_cxx HybridBaseSpecSwift::createAlternativeBase() {
-    auto __result = ::NitroTest::HybridBaseSpec_cxx::createAlternativeBase();
-    if (__result.hasError()) [[unlikely]] {
-      std::rethrow_exception(__result.error());
-    }
-    return ::NitroTest::HybridBaseSpec_cxx::fromUnsafe(__result.value());
-  }
-
-  ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx HybridBaseSpecSwift::createInternalExternalObject() {
-    auto __result = ::NitroTest::HybridBaseSpec_cxx::createInternalExternalObject();
-    if (__result.hasError()) [[unlikely]] {
-      std::rethrow_exception(__result.error());
-    }
-    return ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx::fromUnsafe(__result.value());
-  }
-
   const std::shared_ptr<const HybridClass>& HybridBaseSpecSwift::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridProperty("baseValue", &HybridBaseSpecSwift::getBaseValue);
       clazz.registerHybridMethod("bounceSize", &HybridBaseSpecSwift::bounceSize);
       clazz.registerHybridMethod("bounceSizeUnit", &HybridBaseSpecSwift::bounceSizeUnit);
       clazz.registerHybridMethod("mapSize", &HybridBaseSpecSwift::mapSize);
-      clazz.registerHybridConstructor(&HybridBaseSpecSwift::constructor);
-      clazz.registerStaticHybridMethod("createAlternativeBase", &HybridBaseSpecSwift::createAlternativeBase);
-      clazz.registerStaticHybridMethod("createInternalExternalObject", &HybridBaseSpecSwift::createInternalExternalObject);
     });
     return hybridClass;
   }
