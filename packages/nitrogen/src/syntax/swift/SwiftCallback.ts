@@ -261,7 +261,7 @@ extension Callback<(${swiftParameterTypes.join(', ')}), ${swiftReturnType}> {
   return sourceFiles
 }
 
-/** Conforms the borrowed bridge type of an `Inline<...>` parameter to `InlineCallback`. */
+/** Provides the `CxxInlineCallback` witnesses of an `Inline<...>` parameter's borrowing facade. */
 export function createSwiftInlineCallbackBridge(type: SwiftCallbackType): SourceFile[] {
   const swiftStructName = type.inlineSpecializationName
   const bridgeNamespace = NitroConfig.current.getSwiftBridgeNamespace('swift')
@@ -288,13 +288,13 @@ ${swiftImports}
 
 public typealias ${swiftStructName} = ${bridgeNamespace}.${swiftStructName}
 
-extension ${swiftStructName}: InlineCallback {
+extension ${swiftStructName} {
   public typealias Arguments = (${swiftParameterTypes.join(', ')})
   public typealias Return = ${swiftReturnType}
   public typealias Escaped = ${type.specializationName}
   private typealias bridge = ${bridgeNamespace}
 
-  public func callAsFunction(_ arguments: Arguments) throws -> Return {
+  public func __nitroCall(_ arguments: Arguments) throws -> Return {
     ${indent(swiftToCppCallCode, '    ')}
   }
 }

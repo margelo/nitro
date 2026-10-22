@@ -7,6 +7,8 @@ import { indent } from '../../utils.js'
 import { getSwiftImports } from './getSwiftImports.js'
 import { wrapSwiftType } from './wrapSwiftType.js'
 import { SwiftBorrowedPointerType } from './types/SwiftBorrowedPointerType.js'
+import { SwiftCxxBorrowedPointerType } from './types/SwiftCxxBorrowedPointerType.js'
+import { SwiftCxxOutPointerType } from './types/SwiftCxxOutPointerType.js'
 import { SwiftOutPointerType } from './types/SwiftOutPointerType.js'
 import { SwiftResultType } from './types/SwiftResultType.js'
 import { SwiftRetainedPointerType } from './types/SwiftRetainedPointerType.js'
@@ -65,15 +67,23 @@ export function prepareSwiftMethod(nativeMethod: Method, isThrowing: boolean, co
   const returnType = wrapSwiftType(nativeMethod.returnType, config)
   const parameters = nativeMethod.parameters.map((parameter) => {
     const swiftType = wrapSwiftType(parameter.type, config)
+    let exportedType: SwiftType
+    if (swiftType.requiresOpaqueCxxBridge) {
+      exportedType = new SwiftCxxBorrowedPointerType(swiftType)
+    } else {
+      exportedType = swiftType
+    }
     return {
       native: parameter,
       swift: new Parameter(parameter.name, swiftType),
       type: swiftType,
-      exported: { name: parameter.type.escapedName, type: swiftType },
+      exported: { name: parameter.type.escapedName, type: exportedType },
     }
   })
   let exportedReturnType: SwiftType
-  if (isThrowing && returnType.isReferenceType) {
+  if (returnType.requiresOpaqueCxxBridge) {
+    exportedReturnType = new SwiftCxxOutPointerType(returnType)
+  } else if (isThrowing && returnType.isReferenceType) {
     // A throwing class result crosses the boundary as an owned opaque pointer.
     exportedReturnType = new SwiftRetainedPointerType(returnType)
   } else if (isThrowing && !returnType.canImportFromCpp) {
@@ -161,8 +171,24 @@ export function createCppBridgeBody({ callable, getCppInvocation }: CppBridgeBod
   const parameters = callable.parameters.map((parameter) => parameter.exported)
   if (!callable.isThrowing) {
     const cppArguments = parameters.map((parameter) => parameter.name)
+    let cppInvocation: string
+    if (callable.exportedReturnType instanceof SwiftCxxOutPointerType) {
+      const cppInitializeCode = `${getCppInvocation([...cppArguments, SWIFT_RESULT_STORAGE])};`
+      cppInvocation = callable.exportedReturnType.allocate('c++', {
+        storage: SWIFT_RESULT_STORAGE,
+        body: () => cppInitializeCode,
+      })
+    } else {
+      cppInvocation = getCppInvocation(cppArguments)
+    }
+    // Borrowed pointers shadow the values they point to.
+    for (const { name, type } of parameters.toReversed()) {
+      if (type instanceof SwiftCxxBorrowedPointerType) {
+        cppInvocation = type.tryBorrow(name, name, cppInvocation)
+      }
+    }
     return `
-return ${getCppInvocation(cppArguments)};
+return ${cppInvocation};
 `.trim()
   }
   return createCppToSwiftCall({
@@ -249,7 +275,15 @@ export function createSwiftEndpoint({ callable, getSwiftInvocation }: SwiftEndpo
   const swiftInvocation = getSwiftInvocation(swiftArguments)
   if (!callable.isThrowing) {
     let swiftMethodBody = swiftInvocation
-    if (!returnsVoid) {
+    let swiftEndpointReturnType: SwiftType = exportedReturnType
+    if (exportedReturnType instanceof SwiftCxxOutPointerType) {
+      const initializeCode = exportedReturnType.initialize('swift', SWIFT_RESULT_STORAGE, exportedReturnType.fromSwift('value'))
+      swiftMethodBody = `
+let value = ${swiftInvocation}
+${initializeCode}
+`.trim()
+      swiftEndpointReturnType = new SwiftVoidType()
+    } else if (!returnsVoid) {
       swiftMethodBody = `
 let value = ${swiftInvocation}
 return ${exportedReturnType.fromSwift('value')}
@@ -257,7 +291,7 @@ return ${exportedReturnType.fromSwift('value')}
     }
     return {
       parameters: exportedParameters,
-      returnType: exportedReturnType,
+      returnType: swiftEndpointReturnType,
       body: swiftMethodBody,
     }
   }
@@ -281,7 +315,7 @@ export function getSwiftMethodImports(callable: SwiftMethodInfo): SourceImport<'
   if (callable.isThrowing) {
     publicSwiftTypes.push(callable.resultType)
   } else {
-    publicSwiftTypes.push(callable.returnType)
+    publicSwiftTypes.push(callable.exportedReturnType)
   }
   const swiftParameterTypes = callable.parameters.map((parameter) => parameter.type)
   return [...getSwiftImports(publicSwiftTypes, 'public'), ...getSwiftImports([callable.returnType, ...swiftParameterTypes], 'internal')]

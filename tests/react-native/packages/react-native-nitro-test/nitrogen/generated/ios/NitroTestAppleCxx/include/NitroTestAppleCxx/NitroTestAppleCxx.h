@@ -64,7 +64,6 @@ namespace margelo::nitro::test::swift_bridge {
   Callback_double create_Callback_double(std::function<Result<double, margelo::nitro::test::swift_bridge::ResultTag>()> closure);
   using Result_void = Result<void, margelo::nitro::test::swift_bridge::ResultTag>;
   using Result_ArrayBuffer = Result<ArrayBuffer, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_Promise_double_ = Result<Promise<double>, margelo::nitro::test::swift_bridge::ResultTag>;
   using Result_void_ = Result<void*, margelo::nitro::test::swift_bridge::ResultTag>;
   using std__shared_ptr_margelo__nitro__test__HybridRecyclableTestViewSpec_ = std::shared_ptr<margelo::nitro::test::HybridRecyclableTestViewSpecSwift>;
   using std__weak_ptr_margelo__nitro__test__HybridRecyclableTestViewSpec_ = std::weak_ptr<margelo::nitro::test::HybridRecyclableTestViewSpecSwift>;

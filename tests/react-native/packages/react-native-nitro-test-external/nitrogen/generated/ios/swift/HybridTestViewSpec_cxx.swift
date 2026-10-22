@@ -136,13 +136,13 @@ public final class HybridTestViewSpec_cxx {
     __implementation.isBlue = isBlue
   }
 
-  public final func getSomeCallback() -> margelo.nitro.test.external.swift_bridge.Callback_void {
+  public final func getSomeCallback(__outResult: UnsafeMutableRawPointer) -> Void {
     let value = __implementation.someCallback
-    return value.toCpp()
+    __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Callback_void.self, repeating: value.toCpp(), count: 1)
   }
 
-  public final func setSomeCallback(someCallback: margelo.nitro.test.external.swift_bridge.Callback_void) -> Void {
-    __implementation.someCallback = someCallback
+  public final func setSomeCallback(someCallback: UnsafeRawPointer) -> Void {
+    __implementation.someCallback = someCallback.load(as: margelo.nitro.test.external.swift_bridge.Callback_void.self)
   }
 
   // Methods

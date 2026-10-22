@@ -11,13 +11,13 @@ internal import NitroTestExternalAppleCxx
 
 public typealias InlineCallback_double_double = margelo.nitro.test.external.swift_bridge.InlineCallback_double_double
 
-extension InlineCallback_double_double: InlineCallback {
+extension InlineCallback_double_double {
   public typealias Arguments = (Double)
   public typealias Return = Double
   public typealias Escaped = Callback_double_double
   private typealias bridge = margelo.nitro.test.external.swift_bridge
 
-  public func callAsFunction(_ arguments: Arguments) throws -> Return {
+  public func __nitroCall(_ arguments: Arguments) throws -> Return {
     let __result = bridge.call_InlineCallback_double_double(self, arguments)
     if __result.hasError() {
       throw RuntimeError.from(cppError: __result.error())

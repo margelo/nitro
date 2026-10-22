@@ -1,8 +1,12 @@
 #pragma once
 
 #include <NitroModules/Result.hpp>
+#include <cstddef>
+#include <memory>
+#include <new>
 #include <optional>
 #include <type_traits>
+#include <utility>
 
 // The consuming translation unit includes the compiler-generated Swift definitions.
 #ifndef SWIFT_SWIFT_H
@@ -23,7 +27,52 @@ namespace detail {
 
   template <typename T, typename OwnerTag>
   inline constexpr bool isResult<Result<T, OwnerTag>> = true;
+
+  /** Aligned storage for one T that Swift may initialize; destroys T only once initialized. */
+  template <typename T>
+  struct CxxValueStorage {
+    alignas(T) std::byte bytes[sizeof(T)];
+    bool initialized = false;
+
+    T* get() {
+      return std::launder(reinterpret_cast<T*>(bytes));
+    }
+
+    ~CxxValueStorage() {
+      if (initialized) {
+        std::destroy_at(get());
+      }
+    }
+  };
 } // namespace detail
+
+// Imported C++ records use their native layout, so these helpers do not need Swift
+// generic metadata. Generated code uses them to keep the records out of exported Swift
+// signatures, which otherwise specialize the same generic traits in several -Swift.h headers.
+// TODO: Remove once our minimum Xcode includes https://github.com/swiftlang/swift/pull/93321,
+// which fixes https://github.com/swiftlang/swift/issues/93318.
+
+/** Calls a Swift initializer with aligned native C++ storage and moves out T. */
+template <typename T, typename Initializer>
+T makeCxxValue(Initializer&& initializer) {
+  detail::CxxValueStorage<T> storage;
+  initializer(storage.bytes);
+  storage.initialized = true;
+  return std::move(*storage.get());
+}
+
+/** A failed Swift initializer leaves native C++ storage uninitialized. */
+template <typename T, typename Initializer>
+  requires detail::isSwiftResultStatus<std::invoke_result_t<Initializer&, void*>>
+Result<T> withCxxResult(Initializer&& initializer) {
+  detail::CxxValueStorage<T> storage;
+  auto status = initializer(storage.bytes);
+  if (status.hasError()) [[unlikely]] {
+    return Result<T>::withError(status.error());
+  }
+  storage.initialized = true;
+  return Result<T>::withValue(std::move(*storage.get()));
+}
 
 /**
  * Calls initializer with Swift-owned storage for T. The initializer returns

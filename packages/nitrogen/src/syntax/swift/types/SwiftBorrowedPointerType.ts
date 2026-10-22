@@ -1,7 +1,7 @@
 import { indent } from '../../../utils.js'
 import { SwiftPointerType } from './SwiftPointerType.js'
 
-interface BorrowOptions {
+export interface BorrowOptions {
   /** The bridge value to borrow. */
   value: string
   /** The name of the pointer inside `body`. */

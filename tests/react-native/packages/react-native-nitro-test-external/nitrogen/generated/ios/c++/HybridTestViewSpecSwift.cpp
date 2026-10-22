@@ -27,11 +27,15 @@ namespace margelo::nitro::test::external {
   }
 
   Callback<void()> HybridTestViewSpecSwift::getSomeCallback() {
-    return _swiftPart.getSomeCallback();
+    return makeCxxValue<Callback<void()>>([&](void* __outResult) {
+      _swiftPart.getSomeCallback(__outResult);
+    });
   }
 
   void HybridTestViewSpecSwift::setSomeCallback(const Callback<void()>& someCallback) {
-    return _swiftPart.setSomeCallback(someCallback);
+    return ([&](const void* someCallback) {
+      return _swiftPart.setSomeCallback(someCallback);
+    })(std::addressof(someCallback));
   }
 
   // Methods

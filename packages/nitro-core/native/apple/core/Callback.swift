@@ -19,6 +19,21 @@ public protocol InlineCallback<Arguments, Return>: ~Copyable, ~Escapable {
   /// Retains this callback as a `Callback` that can be stored or called later.
   func escape() -> Escaped
 }
+
+/// A generated module's borrowing facade for a C++ `InlineCallback<R(Args...)>`,
+/// with its conformance declared on the C++ facade.
+///
+/// Generated Swift extensions provide the `__nitro` adapter witness.
+public protocol CxxInlineCallback<Arguments, Return>: InlineCallback, ~Copyable, ~Escapable {
+  func __nitroCall(_ arguments: Arguments) throws -> Return
+}
+
+extension CxxInlineCallback where Self: ~Copyable & ~Escapable {
+  @inlinable
+  public func callAsFunction(_ arguments: Arguments) throws -> Return {
+    return try __nitroCall(arguments)
+  }
+}
 extension InlineCallback where Self: ~Copyable & ~Escapable {
   public func callAsFunction<each A>(_ args: repeat each A) throws -> Return
   where Arguments == (repeat each A) {

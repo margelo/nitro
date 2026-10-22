@@ -143,6 +143,7 @@ namespace margelo::nitro::test { class HybridGrandchildSpecSwift; }
 namespace margelo::nitro::test { class HybridPlatformObjectSpecSwift; }
 // Forward declaration of `HybridTestObjectSwiftKotlinSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test { class HybridTestObjectSwiftKotlinSpecSwift; }
+#include <memory>
 
 namespace margelo::nitro::test::swift_bridge {
   using std__shared_ptr_margelo__nitro__test__HybridBaseSpec_ = std::shared_ptr<margelo::nitro::test::HybridBaseSpecSwift>;
@@ -173,7 +174,6 @@ namespace margelo::nitro::test::swift_bridge {
   Promise<::NitroTest::Size> callAsync_Callback___NitroTest__Size___NitroTest__Size(const Callback___NitroTest__Size___NitroTest__Size& callback, const void* NON_NULL param0);
   void callAndForget_Callback___NitroTest__Size___NitroTest__Size(const Callback___NitroTest__Size___NitroTest__Size& callback, const void* NON_NULL param0);
   Callback___NitroTest__Size___NitroTest__Size create_Callback___NitroTest__Size___NitroTest__Size(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
-  using Result_Promise___NitroTest__Size_ = Result<Promise<::NitroTest::Size>, margelo::nitro::test::swift_bridge::ResultTag>;
   using Result_void_ = Result<void*, margelo::nitro::test::swift_bridge::ResultTag>;
   using std__shared_ptr_margelo__nitro__test__HybridChildSpec_ = std::shared_ptr<margelo::nitro::test::HybridChildSpecSwift>;
   using std__weak_ptr_margelo__nitro__test__HybridChildSpec_ = std::weak_ptr<margelo::nitro::test::HybridChildSpecSwift>;
@@ -280,12 +280,44 @@ namespace margelo::nitro::test::swift_bridge {
   Promise<::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___> callAsync_Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(const Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___& callback, const void* NON_NULL param0);
   void callAndForget_Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(const Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___& callback, const void* NON_NULL param0);
   Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___ create_Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
-  using InlineCallback_void = InlineCallback<void()>;
+  // TODO: Replace this borrowing facade with a typealias once our minimum Xcode includes
+  // https://github.com/swiftlang/swift/pull/93321, which fixes https://github.com/swiftlang/swift/issues/93318.
+  // Exporting the same imported InlineCallback specialization from two Swift headers duplicates its traits.
+  class SWIFT_NONCOPYABLE SWIFT_NONESCAPABLE SWIFT_CONFORMS_TO_PROTOCOL(NitroModules.CxxInlineCallback) InlineCallback_void final {
+  public:
+    InlineCallback_void(const InlineCallback<void()>& callback [[clang::lifetimebound]]) : _callback(std::addressof(callback)) {}
+    InlineCallback_void(const InlineCallback_void&) = delete;
+    InlineCallback_void(InlineCallback_void&&) = default;
+
+    const InlineCallback<void()>& get() const SWIFT_PRIVATE {
+      return *_callback;
+    }
+    Callback_void escape() const;
+
+  private:
+    const InlineCallback<void()>* NON_NULL _callback;
+  };
   Result<void, margelo::nitro::test::swift_bridge::ResultTag> call_InlineCallback_void(const InlineCallback_void& callback) noexcept;
   using Callback_double_double = Callback<double(double)>;
   Result<double, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_double_double(const Callback_double_double& callback, double param0) noexcept;
   Callback_double_double create_Callback_double_double(std::function<Result<double, margelo::nitro::test::swift_bridge::ResultTag>(double param0)> closure);
-  using InlineCallback_double_double = InlineCallback<double(double)>;
+  // TODO: Replace this borrowing facade with a typealias once our minimum Xcode includes
+  // https://github.com/swiftlang/swift/pull/93321, which fixes https://github.com/swiftlang/swift/issues/93318.
+  // Exporting the same imported InlineCallback specialization from two Swift headers duplicates its traits.
+  class SWIFT_NONCOPYABLE SWIFT_NONESCAPABLE SWIFT_CONFORMS_TO_PROTOCOL(NitroModules.CxxInlineCallback) InlineCallback_double_double final {
+  public:
+    InlineCallback_double_double(const InlineCallback<double(double)>& callback [[clang::lifetimebound]]) : _callback(std::addressof(callback)) {}
+    InlineCallback_double_double(const InlineCallback_double_double&) = delete;
+    InlineCallback_double_double(InlineCallback_double_double&&) = default;
+
+    const InlineCallback<double(double)>& get() const SWIFT_PRIVATE {
+      return *_callback;
+    }
+    Callback_double_double escape() const;
+
+  private:
+    const InlineCallback<double(double)>* NON_NULL _callback;
+  };
   Result<double, margelo::nitro::test::swift_bridge::ResultTag> call_InlineCallback_double_double(const InlineCallback_double_double& callback, double param0) noexcept;
   using Promise_Promise_void_ = Promise<Promise<void>>;
   using Result_Promise_void_ = Result<Promise<void>, margelo::nitro::test::swift_bridge::ResultTag>;
@@ -344,14 +376,6 @@ namespace margelo::nitro::test::swift_bridge {
   void callAndForget_Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(const Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx& callback);
   Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx create_Callback___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(void* NON_NULL __outResult)> closure);
   using Result_nitro__NullType = Result<nitro::NullType, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain__const___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____ = Result<Callback<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_(const ::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_&)>, margelo::nitro::test::swift_bridge::ResultTag>;
   using Result_bool = Result<bool, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_Promise_int64_t_ = Result<Promise<int64_t>, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_Promise_swift__Optional_double__ = Result<Promise<swift::Optional<double>>, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_Promise___NitroTest__Car_ = Result<Promise<::NitroTest::Car>, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_Callback_void_double__ = Result<Callback<void(double)>, margelo::nitro::test::swift_bridge::ResultTag>;
   using Result_ArrayBuffer = Result<ArrayBuffer, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_Callback_double___ = Result<Callback<double()>, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_Callback_int64_t_int64_t__ = Result<Callback<int64_t(int64_t)>, margelo::nitro::test::swift_bridge::ResultTag>;
-  using Result_Promise___NitroTest__HybridTestObjectSwiftKotlinSpec_cxx_ = Result<Promise<::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx>, margelo::nitro::test::swift_bridge::ResultTag>;
 } // namespace margelo::nitro::test::swift_bridge

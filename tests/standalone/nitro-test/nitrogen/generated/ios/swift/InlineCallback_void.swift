@@ -11,13 +11,13 @@ internal import NitroTestAppleCxx
 
 public typealias InlineCallback_void = margelo.nitro.test.swift_bridge.InlineCallback_void
 
-extension InlineCallback_void: InlineCallback {
+extension InlineCallback_void {
   public typealias Arguments = ()
   public typealias Return = Void
   public typealias Escaped = Callback_void
   private typealias bridge = margelo.nitro.test.swift_bridge
 
-  public func callAsFunction(_ arguments: Arguments) throws -> Return {
+  public func __nitroCall(_ arguments: Arguments) throws -> Return {
     let __result = bridge.call_InlineCallback_void(self)
     if __result.hasError() {
       throw RuntimeError.from(cppError: __result.error())

@@ -127,122 +127,131 @@ public final class HybridSharedSpecializationsSpec_cxx {
 
   // Properties
 
-  public final func getNumberCallback() -> margelo.nitro.test.external.swift_bridge.Callback_void_double {
+  public final func getNumberCallback(__outResult: UnsafeMutableRawPointer) -> Void {
     let value = __implementation.numberCallback
-    return value.toCpp()
+    __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Callback_void_double.self, repeating: value.toCpp(), count: 1)
   }
 
-  public final func setNumberCallback(numberCallback: margelo.nitro.test.external.swift_bridge.Callback_void_double) -> Void {
-    __implementation.numberCallback = numberCallback
+  public final func setNumberCallback(numberCallback: UnsafeRawPointer) -> Void {
+    __implementation.numberCallback = numberCallback.load(as: margelo.nitro.test.external.swift_bridge.Callback_void_double.self)
   }
 
   // Methods
 
-  public final func resolveVoid() -> bridge.Result_Promise_void_ {
+  public final func resolveVoid(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.resolveVoid()
-      return bridge.Result_Promise_void_.withValue(value.toCpp())
+      __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Promise_void.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
     } catch {
-      return bridge.Result_Promise_void_.withError(error.toCpp())
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func resolveNumber(value: Double) -> bridge.Result_Promise_double_ {
+  public final func resolveNumber(value: Double, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.resolveNumber(value: value)
-      return bridge.Result_Promise_double_.withValue(value.toCpp())
+      __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
     } catch {
-      return bridge.Result_Promise_double_.withError(error.toCpp())
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func resolveString(value: String) -> bridge.Result_Promise_swift__String_ {
+  public final func resolveString(value: String, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.resolveString(value: value)
-      return bridge.Result_Promise_swift__String_.withValue(value.toCpp())
-    } catch {
-      return bridge.Result_Promise_swift__String_.withError(error.toCpp())
-    }
-  }
-
-  public final func awaitVoid(promise: margelo.nitro.test.external.swift_bridge.Promise_void) -> bridge.Result_Promise_void_ {
-    do {
-      let value = try __implementation.awaitVoid(promise: promise)
-      return bridge.Result_Promise_void_.withValue(value.toCpp())
-    } catch {
-      return bridge.Result_Promise_void_.withError(error.toCpp())
-    }
-  }
-
-  public final func awaitNumber(promise: margelo.nitro.test.external.swift_bridge.Promise_double) -> bridge.Result_Promise_double_ {
-    do {
-      let value = try __implementation.awaitNumber(promise: promise)
-      return bridge.Result_Promise_double_.withValue(value.toCpp())
-    } catch {
-      return bridge.Result_Promise_double_.withError(error.toCpp())
-    }
-  }
-
-  public final func callVoid(callback: margelo.nitro.test.external.swift_bridge.Callback_void) -> bridge.Result_void {
-    do {
-      try __implementation.callVoid(callback: callback)
+      __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Promise_swift__String.self, repeating: value.toCpp(), count: 1)
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func callWithNumber(value: Double, callback: margelo.nitro.test.external.swift_bridge.Callback_void_double) -> bridge.Result_void {
+  public final func awaitVoid(promise: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      try __implementation.callWithNumber(value: value, callback: callback)
+      let value = try __implementation.awaitVoid(promise: promise.load(as: margelo.nitro.test.external.swift_bridge.Promise_void.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Promise_void.self, repeating: value.toCpp(), count: 1)
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func callWithString(value: String, callback: margelo.nitro.test.external.swift_bridge.Callback_void_swift__String) -> bridge.Result_void {
+  public final func awaitNumber(promise: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      try __implementation.callWithString(value: value, callback: callback)
+      let value = try __implementation.awaitNumber(promise: promise.load(as: margelo.nitro.test.external.swift_bridge.Promise_double.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func mapNumber(value: Double, callback: margelo.nitro.test.external.swift_bridge.Callback_double_double) -> bridge.Result_Promise_double_ {
+  public final func callVoid(callback: UnsafeRawPointer) -> bridge.Result_void {
     do {
-      let value = try __implementation.mapNumber(value: value, callback: callback)
-      return bridge.Result_Promise_double_.withValue(value.toCpp())
+      try __implementation.callVoid(callback: callback.load(as: margelo.nitro.test.external.swift_bridge.Callback_void.self))
+      return bridge.Result_void.withValue()
     } catch {
-      return bridge.Result_Promise_double_.withError(error.toCpp())
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func wrapNumberCallback(callback: margelo.nitro.test.external.swift_bridge.Callback_void_double) -> bridge.Result_Callback_void_double__ {
+  public final func callWithNumber(value: Double, callback: UnsafeRawPointer) -> bridge.Result_void {
     do {
-      let value = try __implementation.wrapNumberCallback(callback: callback)
-      return bridge.Result_Callback_void_double__.withValue(value.toCpp())
+      try __implementation.callWithNumber(value: value, callback: callback.load(as: margelo.nitro.test.external.swift_bridge.Callback_void_double.self))
+      return bridge.Result_void.withValue()
     } catch {
-      return bridge.Result_Callback_void_double__.withError(error.toCpp())
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func callVoidPromiseCallback(callback: margelo.nitro.test.external.swift_bridge.Callback_Promise_void_) -> bridge.Result_Promise_void_ {
+  public final func callWithString(value: String, callback: UnsafeRawPointer) -> bridge.Result_void {
     do {
-      let value = try __implementation.callVoidPromiseCallback(callback: callback)
-      return bridge.Result_Promise_void_.withValue(value.toCpp())
+      try __implementation.callWithString(value: value, callback: callback.load(as: margelo.nitro.test.external.swift_bridge.Callback_void_swift__String.self))
+      return bridge.Result_void.withValue()
     } catch {
-      return bridge.Result_Promise_void_.withError(error.toCpp())
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func callNumberPromiseCallback(callback: margelo.nitro.test.external.swift_bridge.Callback_Promise_double_) -> bridge.Result_Promise_double_ {
+  public final func mapNumber(value: Double, callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
-      let value = try __implementation.callNumberPromiseCallback(callback: callback)
-      return bridge.Result_Promise_double_.withValue(value.toCpp())
+      let value = try __implementation.mapNumber(value: value, callback: callback.load(as: margelo.nitro.test.external.swift_bridge.Callback_double_double.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
     } catch {
-      return bridge.Result_Promise_double_.withError(error.toCpp())
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func wrapNumberCallback(callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.wrapNumberCallback(callback: callback.load(as: margelo.nitro.test.external.swift_bridge.Callback_void_double.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Callback_void_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callVoidPromiseCallback(callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callVoidPromiseCallback(callback: callback.load(as: margelo.nitro.test.external.swift_bridge.Callback_Promise_void_.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Promise_void.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callNumberPromiseCallback(callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callNumberPromiseCallback(callback: callback.load(as: margelo.nitro.test.external.swift_bridge.Callback_Promise_double_.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Promise_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
     }
   }
 

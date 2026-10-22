@@ -124,7 +124,9 @@ namespace margelo::nitro::test {
   }
 
   double HybridBenchmarkObjectSwiftKotlinSpecSwift::callbackSync(const Callback<double()>& callback) {
-    auto __result = _swiftPart.callbackSync(callback);
+    auto __result = ([&](const void* callback) {
+      return _swiftPart.callbackSync(callback);
+    })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -132,7 +134,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<double> HybridBenchmarkObjectSwiftKotlinSpecSwift::promiseReturnsInstantly() {
-    auto __result = _swiftPart.promiseReturnsInstantly();
+    auto __result = withCxxResult<Promise<double>>([&](void* __outResult) {
+      return _swiftPart.promiseReturnsInstantly(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
@@ -140,7 +144,9 @@ namespace margelo::nitro::test {
   }
 
   Promise<double> HybridBenchmarkObjectSwiftKotlinSpecSwift::createPendingPromise() {
-    auto __result = _swiftPart.createPendingPromise();
+    auto __result = withCxxResult<Promise<double>>([&](void* __outResult) {
+      return _swiftPart.createPendingPromise(__outResult);
+    });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
     }
