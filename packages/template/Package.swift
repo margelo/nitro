@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
   name: "$$iosModuleName$$",
-  platforms: [.iOS(.v16)]
+  platforms: [.iOS(.v16), .macOS(.v13), .tvOS(.v16), .visionOS(.v1)]
 )
 
 // Nitrogen generates the native targets below when you run npm run specs.

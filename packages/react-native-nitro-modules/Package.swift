@@ -21,7 +21,7 @@ let cxxSettings: [CXXSetting] = [
 
 let package = Package(
   name: "NitroModules",
-  platforms: [.iOS(.v16)],
+  platforms: [.iOS(.v16), .macOS(.v13), .tvOS(.v16), .visionOS(.v1)],
   products: [
     .library(
       name: "NitroModules",
