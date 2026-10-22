@@ -8,7 +8,7 @@
 public import NitroModules
 
 /// See ``HybridSharedSpecializationsSpec``
-public protocol HybridSharedSpecializationsSpec_protocol: HybridObject {
+public protocol HybridSharedSpecializationsSpec_protocol: HybridSharedSpecializationsSpec_base, HybridObject {
   // Constructor
   init() throws
 

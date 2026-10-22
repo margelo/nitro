@@ -8,7 +8,7 @@
 public import NitroModules
 
 /// See ``HybridRecyclableTestViewSpec``
-public protocol HybridRecyclableTestViewSpec_protocol: HybridObject, HybridView {
+public protocol HybridRecyclableTestViewSpec_protocol: HybridRecyclableTestViewSpec_base, HybridObject, HybridView {
   // Constructor
 
 

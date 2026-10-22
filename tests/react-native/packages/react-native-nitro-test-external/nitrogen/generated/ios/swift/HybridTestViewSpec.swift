@@ -8,7 +8,7 @@
 public import NitroModules
 
 /// See ``HybridTestViewSpec``
-public protocol HybridTestViewSpec_protocol: HybridObject, HybridView {
+public protocol HybridTestViewSpec_protocol: HybridTestViewSpec_base, HybridObject, HybridView {
   // Constructor
 
 

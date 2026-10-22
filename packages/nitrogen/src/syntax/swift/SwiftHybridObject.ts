@@ -41,7 +41,7 @@ export function createSwiftHybridObject(spec: HybridObjectSpec<'swift'>): Source
     ...hybridObjectType.baseTypes.flatMap((b) => b.getRequiredImports('swift')),
   ]
 
-  const protocolBaseClasses = conformances.map((conformance) => conformance.name)
+  const protocolBaseClasses = [`${protocolName}_base`, ...conformances.map((conformance) => conformance.name)]
   if (spec.isHybridView) {
     protocolBaseClasses.push('HybridView')
   }

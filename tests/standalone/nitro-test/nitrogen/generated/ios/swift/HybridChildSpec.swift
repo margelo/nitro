@@ -8,7 +8,7 @@
 public import NitroModules
 
 /// See ``HybridChildSpec``
-public protocol HybridChildSpec_protocol: HybridObject, HybridBaseSpec_protocol {
+public protocol HybridChildSpec_protocol: HybridChildSpec_base, HybridObject, HybridBaseSpec_protocol {
   // Constructor
 
 

@@ -8,7 +8,7 @@
 public import NitroModules
 
 /// See ``HybridBenchmarkObjectSwiftKotlinSpec``
-public protocol HybridBenchmarkObjectSwiftKotlinSpec_protocol: HybridObject {
+public protocol HybridBenchmarkObjectSwiftKotlinSpec_protocol: HybridBenchmarkObjectSwiftKotlinSpec_base, HybridObject {
   // Constructor
   init() throws
 
