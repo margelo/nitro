@@ -13,7 +13,7 @@ public import NitroTestExternal
 
 public typealias Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx = margelo.nitro.test.swift_bridge.Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx
 
-extension Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx: Promise {
+extension Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx {
   public typealias T = (any HybridSomeExternalObjectSpec)
   private typealias bridge = margelo.nitro.test.swift_bridge
 
@@ -37,8 +37,6 @@ extension Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx: Promise
     })
   }
 }
-
-extension Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx: @unchecked Sendable {}
 
 extension Promise<(any HybridSomeExternalObjectSpec)> where Self == Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx {
   public static func pending() -> Self {

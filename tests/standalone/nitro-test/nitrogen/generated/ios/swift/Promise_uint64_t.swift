@@ -12,7 +12,7 @@ internal import NitroTestAppleCxx
 
 public typealias Promise_uint64_t = margelo.nitro.test.swift_bridge.Promise_uint64_t
 
-extension Promise_uint64_t: Promise {
+extension Promise_uint64_t {
   public typealias T = UInt64
   private typealias bridge = margelo.nitro.test.swift_bridge
 
@@ -34,8 +34,6 @@ extension Promise_uint64_t: Promise {
     })
   }
 }
-
-extension Promise_uint64_t: @unchecked Sendable {}
 
 extension Promise<UInt64> where Self == Promise_uint64_t {
   public static func pending() -> Self {

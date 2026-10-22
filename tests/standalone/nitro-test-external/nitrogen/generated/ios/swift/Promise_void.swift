@@ -12,7 +12,7 @@ internal import NitroTestExternalAppleCxx
 
 public typealias Promise_void = margelo.nitro.test.external.swift_bridge.Promise_void
 
-extension Promise_void: Promise {
+extension Promise_void {
   public typealias T = Void
   private typealias bridge = margelo.nitro.test.external.swift_bridge
 
@@ -34,8 +34,6 @@ extension Promise_void: Promise {
     })
   }
 }
-
-extension Promise_void: @unchecked Sendable {}
 
 extension Promise<Void> where Self == Promise_void {
   public static func pending() -> Self {

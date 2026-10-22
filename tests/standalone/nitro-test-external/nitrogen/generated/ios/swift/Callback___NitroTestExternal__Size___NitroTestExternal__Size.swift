@@ -11,7 +11,7 @@ internal import NitroTestExternalAppleCxx
 
 public typealias Callback___NitroTestExternal__Size___NitroTestExternal__Size = margelo.nitro.test.external.swift_bridge.Callback___NitroTestExternal__Size___NitroTestExternal__Size
 
-extension Callback___NitroTestExternal__Size___NitroTestExternal__Size: Callback {
+extension Callback___NitroTestExternal__Size___NitroTestExternal__Size {
   public typealias Arguments = (Size)
   public typealias Return = Size
   public typealias AsyncResult = margelo.nitro.test.external.swift_bridge.Promise___NitroTestExternal__Size
@@ -51,10 +51,6 @@ extension Callback___NitroTestExternal__Size___NitroTestExternal__Size: Callback
     })
   }
 }
-
-// JS calls use the C++ dispatcher; native callbacks require Sendable captures.
-// Mutable arguments and results still require synchronization by their callers.
-extension Callback___NitroTestExternal__Size___NitroTestExternal__Size: @unchecked Sendable {}
 
 extension Callback<(Size), Size> where Self == Callback___NitroTestExternal__Size___NitroTestExternal__Size {
   /// Creates a native callback from an escaping Swift closure.

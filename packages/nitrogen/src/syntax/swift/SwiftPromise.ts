@@ -112,7 +112,7 @@ ${swiftImports}
 
 public typealias ${swiftClassName} = ${bridgeNamespace}.${swiftClassName}
 
-extension ${swiftClassName}: Promise {
+extension ${swiftClassName} {
   public typealias T = ${swiftResultType}
   private typealias bridge = ${bridgeNamespace}
 
@@ -128,8 +128,6 @@ extension ${swiftClassName}: Promise {
     })
   }
 }
-
-extension ${swiftClassName}: @unchecked Sendable {}
 
 extension Promise<${swiftResultType}> where Self == ${swiftClassName} {
   public static func pending() -> Self {

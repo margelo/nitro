@@ -45,9 +45,12 @@ class Callback;
  * synchronization requirements.
  * Synchronous JS calls invoke the Dispatcher's JS entry hooks. The runtime host
  * controls microtask checkpoints through those hooks and its dispatched tasks.
+ *
+ * Swift imports every specialization with its `CxxCallback` and `Sendable`
+ * conformances, so generated modules sharing a specialization do not declare them twice.
  */
 template <typename R, typename... Args>
-class Callback<R(Args...)> final {
+class SWIFT_CONFORMS_TO_PROTOCOL(NitroModules.CxxCallback) SWIFT_UNCHECKED_SENDABLE Callback<R(Args...)> final {
   friend JSIConverter<Callback>;
   template <typename, typename>
   friend struct SwiftCallbackConverter;

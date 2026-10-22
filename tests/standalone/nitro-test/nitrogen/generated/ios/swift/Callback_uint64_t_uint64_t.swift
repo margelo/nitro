@@ -11,7 +11,7 @@ internal import NitroTestAppleCxx
 
 public typealias Callback_uint64_t_uint64_t = margelo.nitro.test.swift_bridge.Callback_uint64_t_uint64_t
 
-extension Callback_uint64_t_uint64_t: Callback {
+extension Callback_uint64_t_uint64_t {
   public typealias Arguments = (UInt64)
   public typealias Return = UInt64
   public typealias AsyncResult = margelo.nitro.test.swift_bridge.Promise_uint64_t
@@ -41,10 +41,6 @@ extension Callback_uint64_t_uint64_t: Callback {
     })
   }
 }
-
-// JS calls use the C++ dispatcher; native callbacks require Sendable captures.
-// Mutable arguments and results still require synchronization by their callers.
-extension Callback_uint64_t_uint64_t: @unchecked Sendable {}
 
 extension Callback<(UInt64), UInt64> where Self == Callback_uint64_t_uint64_t {
   /// Creates a native callback from an escaping Swift closure.

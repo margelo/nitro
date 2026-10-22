@@ -210,7 +210,7 @@ ${swiftImports}
 
 public typealias ${swiftClassName} = ${bridgeNamespace}.${swiftClassName}
 
-extension ${swiftClassName}: Callback {
+extension ${swiftClassName} {
   public typealias Arguments = (${swiftParameterTypes.join(', ')})
   public typealias Return = ${swiftReturnType}
   public typealias AsyncResult = ${swiftAsyncResultType}
@@ -229,10 +229,6 @@ extension ${swiftClassName}: Callback {
     ${indent(swiftToCppInitializerCode, '    ')}
   }
 }
-
-// JS calls use the C++ dispatcher; native callbacks require Sendable captures.
-// Mutable arguments and results still require synchronization by their callers.
-extension ${swiftClassName}: @unchecked Sendable {}
 
 extension Callback<(${swiftParameterTypes.join(', ')}), ${swiftReturnType}> where Self == ${swiftClassName} {
   /// Creates a native callback from an escaping Swift closure.

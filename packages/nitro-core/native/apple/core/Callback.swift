@@ -57,6 +57,9 @@ public protocol Callback<Arguments, Return>: Sendable {
   func callAndForget(_ arguments: Arguments)
 }
 
+/// Conformance imported from the C++ `Callback<R(Args...)>` declaration.
+public protocol CxxCallback<Arguments, Return>: Callback {}
+
 /// Extension to spread out the single tuple-argument into separate parameters
 extension Callback {
   public func callSync<each A>(_ args: repeat each A) throws -> Return
