@@ -24,6 +24,26 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     set { sharedNumberStorage.withLock { $0 = newValue } }
   }
 
+  static func staticAdd(a: Double, b: Double) throws -> Double {
+    return a + b
+  }
+
+  static func staticNegate(value: Bool) throws -> Bool {
+    return !value
+  }
+
+  static func staticConcat(a: String, b: String) throws -> String {
+    return a + b
+  }
+
+  static func staticBouncePoint(point: StaticPoint) throws -> StaticPoint {
+    return point
+  }
+
+  static func staticThrow(message: String) throws {
+    throw RuntimeError(message)
+  }
+
   private var pendingPromise: (any Promise<Double>)?
 
   var optionalArray: [String]? = []

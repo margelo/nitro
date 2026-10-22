@@ -74,6 +74,7 @@
 #include <NitroTest/private/JStringOrExternal.hpp>
 #include <NitroTest/private/JCppOnlyValue.hpp>
 #include <NitroTest/private/JVariant_HybridTestObjectSwiftKotlinSpec_Person.hpp>
+#include <NitroTest/private/JStaticPoint.hpp>
 #include <NitroTest/private/JCallback_void_std__vector_Powertrain_.hpp>
 #include <NitroTest/private/JCallback_Promise_std__vector_Powertrain__.hpp>
 #include <NitroTest/private/JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___.hpp>
@@ -319,6 +320,11 @@ namespace margelo::nitro::test {
   public:
     // Constructor and static members
     static std::shared_ptr<JHybridTestObjectSwiftKotlinSpec> constructor();
+    static jdouble staticAdd(jdouble a, jdouble b);
+    static jboolean staticNegate(jboolean value);
+    static jni::local_ref<jni::JString> staticConcat(const jni::local_ref<jni::JString>& a, const jni::local_ref<jni::JString>& b);
+    static jni::local_ref<JStaticPoint> staticBouncePoint(const jni::local_ref<JStaticPoint>& point);
+    static void staticThrow(const jni::local_ref<jni::JString>& message);
     static jdouble getReadonlyNumber();
     static jdouble getSharedNumber();
     static void setSharedNumber(jdouble sharedNumber);

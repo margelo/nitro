@@ -34,6 +34,12 @@ public:
   static double getSharedNumber();
   static void setSharedNumber(double value);
 
+  static double staticAdd(double a, double b);
+  static bool staticNegate(bool value);
+  static std::string staticConcat(const std::string& a, const std::string& b);
+  static StaticPoint staticBouncePoint(const StaticPoint& point);
+  static void staticThrow(const std::string& message);
+
 protected:
   size_t getExternalMemorySize() noexcept override;
 

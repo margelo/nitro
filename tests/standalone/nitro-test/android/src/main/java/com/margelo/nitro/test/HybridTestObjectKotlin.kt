@@ -37,6 +37,23 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     override val readonlyNumber: Double = 42.0
 
     @Volatile override var sharedNumber: Double = 0.0
+
+    override fun staticAdd(
+      a: Double,
+      b: Double,
+    ): Double = a + b
+
+    override fun staticNegate(value: Boolean): Boolean = !value
+
+    override fun staticConcat(
+      a: String,
+      b: String,
+    ): String = a + b
+
+    override fun staticBouncePoint(point: StaticPoint): StaticPoint = point
+
+    override fun staticThrow(message: String): Unit = throw Error(message)
+
     private val promiseScope = CoroutineScope(Dispatchers.Default)
     private val jsonObjectSerializer = MapSerializer(String.serializer(), JsonElement.serializer())
   }

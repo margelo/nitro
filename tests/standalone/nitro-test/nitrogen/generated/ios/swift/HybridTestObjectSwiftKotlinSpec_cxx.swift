@@ -1542,6 +1542,55 @@ public final class HybridTestObjectSwiftKotlinSpec_cxx {
     }
   }
 
+  // Static methods
+
+  public class func staticAdd(a: Double, b: Double) -> bridge.Result_double {
+    do {
+      let value = try HybridTestObjectSwift.staticAdd(a: a, b: b)
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
+    }
+  }
+
+  public class func staticNegate(value: Bool) -> bridge.Result_bool {
+    do {
+      let value = try HybridTestObjectSwift.staticNegate(value: value)
+      return bridge.Result_bool.withValue(value)
+    } catch {
+      return bridge.Result_bool.withError(error.toCpp())
+    }
+  }
+
+  public class func staticConcat(a: String, b: String, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try HybridTestObjectSwift.staticConcat(a: a, b: b)
+      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public class func staticBouncePoint(point: StaticPoint, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try HybridTestObjectSwift.staticBouncePoint(point: point)
+      __outResult.assumingMemoryBound(to: StaticPoint.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public class func staticThrow(message: String) -> bridge.Result_void {
+    do {
+      try HybridTestObjectSwift.staticThrow(message: message)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
   // Static properties
 
   public class func getReadonlyNumber_NitroTest_TestObjectSwiftKotlin() -> Double {
