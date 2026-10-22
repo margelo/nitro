@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "classes": {
     "Base": {
       "android": {
@@ -8,7 +8,7 @@
         },
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridBase"
         },
@@ -20,7 +20,7 @@
         "allowMultipleImplementations": true,
         "language": "c++"
       },
-      "ios": {
+      "apple": {
         "allowMultipleImplementations": true,
         "language": "c++"
       }
@@ -32,7 +32,7 @@
         },
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridSharedSpecializations"
         },
@@ -47,7 +47,7 @@
         },
         "language": "c++"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridSharedSpecializationsCpp",
           "include": "\"HybridSharedSpecializationsCpp.hpp\""
@@ -60,7 +60,7 @@
         "allowMultipleImplementations": true,
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "allowMultipleImplementations": true,
         "language": "swift"
       }

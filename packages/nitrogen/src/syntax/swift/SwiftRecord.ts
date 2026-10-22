@@ -37,7 +37,7 @@ return true
   const swiftFile: SourceFile = {
     name: `${swiftStructName}.swift`,
     language: 'swift',
-    platform: 'ios',
+    platform: 'apple',
     subdirectory: [],
     content: `
 ${createFileMetadataString(`${swiftStructName}.swift`)}

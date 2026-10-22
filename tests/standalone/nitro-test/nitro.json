@@ -2,8 +2,8 @@
   "$schema": "https://nitro.margelo.com/nitro.schema.json",
   "environment": "bare",
   "cxxNamespace": ["test"],
-  "ios": {
-    "iosModuleName": "NitroTest"
+  "apple": {
+    "appleModuleName": "NitroTest"
   },
   "android": {
     "androidNamespace": ["test"],

@@ -5,7 +5,7 @@ package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 # React Native CLI 20 still requires a podspec to discover iOS dependencies.
 # Native sources and dependencies are built through Package.swift.
 Pod::Spec.new do |s|
-  s.name = "$$iosModuleName$$"
+  s.name = "$$appleModuleName$$"
   s.version = package["version"]
   s.summary = package["description"]
   s.homepage = package["homepage"]

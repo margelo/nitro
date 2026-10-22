@@ -9,7 +9,7 @@ import Tabs from '@theme/Tabs'; import TabItem from '@theme/TabItem';
 Nitro V1's React Native package requires React Native 0.88 or newer with the New Architecture.
 
 <Tabs groupId="platform">
-  <TabItem value="ios" label="iOS" default>
+  <TabItem value="apple" label="Apple" default>
     - iOS 16, macOS 13, tvOS 16 or visionOS 1 or higher
     - Xcode with Swift 6.4 or higher
     - Swift Package Manager integration (`npx react-native spm`)

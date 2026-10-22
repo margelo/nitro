@@ -59,14 +59,14 @@ ${headerInclude}
       content: headerCode,
       language: 'c++',
       name: `${targetName}.h`,
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: includeDirectory,
     },
     {
       content: implementationCode,
       language: 'c++',
       name: `${targetName}.cpp`,
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [targetName],
     },
   ]

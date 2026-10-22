@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Nitro Modules Configuration",
   "type": "object",
-  "required": ["cxxNamespace", "ios", "android", "autolinking"],
+  "required": ["cxxNamespace", "apple", "android", "autolinking"],
   "properties": {
     "environment": {
       "type": "string",
@@ -18,17 +18,17 @@
       "minItems": 1,
       "description": "Represents the C++ namespace of the module that will be generated. This can have multiple sub-namespaces, and is always relative to `margelo::nitro`."
     },
-    "ios": {
+    "apple": {
       "type": "object",
-      "required": ["iosModuleName"],
+      "required": ["appleModuleName"],
       "properties": {
-        "iosModuleName": {
+        "appleModuleName": {
           "type": "string",
           "minLength": 1,
-          "description": "Represents the iOS module name of the module that will be generated This will be used to generate Swift bridges, as those are always namespaced within the clang module. If you are using CocoaPods, this should be the Pod name defined in the `.podspec`."
+          "description": "Represents the Apple module name of the module that will be generated. It names the generated Swift module and SwiftPM library product."
         }
       },
-      "description": "Required: iOS configuration"
+      "description": "Required: Apple configuration, for iOS, macOS, tvOS and visionOS"
     },
     "android": {
       "type": "object",

@@ -90,7 +90,7 @@ export declare class Math extends HybridObject {
   writeJSON(path.join(consumer, 'nitro.json'), {
     environment: 'bare',
     cxxNamespace: ['releasecheck'],
-    ios: { iosModuleName: 'ReleaseCheck' },
+    apple: { appleModuleName: 'ReleaseCheck' },
     android: {
       androidNamespace: ['releasecheck'],
       androidCxxLibName: 'ReleaseCheck',
@@ -121,7 +121,7 @@ export declare class Math extends HybridObject {
     'shared/c++/include/ReleaseCheck/HybridMathSpec.hpp',
     'shared/c++/HybridMathSpec.cpp',
     'shared/c++/include/ReleaseCheck/HybridMathSpecCxx.hpp',
-    'apple/c++/HybridMathSpecCxx.ios.cpp',
+    'apple/c++/HybridMathSpecCxx.apple.cpp',
   ]) {
     if (existsSync(path.join(generated, file))) throw new Error(`Packed Nitrogen generated an unused C++ spec or adapter: ${file}`)
   }

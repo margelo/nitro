@@ -44,7 +44,7 @@ namespace ${cppNamespace} {
     implementation: {
       name: bridgeSourceName,
       language: 'c++',
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
       content: `
 ${createFileMetadataString(bridgeSourceName)}

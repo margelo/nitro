@@ -114,7 +114,7 @@ export const cases = casesForTestObjects('Numbers', {
 The bundler reads literal keys through TypeScript, without evaluating the module or creating native objects in Bun. It rejects case maps
 with open string index signatures, empty suites, invalid callbacks, and exclusions for unknown tests.
 
-Suites with exclusions export a literal `skips` object with `as const`. Each key matches a case key, and each value maps `ios`, `android`,
+Suites with exclusions export a literal `skips` object with `as const`. Each key matches a case key, and each value maps `apple`, `android`,
 or `release` to the exclusion reason. JUnit reports these as assumptions; Swift Testing puts them in a separate disabled parameterized test.
 They are never counted as successful behavior checks. New regressions should fail normally.
 

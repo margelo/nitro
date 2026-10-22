@@ -14,7 +14,7 @@ function getDecoratorPlatform(decorator: Decorator, name: string): Platform {
   const decoratorName = symbol?.getName() ?? decorator.getName()
   switch (decoratorName) {
     case 'iOS':
-      return 'ios'
+      return 'apple'
     case 'Android':
       return 'android'
     default:

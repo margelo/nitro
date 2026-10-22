@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-  name: "$$iosModuleName$$",
+  name: "$$appleModuleName$$",
   platforms: [.iOS(.v16), .macOS(.v13), .tvOS(.v16), .visionOS(.v1)]
 )
 

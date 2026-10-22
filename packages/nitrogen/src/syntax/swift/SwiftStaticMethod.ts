@@ -38,7 +38,7 @@ export class SwiftStaticMethod extends StaticMethod {
     this.nativeMethod = method
     this.implementationClassName = implementation.className
     const hybridObjectNames = getHybridObjectName(spec.name)
-    this.cppInvocationTarget = `::${spec.config.getIosModuleName()}::${hybridObjectNames.HybridTSpecCxx}`
+    this.cppInvocationTarget = `::${spec.config.getAppleModuleName()}::${hybridObjectNames.HybridTSpecCxx}`
     this.callable = callable
   }
 

@@ -1,6 +1,6 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
 import { createFileMetadataString, isCppFile, isNotDuplicate } from '../../syntax/helpers.js'
-import { getPlatformDirectory, type SourceFile } from '../../syntax/SourceFile.js'
+import type { SourceFile } from '../../syntax/SourceFile.js'
 import { indent } from '../../utils.js'
 
 export function createCMakeExtension(files: SourceFile[]): Omit<SourceFile, 'language'> & { language: 'cmake' } {
@@ -8,9 +8,9 @@ export function createCMakeExtension(files: SourceFile[]): Omit<SourceFile, 'lan
   const name = config.getAndroidCxxLibName()
   const isReactNative = config.getRuntimePackageName() === 'react-native-nitro-modules'
   const core = isReactNative ? 'react-native-nitro-modules' : 'nitro-core'
-  const cppSources = files.filter((file) => file.platform !== 'ios' && isCppFile(file))
+  const cppSources = files.filter((file) => file.platform !== 'apple' && isCppFile(file))
   const paths = cppSources.map((file) => {
-    const relativePath = [getPlatformDirectory(file.platform), file.language, ...file.subdirectory, file.name].join('/')
+    const relativePath = [file.platform, file.language, ...file.subdirectory, file.name].join('/')
     return `"\${CMAKE_CURRENT_LIST_DIR}/../${relativePath}"`
   })
   const sources = paths.filter(isNotDuplicate).sort()

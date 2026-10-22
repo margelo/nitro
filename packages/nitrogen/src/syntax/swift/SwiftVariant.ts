@@ -114,7 +114,7 @@ public struct ${swiftEnumName}_cxx${conformancePrefix}${protocolNames.join(', ')
     content: swiftCode,
     language: 'swift',
     name: `${swiftEnumName}.swift`,
-    platform: 'ios',
+    platform: 'apple',
     subdirectory: [],
   }
 

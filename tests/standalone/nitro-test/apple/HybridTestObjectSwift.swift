@@ -659,7 +659,7 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     if copy {
       return try ArrayBuffer.copy(data: data)
     } else {
-      // TODO: `Data` cannot be safely wrapped yet on iOS.
+      // TODO: `Data` cannot be safely wrapped yet on Apple platforms.
       return try ArrayBuffer.copy(data: data)
     }
   }
@@ -667,7 +667,7 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
   func createHardwareBuffer(
     width: Double, height: Double, layers: Double, format: HardwareBufferFormat
   ) throws -> ArrayBuffer {
-    // iOS doesn't have HardwareBuffers - create a `Data` of the same byte size instead.
+    // Apple platforms don't have HardwareBuffers - create a `Data` of the same byte size instead.
     let bytesPerPixel: Int
     switch format {
     case .rgb565:

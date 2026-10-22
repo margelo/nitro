@@ -63,7 +63,7 @@ return SwiftType::init(${converter}::toSwift(value));
   }
 
   private get moduleName(): string {
-    return this.container.config.getIosModuleName()
+    return this.container.config.getAppleModuleName()
   }
   private get forwardDeclaration(): string {
     return getForwardDeclaration('class', this.name, this.moduleName)
@@ -147,7 +147,7 @@ return JSIConverter<${cppType}>::canConvert(runtime, value);
       {
         name: `${this.name}.swift`,
         language: 'swift',
-        platform: 'ios',
+        platform: 'apple',
         subdirectory: [],
         content: swiftCode,
       },

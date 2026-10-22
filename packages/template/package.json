@@ -107,7 +107,7 @@
     "proseWrap": "always"
   },
   "swiftpmConfig": {
-    "name": "$$iosModuleName$$",
+    "name": "$$appleModuleName$$",
     "dependencies": [
       "react-native-nitro-modules"
     ]

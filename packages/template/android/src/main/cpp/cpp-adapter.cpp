@@ -1,4 +1,4 @@
-#include <$$iosModuleName$$/private/$$androidCxxLibName$$OnLoad.hpp>
+#include <$$appleModuleName$$/private/$$androidCxxLibName$$OnLoad.hpp>
 #include <fbjni/fbjni.h>
 #include <jni.h>
 

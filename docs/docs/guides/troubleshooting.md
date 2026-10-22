@@ -28,7 +28,7 @@ Each release of Nitro contains a pre-built release version of the
 If your app fails to build after installing Nitro or a library powered by Nitro, make sure to post full build logs:
 
 <Tabs groupId="platform">
-  <TabItem value="ios" label="iOS" default>
+  <TabItem value="apple" label="Apple" default>
 
 1. Build the app with Xcode.
 2. When the build fails in Xcode, open the "Report Navigator" tab from within the left sidebar:
@@ -110,7 +110,7 @@ To fix it:
 If your app crashes at runtime, make sure to inspect the native logs.
 
 <Tabs groupId="platform">
-  <TabItem value="ios" label="iOS" default>
+  <TabItem value="apple" label="Apple" default>
 
 1. Run your app through Xcode
 2. If the app hits an unhandled error, it should pause in Xcode. Share the line it stopped in, and also the call-stack (stacktrace) on the

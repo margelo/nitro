@@ -326,7 +326,7 @@ export declare class TestObjectCpp extends HybridObject {
   createArrayBuffer(): ArrayBuffer
   createArrayBufferFromNativeBuffer(copy: boolean): ArrayBuffer
   // On Android this creates an actual `HardwareBuffer` and wraps it,
-  // on iOS/C++ it creates a normal `ArrayBuffer` of the same byte size.
+  // on Apple platforms and in C++ it creates a normal `ArrayBuffer` of the same byte size.
   createHardwareBuffer(width: number, height: number, layers: number, format: HardwareBufferFormat): ArrayBuffer
   copyBuffer(buffer: ArrayBuffer): ArrayBuffer
   getBufferLastItem(buffer: ArrayBuffer): number
@@ -592,7 +592,7 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
   createArrayBuffer(): ArrayBuffer
   createArrayBufferFromNativeBuffer(copy: boolean): ArrayBuffer
   // On Android this creates an actual `HardwareBuffer` and wraps it,
-  // on iOS/C++ it creates a normal `ArrayBuffer` of the same byte size.
+  // on Apple platforms and in C++ it creates a normal `ArrayBuffer` of the same byte size.
   createHardwareBuffer(width: number, height: number, layers: number, format: HardwareBufferFormat): ArrayBuffer
   copyBuffer(buffer: ArrayBuffer): ArrayBuffer
   getBufferLastItem(buffer: ArrayBuffer): number

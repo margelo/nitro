@@ -80,7 +80,7 @@ public extension ${enumType.enumName} {
     content: swiftCode,
     language: 'swift',
     name: `${enumType.enumName}.swift`,
-    platform: 'ios',
+    platform: 'apple',
     subdirectory: [],
   }
 

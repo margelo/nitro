@@ -82,7 +82,7 @@ export declare class GoodDatabase extends HybridObject {
 ## Avoid unnecessary objects
 
 It is a common pattern to wrap everything in an object in JavaScript. In Nitro, every object gets its own struct and has to be allocated. On
-iOS this performance impact is almost zero, but on Android the struct is a heap-allocation.
+Apple platforms this performance impact is almost zero, but on Android the struct is a heap-allocation.
 
 If you can, avoid unnecessarily wrapping everything in objects, and flatten the types out in the function signature:
 

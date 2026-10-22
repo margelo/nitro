@@ -81,7 +81,7 @@ struct RuntimeTests {
     guard Set(skips.keys).isSubset(of: Set(names)),
       skips.values.allSatisfy({ rules in
         rules.allSatisfy { key, reason in
-          ["ios", "android", "release"].contains(key) && !reason.isEmpty
+          ["apple", "android", "release"].contains(key) && !reason.isEmpty
         }
       })
     else {
@@ -90,7 +90,7 @@ struct RuntimeTests {
     }
     let excluded = Set(
       names.filter { name in
-        var reason = skips[name]?["ios"]
+        var reason = skips[name]?["apple"]
         #if !DEBUG
           reason = reason ?? skips[name]?["release"]
         #endif

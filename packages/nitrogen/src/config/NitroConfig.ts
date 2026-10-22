@@ -40,11 +40,11 @@ export class NitroConfig {
   }
 
   /**
-   * Returns the iOS module name (aka Pod name) of the module that will be generated.
+   * Returns the Apple module name of the module that will be generated: its Swift module and SwiftPM product.
    * @example `NitroTest`
    */
-  getIosModuleName(): string {
-    return this.config.ios.iosModuleName
+  getAppleModuleName(): string {
+    return this.config.apple.appleModuleName
   }
 
   /** Returns the registry key for a HybridObject in this module. */
@@ -124,7 +124,7 @@ export class NitroConfig {
 
   /** Get the directory where this module's C++ headers are generated. */
   getCxxHeaderDirectory(visibility: CxxHeaderVisibility): string[] {
-    const directory = ['include', this.getIosModuleName()]
+    const directory = ['include', this.getAppleModuleName()]
     if (visibility === 'private') {
       directory.push('private')
     }
@@ -132,7 +132,7 @@ export class NitroConfig {
   }
 
   getAppleCxxTargetName(): string {
-    return `${this.getIosModuleName()}AppleCxx`
+    return `${this.getAppleModuleName()}AppleCxx`
   }
 
   /** Get the public C++ bridge declarations that this module exposes to Swift. */
@@ -145,7 +145,7 @@ export class NitroConfig {
   }
 
   getSwiftBridgeSourceName(): string {
-    const moduleName = this.getIosModuleName()
+    const moduleName = this.getAppleModuleName()
     return `${moduleName}-Swift-Cxx-Bridge.cpp`
   }
 

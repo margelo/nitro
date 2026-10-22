@@ -176,7 +176,7 @@ namespace {
 #ifdef __ANDROID__
       runtime->global().setProperty(*runtime, "__nitroTestPlatform", "android");
 #else
-      runtime->global().setProperty(*runtime, "__nitroTestPlatform", "ios");
+      runtime->global().setProperty(*runtime, "__nitroTestPlatform", "apple");
 #endif
       runtime->global().setProperty(
           *runtime, "gc",

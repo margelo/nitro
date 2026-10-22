@@ -7,7 +7,7 @@ import type { HybridObjectSpec } from '../../syntax/HybridObjectSpec.js'
 import { createHybridClassRegistration } from '../createHybridClassRegistration.js'
 
 export function createHybridObjectInitializer(specs: HybridObjectSpec[]): SourceFile[] {
-  const autolinkingClassName = `${NitroConfig.current.getIosModuleName()}Autolinking`
+  const autolinkingClassName = `${NitroConfig.current.getAppleModuleName()}Autolinking`
   const namespace = NitroConfig.current.getCxxNamespace('c++')
 
   const cppRegistrations: string[] = []
@@ -64,7 +64,7 @@ ${createFileMetadataString(`${autolinkingClassName}.mm`)}
 ${autolinkingInclude}
 
 /**
- * Registers all HybridObject classes of ${NitroConfig.current.getIosModuleName()}
+ * Registers all HybridObject classes of ${NitroConfig.current.getAppleModuleName()}
  * when the app loads, so JS can look them up by name.
  */
 @interface ${autolinkingClassName} : NSObject
@@ -84,7 +84,7 @@ ${autolinkingInclude}
       content: cppHeaderCode,
       language: 'c++',
       name: `${autolinkingClassName}.hpp`,
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: ['c++'],
       headerVisibility: 'public',
     },
@@ -92,14 +92,14 @@ ${autolinkingInclude}
       content: cppImplementationCode,
       language: 'c++',
       name: `${autolinkingClassName}.cpp`,
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
     },
     {
       content: objcImplementationCode,
       language: 'c++',
       name: `${autolinkingClassName}.mm`,
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
     },
   ]

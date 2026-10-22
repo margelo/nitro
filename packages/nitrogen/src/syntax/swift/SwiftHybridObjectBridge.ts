@@ -35,7 +35,7 @@ function getBaseTypesFromRoot(type: HybridObjectType): HybridObjectType[] {
 
 export function createSwiftHybridObjectCxxBridge(spec: HybridObjectSpec<'swift'>): SourceFile[] {
   const hybridObjectNames = getHybridObjectName(spec.name)
-  const swiftModuleName = spec.config.getIosModuleName()
+  const swiftModuleName = spec.config.getAppleModuleName()
   const cppNamespace = spec.config.getCxxNamespace('c++')
   const type = new HybridObjectType(spec)
   const bridgeNames = getHybridObjectBridgeNames(type)
@@ -509,21 +509,21 @@ namespace ${cppNamespace} {
       name: `${hybridObjectNames.HybridTSpecCxx}.swift`,
       content: swiftCode,
       language: 'swift',
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
     },
     {
       name: `${hybridObjectNames.HybridTSpecSwift}.hpp`,
       content: cppHeaderCode,
       language: 'c++',
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
     },
     {
       name: `${hybridObjectNames.HybridTSpecSwift}.cpp`,
       content: cppImplementationCode,
       language: 'c++',
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
     },
   ]
@@ -566,7 +566,7 @@ function getSwiftClassMethodDeclaration(callable: SwiftConstructor | SwiftStatic
  * bridge declares its own result types.
  */
 function getSwiftClassMethodDeclarations(spec: HybridObjectSpec, swiftModuleName: string): string[] {
-  if (spec.language !== 'swift' || spec.config.getIosModuleName() !== swiftModuleName) {
+  if (spec.language !== 'swift' || spec.config.getAppleModuleName() !== swiftModuleName) {
     return []
   }
   const { constructor, staticMethods, staticProperties } = getSwiftClassMembers(spec)

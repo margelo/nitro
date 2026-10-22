@@ -67,13 +67,15 @@ export class HybridObjectType implements Type {
         return options.context === 'parameter' ? `const ${type}&` : type
       }
       case 'swift': {
-        const ios = this.platforms.ios
-        if (ios == null) {
-          throw new Error(`HybridObject "${this.hybridObjectName}" is not implemented on iOS and cannot be referenced from Swift.`)
-        }
-        if (ios.language !== 'swift') {
+        const apple = this.platforms.apple
+        if (apple == null) {
           throw new Error(
-            `HybridObject "${this.hybridObjectName}" is implemented in ${ios.language} on iOS, but this reference requires Swift. Cross-language HybridObject references are currently supported only in C++ APIs.`
+            `HybridObject "${this.hybridObjectName}" is not implemented on Apple platforms and cannot be referenced from Swift.`
+          )
+        }
+        if (apple.language !== 'swift') {
+          throw new Error(
+            `HybridObject "${this.hybridObjectName}" is implemented in ${apple.language} on Apple platforms, but this reference requires Swift. Cross-language HybridObject references are currently supported only in C++ APIs.`
           )
         }
         return `(any ${name.HybridTSpec})`
@@ -142,7 +144,7 @@ export class HybridObjectType implements Type {
         if (this.sourceConfig.isExternalConfig) {
           imports.push({
             language,
-            name: this.sourceConfig.getIosModuleName(),
+            name: this.sourceConfig.getAppleModuleName(),
             access: 'public',
           })
         }

@@ -77,7 +77,7 @@ export class SwiftStructType extends StructType implements SwiftType {
   }
 
   get moduleName(): string {
-    return this.config.getIosModuleName()
+    return this.config.getAppleModuleName()
   }
   get forwardDeclaration(): string {
     return getForwardDeclaration('class', this.name, this.moduleName)

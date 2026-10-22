@@ -262,7 +262,7 @@ The registry key uses the `cxxNamespace` from `nitro.json` as a prefix, with dot
 modules can declare their own `Image` class. The JavaScript constructor's `name` remains `Image`.
 
 HybridObject headers also have module-qualified include paths. In handwritten C++, use `#include <NitroImage/HybridImageSpec.hpp>`, where
-`NitroImage` is the `iosModuleName`, to select the owning module when another library declares `Image`.
+`NitroImage` is the `appleModuleName`, to select the owning module when another library declares `Image`.
 
 Nitrogen only generates code for HybridObject classes. Other exports from a spec, such as types or helper functions, are ordinary
 TypeScript.
@@ -508,8 +508,8 @@ addNitrogenTargets(to: package)
 Running Nitrogen adds the helper between `// nitrogen:begin` and `// nitrogen:end` and replaces that section on every run. Keep your package
 declaration and helper call outside that section. Nitrogen leaves manifests without an `addNitrogenTargets` call alone.
 
-Add React Native's SwiftPM configuration to `package.json`. Set `name` to your `ios.iosModuleName`, and list the npm names of every Nitro
-module your library depends on:
+Add React Native's SwiftPM configuration to `package.json`. Set `name` to your `apple.appleModuleName`, and list the npm names of every
+Nitro module your library depends on:
 
 ```json
 "swiftpmConfig": {
@@ -525,12 +525,12 @@ library at `ios/build/generated/autolinking/libs/<SwiftName>`, where these relat
 | ----------------------- | ---------------------------- |
 | `ReactNative`           | `../../../../xcframeworks`   |
 | `NitroModules`          | `../NitroModules`            |
-| Referenced Nitro module | `../<iosModuleName>`         |
+| Referenced Nitro module | `../<appleModuleName>`       |
 
 `NitroModules` also depends on React Native's `React-GeneratedCode` package at `../../../ios`. React Native generates these framework and
 codegen packages when preparing the app's iOS build.
 
-For `ios.iosModuleName: "NitroImage"`, the helper adds the `NitroImage` library and four targets:
+For `apple.appleModuleName: "NitroImage"`, the helper adds the `NitroImage` library and four targets:
 
 - `NitroImageCxx`: your C++ sources in `cpp/` and the specs in `nitrogen/generated/shared/c++`.
 - `NitroImageAppleCxx`: the C++ bridge declarations imported by Swift, including the header declaring `registerHybridClasses()`.

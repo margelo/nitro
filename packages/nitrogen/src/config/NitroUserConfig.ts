@@ -22,18 +22,18 @@ export const NitroUserConfigSchema = z.object({
    */
   cxxNamespace: z.array(z.string().regex(safeNamePattern).refine(isNotReservedKeyword, isReservedKeywordError)).min(1),
   /**
-   * iOS specific options.
+   * Apple specific options, for iOS, macOS, tvOS and visionOS.
    */
-  ios: z.object({
+  apple: z.object({
     /**
-     * Represents the iOS module name of the module that will be generated.
+     * Represents the Apple module name of the module that will be generated.
      *
      * This will be used to generate Swift bridges, as those are always namespaced within the clang module.
      *
      * Use the same name in the library's `swiftpmConfig` in package.json.
      * @example `NitroTest`
      */
-    iosModuleName: z.string().regex(safeNamePattern).refine(isNotReservedKeyword, isReservedKeywordError),
+    appleModuleName: z.string().regex(safeNamePattern).refine(isNotReservedKeyword, isReservedKeywordError),
   }),
   /**
    * Android specific options.

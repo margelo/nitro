@@ -91,7 +91,7 @@ class HybridObjectTest(
           require(names.add(name)) { "runtime-tests.json contains duplicate test: $name" }
           val rules = if (skips.has(name)) skips.getJSONObject(name) else null
           rules?.keys()?.forEach { key ->
-            require(key in listOf("ios", "android", "release") && rules.getString(key).isNotEmpty()) {
+            require(key in listOf("apple", "android", "release") && rules.getString(key).isNotEmpty()) {
               "Invalid exclusion for test $name"
             }
           }

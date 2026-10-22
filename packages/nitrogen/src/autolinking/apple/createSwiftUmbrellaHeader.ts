@@ -6,12 +6,12 @@ import { getImportCode, getImportsCode } from '../../syntax/getImportCode.js'
 import { createForeignTypeMetadataPragmas } from './createSwiftForeignTypeMetadata.js'
 
 export function getUmbrellaHeaderName(config = NitroConfig.current): string {
-  const moduleName = config.getIosModuleName()
+  const moduleName = config.getAppleModuleName()
   return `${moduleName}-Swift-Cxx-Umbrella.hpp`
 }
 
 export function createSwiftUmbrellaHeader(types: SwiftType[], moduleDependencies: NitroConfig[]): SourceFile {
-  const moduleName = NitroConfig.current.getIosModuleName()
+  const moduleName = NitroConfig.current.getAppleModuleName()
   const filename = getUmbrellaHeaderName()
 
   const dependencyIncludes = getImportsCode(
@@ -66,7 +66,7 @@ ${implementationIncludes}
     content: code,
     language: 'c++',
     name: filename,
-    platform: 'ios',
+    platform: 'apple',
     subdirectory: ['c++'],
   }
 }

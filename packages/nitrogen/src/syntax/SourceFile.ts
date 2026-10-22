@@ -24,7 +24,7 @@ export interface SourceFile {
    */
   language: Language
   /**
-   * The platform this file can be used on or is created for. (e.g. `ios`)
+   * The platform this file can be used on or is created for. (e.g. `apple`)
    */
   platform: Platform | 'shared'
   /**
@@ -75,24 +75,9 @@ export type SourceImport<L extends Language = Language> = L extends 'c++'
 type GroupedFiles = Record<SourceFile['platform'], SourceFile[]>
 
 export function groupByPlatform(files: SourceFile[]): GroupedFiles {
-  const result: GroupedFiles = { shared: [], ios: [], android: [] }
+  const result: GroupedFiles = { shared: [], apple: [], android: [] }
   for (const file of files) {
     result[file.platform].push(file)
   }
   return result
-}
-
-/**
- * Returns the directory in `nitrogen/generated` that holds the files of `platform`.
- * The `ios` platform writes to `apple`, since its files build for every Apple platform.
- */
-export function getPlatformDirectory(platform: SourceFile['platform']): string {
-  switch (platform) {
-    case 'shared':
-      return 'shared'
-    case 'ios':
-      return 'apple'
-    case 'android':
-      return 'android'
-  }
 }
