@@ -169,18 +169,22 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
 
     // Static Methods
-
+    /** Creates an instance for JavaScript's `new SharedSpecializations(...)`. */
+    fun constructor(): HybridSharedSpecializations
   }
 
   protected companion object Bridge {
     protected const val TAG = "HybridSharedSpecializationsSpec"
+
+    private val implementationCompanion: Companion
+      get() = HybridSharedSpecializations
 
     // Constructor
     @JvmStatic
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridSharedSpecializationsSpec {
-      val __result = HybridSharedSpecializations()
+      val __result = HybridSharedSpecializations.constructor()
       return __result
     }
   }

@@ -321,6 +321,8 @@ To implement `Math` now, you just need to implement the spec:
     ```kotlin title="HybridMath.kt"
     class HybridMath : HybridMathSpec() {
       companion object : HybridMathSpec.Companion {
+        override fun constructor(): HybridMath = HybridMath()
+
         override fun add(a: Double, b: Double): Double {
           return a + b
         }

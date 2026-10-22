@@ -4,6 +4,10 @@ import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.resolved
 
 class HybridGrandchild : HybridGrandchildSpec() {
+  companion object : HybridGrandchildSpec.Companion {
+    override fun constructor(): HybridGrandchild = HybridGrandchild()
+  }
+
   override val baseValue: Double
     get() = 20.0
   override val childValue: Double

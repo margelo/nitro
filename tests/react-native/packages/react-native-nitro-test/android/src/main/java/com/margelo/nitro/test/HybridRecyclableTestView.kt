@@ -15,6 +15,8 @@ class HybridRecyclableTestView(
   val context: ThemedReactContext,
 ) : HybridRecyclableTestViewSpec(),
   RecyclableView {
+  companion object : HybridRecyclableTestViewSpec.Companion {}
+
   // View
   override val view: View = View(context)
   private var isRecycled = false

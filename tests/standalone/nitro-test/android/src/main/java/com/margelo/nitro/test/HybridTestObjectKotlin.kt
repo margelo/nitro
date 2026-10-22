@@ -32,6 +32,8 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
   private var pendingPromise: Promise<Double>? = null
 
   companion object : HybridTestObjectSwiftKotlinSpec.Companion {
+    override fun constructor(): HybridTestObjectKotlin = HybridTestObjectKotlin()
+
     override val readonlyNumber: Double = 42.0
 
     @Volatile override var sharedNumber: Double = 0.0

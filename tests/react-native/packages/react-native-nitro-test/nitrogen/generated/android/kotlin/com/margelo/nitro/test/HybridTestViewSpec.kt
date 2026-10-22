@@ -127,5 +127,8 @@ abstract class HybridTestViewSpec: HybridView() {
 
   protected companion object Bridge {
     protected const val TAG = "HybridTestViewSpec"
+
+    private val implementationCompanion: Companion
+      get() = HybridTestView
   }
 }

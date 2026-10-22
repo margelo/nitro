@@ -11,6 +11,8 @@ import com.facebook.react.uimanager.ThemedReactContext
 class HybridTestView(
   context: ThemedReactContext,
 ) : HybridTestViewSpec() {
+  companion object : HybridTestViewSpec.Companion {}
+
   override val view: View = View(context)
 
   override var isBlue: Boolean = false
