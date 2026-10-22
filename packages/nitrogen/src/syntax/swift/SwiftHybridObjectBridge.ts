@@ -16,6 +16,7 @@ import { getImportCode, getImportsCode } from '../getImportCode.js'
 import { getProtocolConformanceImports, getSwiftImports } from './getSwiftImports.js'
 import type { SwiftMethodBridge } from './SwiftMethodHelpers.js'
 import { Constructor } from '../Constructor.js'
+import { createSwiftDirectCode, getDirectFactoryName, getDirectMethods } from '../direct/DirectCalls.js'
 
 function getCxxPartName(type: HybridObjectType): string {
   const name = getHybridObjectName(type.hybridObjectName).HybridTSpecSwift
@@ -125,11 +126,23 @@ self.__implementation = implementation
   })
   const { constructor, staticMethods, staticProperties } = getSwiftClassMembers(spec)
   const inheritedClassMethods = new Set(spec.baseTypes.flatMap((base) => getSwiftClassMethodDeclarations(base, swiftModuleName)))
+  const directMethods = getDirectMethods(spec.staticMethods)
+  const directCode = createSwiftDirectCode(
+    spec.config,
+    spec.name,
+    hybridObjectNames.HybridTSpec,
+    hybridObjectNames.HybridTSpecSwift,
+    spec.implementation?.className ?? '',
+    directMethods
+  )
   const createClassMethodBridge = (callable: SwiftConstructor | SwiftStaticMethod): SwiftMethodBridge => {
     const declaration = getSwiftClassMethodDeclaration(callable, cppClassName)
-    return callable.createBridge(cppClassName, {
-      override: inheritedClassMethods.has(declaration),
-    })
+    const options = { override: inheritedClassMethods.has(declaration) }
+    if (callable instanceof SwiftStaticMethod) {
+      const directMethod = directMethods.find((method) => method.name === callable.name)
+      return callable.createBridge(cppClassName, options, directMethod != null ? getDirectFactoryName(directMethod) : undefined)
+    }
+    return callable.createBridge(cppClassName, options)
   }
   if (constructor != null) {
     callableGroups.push({
@@ -476,6 +489,7 @@ namespace ${cppNamespace} {
 } // namespace ${cppNamespace}
 `.trim()
   const cppClassImplementation = `
+${directCode != null ? `${directCode.cpp.definitions}\n` : ''}
 std::string ${hybridObjectNames.HybridTSpecSwift}::toString() {
   return SwiftConverter<std::string, swift::String>::fromSwift(_swiftPart.toString());
 }
@@ -484,7 +498,7 @@ ${cppMethodImplementations.join('\n\n')}
 
 const std::shared_ptr<const HybridClass>& ${hybridObjectNames.HybridTSpecSwift}::Class::get() {
   static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
-    ${indent(cppMethodRegistrations.join('\n'), '    ')}
+    ${indent([...(directCode?.cpp.setup ?? []), ...cppMethodRegistrations].join('\n'), '    ')}
   });
   return hybridClass;
 }
@@ -496,15 +510,32 @@ ${createFileMetadataString(`${hybridObjectNames.HybridTSpecSwift}.cpp`)}
 ${cppImplementationInclude}
 #include <NitroModules/SwiftConverter.hpp>
 #include <NitroModules/SwiftResult.hpp>
-#include <optional>
-
+${directCode != null ? `${directCode.cpp.includes.join('\n')}\n` : ''}#include <optional>
+${directCode != null && directCode.cpp.prelude !== '' ? `\n${directCode.cpp.prelude}\n` : ''}
 namespace ${cppNamespace} {
 
   ${indent(cppClassImplementation, '  ')}
 
 } // namespace ${cppNamespace}
 `.trim()
+  const directFiles: SourceFile[] = []
+  if (directCode != null) {
+    directFiles.push({
+      name: directCode.swiftFileName,
+      content: `
+${createFileMetadataString(directCode.swiftFileName)}
+
+internal import NitroModules
+
+${directCode.swiftCode}
+`.trim(),
+      language: 'swift',
+      platform: 'ios',
+      subdirectory: [],
+    })
+  }
   return [
+    ...directFiles,
     {
       name: `${hybridObjectNames.HybridTSpecCxx}.swift`,
       content: swiftCode,

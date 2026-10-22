@@ -12,6 +12,7 @@ template <typename T>
 struct JSIConverter;
 } // namespace margelo::nitro
 
+#include <NitroModules/DirectCall.hpp>
 #include <NitroModules/InstanceMethod.hpp>
 #include <NitroModules/JSIConverter.hpp>
 #include <NitroModules/JSIString.hpp>
@@ -56,6 +57,8 @@ private:
   jsi::HostFunctionType _function;
   size_t _paramCount;
   std::string _name;
+  // Creates a direct host function for each Runtime, see `DirectCall.hpp`. `_function` is its fallback.
+  direct::Factory _directFactory = nullptr;
 
 public:
   // getters
@@ -74,6 +77,10 @@ public:
   inline jsi::Function toJSFunction(jsi::Runtime& runtime) const {
     // Each class materializes its members once per Runtime, so caching their names would only grow the PropNameIDCache.
     // Names are ASCII: Nitrogen rejects other names, and NITRO_DEBUG checks them in the constructor.
+    if (_directFactory != nullptr) {
+      return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forAscii(runtime, _name),
+                                                   static_cast<unsigned int>(_paramCount), _directFactory(runtime, _function));
+    }
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forAscii(runtime, _name), static_cast<unsigned int>(_paramCount),
                                                  _function);
   }
@@ -149,7 +156,8 @@ public:
   /** Bind a static method or constructor factory with the same conversions as instance methods. */
   template <typename ReturnType, typename... Args>
     requires((JSIDecodable<std::decay_t<Args>> && ...) && (std::is_void_v<ReturnType> || JSIEncodable<ReturnType>))
-  static HybridFunction createStaticHybridFunction(const std::string& name, ReturnType (*NON_NULL function)(Args...)) {
+  static HybridFunction createStaticHybridFunction(const std::string& name, ReturnType (*NON_NULL function)(Args...),
+                                                   direct::Factory directFactory = nullptr) {
     jsi::HostFunctionType hostFunction = [name, function](jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* args,
                                                           size_t count) -> jsi::Value {
       constexpr size_t maximum = sizeof...(Args);
@@ -166,7 +174,9 @@ public:
         throw jsi::JSError(runtime, "`" + name + "` threw an unknown " + TypeInfo::getCurrentExceptionName() + " error.");
       }
     };
-    return HybridFunction(std::move(hostFunction), sizeof...(Args), name);
+    HybridFunction result(std::move(hostFunction), sizeof...(Args), name);
+    result._directFactory = directFactory;
+    return result;
   }
 
   /**

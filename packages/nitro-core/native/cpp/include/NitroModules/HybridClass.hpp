@@ -130,16 +130,17 @@ public:
    * ```cpp
    * registerStaticHybridMethod("add", &MyObject::add);
    * ```
+   * Nitrogen passes a `directFactory` for signatures it can call without `JSIConverter`s, see `DirectCall.hpp`.
    */
   template <typename ReturnType, typename... Args>
-  void registerStaticHybridMethod(std::string name, ReturnType (*NON_NULL method)(Args...)) {
+  void registerStaticHybridMethod(std::string name, ReturnType (*NON_NULL method)(Args...), direct::Factory directFactory = nullptr) {
     if (_staticProperties.contains(name)) [[unlikely]] {
       throw std::runtime_error("Cannot add Static Hybrid Method \"" + name + "\" - a property with that name already exists!");
     }
     if (_staticMethods.contains(name)) [[unlikely]] {
       throw std::runtime_error("Cannot add Static Hybrid Method \"" + name + "\" - a method with that name already exists!");
     }
-    _staticMethods.emplace(name, HybridFunction::createStaticHybridFunction(name, method));
+    _staticMethods.emplace(name, HybridFunction::createStaticHybridFunction(name, method, directFactory));
   }
 
   /**

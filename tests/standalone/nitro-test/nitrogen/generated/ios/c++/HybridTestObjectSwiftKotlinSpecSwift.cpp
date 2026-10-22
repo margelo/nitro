@@ -8,9 +8,133 @@
 #include <NitroTest/private/HybridTestObjectSwiftKotlinSpecSwift.hpp>
 #include <NitroModules/SwiftConverter.hpp>
 #include <NitroModules/SwiftResult.hpp>
+#include <NitroModules/DirectCall.hpp>
+#include <string>
 #include <optional>
 
+// Swift entry points from `HybridTestObjectSwiftKotlinSpec_direct.swift`.
+extern "C" {
+  double __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticAdd(double a, double b, void* __error);
+  bool __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticNegate(bool value, void* __error);
+  void __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticConcat(const void* __a_data, size_t __a_length, bool __a_ascii, const void* __b_data, size_t __b_length, bool __b_ascii, void* __result, void* __error);
+  void __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticBouncePoint(double __point__x, double __point__y, bool __point__visible, double* __result__x, double* __result__y, bool* __result__visible, void* __error);
+  void __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticThrow(const void* __message_data, size_t __message_length, bool __message_ascii, void* __error);
+}
+
 namespace margelo::nitro::test {
+
+  namespace {
+    using namespace margelo::nitro::direct;
+
+    // The properties of `StaticPoint`, in the order direct host functions read and write them.
+    constexpr const char* kDirectNames_StaticPoint[] = {"x", "y", "visible"};
+
+    // Direct host functions. Each reads its arguments straight from JSI and calls the implementation with plain values.
+    // Anything unusual goes to the regular JSI implementation, `__fallback`.
+
+    jsi::HostFunctionType direct_staticAdd(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      return [__fallback](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 2 || !__args[0].isNumber() || !__args[1].isNumber()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        double a = __args[0].getNumber();
+        double b = __args[1].getNumber();
+        std::string __error;
+        double __result = __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticAdd(a, b, &__error);
+        if (!__error.empty()) [[unlikely]] {
+          throwError(__runtime, "staticAdd", __error);
+        }
+        return jsi::Value(__result);
+      };
+    }
+
+    jsi::HostFunctionType direct_staticNegate(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      return [__fallback](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 1 || !__args[0].isBool()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        bool value = __args[0].getBool();
+        std::string __error;
+        bool __result = __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticNegate(value, &__error);
+        if (!__error.empty()) [[unlikely]] {
+          throwError(__runtime, "staticNegate", __error);
+        }
+        return jsi::Value(__result);
+      };
+    }
+
+    jsi::HostFunctionType direct_staticConcat(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      return [__fallback](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 2 || !__args[0].isString() || !__args[1].isString()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        StringData a;
+        readString(__runtime, __args[0], a);
+        StringData b;
+        readString(__runtime, __args[1], b);
+        std::string __error;
+        std::string __result;
+        __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticConcat(a.data(), a.length(), a.isASCII(), b.data(), b.length(), b.isASCII(), &__result, &__error);
+        if (!__error.empty()) [[unlikely]] {
+          throwError(__runtime, "staticConcat", __error);
+        }
+        return jsi::String::createFromUtf8(__runtime, reinterpret_cast<const uint8_t*>(__result.data()), __result.size());
+      };
+    }
+
+    jsi::HostFunctionType direct_staticBouncePoint(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      auto __names_StaticPoint = createNames(__runtime, kDirectNames_StaticPoint);
+      return [__fallback, __names_StaticPoint](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 1 || !__args[0].isObject()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        double __point__x;
+        double __point__y;
+        bool __point__visible;
+        {
+          jsi::Object __object = __args[0].getObject(__runtime);
+          jsi::Value __value0 = __object.getProperty(__runtime, (*__names_StaticPoint)[0]);
+          jsi::Value __value1 = __object.getProperty(__runtime, (*__names_StaticPoint)[1]);
+          jsi::Value __value2 = __object.getProperty(__runtime, (*__names_StaticPoint)[2]);
+          if (!__value0.isNumber() || !__value1.isNumber() || !__value2.isBool()) [[unlikely]] {
+            return __fallback(__runtime, __this, __args, __count);
+          }
+          __point__x = __value0.getNumber();
+          __point__y = __value1.getNumber();
+          __point__visible = __value2.getBool();
+        }
+        std::string __error;
+        double __result__x;
+        double __result__y;
+        bool __result__visible;
+        __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticBouncePoint(__point__x, __point__y, __point__visible, &__result__x, &__result__y, &__result__visible, &__error);
+        if (!__error.empty()) [[unlikely]] {
+          throwError(__runtime, "staticBouncePoint", __error);
+        }
+        jsi::Object __object(__runtime);
+        __object.setProperty(__runtime, (*__names_StaticPoint)[0], __result__x);
+        __object.setProperty(__runtime, (*__names_StaticPoint)[1], __result__y);
+        __object.setProperty(__runtime, (*__names_StaticPoint)[2], __result__visible);
+        return jsi::Value(std::move(__object));
+      };
+    }
+
+    jsi::HostFunctionType direct_staticThrow(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      return [__fallback](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 1 || !__args[0].isString()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        StringData message;
+        readString(__runtime, __args[0], message);
+        std::string __error;
+        __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticThrow(message.data(), message.length(), message.isASCII(), &__error);
+        if (!__error.empty()) [[unlikely]] {
+          throwError(__runtime, "staticThrow", __error);
+        }
+        return jsi::Value::undefined();
+      };
+    }
+  } // namespace
 
   std::string HybridTestObjectSwiftKotlinSpecSwift::toString() {
     return SwiftConverter<std::string, swift::String>::fromSwift(_swiftPart.toString());
@@ -1613,11 +1737,11 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("newTestObjectAsync", &HybridTestObjectSwiftKotlinSpecSwift::newTestObjectAsync);
       clazz.registerHybridMethod("getVariantHybrid", &HybridTestObjectSwiftKotlinSpecSwift::getVariantHybrid);
       clazz.registerHybridConstructor(&HybridTestObjectSwiftKotlinSpecSwift::constructor);
-      clazz.registerStaticHybridMethod("staticAdd", &HybridTestObjectSwiftKotlinSpecSwift::staticAdd);
-      clazz.registerStaticHybridMethod("staticNegate", &HybridTestObjectSwiftKotlinSpecSwift::staticNegate);
-      clazz.registerStaticHybridMethod("staticConcat", &HybridTestObjectSwiftKotlinSpecSwift::staticConcat);
-      clazz.registerStaticHybridMethod("staticBouncePoint", &HybridTestObjectSwiftKotlinSpecSwift::staticBouncePoint);
-      clazz.registerStaticHybridMethod("staticThrow", &HybridTestObjectSwiftKotlinSpecSwift::staticThrow);
+      clazz.registerStaticHybridMethod("staticAdd", &HybridTestObjectSwiftKotlinSpecSwift::staticAdd, &direct_staticAdd);
+      clazz.registerStaticHybridMethod("staticNegate", &HybridTestObjectSwiftKotlinSpecSwift::staticNegate, &direct_staticNegate);
+      clazz.registerStaticHybridMethod("staticConcat", &HybridTestObjectSwiftKotlinSpecSwift::staticConcat, &direct_staticConcat);
+      clazz.registerStaticHybridMethod("staticBouncePoint", &HybridTestObjectSwiftKotlinSpecSwift::staticBouncePoint, &direct_staticBouncePoint);
+      clazz.registerStaticHybridMethod("staticThrow", &HybridTestObjectSwiftKotlinSpecSwift::staticThrow, &direct_staticThrow);
     });
     return hybridClass;
   }

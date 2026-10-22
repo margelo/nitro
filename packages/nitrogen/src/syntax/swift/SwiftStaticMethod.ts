@@ -42,7 +42,11 @@ export class SwiftStaticMethod extends StaticMethod {
     this.callable = callable
   }
 
-  createBridge(cppClassName: string, swiftOptions: SwiftClassMethodOptions = {}): SwiftMethodBridge {
+  /**
+   * Creates the C++ and Swift bridges. `directFactory` names a generated direct host function factory for the
+   * registration, see `DirectCalls.ts`.
+   */
+  createBridge(cppClassName: string, swiftOptions: SwiftClassMethodOptions = {}, directFactory?: string): SwiftMethodBridge {
     const nativeMethod = this.nativeMethod
     const cppBridgeBody = createCppBridgeBody({
       callable: this.callable,
@@ -65,7 +69,11 @@ export class SwiftStaticMethod extends StaticMethod {
       cppMethods: [{ method: this, body: cppBridgeBody }],
       swiftMethod: { method: swiftMethod, body: endpoint.body },
       swiftImports: getSwiftMethodImports(this.callable),
-      cppRegistrations: [`clazz.registerStaticHybridMethod("${nativeMethod.name}", &${cppClassName}::${this.name});`],
+      cppRegistrations: [
+        directFactory != null
+          ? `clazz.registerStaticHybridMethod("${nativeMethod.name}", &${cppClassName}::${this.name}, &${directFactory});`
+          : `clazz.registerStaticHybridMethod("${nativeMethod.name}", &${cppClassName}::${this.name});`,
+      ],
     }
   }
 }
