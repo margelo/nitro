@@ -364,9 +364,9 @@ function createSwiftEntryPoint(
       cParameters.push('void* __result')
       swiftParameters.push('_ __result: UnsafeMutableRawPointer')
       swiftBody = [`let __value = ${invocation}`, 'nitroDirectSetString(__result, __value)'].join('\n')
-      cppCall.push('std::string __result;')
+      cppCall.push('StringResult __result;')
       cppCall.push(`${symbol}(${[...cArguments, '&__result', '&__error'].join(', ')});`)
-      cppResult = 'return jsi::String::createFromUtf8(__runtime, reinterpret_cast<const uint8_t*>(__result.data()), __result.size());'
+      cppResult = 'return __result.toJS(__runtime);'
       break
     case 'struct': {
       const outArguments: string[] = []

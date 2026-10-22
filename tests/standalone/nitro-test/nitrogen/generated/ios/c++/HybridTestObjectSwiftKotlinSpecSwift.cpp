@@ -73,12 +73,12 @@ namespace margelo::nitro::test {
         StringData b;
         readString(__runtime, __args[1], b);
         std::string __error;
-        std::string __result;
+        StringResult __result;
         __nitro_direct_NitroTest_TestObjectSwiftKotlin_staticConcat(a.data(), a.length(), a.isASCII(), b.data(), b.length(), b.isASCII(), &__result, &__error);
         if (!__error.empty()) [[unlikely]] {
           throwError(__runtime, "staticConcat", __error);
         }
-        return jsi::String::createFromUtf8(__runtime, reinterpret_cast<const uint8_t*>(__result.data()), __result.size());
+        return __result.toJS(__runtime);
       };
     }
 

@@ -17,6 +17,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <jsi/jsi.h>
 #include <memory>
 #include <new>
@@ -29,7 +30,7 @@
 
 extern "C" {
 
-/** Stores the UTF-8 string result of a generated Swift entry point in `target`, a `std::string*`. */
+/** Stores the UTF-8 string result of a generated Swift entry point in `target`, a `StringResult*`. */
 void nitro_direct_set_string(void* _Nonnull target, const uint8_t* _Nullable utf8, size_t length);
 
 /** Stores the message of the error a generated Swift entry point reports in `target`, a `std::string*`. */
@@ -82,17 +83,25 @@ private:
 /** Throws the error a native implementation reported, the way the regular JSI implementation reports it. */
 [[noreturn]] void throwError(jsi::Runtime& runtime, const char* name, const std::string& message);
 
+class StringData;
+
+/** Copies the characters of `value`, which must be a string. */
+inline void readString(jsi::Runtime& runtime, const jsi::Value& value, StringData& result);
+
 /**
  * The characters of a JavaScript string, copied out of the Runtime: ASCII bytes, or UTF-16 code units if the
- * string has other characters.
+ * string has other characters. Short ASCII strings stay inline.
  */
 class StringData final {
 public:
   const void* data() const {
-    return _isASCII ? static_cast<const void*>(_ascii.data()) : static_cast<const void*>(_utf16.data());
+    if (!_isASCII) {
+      return _utf16.data();
+    }
+    return _onHeap ? static_cast<const void*>(_ascii.data()) : static_cast<const void*>(_inline);
   }
   size_t length() const {
-    return _isASCII ? _ascii.size() : _utf16.size();
+    return _isASCII ? _length : _utf16.size();
   }
   bool isASCII() const {
     return _isASCII;
@@ -100,16 +109,81 @@ public:
 
 private:
   friend void readString(jsi::Runtime& runtime, const jsi::Value& value, StringData& result);
-  void append(bool ascii, const void* data, size_t count);
+  void append(bool ascii, const void* data, size_t count) {
+    if (ascii && _isASCII && !_onHeap && count <= kInlineCapacity - _length) [[likely]] {
+      // Short strings are common, and a loop beats a call to `memcpy` for them.
+      const char* source = static_cast<const char*>(data);
+      char* target = _inline + _length;
+      for (size_t i = 0; i < count; i++) {
+        target[i] = source[i];
+      }
+      _length += count;
+      return;
+    }
+    appendSlow(ascii, data, count);
+  }
+  void appendSlow(bool ascii, const void* data, size_t count);
 
 private:
+  static constexpr size_t kInlineCapacity = 64;
+  char _inline[kInlineCapacity];
+  size_t _length = 0;
+  bool _isASCII = true;
+  bool _onHeap = false;
   std::string _ascii;
   std::u16string _utf16;
-  bool _isASCII = true;
 };
 
-/** Copies the characters of `value`, which must be a string. */
-void readString(jsi::Runtime& runtime, const jsi::Value& value, StringData& result);
+inline void readString(jsi::Runtime& runtime, const jsi::Value& value, StringData& result) {
+  Borrowed<jsi::String> string(value);
+  auto append = [&result](bool ascii, const void* data, size_t count) { result.append(ascii, data, count); };
+  string.get().getStringData(runtime, append);
+}
+
+/**
+ * The string result of a Swift entry point, in UTF-8. Short results stay inline, and the result remembers
+ * whether it is ASCII, so creating the JavaScript string needs no second pass.
+ */
+class StringResult final {
+public:
+  StringResult() = default;
+  // `_data` can point into `_inline`, so a copy would point into the original.
+  StringResult(const StringResult&) = delete;
+  StringResult& operator=(const StringResult&) = delete;
+
+  /** Stores `length` bytes of UTF-8. Called by `nitro_direct_set_string()`. */
+  void set(const uint8_t* utf8, size_t length) {
+    char* target = _inline;
+    if (length > kInlineCapacity) [[unlikely]] {
+      _heap.resize(length);
+      target = _heap.data();
+    }
+    uint8_t any = 0;
+    for (size_t i = 0; i < length; i++) {
+      target[i] = static_cast<char>(utf8[i]);
+      any |= utf8[i];
+    }
+    _data = target;
+    _length = length;
+    _isASCII = (any & 0x80) == 0;
+  }
+
+  /** Creates the JavaScript string. */
+  jsi::Value toJS(jsi::Runtime& runtime) const {
+    if (_isASCII) [[likely]] {
+      return jsi::String::createFromAscii(runtime, _data, _length);
+    }
+    return jsi::String::createFromUtf8(runtime, reinterpret_cast<const uint8_t*>(_data), _length);
+  }
+
+private:
+  static constexpr size_t kInlineCapacity = 64;
+  char _inline[kInlineCapacity];
+  const char* _data = _inline;
+  size_t _length = 0;
+  bool _isASCII = true;
+  std::string _heap;
+};
 
 /** Creates the property names a direct host function reads and writes on struct objects, once per Runtime. */
 template <size_t N>

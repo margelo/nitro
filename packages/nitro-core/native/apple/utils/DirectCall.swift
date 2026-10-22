@@ -12,20 +12,30 @@ internal import NitroModulesCxx
 /// `data` points to `length` ASCII bytes if `isASCII`, otherwise to `length` UTF-16 code units.
 @inlinable
 public func nitroDirectString(_ data: UnsafeRawPointer?, _ length: Int, _ isASCII: Bool) -> String {
-  if isASCII {
-    return String(
-      decoding: UnsafeBufferPointer(start: data?.assumingMemoryBound(to: UInt8.self), count: length), as: UTF8.self)
+  guard let data, length > 0 else {
+    return ""
   }
-  return String(
-    decoding: UnsafeBufferPointer(start: data?.assumingMemoryBound(to: UInt16.self), count: length), as: UTF16.self)
+  if isASCII {
+    // ASCII is valid UTF-8, so copy the bytes in directly.
+    return String(unsafeUninitializedCapacity: length) { buffer in
+      buffer.baseAddress!.initialize(from: data.assumingMemoryBound(to: UInt8.self), count: length)
+      return length
+    }
+  }
+  return String(decoding: UnsafeBufferPointer(start: data.assumingMemoryBound(to: UInt16.self), count: length), as: UTF16.self)
 }
 
 /// Stores the string result of a generated direct entry point in `target`, as UTF-8.
 @inlinable
-public func nitroDirectSetString(_ target: UnsafeMutableRawPointer, _ value: String) {
-  var value = value
-  value.withUTF8 { bytes in
+public func nitroDirectSetString(_ target: UnsafeMutableRawPointer, _ value: borrowing String) {
+  let stored: Void? = value.utf8.withContiguousStorageIfAvailable { bytes in
     nitroDirectSetStringFromUTF8(target, bytes.baseAddress, bytes.count)
+  }
+  if stored == nil {
+    var copy = copy value
+    copy.withUTF8 { bytes in
+      nitroDirectSetStringFromUTF8(target, bytes.baseAddress, bytes.count)
+    }
   }
 }
 
