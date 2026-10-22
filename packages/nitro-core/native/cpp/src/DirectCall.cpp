@@ -55,9 +55,9 @@ void StringData::append(bool ascii, const void* data, size_t count) {
 }
 
 void readString(jsi::Runtime& runtime, const jsi::Value& value, StringData& result) {
-  jsi::String string = value.getString(runtime);
+  Borrowed<jsi::String> string(value);
   auto append = [&result](bool ascii, const void* data, size_t count) { result.append(ascii, data, count); };
-  string.getStringData(runtime, append);
+  string.get().getStringData(runtime, append);
 }
 
 #ifdef __ANDROID__
@@ -188,7 +188,7 @@ std::shared_ptr<JavaContext> JavaContext::get(jsi::Runtime& runtime) {
 }
 
 bool appendASCII(jsi::Runtime& runtime, const jsi::Value& value, JavaContext& context, size_t& offset, jint& length) {
-  jsi::String string = value.getString(runtime);
+  Borrowed<jsi::String> string(value);
   uint8_t* target = context.scratchData + offset;
   size_t capacity = kScratchSize - offset;
   size_t written = 0;
@@ -212,7 +212,7 @@ bool appendASCII(jsi::Runtime& runtime, const jsi::Value& value, JavaContext& co
     }
     written += count;
   };
-  string.getStringData(runtime, append);
+  string.get().getStringData(runtime, append);
   if (!fits) [[unlikely]] {
     return false;
   }

@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <jsi/jsi.h>
 #include <memory>
+#include <new>
 #include <string>
 #include <utility>
 
@@ -42,6 +43,41 @@ using namespace facebook;
 
 /** Creates the direct host function of a static method for `runtime`. `fallback` is its regular JSI implementation. */
 using Factory = jsi::HostFunctionType (*)(jsi::Runtime& runtime, const jsi::HostFunctionType& fallback);
+
+/**
+ * Gives direct calls JSI's protected pointer helpers. It is never instantiated.
+ */
+class PointerAccess final : public jsi::Runtime {
+public:
+  template <typename T>
+  static T wrap(const jsi::Value& value) {
+    return make<T>(const_cast<PointerValue*>(getPointerValue(value)));
+  }
+};
+
+/**
+ * A `jsi::String` or `jsi::Object` view of an argument that reuses the argument's JSI pointer instead of
+ * cloning it, as `getString()` and `getObject()` do. The argument owns the pointer and outlives the call,
+ * so the view never releases it. Only create it from an argument of the matching kind.
+ */
+template <typename T>
+class Borrowed final {
+public:
+  explicit Borrowed(const jsi::Value& value) {
+    new (_storage) T(PointerAccess::wrap<T>(value));
+  }
+  // Skips `T`'s destructor on purpose: releasing the pointer is the argument's job.
+  ~Borrowed() = default;
+  Borrowed(const Borrowed&) = delete;
+  Borrowed& operator=(const Borrowed&) = delete;
+
+  const T& get() const {
+    return *std::launder(reinterpret_cast<const T*>(_storage));
+  }
+
+private:
+  alignas(T) unsigned char _storage[sizeof(T)];
+};
 
 /** Throws the error a native implementation reported, the way the regular JSI implementation reports it. */
 [[noreturn]] void throwError(jsi::Runtime& runtime, const char* name, const std::string& message);

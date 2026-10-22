@@ -182,7 +182,7 @@ if (${[`__count != ${method.parameters.length}`, ...typeChecks].join(' || ')}) [
         const names = getStructNamesLocal(value.struct)
         const declarations = value.struct.fields.map((field) => `${getCppScalarType(field.kind)} ${getCppLocal(parameter, field.name)};`)
         const reads = value.struct.fields.map(
-          (_, fieldIndex) => `jsi::Value __value${fieldIndex} = __object.getProperty(__runtime, (*${names})[${fieldIndex}]);`
+          (_, fieldIndex) => `jsi::Value __value${fieldIndex} = __object.get().getProperty(__runtime, (*${names})[${fieldIndex}]);`
         )
         const checks = value.struct.fields.map(
           (field, fieldIndex) => `!__value${fieldIndex}.${field.kind === 'number' ? 'isNumber' : 'isBool'}()`
@@ -195,7 +195,7 @@ if (${[`__count != ${method.parameters.length}`, ...typeChecks].join(' || ')}) [
           `
 ${declarations.join('\n')}
 {
-  jsi::Object __object = __args[${index}].getObject(__runtime);
+  Borrowed<jsi::Object> __object(__args[${index}]);
   ${indent(reads.join('\n'), '  ')}
   if (${checks.join(' || ')}) [[unlikely]] {
     ${FALLBACK}

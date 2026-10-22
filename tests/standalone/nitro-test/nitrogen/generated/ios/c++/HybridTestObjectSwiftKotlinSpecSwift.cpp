@@ -92,10 +92,10 @@ namespace margelo::nitro::test {
         double __point__y;
         bool __point__visible;
         {
-          jsi::Object __object = __args[0].getObject(__runtime);
-          jsi::Value __value0 = __object.getProperty(__runtime, (*__names_StaticPoint)[0]);
-          jsi::Value __value1 = __object.getProperty(__runtime, (*__names_StaticPoint)[1]);
-          jsi::Value __value2 = __object.getProperty(__runtime, (*__names_StaticPoint)[2]);
+          Borrowed<jsi::Object> __object(__args[0]);
+          jsi::Value __value0 = __object.get().getProperty(__runtime, (*__names_StaticPoint)[0]);
+          jsi::Value __value1 = __object.get().getProperty(__runtime, (*__names_StaticPoint)[1]);
+          jsi::Value __value2 = __object.get().getProperty(__runtime, (*__names_StaticPoint)[2]);
           if (!__value0.isNumber() || !__value1.isNumber() || !__value2.isBool()) [[unlikely]] {
             return __fallback(__runtime, __this, __args, __count);
           }
