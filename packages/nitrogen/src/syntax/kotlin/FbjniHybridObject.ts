@@ -239,6 +239,7 @@ namespace ${cxxNamespace} {
       ...nativeImports,
       ...jniImports,
       ...bindings.imports,
+      ...bindings.implementationImports,
     ],
     'implementation'
   )

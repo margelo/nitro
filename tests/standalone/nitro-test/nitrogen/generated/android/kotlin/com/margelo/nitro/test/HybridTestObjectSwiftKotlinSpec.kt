@@ -928,3 +928,56 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     }
   }
 }
+
+/**
+ * The static entry points the direct JSI host functions in `JHybridTestObjectSwiftKotlinSpec.cpp` call through JNI.
+ * They are real static methods, so each call reaches the implementation without companion accessors.
+ * Strings arrive as ASCII in the Runtime's scratch `byte[]`, and struct results leave through the
+ * Runtime's scratch `ByteBuffer`.
+ */
+@DoNotStrip
+@Keep
+@Suppress("unused", "FunctionName", "LocalVariableName")
+internal object HybridTestObjectSwiftKotlinSpec_direct {
+  @JvmStatic
+  @DoNotStrip
+  @Keep
+  fun staticAdd(a: Double, b: Double): Double {
+    return HybridTestObjectKotlin.staticAdd(a, b)
+  }
+
+  @JvmStatic
+  @DoNotStrip
+  @Keep
+  fun staticNegate(value: Boolean): Boolean {
+    return HybridTestObjectKotlin.staticNegate(value)
+  }
+
+  @JvmStatic
+  @DoNotStrip
+  @Keep
+  fun staticConcat(__a_length: Int, __b_length: Int, __bytes: ByteArray): Int {
+    val a = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, 0, __a_length)
+    val b = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, __a_length, __b_length)
+    val __result = HybridTestObjectKotlin.staticConcat(a, b)
+    return com.margelo.nitro.core.DirectCall.writeASCII(__result, __bytes)
+  }
+
+  @JvmStatic
+  @DoNotStrip
+  @Keep
+  fun staticBouncePoint(__point__x: Double, __point__y: Double, __point__visible: Boolean, __out: java.nio.ByteBuffer) {
+    val __result = HybridTestObjectKotlin.staticBouncePoint(StaticPoint(__point__x, __point__y, __point__visible))
+    __out.putDouble(0, __result.x)
+    __out.putDouble(8, __result.y)
+    __out.put(16, (if (__result.visible) 1 else 0).toByte())
+  }
+
+  @JvmStatic
+  @DoNotStrip
+  @Keep
+  fun staticThrow(__message_length: Int, __bytes: ByteArray) {
+    val message = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, 0, __message_length)
+    HybridTestObjectKotlin.staticThrow(message)
+  }
+}

@@ -11,7 +11,7 @@ import type { SourceFile, SourceImport } from '../SourceFile.js'
 import { HybridObjectType } from '../types/HybridObjectType.js'
 import { createFbjniHybridObject } from './FbjniHybridObject.js'
 import type { KotlinConstructor } from './KotlinConstructor.js'
-import { getKotlinClassMembers } from './KotlinHybridClassBindings.js'
+import { getKotlinClassMembers, getKotlinDirectCode } from './KotlinHybridClassBindings.js'
 import { getKotlinPropertyAccessors, KotlinInstanceMethod } from './KotlinInstanceMethod.js'
 import { getKotlinImplementation } from './KotlinMethodHelpers.js'
 import type { KotlinStaticMethod } from './KotlinStaticMethod.js'
@@ -86,6 +86,9 @@ export function createKotlinHybridObject(spec: HybridObjectSpec<'kotlin'>): Sour
 
   const javaPackage = spec.config.getAndroidPackage('java/kotlin')
 
+  const directCode = getKotlinDirectCode(spec)
+  const directKotlinCode = directCode != null ? `\n${directCode.kotlinCode}` : ''
+
   // 1. Create Kotlin abstract class definition
   const abstractClassCode = `
 ${createFileMetadataString(`${name.HybridTSpec}.kt`)}
@@ -143,6 +146,7 @@ abstract class ${name.HybridTSpec}: ${supertypes} {
     ${indent(bridgeCompanion.code, '    ')}
   }
 }
+${directKotlinCode}
   `.trim()
 
   // 2. Create C++ (fbjni) bindings

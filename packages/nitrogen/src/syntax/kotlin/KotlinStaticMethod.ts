@@ -63,9 +63,20 @@ export class KotlinStaticMethod extends StaticMethod {
     }
   }
 
-  /** Registers the C++ method on the JavaScript class, from the helper `cppClassName`. */
-  getCppRegistration(cppClassName: string): string {
+  /** The name JavaScript calls this method by. */
+  get jsName(): string {
+    return this.nativeMethod.name
+  }
+
+  /**
+   * Registers the C++ method on the JavaScript class, from the helper `cppClassName`.
+   * `directFactory` names a generated direct host function factory, see `DirectCalls.ts`.
+   */
+  getCppRegistration(cppClassName: string, directFactory?: string): string {
     const name = this.nativeMethod.name
+    if (directFactory != null) {
+      return `clazz.registerStaticHybridMethod("${name}", &${cppClassName}::${name}, &${directFactory});`
+    }
     return `
 clazz.registerStaticHybridMethod("${name}", &${cppClassName}::${name});
 `.trim()

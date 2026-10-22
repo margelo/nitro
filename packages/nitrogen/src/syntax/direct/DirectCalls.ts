@@ -11,9 +11,11 @@ import { StructType } from '../types/StructType.js'
  *
  * For static methods whose arguments and results are numbers, booleans, strings, or structs of numbers and
  * booleans, Nitrogen generates a `jsi::HostFunction` that reads the arguments straight from JSI's argument array
- * and calls the native implementation with plain values. On iOS, it calls a `@_cdecl` Swift entry point, which
- * skips the Swift/C++ interop wrappers. Any other input calls the method's regular JSI implementation.
- * See `DirectCall.hpp` in Nitro.
+ * and calls the native implementation with plain values:
+ * - On iOS, it calls a `@_cdecl` Swift entry point, which skips the Swift/C++ interop wrappers.
+ * - On Android, it calls a static method of a Kotlin `object` through JNI with cached method IDs. Strings travel as
+ *   ASCII in the Runtime's scratch `byte[]`, and struct results in its scratch `ByteBuffer`.
+ * Any other input calls the method's regular JSI implementation. See `DirectCall.hpp` in Nitro.
  */
 
 type DirectScalarKind = 'number' | 'boolean'
@@ -455,5 +457,264 @@ ${entryPoints.map((entryPoint) => entryPoint.swiftFunction).join('\n\n')}
     },
     swiftFileName: `${hybridTSpec}_direct.swift`,
     swiftCode: swiftCode,
+  }
+}
+
+// MARK: - Android
+
+function getJniScalar(kind: DirectScalarKind): { descriptor: string; kotlin: string } {
+  return kind === 'number' ? { descriptor: 'D', kotlin: 'Double' } : { descriptor: 'Z', kotlin: 'Boolean' }
+}
+
+interface KotlinBridge {
+  jniSignature: string
+  cppCall: string[]
+  kotlinFunction: string
+}
+
+function createKotlinBridge(implementationClassName: string, method: DirectMethod): KotlinBridge {
+  const hasStringParameter = method.parameters.some((parameter) => parameter.value.kind === 'string')
+  const usesBytes = hasStringParameter || method.result.kind === 'string'
+  const descriptors: string[] = []
+  const jvalues: string[] = []
+  const kotlinParameters: string[] = []
+  const kotlinStatements: string[] = []
+  const kotlinArguments: string[] = []
+  const cppCall: string[] = ['JavaContext& __java = *__context;']
+  const stringParameters = method.parameters.filter((parameter) => parameter.value.kind === 'string')
+  if (stringParameters.length > 0) {
+    const lengths = stringParameters.map((parameter) => `jint __${parameter.name}_length;`)
+    const appends = stringParameters.map(
+      (parameter) =>
+        `!appendASCII(__runtime, __args[${method.parameters.indexOf(parameter)}], __java, __offset, __${parameter.name}_length)`
+    )
+    cppCall.push(
+      `
+size_t __offset = 0;
+${lengths.join('\n')}
+if (${appends.join(' || ')}) [[unlikely]] {
+  ${FALLBACK}
+}
+copyScratchToJavaBytes(__java, __offset);
+`.trim()
+    )
+  }
+  let stringOffset = '0'
+  for (const parameter of method.parameters) {
+    const value = parameter.value
+    const local = getCppLocal(parameter)
+    switch (value.kind) {
+      case 'number':
+      case 'boolean': {
+        const jni = getJniScalar(value.kind)
+        descriptors.push(jni.descriptor)
+        jvalues.push(value.kind === 'number' ? `d = ${local}` : `z = ${local} ? JNI_TRUE : JNI_FALSE`)
+        kotlinParameters.push(`${parameter.name}: ${jni.kotlin}`)
+        kotlinArguments.push(parameter.name)
+        break
+      }
+      case 'string': {
+        const length = `__${parameter.name}_length`
+        descriptors.push('I')
+        jvalues.push(`i = ${length}`)
+        kotlinParameters.push(`${length}: Int`)
+        kotlinStatements.push(
+          `val ${parameter.name} = com.margelo.nitro.core.DirectCall.stringFromASCII(__bytes, ${stringOffset}, ${length})`
+        )
+        stringOffset = stringOffset === '0' ? length : `${stringOffset} + ${length}`
+        kotlinArguments.push(parameter.name)
+        break
+      }
+      case 'struct': {
+        const fieldArguments: string[] = []
+        for (const field of value.struct.fields) {
+          const jni = getJniScalar(field.kind)
+          const fieldLocal = getCppLocal(parameter, field.name)
+          descriptors.push(jni.descriptor)
+          jvalues.push(field.kind === 'number' ? `d = ${fieldLocal}` : `z = ${fieldLocal} ? JNI_TRUE : JNI_FALSE`)
+          kotlinParameters.push(`${fieldLocal}: ${jni.kotlin}`)
+          fieldArguments.push(fieldLocal)
+        }
+        kotlinArguments.push(`${value.struct.name}(${fieldArguments.join(', ')})`)
+        break
+      }
+    }
+  }
+  if (usesBytes) {
+    descriptors.push('[B')
+    jvalues.push('l = __java.scratchBytes')
+    kotlinParameters.push('__bytes: ByteArray')
+  }
+  const result = method.result
+  if (result.kind === 'struct') {
+    descriptors.push('Ljava/nio/ByteBuffer;')
+    jvalues.push('l = __java.scratchBuffer')
+    kotlinParameters.push('__out: java.nio.ByteBuffer')
+  }
+  const invocation = `${implementationClassName}.${method.name}(${kotlinArguments.join(', ')})`
+  let returnDescriptor: string
+  let kotlinReturn = ''
+  let jniCall: string
+  let cppResult: string
+  const methodID = `gDirectMethods.${escapeCppName(method.name)}`
+  const jniArguments = jvalues.length > 0 ? '__jargs' : 'nullptr'
+  switch (result.kind) {
+    case 'void':
+      returnDescriptor = 'V'
+      kotlinStatements.push(invocation)
+      jniCall = `__java.env->CallStaticVoidMethodA(gDirectMethods.clazz, ${methodID}, ${jniArguments});`
+      cppResult = 'return jsi::Value::undefined();'
+      break
+    case 'number':
+      returnDescriptor = 'D'
+      kotlinReturn = ': Double'
+      kotlinStatements.push(`return ${invocation}`)
+      jniCall = `jdouble __result = __java.env->CallStaticDoubleMethodA(gDirectMethods.clazz, ${methodID}, ${jniArguments});`
+      cppResult = 'return jsi::Value(static_cast<double>(__result));'
+      break
+    case 'boolean':
+      returnDescriptor = 'Z'
+      kotlinReturn = ': Boolean'
+      kotlinStatements.push(`return ${invocation}`)
+      jniCall = `jboolean __result = __java.env->CallStaticBooleanMethodA(gDirectMethods.clazz, ${methodID}, ${jniArguments});`
+      cppResult = 'return jsi::Value(__result != JNI_FALSE);'
+      break
+    case 'string':
+      returnDescriptor = 'I'
+      kotlinReturn = ': Int'
+      kotlinStatements.push(`val __result = ${invocation}`)
+      kotlinStatements.push('return com.margelo.nitro.core.DirectCall.writeASCII(__result, __bytes)')
+      jniCall = `jint __length = __java.env->CallStaticIntMethodA(gDirectMethods.clazz, ${methodID}, ${jniArguments});`
+      cppResult = `
+if (__length < 0) [[unlikely]] {
+  return takePendingJavaString(__runtime, __java);
+}
+return stringFromJavaBytes(__runtime, __java, __length);
+`.trim()
+      break
+    case 'struct': {
+      returnDescriptor = 'V'
+      kotlinStatements.push(`val __result = ${invocation}`)
+      const reads: string[] = []
+      result.struct.fields.forEach((field, fieldIndex) => {
+        const offset = fieldIndex * 8
+        if (field.kind === 'number') {
+          kotlinStatements.push(`__out.putDouble(${offset}, __result.${field.name})`)
+          reads.push(`double __result__${field.name};`, `memcpy(&__result__${field.name}, __java.scratch + ${offset}, sizeof(double));`)
+        } else {
+          kotlinStatements.push(`__out.put(${offset}, (if (__result.${field.name}) 1 else 0).toByte())`)
+          reads.push(`bool __result__${field.name} = __java.scratch[${offset}] != 0;`)
+        }
+      })
+      jniCall = `__java.env->CallStaticVoidMethodA(gDirectMethods.clazz, ${methodID}, ${jniArguments});`
+      cppResult = [
+        ...reads,
+        createCppStructResult(result.struct, (fieldIndex) => `__result__${result.struct.fields[fieldIndex]!.name}`),
+      ].join('\n')
+      break
+    }
+  }
+  if (jvalues.length > 0) {
+    cppCall.push(`jvalue __jargs[${jvalues.length}];`)
+    jvalues.forEach((assignment, index) => cppCall.push(`__jargs[${index}].${assignment};`))
+  }
+  cppCall.push(
+    `
+${jniCall}
+if (__java.env->ExceptionCheck()) [[unlikely]] {
+  throwJavaException(__runtime, __java, "${method.name}");
+}
+${cppResult}
+`.trim()
+  )
+  const kotlinFunction = `
+@JvmStatic
+@DoNotStrip
+@Keep
+fun ${method.name}(${kotlinParameters.join(', ')})${kotlinReturn} {
+  ${indent(kotlinStatements.join('\n'), '  ')}
+}
+`.trim()
+  return {
+    jniSignature: `(${descriptors.join('')})${returnDescriptor}`,
+    cppCall: cppCall,
+    kotlinFunction: kotlinFunction,
+  }
+}
+
+export interface KotlinDirectCode {
+  cpp: DirectCppCode
+  /** The Kotlin `object` with the static bridges, appended to `Hybrid<T>Spec.kt`. */
+  kotlinCode: string
+}
+
+// The Android scratch memory, see `JavaContext::scratch`. Struct results use 8 bytes per field.
+const SCRATCH_SIZE = 256
+
+/** Whether a Kotlin bridge can return `method`'s result through the scratch memory. */
+export function fitsJavaScratch(method: DirectMethod): boolean {
+  return method.result.kind !== 'struct' || method.result.struct.fields.length * 8 <= SCRATCH_SIZE
+}
+
+export function createKotlinDirectCode(
+  config: NitroConfig,
+  hybridTSpec: string,
+  jHybridTSpec: string,
+  implementationClassName: string,
+  methods: readonly DirectMethod[]
+): KotlinDirectCode | undefined {
+  if (methods.length === 0) return undefined
+  const bridges = methods.map((method) => createKotlinBridge(implementationClassName, method))
+  const factories = methods.map((method, index) =>
+    createCppFactory(
+      method,
+      [{ name: '__context', value: 'JavaContext::get(__runtime)' }],
+      [...createCppArgumentReads(method), ...bridges[index]!.cppCall]
+    )
+  )
+  const objectName = `${hybridTSpec}_direct`
+  const jniClass = config.getAndroidPackage('c++/jni', objectName)
+  const methodFields = methods.map((method) => `jmethodID ${escapeCppName(method.name)} = nullptr;`)
+  const methodLookups = methods.map(
+    (method, index) =>
+      `gDirectMethods.${escapeCppName(method.name)} = env->GetStaticMethodID(gDirectMethods.clazz, "${method.name}", "${bridges[index]!.jniSignature}");`
+  )
+  const jniDefinitions = `
+// The \`${objectName}\` methods the direct host functions call, resolved once.
+struct DirectMethods {
+  jclass clazz = nullptr;
+  ${indent(methodFields.join('\n'), '  ')}
+};
+DirectMethods gDirectMethods;
+
+void resolveDirectMethods() {
+  JNIEnv* env = jni::Environment::current();
+  auto clazz = jni::findClassStatic("${jniClass}");
+  gDirectMethods.clazz = static_cast<jclass>(env->NewGlobalRef(clazz.get()));
+  ${indent(methodLookups.join('\n'), '  ')}
+}
+`.trim()
+  const kotlinCode = `
+/**
+ * The static entry points the direct JSI host functions in \`${jHybridTSpec}.cpp\` call through JNI.
+ * They are real static methods, so each call reaches the implementation without companion accessors.
+ * Strings arrive as ASCII in the Runtime's scratch \`byte[]\`, and struct results leave through the
+ * Runtime's scratch \`ByteBuffer\`.
+ */
+@DoNotStrip
+@Keep
+@Suppress("unused", "FunctionName", "LocalVariableName")
+internal object ${objectName} {
+  ${indent(bridges.map((bridge) => bridge.kotlinFunction).join('\n\n'), '  ')}
+}
+`.trim()
+  return {
+    cpp: {
+      includes: ['#include <NitroModules/DirectCall.hpp>'],
+      prelude: '',
+      definitions: createCppDefinitions(methods, [jniDefinitions], factories),
+      setup: ['// Resolve the methods the direct host functions call before registering them.', 'resolveDirectMethods();'],
+    },
+    kotlinCode: kotlinCode,
   }
 }

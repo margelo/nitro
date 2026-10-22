@@ -90,10 +90,179 @@
 #include <NitroTest/private/JVariant_Boolean_DoubleArray_Array_String__Double_String.hpp>
 #include <NitroTest/private/JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_.hpp>
 #include <memory>
+#include <NitroModules/DirectCall.hpp>
 
 namespace margelo::nitro::test {
 
   JHybridTestObjectSwiftKotlinSpec::~JHybridTestObjectSwiftKotlinSpec() = default;
+
+  namespace {
+    using namespace margelo::nitro::direct;
+
+    // The `HybridTestObjectSwiftKotlinSpec_direct` methods the direct host functions call, resolved once.
+    struct DirectMethods {
+      jclass clazz = nullptr;
+      jmethodID staticAdd = nullptr;
+      jmethodID staticNegate = nullptr;
+      jmethodID staticConcat = nullptr;
+      jmethodID staticBouncePoint = nullptr;
+      jmethodID staticThrow = nullptr;
+    };
+    DirectMethods gDirectMethods;
+
+    void resolveDirectMethods() {
+      JNIEnv* env = jni::Environment::current();
+      auto clazz = jni::findClassStatic("com/margelo/nitro/test/HybridTestObjectSwiftKotlinSpec_direct");
+      gDirectMethods.clazz = static_cast<jclass>(env->NewGlobalRef(clazz.get()));
+      gDirectMethods.staticAdd = env->GetStaticMethodID(gDirectMethods.clazz, "staticAdd", "(DD)D");
+      gDirectMethods.staticNegate = env->GetStaticMethodID(gDirectMethods.clazz, "staticNegate", "(Z)Z");
+      gDirectMethods.staticConcat = env->GetStaticMethodID(gDirectMethods.clazz, "staticConcat", "(II[B)I");
+      gDirectMethods.staticBouncePoint = env->GetStaticMethodID(gDirectMethods.clazz, "staticBouncePoint", "(DDZLjava/nio/ByteBuffer;)V");
+      gDirectMethods.staticThrow = env->GetStaticMethodID(gDirectMethods.clazz, "staticThrow", "(I[B)V");
+    }
+
+    // The properties of `StaticPoint`, in the order direct host functions read and write them.
+    constexpr const char* kDirectNames_StaticPoint[] = {"x", "y", "visible"};
+
+    // Direct host functions. Each reads its arguments straight from JSI and calls the implementation with plain values.
+    // Anything unusual goes to the regular JSI implementation, `__fallback`.
+
+    jsi::HostFunctionType direct_staticAdd(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      auto __context = JavaContext::get(__runtime);
+      return [__fallback, __context](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 2 || !__args[0].isNumber() || !__args[1].isNumber()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        double a = __args[0].getNumber();
+        double b = __args[1].getNumber();
+        JavaContext& __java = *__context;
+        jvalue __jargs[2];
+        __jargs[0].d = a;
+        __jargs[1].d = b;
+        jdouble __result = __java.env->CallStaticDoubleMethodA(gDirectMethods.clazz, gDirectMethods.staticAdd, __jargs);
+        if (__java.env->ExceptionCheck()) [[unlikely]] {
+          throwJavaException(__runtime, __java, "staticAdd");
+        }
+        return jsi::Value(static_cast<double>(__result));
+      };
+    }
+
+    jsi::HostFunctionType direct_staticNegate(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      auto __context = JavaContext::get(__runtime);
+      return [__fallback, __context](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 1 || !__args[0].isBool()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        bool value = __args[0].getBool();
+        JavaContext& __java = *__context;
+        jvalue __jargs[1];
+        __jargs[0].z = value ? JNI_TRUE : JNI_FALSE;
+        jboolean __result = __java.env->CallStaticBooleanMethodA(gDirectMethods.clazz, gDirectMethods.staticNegate, __jargs);
+        if (__java.env->ExceptionCheck()) [[unlikely]] {
+          throwJavaException(__runtime, __java, "staticNegate");
+        }
+        return jsi::Value(__result != JNI_FALSE);
+      };
+    }
+
+    jsi::HostFunctionType direct_staticConcat(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      auto __context = JavaContext::get(__runtime);
+      return [__fallback, __context](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 2 || !__args[0].isString() || !__args[1].isString()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        JavaContext& __java = *__context;
+        size_t __offset = 0;
+        jint __a_length;
+        jint __b_length;
+        if (!appendASCII(__runtime, __args[0], __java, __offset, __a_length) || !appendASCII(__runtime, __args[1], __java, __offset, __b_length)) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        copyScratchToJavaBytes(__java, __offset);
+        jvalue __jargs[3];
+        __jargs[0].i = __a_length;
+        __jargs[1].i = __b_length;
+        __jargs[2].l = __java.scratchBytes;
+        jint __length = __java.env->CallStaticIntMethodA(gDirectMethods.clazz, gDirectMethods.staticConcat, __jargs);
+        if (__java.env->ExceptionCheck()) [[unlikely]] {
+          throwJavaException(__runtime, __java, "staticConcat");
+        }
+        if (__length < 0) [[unlikely]] {
+          return takePendingJavaString(__runtime, __java);
+        }
+        return stringFromJavaBytes(__runtime, __java, __length);
+      };
+    }
+
+    jsi::HostFunctionType direct_staticBouncePoint(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      auto __names_StaticPoint = createNames(__runtime, kDirectNames_StaticPoint);
+      auto __context = JavaContext::get(__runtime);
+      return [__fallback, __names_StaticPoint, __context](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 1 || !__args[0].isObject()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        double __point__x;
+        double __point__y;
+        bool __point__visible;
+        {
+          jsi::Object __object = __args[0].getObject(__runtime);
+          jsi::Value __value0 = __object.getProperty(__runtime, (*__names_StaticPoint)[0]);
+          jsi::Value __value1 = __object.getProperty(__runtime, (*__names_StaticPoint)[1]);
+          jsi::Value __value2 = __object.getProperty(__runtime, (*__names_StaticPoint)[2]);
+          if (!__value0.isNumber() || !__value1.isNumber() || !__value2.isBool()) [[unlikely]] {
+            return __fallback(__runtime, __this, __args, __count);
+          }
+          __point__x = __value0.getNumber();
+          __point__y = __value1.getNumber();
+          __point__visible = __value2.getBool();
+        }
+        JavaContext& __java = *__context;
+        jvalue __jargs[4];
+        __jargs[0].d = __point__x;
+        __jargs[1].d = __point__y;
+        __jargs[2].z = __point__visible ? JNI_TRUE : JNI_FALSE;
+        __jargs[3].l = __java.scratchBuffer;
+        __java.env->CallStaticVoidMethodA(gDirectMethods.clazz, gDirectMethods.staticBouncePoint, __jargs);
+        if (__java.env->ExceptionCheck()) [[unlikely]] {
+          throwJavaException(__runtime, __java, "staticBouncePoint");
+        }
+        double __result__x;
+        memcpy(&__result__x, __java.scratch + 0, sizeof(double));
+        double __result__y;
+        memcpy(&__result__y, __java.scratch + 8, sizeof(double));
+        bool __result__visible = __java.scratch[16] != 0;
+        jsi::Object __object(__runtime);
+        __object.setProperty(__runtime, (*__names_StaticPoint)[0], __result__x);
+        __object.setProperty(__runtime, (*__names_StaticPoint)[1], __result__y);
+        __object.setProperty(__runtime, (*__names_StaticPoint)[2], __result__visible);
+        return jsi::Value(std::move(__object));
+      };
+    }
+
+    jsi::HostFunctionType direct_staticThrow(jsi::Runtime& __runtime, const jsi::HostFunctionType& __fallback) {
+      auto __context = JavaContext::get(__runtime);
+      return [__fallback, __context](jsi::Runtime& __runtime, const jsi::Value& __this, const jsi::Value* __args, size_t __count) -> jsi::Value {
+        if (__count != 1 || !__args[0].isString()) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        JavaContext& __java = *__context;
+        size_t __offset = 0;
+        jint __message_length;
+        if (!appendASCII(__runtime, __args[0], __java, __offset, __message_length)) [[unlikely]] {
+          return __fallback(__runtime, __this, __args, __count);
+        }
+        copyScratchToJavaBytes(__java, __offset);
+        jvalue __jargs[2];
+        __jargs[0].i = __message_length;
+        __jargs[1].l = __java.scratchBytes;
+        __java.env->CallStaticVoidMethodA(gDirectMethods.clazz, gDirectMethods.staticThrow, __jargs);
+        if (__java.env->ExceptionCheck()) [[unlikely]] {
+          throwJavaException(__runtime, __java, "staticThrow");
+        }
+        return jsi::Value::undefined();
+      };
+    }
+  } // namespace
 
   std::shared_ptr<JHybridTestObjectSwiftKotlinSpec> JHybridTestObjectSwiftKotlinSpec::constructor() {
     static const auto __method = JHybridTestObjectSwiftKotlinSpec::JavaPart::javaClassStatic()->getStaticMethod<jni::local_ref<JHybridTestObjectSwiftKotlinSpecJavaPart>()>("constructor_cxx");
@@ -297,12 +466,14 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("newTestObject", &JHybridTestObjectSwiftKotlinSpec::newTestObject);
       clazz.registerHybridMethod("newTestObjectAsync", &JHybridTestObjectSwiftKotlinSpec::newTestObjectAsync);
       clazz.registerHybridMethod("getVariantHybrid", &JHybridTestObjectSwiftKotlinSpec::getVariantHybrid);
+      // Resolve the methods the direct host functions call before registering them.
+      resolveDirectMethods();
       clazz.registerHybridConstructor(&JHybridTestObjectSwiftKotlinSpec::constructor);
-      clazz.registerStaticHybridMethod("staticAdd", &JHybridTestObjectSwiftKotlinSpec::staticAdd);
-      clazz.registerStaticHybridMethod("staticNegate", &JHybridTestObjectSwiftKotlinSpec::staticNegate);
-      clazz.registerStaticHybridMethod("staticConcat", &JHybridTestObjectSwiftKotlinSpec::staticConcat);
-      clazz.registerStaticHybridMethod("staticBouncePoint", &JHybridTestObjectSwiftKotlinSpec::staticBouncePoint);
-      clazz.registerStaticHybridMethod("staticThrow", &JHybridTestObjectSwiftKotlinSpec::staticThrow);
+      clazz.registerStaticHybridMethod("staticAdd", &JHybridTestObjectSwiftKotlinSpec::staticAdd, &direct_staticAdd);
+      clazz.registerStaticHybridMethod("staticNegate", &JHybridTestObjectSwiftKotlinSpec::staticNegate, &direct_staticNegate);
+      clazz.registerStaticHybridMethod("staticConcat", &JHybridTestObjectSwiftKotlinSpec::staticConcat, &direct_staticConcat);
+      clazz.registerStaticHybridMethod("staticBouncePoint", &JHybridTestObjectSwiftKotlinSpec::staticBouncePoint, &direct_staticBouncePoint);
+      clazz.registerStaticHybridMethod("staticThrow", &JHybridTestObjectSwiftKotlinSpec::staticThrow, &direct_staticThrow);
       clazz.registerStaticHybridProperty("readonlyNumber", &JHybridTestObjectSwiftKotlinSpec::getReadonlyNumber);
       clazz.registerStaticHybridProperty("sharedNumber", &JHybridTestObjectSwiftKotlinSpec::getSharedNumber, &JHybridTestObjectSwiftKotlinSpec::setSharedNumber);
     });
