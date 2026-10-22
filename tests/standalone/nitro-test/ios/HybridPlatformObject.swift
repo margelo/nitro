@@ -6,11 +6,28 @@
 //
 
 import NitroModules
+import NitroTestExternal
 import Foundation
 
 class HybridPlatformObject: HybridPlatformObjectSpec {
   required override init() throws {
     try super.init()
+  }
+
+  func createBase() throws -> any HybridBaseSpec {
+    return try HybridBase()
+  }
+
+  func createChild() throws -> any HybridChildSpec {
+    return try HybridChild()
+  }
+
+  func createAlternativeBase() throws -> any HybridBaseSpec {
+    return try HybridBase.createAlternativeBase()
+  }
+
+  func createInternalObject() throws -> any HybridSomeExternalObjectSpec {
+    return try HybridSomeInternalObject()
   }
 
   func getOSVersion() throws -> String {

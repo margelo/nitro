@@ -64,17 +64,3 @@ open class HybridChildSpec_base: HybridBaseSpec_base {
  * ```
  */
 public typealias HybridChildSpec = HybridChildSpec_protocol & HybridChildSpec_base
-
-/// Constructor and static requirements for the implementation selected by JavaScript.
-internal protocol HybridChildSpec_class {
-  // Constructor
-  init() throws
-
-  // Static Properties
-
-
-  // Static Methods
-
-}
-
-extension HybridChild: HybridChildSpec_class { }

@@ -7,6 +7,7 @@ import type { Base, Size } from './Base.nitro'
 import type { CppBase } from './CppBase.nitro'
 import type { CppChild } from './CppChild.nitro'
 import type { CppGrandchild } from './CppGrandchild.nitro'
+import type { PlatformObject } from './PlatformObject.nitro'
 
 export * from '#nitro/TestObjectCpp'
 export * from '#nitro/TestObjectSwiftKotlin'
@@ -151,7 +152,7 @@ export type HardwareBufferFormat = 'rgba-8888' | 'rgb-565' | 'rgba-fp16' | 'blob
   },
 })
 export declare class TestObjectCpp extends HybridObject {
-  constructor()
+  constructor(nativeFactory?: PlatformObject)
 
   static readonly readonlyNumber: number
   static sharedNumber: number

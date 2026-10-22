@@ -134,6 +134,15 @@ public final class HybridBaseSpec_cxx {
 
   // Methods
 
+  public final func createExternalObject() -> bridge.Result_void_ {
+    do {
+      let value = try __implementation.createExternalObject()
+      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
+    } catch {
+      return bridge.Result_void_.withError(error.toCpp())
+    }
+  }
+
   public final func bounceSize(size: Size, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.bounceSize(size: size)

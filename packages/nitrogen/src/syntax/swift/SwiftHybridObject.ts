@@ -32,44 +32,6 @@ export function createSwiftHybridObject(spec: HybridObjectSpec<'swift'>): Source
       return requirement.getDeclaration('swift')
     })
     .join('\n')
-  let instanceConstructor: string
-  let instanceStaticProperties: string
-  let instanceStaticMethods: string
-  let classProtocolCode: string
-  if (spec.allowMultipleImplementations) {
-    instanceConstructor = ''
-    instanceStaticProperties = ''
-    instanceStaticMethods = ''
-    const hasClassRequirements = spec.constructor != null || spec.staticProperties.length > 0 || spec.staticMethods.length > 0
-    if (hasClassRequirements) {
-      const implementation = spec.implementation
-      if (implementation == null) {
-        throw new Error(`${spec.name}: Swift constructor and static requirements need an implementation class.`)
-      }
-      classProtocolCode = `
-/// Constructor and static requirements for the implementation selected by JavaScript.
-internal protocol ${protocolName}_class {
-  // Constructor
-  ${indent(constructor, '  ')}
-
-  // Static Properties
-  ${indent(staticProperties, '  ')}
-
-  // Static Methods
-  ${indent(staticMethods, '  ')}
-}
-
-extension ${implementation.className}: ${protocolName}_class { }
-`.trim()
-    } else {
-      classProtocolCode = ''
-    }
-  } else {
-    instanceConstructor = constructor
-    instanceStaticProperties = staticProperties
-    instanceStaticMethods = staticMethods
-    classProtocolCode = ''
-  }
   const extraImports = [
     ...spec.properties.flatMap((p) => p.getRequiredImports('swift')),
     ...spec.staticProperties.flatMap((p) => p.getRequiredImports('swift')),
@@ -148,7 +110,7 @@ ${imports}
 /// See \`\`${protocolName}\`\`
 public protocol ${protocolName}_protocol: ${protocolBaseClasses.join(', ')} {
   // Constructor
-  ${indent(instanceConstructor, '  ')}
+  ${indent(constructor, '  ')}
 
   // Properties
   ${indent(properties, '  ')}
@@ -157,10 +119,10 @@ public protocol ${protocolName}_protocol: ${protocolBaseClasses.join(', ')} {
   ${indent(methods, '  ')}
 
   // Static Properties
-  ${indent(instanceStaticProperties, '  ')}
+  ${indent(staticProperties, '  ')}
 
   // Static Methods
-  ${indent(instanceStaticMethods, '  ')}
+  ${indent(staticMethods, '  ')}
 }
 
 public extension ${protocolName}_protocol {
@@ -185,8 +147,6 @@ open class ${protocolName}_base${classBaseClasses.length > 0 ? `: ${classBaseCla
  * \`\`\`
  */
 public typealias ${protocolName} = ${protocolName}_protocol & ${protocolName}_base
-
-${classProtocolCode}
 `.trim()
 
   const swiftBridge = createSwiftHybridObjectCxxBridge(spec)

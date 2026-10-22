@@ -10,12 +10,12 @@
 #include <NitroTest/private/SizeUnit-Swift.hpp>
 #include <NitroTest/private/Size-Swift.hpp>
 #include <NitroModules/Promise.hpp>
-#include <NitroTestExternalAppleCxx/NitroTestExternalAppleCxx.h>
 #include <NitroModules/Callback.hpp>
 #include <NitroModules/SwiftResult.hpp>
 #include <NitroTest/private/HybridChildSpecSwift.hpp>
 #include <NitroTest/private/HybridGrandchildSpecSwift.hpp>
 #include <NitroTest/private/HybridPlatformObjectSpecSwift.hpp>
+#include <NitroTestExternalAppleCxx/NitroTestExternalAppleCxx.h>
 #include <NitroTest/private/HybridTestObjectSwiftKotlinSpecSwift.hpp>
 #include <NitroTest/private/Powertrain-Swift.hpp>
 #include <NitroModules/JSIConverter+SwiftArray.hpp>
@@ -60,14 +60,6 @@ namespace margelo::nitro::test::swift_bridge {
         listener(pointer);
       });
     });
-  }
-
-  std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ create_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(void* NON_NULL pointer) {
-    return margelo::nitro::test::external::swift_bridge::create_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(pointer);
-  }
-
-  void* NON_NULL get_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(const std::shared_ptr<HybridObject>& value) {
-    return margelo::nitro::test::external::swift_bridge::get_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(value);
   }
 
   Result<void, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback___NitroTest__Size___NitroTest__Size(const Callback___NitroTest__Size___NitroTest__Size& callback, const void* NON_NULL param0, void* NON_NULL __outResult) noexcept {
@@ -137,6 +129,14 @@ namespace margelo::nitro::test::swift_bridge {
     auto wrapper = std::dynamic_pointer_cast<margelo::nitro::test::HybridPlatformObjectSpecSwift>(value);
     if (!wrapper) throw std::runtime_error("HybridPlatformObjectSpec is not implemented in Swift");
     return wrapper->getSwiftPart().toUnsafe();
+  }
+
+  std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ create_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(void* NON_NULL pointer) {
+    return margelo::nitro::test::external::swift_bridge::create_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(pointer);
+  }
+
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(const std::shared_ptr<HybridObject>& value) {
+    return margelo::nitro::test::external::swift_bridge::get_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(value);
   }
 
   std__shared_ptr_margelo__nitro__test__HybridTestObjectSwiftKotlinSpec_ create_std__shared_ptr_margelo__nitro__test__HybridTestObjectSwiftKotlinSpec_(void* NON_NULL pointer) {

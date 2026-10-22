@@ -7,6 +7,7 @@ import {
   type Powertrain,
   TestObjectCpp,
   TestObjectSwiftKotlin,
+  PlatformObject,
   SizeUnit,
   type Size,
   CppBase,
@@ -418,14 +419,14 @@ export const cases = {
     'bounceAnyHybrid(...) bounces a Swift/Kotlin Child': () => {
       const testObject = new TestObjectCpp()
 
-      const child = new Child()
+      const child = new TestObjectSwiftKotlin().createChild()
       expect(Object.is(testObject.bounceAnyHybrid(child), child)).to.equal(true)
     },
 
     'bounceAnyHybrid(...) bounces a Swift/Kotlin Base': () => {
       const testObject = new TestObjectCpp()
 
-      const base = new Base()
+      const base = new TestObjectSwiftKotlin().createBase()
       expect(Object.is(testObject.bounceAnyHybrid(base), base)).to.equal(true)
     },
 
@@ -517,9 +518,9 @@ export const cases = {
     },
   }),
   ...namedCases('Namespaced HybridObjects', {
-    'same-named exports construct their own native implementations': () => {
+    'same-named exports identify their own native implementations': () => {
       expect(Base).not.to.equal(ExternalBase)
-      expect(new Base().baseValue).to.equal(10)
+      expect(new TestObjectSwiftKotlin().createBase().baseValue).to.equal(10)
       expect(new ExternalBase().baseValue).to.equal(20)
     },
 
@@ -530,7 +531,7 @@ export const cases = {
     },
 
     'same-named classes have independent prototypes': () => {
-      const local = new Base()
+      const local = new TestObjectSwiftKotlin().createBase()
       const external = new ExternalBase()
       expect(local).to.be.instanceOf(Base)
       expect(local).not.to.be.instanceOf(ExternalBase)
@@ -541,7 +542,7 @@ export const cases = {
     'constructor names and object descriptions stay unqualified': () => {
       expect(Base.name).to.equal('Base')
       expect(ExternalBase.name).to.equal('Base')
-      for (const object of [new Base(), new ExternalBase()]) {
+      for (const object of [new TestObjectSwiftKotlin().createBase(), new ExternalBase()]) {
         expect(object.constructor.name).to.equal('Base')
         expect(object.toString()).to.equal('[HybridObject Base]')
       }
@@ -549,12 +550,12 @@ export const cases = {
   }),
   ...namedCases('Namespaced custom types', {
     "same-named structs preserve each module's fields": () => {
-      expect(new Base().bounceSize(LOCAL_SIZE)).to.deep.equal(LOCAL_SIZE)
+      expect(new TestObjectSwiftKotlin().createBase().bounceSize(LOCAL_SIZE)).to.deep.equal(LOCAL_SIZE)
       expect(new ExternalBase().bounceSize(EXTERNAL_SIZE)).to.deep.equal(EXTERNAL_SIZE)
     },
 
     "same-named enums preserve each module's members and values": () => {
-      const local = new Base()
+      const local = new TestObjectSwiftKotlin().createBase()
       const external = new ExternalBase()
       expect(local.bounceSizeUnit(SizeUnit.Points)).to.equal(SizeUnit.Points)
       expect(local.bounceSizeUnit(SizeUnit.Pixels)).to.equal(SizeUnit.Pixels)
@@ -577,7 +578,7 @@ export const cases = {
         scale: 3,
       }
       const [local, external] = await Promise.all([
-        new Base().mapSize(LOCAL_SIZE, (size) => {
+        new TestObjectSwiftKotlin().createBase().mapSize(LOCAL_SIZE, (size) => {
           localCalls += 1
           expect(size).to.deep.equal(LOCAL_SIZE)
           return localResult
@@ -872,8 +873,8 @@ export const cases = {
     },
   }),
   ...namedCases('C++ consuming Swift HybridObjects', {
-    'adapter constructors preserve the registered Swift classes': () => {
-      const object = new TestObjectCpp()
+    'adapter factories preserve the registered Swift classes': () => {
+      const object = new TestObjectCpp(new PlatformObject())
       const base = object.createBase()
       const child = object.createChild()
       expect(base).to.be.instanceOf(Base)
@@ -885,9 +886,9 @@ export const cases = {
 
     'calls dispatch to the actual Swift implementation': () => {
       const object = new TestObjectCpp()
-      expect(object.readBaseValue(new Base())).to.equal(10)
-      expect(object.readBaseValue(new Child())).to.equal(20)
-      expect(object.readChildBaseValue(new Child())).to.equal(20)
+      expect(object.readBaseValue(new TestObjectSwiftKotlin().createBase())).to.equal(10)
+      expect(object.readBaseValue(new TestObjectSwiftKotlin().createChild())).to.equal(20)
+      expect(object.readChildBaseValue(new TestObjectSwiftKotlin().createChild())).to.equal(20)
     },
 
     'ancestor adapters dispatch through three Swift inheritance levels': () => {
@@ -912,15 +913,15 @@ export const cases = {
 
     'converts structs and enums for a Swift method call': () => {
       const object = new TestObjectCpp()
-      expect(object.bounceSizeThroughBase(new Base(), SIZE)).to.deep.equal(SIZE)
-      expect(object.bounceSizeThroughBase(new Child(), SIZE)).to.deep.equal(SIZE)
+      expect(object.bounceSizeThroughBase(new TestObjectSwiftKotlin().createBase(), SIZE)).to.deep.equal(SIZE)
+      expect(object.bounceSizeThroughBase(new TestObjectSwiftKotlin().createChild(), SIZE)).to.deep.equal(SIZE)
     },
 
     'converts a callback and Promise around a Swift method call': async () => {
       const object = new TestObjectCpp()
       const result: Size = { width: 20, height: 30, unit: SizeUnit.Points }
       let calls = 0
-      const value = await object.mapSizeThroughBase(new Child(), SIZE, (size) => {
+      const value = await object.mapSizeThroughBase(new TestObjectSwiftKotlin().createChild(), SIZE, (size) => {
         calls += 1
         expect(size).to.deep.equal(SIZE)
         return result
@@ -931,14 +932,14 @@ export const cases = {
 
     'converts both members of a Swift variant': () => {
       const object = new TestObjectCpp()
-      const child = new Child()
+      const child = new TestObjectSwiftKotlin().createChild()
       expect(object.bounceVariantThroughChild(child, 'hello')).to.equal('hello')
       expect(object.bounceVariantThroughChild(child, TEST_CAR)).to.deep.equal(TEST_CAR)
     },
 
     'retaining and returning an adapter preserves JS identity': () => {
       const object = new TestObjectCpp()
-      const child = new Child()
+      const child = new TestObjectSwiftKotlin().createChild()
       expect(object.retainedBase).to.equal(undefined)
       object.retainedBase = child
       expect(object.retainedBase).to.equal(child)
@@ -949,7 +950,7 @@ export const cases = {
 
     'retained adapters keep Swift objects alive across JS garbage collection': () => {
       const object = new TestObjectCpp()
-      object.retainedBase = new Child()
+      object.retainedBase = new TestObjectSwiftKotlin().createChild()
       gc()
       const child = object.retainedBase!
       expect(child).to.be.instanceOf(Child)
@@ -961,14 +962,14 @@ export const cases = {
 
     'external adapters call the original Swift implementation': () => {
       const object = new TestObjectCpp()
-      const external = new SomeExternalObject()
+      const external = new ExternalBase().createExternalObject()
       expect(object.readExternalValue(external)).to.equal('Hello world!')
       expect(object.bounceExternalHybrid(external)).to.equal(external)
     },
 
     'external Swift structs preserve populated optional fields': () => {
       const object = new TestObjectCpp()
-      const external = new SomeExternalObject()
+      const external = new ExternalBase().createExternalObject()
       expect(object.createExternalOptionalPrimitives(external, 4.5, true, 13n, -7n)).to.deep.equal({
         optionalNumber: 4.5,
         optionalBoolean: true,
@@ -979,7 +980,7 @@ export const cases = {
 
     'external Swift structs preserve absent optional fields': () => {
       const object = new TestObjectCpp()
-      expect(object.createExternalOptionalPrimitives(new SomeExternalObject())).to.deep.equal({
+      expect(object.createExternalOptionalPrimitives(new ExternalBase().createExternalObject())).to.deep.equal({
         optionalNumber: undefined,
         optionalBoolean: undefined,
         optionalUInt64: undefined,
@@ -1009,8 +1010,8 @@ export const cases = {
   }),
   ...namedCases('Declared C++ inheritance', {
     'constructors and prototypes follow the declared hierarchy': () => {
-      const base = new CppBase()
-      const child = new CppChild()
+      const base = new TestObjectCpp().createCppBase()
+      const child = new TestObjectCpp().createCppChild()
       expect(base).to.be.instanceOf(CppBase)
       expect(child).to.be.instanceOf(CppChild)
       expect(child).to.be.instanceOf(CppBase)
@@ -1030,8 +1031,8 @@ export const cases = {
     },
 
     'inherited methods call the C++ implementation': async () => {
-      const child = new CppChild()
-      expect(new CppBase().baseValue).to.equal(10)
+      const child = new TestObjectCpp().createCppChild()
+      expect(new TestObjectCpp().createCppBase().baseValue).to.equal(10)
       expect(child.baseValue).to.equal(20)
       expect(child.childValue).to.equal(30)
       expect(child.toString()).to.equal('HybridCppChild custom toString() :)')
@@ -1043,11 +1044,11 @@ export const cases = {
 
     'upcasting and downcasting preserve the original object': () => {
       const object = new TestObjectCpp()
-      const child = new CppChild()
+      const child = new TestObjectCpp().createCppChild()
       const base = object.bounceCppBase(child)
       expect(base).to.equal(child)
       expect(object.castCppBase(base)).to.equal(child)
-      expect(() => object.castCppBase(new CppBase())).to.throw('Cannot cast CppBase to CppChild!')
+      expect(() => object.castCppBase(new TestObjectCpp().createCppBase())).to.throw('Cannot cast CppBase to CppChild!')
     },
 
     'three-level constructors and prototypes follow the declared C++ hierarchy': () => {
@@ -1087,10 +1088,10 @@ export const cases = {
     },
 
     'C++ and Swift classes keep distinct identities': () => {
-      expect(new CppBase()).not.to.be.instanceOf(Base)
-      expect(new Base()).not.to.be.instanceOf(CppBase)
-      expect(new CppChild()).not.to.be.instanceOf(Child)
-      expect(new Child()).not.to.be.instanceOf(CppChild)
+      expect(new TestObjectCpp().createCppBase()).not.to.be.instanceOf(Base)
+      expect(new TestObjectSwiftKotlin().createBase()).not.to.be.instanceOf(CppBase)
+      expect(new TestObjectCpp().createCppChild()).not.to.be.instanceOf(Child)
+      expect(new TestObjectSwiftKotlin().createChild()).not.to.be.instanceOf(CppChild)
     },
   }),
 }

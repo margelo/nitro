@@ -13,11 +13,9 @@
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Callback.hpp>
 #include <functional>
-#include <NitroTest/HybridSomeExternalObjectSpecCxx+NitroTestExternal.hpp>
 #include <NitroTest/private/HybridBaseSpec_cxx+NitroTest-SwiftConverter.hpp>
 #include <NitroTest/private/Size+NitroTest-SwiftConverter.hpp>
 #include <NitroTest/private/SizeUnit+NitroTest-SwiftConverter.hpp>
-#include <NitroTest/private/HybridSomeExternalObjectSpec_cxx+NitroTestExternal-SwiftConverter.hpp>
 #include <NitroTest/private/NitroTest-Swift-Cxx-Umbrella.hpp>
 #include <NitroModules/SwiftConverter.hpp>
 
@@ -28,11 +26,6 @@ namespace margelo::nitro::test {
       throw std::invalid_argument("Cannot use a HybridObject that does not implement Base as HybridBaseSpecCxx.");
     }
     return HybridBaseSpecCxx(implementation);
-  }
-
-  HybridBaseSpecCxx HybridBaseSpecCxx::create() {
-    auto __result = margelo::nitro::test::HybridBaseSpecSwift::constructor();
-    return SwiftConverter<margelo::nitro::test::HybridBaseSpecCxx, ::NitroTest::HybridBaseSpec_cxx>::fromSwift(__result);
   }
 
   double HybridBaseSpecCxx::getBaseValue() const {
@@ -69,16 +62,6 @@ namespace margelo::nitro::test {
     }
     auto __result = __implementation->mapSize(SwiftConverter<margelo::nitro::test::Size, ::NitroTest::Size>::toSwift(size), SwiftConverter<margelo::nitro::Callback<margelo::nitro::test::Size(const margelo::nitro::test::Size& /* size */)>, margelo::nitro::Callback<::NitroTest::Size(const ::NitroTest::Size&)>>::toSwift(callback));
     return SwiftConverter<Promise<margelo::nitro::test::Size>, Promise<::NitroTest::Size>>::fromSwift(__result);
-  }
-
-  margelo::nitro::test::HybridBaseSpecCxx HybridBaseSpecCxx::createAlternativeBase() {
-    auto __result = margelo::nitro::test::HybridBaseSpecSwift::createAlternativeBase();
-    return SwiftConverter<margelo::nitro::test::HybridBaseSpecCxx, ::NitroTest::HybridBaseSpec_cxx>::fromSwift(__result);
-  }
-
-  margelo::nitro::test::adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx HybridBaseSpecCxx::createInternalExternalObject() {
-    auto __result = margelo::nitro::test::HybridBaseSpecSwift::createInternalExternalObject();
-    return SwiftConverter<margelo::nitro::test::adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx, ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx>::fromSwift(__result);
   }
 
 } // namespace margelo::nitro::test

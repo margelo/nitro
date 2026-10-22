@@ -7,7 +7,6 @@
 internal import NitroModules
 internal import CxxStdlib
 internal import NitroTestAppleCxx
-internal import NitroTestExternal
 
 /**
  * A class implementation that bridges HybridBaseSpec over to C++.
@@ -159,37 +158,6 @@ open class HybridBaseSpec_cxx {
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
-    }
-  }
-
-  // Constructor
-
-  public class func constructor() -> bridge.Result_void_ {
-    do {
-      let value = try HybridBase()
-      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
-    } catch {
-      return bridge.Result_void_.withError(error.toCpp())
-    }
-  }
-
-  // Static methods
-
-  public class func createAlternativeBase() -> bridge.Result_void_ {
-    do {
-      let value = try HybridBase.createAlternativeBase()
-      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
-    } catch {
-      return bridge.Result_void_.withError(error.toCpp())
-    }
-  }
-
-  public class func createInternalExternalObject() -> bridge.Result_void_ {
-    do {
-      let value = try HybridBase.createInternalExternalObject()
-      return bridge.Result_void_.withValue(value.getCxxWrapper().toUnsafe())
-    } catch {
-      return bridge.Result_void_.withError(error.toCpp())
     }
   }
 }

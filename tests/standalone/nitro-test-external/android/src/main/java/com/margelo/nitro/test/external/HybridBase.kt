@@ -4,6 +4,8 @@ import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.resolved
 
 class HybridBase : HybridBaseSpec() {
+  override fun createExternalObject(): HybridSomeExternalObjectSpec = HybridSomeExternalObject()
+
   override val baseValue: Double
     get() = 20.0
 

@@ -58,6 +58,10 @@ namespace margelo::nitro::test {
     // Properties
     // Methods
     swift::String getOSVersion();
+    ::NitroTest::HybridBaseSpec_cxx createBase();
+    ::NitroTest::HybridChildSpec_cxx createChild();
+    ::NitroTest::HybridBaseSpec_cxx createAlternativeBase();
+    ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx createInternalObject();
     // Constructor
     static ::NitroTest::HybridPlatformObjectSpec_cxx constructor();
 

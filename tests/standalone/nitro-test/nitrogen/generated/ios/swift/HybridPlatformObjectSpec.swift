@@ -6,6 +6,7 @@
 ///
 
 public import NitroModules
+public import NitroTestExternal
 
 /// See ``HybridPlatformObjectSpec``
 public protocol HybridPlatformObjectSpec_protocol: HybridObject {
@@ -17,6 +18,10 @@ public protocol HybridPlatformObjectSpec_protocol: HybridObject {
 
   // Methods
   func getOSVersion() throws -> String
+  func createBase() throws -> (any HybridBaseSpec)
+  func createChild() throws -> (any HybridChildSpec)
+  func createAlternativeBase() throws -> (any HybridBaseSpec)
+  func createInternalObject() throws -> (any HybridSomeExternalObjectSpec)
 
   // Static Properties
 

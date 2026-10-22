@@ -241,8 +241,8 @@ To actually use Nitro, you need to create [Hybrid Objects](../concepts/hybrid-ob
             package com.margelo.nitro.math
 
             class HybridMath : HybridMathSpec() {
-              companion object {
-                fun add(a: Double, b: Double): Double {
+              companion object : HybridMathSpec.Companion {
+                override fun add(a: Double, b: Double): Double {
                   return a + b
                 }
               }

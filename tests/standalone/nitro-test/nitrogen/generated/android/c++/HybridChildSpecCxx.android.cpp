@@ -31,10 +31,6 @@ namespace margelo::nitro::test {
     return HybridChildSpecCxx(implementation);
   }
 
-  HybridChildSpecCxx HybridChildSpecCxx::create() {
-    return fromNative(margelo::nitro::test::JHybridChildSpec::constructor());
-  }
-
   double HybridChildSpecCxx::getChildValue() const {
     auto __implementation = std::dynamic_pointer_cast<margelo::nitro::test::JHybridChildSpec>(getNativeObject());
     if (__implementation == nullptr) [[unlikely]] {

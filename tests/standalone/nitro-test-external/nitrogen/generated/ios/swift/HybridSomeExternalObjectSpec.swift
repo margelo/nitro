@@ -64,17 +64,3 @@ open class HybridSomeExternalObjectSpec_base {
  * ```
  */
 public typealias HybridSomeExternalObjectSpec = HybridSomeExternalObjectSpec_protocol & HybridSomeExternalObjectSpec_base
-
-/// Constructor and static requirements for the implementation selected by JavaScript.
-internal protocol HybridSomeExternalObjectSpec_class {
-  // Constructor
-  init() throws
-
-  // Static Properties
-
-
-  // Static Methods
-
-}
-
-extension HybridSomeExternalObject: HybridSomeExternalObjectSpec_class { }

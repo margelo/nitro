@@ -40,21 +40,10 @@ namespace margelo::nitro::test::external {
     return std::move(__result.value());
   }
 
-  // Constructor
-
-  ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx HybridSomeExternalObjectSpecSwift::constructor() {
-    auto __result = ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx::constructor();
-    if (__result.hasError()) [[unlikely]] {
-      std::rethrow_exception(__result.error());
-    }
-    return ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx::fromUnsafe(__result.value());
-  }
-
   const std::shared_ptr<const HybridClass>& HybridSomeExternalObjectSpecSwift::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridMethod("getValue", &HybridSomeExternalObjectSpecSwift::getValue);
       clazz.registerHybridMethod("createOptionalPrimitivesHolder", &HybridSomeExternalObjectSpecSwift::createOptionalPrimitivesHolder);
-      clazz.registerHybridConstructor(&HybridSomeExternalObjectSpecSwift::constructor);
     });
     return hybridClass;
   }

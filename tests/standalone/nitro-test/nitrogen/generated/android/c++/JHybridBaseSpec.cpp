@@ -12,34 +12,14 @@
 #include <NitroTest/private/JSizeUnit.hpp>
 #include <NitroModules/JNIConverter+Promise.hpp>
 #include <NitroModules/JSIConverter+JTypedPromise.hpp>
-#include <NitroModules/JNIConverter+HybridObject.hpp>
-#include <NitroModules/JSIConverter+JHybridObject.hpp>
-#include <NitroTestExternal/private/JHybridSomeExternalObjectSpec.hpp>
 #include <NitroTest/private/JCallback_Size_Size.hpp>
 #include <NitroModules/JNIConverter+Callback.hpp>
-#include <memory>
 
 namespace margelo::nitro::test {
 
   JHybridBaseSpec::~JHybridBaseSpec() = default;
 
-  std::shared_ptr<JHybridBaseSpec> JHybridBaseSpec::constructor() {
-    static const auto __method = JHybridBaseSpec::JavaPart::javaClassStatic()->getStaticMethod<jni::local_ref<JHybridBaseSpecJavaPart>()>("constructor_cxx");
-    auto __result = __method(JHybridBaseSpec::JavaPart::javaClassStatic());
-    return JNIConverter<std::shared_ptr<JHybridBaseSpec>, jni::local_ref<JHybridBaseSpecJavaPart>>::fromJNI(__result);
-  }
 
-  jni::local_ref<JHybridBaseSpecJavaPart> JHybridBaseSpec::createAlternativeBase() {
-    static const auto __method = JHybridBaseSpec::JavaPart::javaClassStatic()->getStaticMethod<jni::local_ref<JHybridBaseSpecJavaPart>()>("createAlternativeBase_cxx");
-    auto __result = __method(JHybridBaseSpec::JavaPart::javaClassStatic());
-    return __result;
-  }
-
-  jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> JHybridBaseSpec::createInternalExternalObject() {
-    static const auto __method = JHybridBaseSpec::JavaPart::javaClassStatic()->getStaticMethod<jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>()>("createInternalExternalObject_cxx");
-    auto __result = __method(JHybridBaseSpec::JavaPart::javaClassStatic());
-    return __result;
-  }
 
   const std::shared_ptr<const HybridClass>& JHybridBaseSpec::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
@@ -47,9 +27,6 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("bounceSize", &JHybridBaseSpec::bounceSize);
       clazz.registerHybridMethod("bounceSizeUnit", &JHybridBaseSpec::bounceSizeUnit);
       clazz.registerHybridMethod("mapSize", &JHybridBaseSpec::mapSize);
-      clazz.registerHybridConstructor(&JHybridBaseSpec::constructor);
-      clazz.registerStaticHybridMethod("createAlternativeBase", &JHybridBaseSpec::createAlternativeBase);
-      clazz.registerStaticHybridMethod("createInternalExternalObject", &JHybridBaseSpec::createInternalExternalObject);
     });
     return hybridClass;
   }

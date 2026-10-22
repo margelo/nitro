@@ -16,6 +16,7 @@ public protocol HybridBaseSpec_protocol: HybridObject {
   var baseValue: Double { get }
 
   // Methods
+  func createExternalObject() throws -> (any HybridSomeExternalObjectSpec)
   func bounceSize(size: Size) throws -> Size
   func bounceSizeUnit(unit: SizeUnit) throws -> SizeUnit
   func mapSize(size: Size, callback: any Callback<(/* size */ Size), Size>) throws -> any Promise<Size>

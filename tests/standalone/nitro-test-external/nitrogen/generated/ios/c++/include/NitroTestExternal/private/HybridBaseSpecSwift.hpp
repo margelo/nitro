@@ -58,6 +58,7 @@ namespace margelo::nitro::test::external {
     // Properties
     double getBaseValue();
     // Methods
+    ::NitroTestExternal::HybridSomeExternalObjectSpec_cxx createExternalObject();
     ::NitroTestExternal::Size bounceSize(const ::NitroTestExternal::Size& size);
     ::NitroTestExternal::SizeUnit bounceSizeUnit(::NitroTestExternal::SizeUnit unit);
     Promise<::NitroTestExternal::Size> mapSize(const ::NitroTestExternal::Size& size, const Callback<::NitroTestExternal::Size(const ::NitroTestExternal::Size&)>& callback);

@@ -18,11 +18,6 @@
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
 #include <NitroTest/private/JCar.hpp>
-#include <NitroTest/private/JHybridChildSpec.hpp>
-#include <memory>
-#include <NitroModules/JNIConverter+HybridObject.hpp>
-// Forward declaration of `JHybridChildSpec` to properly resolve imports.
-namespace margelo::nitro::test { class JHybridChildSpec; }
 #include <NitroTest/private/JHybridBaseSpec.hpp>
 
 namespace margelo::nitro::test {
@@ -73,7 +68,7 @@ namespace margelo::nitro::test {
 
   public:
     // Constructor and static members
-    static std::shared_ptr<JHybridChildSpec> constructor();
+
 
   protected:
     const std::shared_ptr<const HybridClass>& getHybridClass() override {

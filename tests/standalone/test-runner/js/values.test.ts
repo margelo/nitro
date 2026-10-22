@@ -1,7 +1,15 @@
 import { expect } from 'chai'
 import { casesForTestObjects, recordCallback, waitFor } from './utils/cases'
 import { debugOnly, deferred } from './utils/helpers'
-import { OldEnum, Base, type Car, type Powertrain, WeirdNumbersEnum, type WrappedJsStruct } from 'nitro-test'
+import {
+  OldEnum,
+  TestObjectCpp,
+  TestObjectSwiftKotlin,
+  type Car,
+  type Powertrain,
+  WeirdNumbersEnum,
+  type WrappedJsStruct,
+} from 'nitro-test'
 import { NitroModules } from 'nitro-core'
 import { TEST_CAR, TEST_CAR_2, TEST_PERSON } from './utils/fixtures'
 
@@ -18,7 +26,7 @@ const ONE_MIB = 1024 * 1024
 
 const TRUCK_POWERTRAINS = ['electric', 'gas', 'hybrid', 'diesel'] as const
 
-const BASE = new Base()
+const BASE = new TestObjectSwiftKotlin().createBase()
 
 const POWERTRAINS: Powertrain[] = ['electric', 'gas', 'hybrid']
 
@@ -1339,7 +1347,7 @@ export const cases = {
 
     'getVariantHybrid(...) throws for the other TestObject implementation': (testObject) => {
       const otherName = testObject.constructor.name === 'TestObjectCpp' ? 'test.TestObjectSwiftKotlin' : 'test.TestObjectCpp'
-      const other = new (NitroModules.getHybridClass<typeof Base>(otherName))()
+      const other = new (NitroModules.getHybridClass<typeof TestObjectCpp | typeof TestObjectSwiftKotlin>(otherName))()
       expect(() =>
         // @ts-expect-error
         testObject.getVariantHybrid(other)

@@ -129,24 +129,30 @@ such as a method or a property. The class and prototype are still registered, so
 properties work. TypeScript rejects `new` for these classes, and calling their constructor from JavaScript throws that the class has no
 public constructor.
 
-Every platform decorator must choose `implementation` or `allowMultipleImplementations: true`. `implementation` selects the concrete Swift
-type stored by the bridge. Every Swift instance of that spec must be an instance of the selected class. Use
-`allowMultipleImplementations: true` for a spec with several native implementations, such as an image backed by either UIImage or CGImage;
-the Swift bridge stores the spec protocol existential.
+Every platform decorator must choose exactly one of `implementation` or `allowMultipleImplementations: true`; they cannot be combined.
+`implementation` selects the concrete Swift type stored by the bridge. Every Swift instance of that spec must be an instance of the selected
+class. Use `allowMultipleImplementations: true` for a spec with several native implementations, such as an image backed by either UIImage or
+CGImage; the Swift bridge stores the spec protocol existential.
 
-A spec with `allowMultipleImplementations: true` can also set `implementation` to give it a public constructor, static methods or static
-properties. `new` then creates that class, and static members use it, but other native classes can still implement the spec and the Swift
-bridge keeps storing the protocol existential. Nitrogen rejects `implementation` on such a spec if it declares none of these.
+A spec with `allowMultipleImplementations: true` has no public constructor, static methods or static properties. Create its instances in
+native code and return them through another HybridObject API. A concrete factory can expose creation methods:
 
 ```ts
 @iOS({
   language: 'swift',
   allowMultipleImplementations: true,
-  allowInheritance: true,
-  implementation: { className: 'HybridView' },
 })
-export declare class View extends HybridObject {
-  public constructor()
+export declare class Image extends HybridObject {
+  readonly width: number
+  readonly height: number
+}
+
+@iOS({
+  language: 'swift',
+  implementation: { className: 'HybridImageFactory' },
+})
+export declare class ImageFactory extends HybridObject {
+  static fromFile(path: string): Image
 }
 ```
 
@@ -198,8 +204,8 @@ Structs and enums used by these C++ APIs must have distinct names within the con
 different source modules would generate the same C++ name.
 
 Objects exposed through a C++ adapter cannot declare methods named `fromNative` or `getNativeObject`, or a `nativeObject` property: those
-names conflict with adapter helpers. `create` is also reserved when the object or a base class has a public constructor. Nitrogen checks
-inherited members and rejects conflicts before generating files.
+names conflict with adapter helpers. `create` is also reserved when the object has a public constructor. Nitrogen checks inherited members
+and rejects conflicts before generating files.
 
 Swift and Kotlin APIs can reference objects implemented in the same language on that platform. Nitrogen rejects other references, including
 references inside nested types. A C++ object cannot currently be passed to a Swift API; use callbacks to expose the operations the Swift
@@ -391,9 +397,8 @@ export declare class File extends Resource {
 ```
 
 Platform options are not inherited. A child may select a subset of its parent's platforms, but must declare its own decorator and
-implementation mode for each selected platform. If the parent has a public constructor, the derived spec must explicitly declare a public
-constructor of its own or a protected constructor. Swift's generated protocol and base class each inherit their counterpart from the parent
-spec.
+implementation mode for each selected platform. The base spec has no public constructor or static members; a concrete child can declare its
+own. Swift's generated protocol and base class each inherit their counterpart from the parent spec.
 
 A base class can come from another package. If TypeScript resolves it to that package's `.nitro.ts` spec, Nitrogen reads the decorators
 there. tsc drops decorators from `.d.ts` output, so on every run Nitrogen also writes each class's decorator options to

@@ -72,7 +72,7 @@ export function createSwiftHybridObjectCxxBridge(spec: HybridObjectSpec<'swift'>
   }
   let swiftImplementationType: string
   let swiftImplementationAssignment: string
-  if (spec.implementation != null && !spec.allowMultipleImplementations) {
+  if (spec.implementation != null) {
     swiftImplementationType = spec.implementation.className
     swiftImplementationAssignment = `
 guard let implementation = implementation as? ${swiftImplementationType} else {

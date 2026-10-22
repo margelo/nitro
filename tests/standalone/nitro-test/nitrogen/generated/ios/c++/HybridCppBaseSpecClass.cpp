@@ -11,22 +11,11 @@
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Callback.hpp>
 #include <functional>
-#include <utility>
-#include "HybridCppBase.hpp"
-#include <memory>
-#include <type_traits>
+
 
 namespace margelo::nitro::test {
 
-  namespace {
-    struct HybridCppBaseSpecBindings final {
-      static std::shared_ptr<HybridCppBaseSpec> constructor() {
-        static_assert(std::is_constructible_v<::margelo::nitro::test::HybridCppBase>,
-                      "CppBase: ::margelo::nitro::test::HybridCppBase must implement the declared public constructor.");
-        return std::make_shared<::margelo::nitro::test::HybridCppBase>();
-      }
-    };
-  }
+
 
   const std::shared_ptr<const HybridClass>& HybridCppBaseSpec::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
@@ -34,7 +23,6 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("bounceSize", &HybridCppBaseSpec::bounceSize);
       clazz.registerHybridMethod("bounceSizeUnit", &HybridCppBaseSpec::bounceSizeUnit);
       clazz.registerHybridMethod("mapSize", &HybridCppBaseSpec::mapSize);
-      clazz.registerHybridConstructor(&HybridCppBaseSpecBindings::constructor);
     });
     return hybridClass;
   }

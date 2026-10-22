@@ -11,7 +11,6 @@ import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import dalvik.annotation.optimization.FastNative
-import com.margelo.nitro.test.HybridChild
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -63,14 +62,5 @@ abstract class HybridChildSpec: HybridBaseSpec() {
 
   protected companion object Bridge {
     protected const val TAG = "HybridChildSpec"
-
-    // Constructor
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    private fun constructor_cxx(): HybridChildSpec {
-      val __result = HybridChild()
-      return __result
-    }
   }
 }

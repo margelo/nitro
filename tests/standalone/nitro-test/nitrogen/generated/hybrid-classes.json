@@ -5,17 +5,11 @@
       "android": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
-        "implementation": {
-          "className": "HybridBase"
-        },
         "language": "kotlin"
       },
       "ios": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
-        "implementation": {
-          "className": "HybridBase"
-        },
         "language": "swift"
       }
     },
@@ -23,17 +17,11 @@
       "android": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
-        "implementation": {
-          "className": "HybridChild"
-        },
         "language": "kotlin"
       },
       "ios": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
-        "implementation": {
-          "className": "HybridChild"
-        },
         "language": "swift"
       }
     },
@@ -41,19 +29,11 @@
       "android": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
-        "implementation": {
-          "className": "HybridCppBase",
-          "include": "\"HybridCppBase.hpp\""
-        },
         "language": "c++"
       },
       "ios": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
-        "implementation": {
-          "className": "HybridCppBase",
-          "include": "\"HybridCppBase.hpp\""
-        },
         "language": "c++"
       }
     },
@@ -61,19 +41,11 @@
       "android": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
-        "implementation": {
-          "className": "HybridCppChild",
-          "include": "\"HybridCppChild.hpp\""
-        },
         "language": "c++"
       },
       "ios": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
-        "implementation": {
-          "className": "HybridCppChild",
-          "include": "\"HybridCppChild.hpp\""
-        },
         "language": "c++"
       }
     },

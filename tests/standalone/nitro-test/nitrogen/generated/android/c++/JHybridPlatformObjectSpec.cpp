@@ -8,8 +8,12 @@
 #include <NitroTest/private/JHybridPlatformObjectSpec.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
-#include <memory>
+#include <NitroTest/private/JHybridBaseSpec.hpp>
 #include <NitroModules/JNIConverter+HybridObject.hpp>
+#include <NitroModules/JSIConverter+JHybridObject.hpp>
+#include <NitroTest/private/JHybridChildSpec.hpp>
+#include <NitroTestExternal/private/JHybridSomeExternalObjectSpec.hpp>
+#include <memory>
 
 namespace margelo::nitro::test {
 
@@ -24,6 +28,10 @@ namespace margelo::nitro::test {
   const std::shared_ptr<const HybridClass>& JHybridPlatformObjectSpec::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridMethod("getOSVersion", &JHybridPlatformObjectSpec::getOSVersion);
+      clazz.registerHybridMethod("createBase", &JHybridPlatformObjectSpec::createBase);
+      clazz.registerHybridMethod("createChild", &JHybridPlatformObjectSpec::createChild);
+      clazz.registerHybridMethod("createAlternativeBase", &JHybridPlatformObjectSpec::createAlternativeBase);
+      clazz.registerHybridMethod("createInternalObject", &JHybridPlatformObjectSpec::createInternalObject);
       clazz.registerHybridConstructor(&JHybridPlatformObjectSpec::constructor);
     });
     return hybridClass;
@@ -68,6 +76,26 @@ namespace margelo::nitro::test {
   // Methods
   jni::local_ref<jni::JString> JHybridPlatformObjectSpec::getOSVersion() {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<jni::JString>()>("getOSVersion");
+    auto __result = __method(_javaPart, CxxPart::getClass());
+    return __result;
+  }
+  jni::local_ref<JHybridBaseSpecJavaPart> JHybridPlatformObjectSpec::createBase() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JHybridBaseSpecJavaPart>()>("createBase");
+    auto __result = __method(_javaPart, CxxPart::getClass());
+    return __result;
+  }
+  jni::local_ref<JHybridChildSpecJavaPart> JHybridPlatformObjectSpec::createChild() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JHybridChildSpecJavaPart>()>("createChild");
+    auto __result = __method(_javaPart, CxxPart::getClass());
+    return __result;
+  }
+  jni::local_ref<JHybridBaseSpecJavaPart> JHybridPlatformObjectSpec::createAlternativeBase() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JHybridBaseSpecJavaPart>()>("createAlternativeBase");
+    auto __result = __method(_javaPart, CxxPart::getClass());
+    return __result;
+  }
+  jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> JHybridPlatformObjectSpec::createInternalObject() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>()>("createInternalObject");
     auto __result = __method(_javaPart, CxxPart::getClass());
     return __result;
   }

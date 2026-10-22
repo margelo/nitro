@@ -31,10 +31,6 @@ namespace margelo::nitro::test::adapters::NitroTestExternal {
     return HybridSomeExternalObjectSpecCxx(implementation);
   }
 
-  HybridSomeExternalObjectSpecCxx HybridSomeExternalObjectSpecCxx::create() {
-    return fromNative(margelo::nitro::test::external::JHybridSomeExternalObjectSpec::constructor());
-  }
-
   std::string HybridSomeExternalObjectSpecCxx::getValue() const {
     auto __implementation = std::dynamic_pointer_cast<margelo::nitro::test::external::JHybridSomeExternalObjectSpec>(getNativeObject());
     if (__implementation == nullptr) [[unlikely]] {

@@ -11,7 +11,7 @@ import { PlatformObject } from 'nitro-test'
 
 import { TestObjectCpp, TestObjectSwiftKotlin } from 'nitro-test'
 import { HybridSomeExternalObject } from './utils/testObjects'
-import { SomeExternalObject } from 'nitro-test-external'
+import { Base as ExternalBase, SomeExternalObject } from 'nitro-test-external'
 
 const UNKNOWN_NAME = 'SomeUnregisteredHybridObject'
 
@@ -135,12 +135,12 @@ export const cases = {
     },
 
     'getHybridClass(unknown name) throws a not-registered error': () => {
-      const create = () => new (NitroModules.getHybridClass<typeof Base>(UNKNOWN_NAME))()
+      const create = () => NitroModules.getHybridClass<typeof Base>(UNKNOWN_NAME)
       expect(create).to.throw(`HybridClass "${UNKNOWN_NAME}" is not registered.`)
     },
 
     'getHybridClass(unknown name) error asks to regenerate bindings': () => {
-      expect(() => new (NitroModules.getHybridClass<typeof Base>(UNKNOWN_NAME))()).to.throw(
+      expect(() => NitroModules.getHybridClass<typeof Base>(UNKNOWN_NAME)).to.throw(
         'Regenerate Nitrogen bindings and rebuild the native app.'
       )
     },
@@ -148,7 +148,7 @@ export const cases = {
     'getHybridClass(\'test.TestObjectCpp\') returns an object named "TestObjectCpp"': () => {
       const name = 'test.TestObjectCpp'
 
-      const object = new (NitroModules.getHybridClass<typeof Base>(name))()
+      const object = new (NitroModules.getHybridClass<typeof TestObjectCpp>(name))()
       expect(Object.is(NitroModules.isHybridObject(object), true)).to.equal(true)
       expect(Object.is(object.constructor.name, 'TestObjectCpp')).to.equal(true)
     },
@@ -156,7 +156,7 @@ export const cases = {
     'getHybridClass(\'test.TestObjectSwiftKotlin\') returns an object named "TestObjectSwiftKotlin"': () => {
       const name = 'test.TestObjectSwiftKotlin'
 
-      const object = new (NitroModules.getHybridClass<typeof Base>(name))()
+      const object = new (NitroModules.getHybridClass<typeof TestObjectSwiftKotlin>(name))()
       expect(Object.is(NitroModules.isHybridObject(object), true)).to.equal(true)
       expect(Object.is(object.constructor.name, 'TestObjectSwiftKotlin')).to.equal(true)
     },
@@ -164,23 +164,29 @@ export const cases = {
     'getHybridClass(\'test.Base\') returns an object named "Base"': () => {
       const name = 'test.Base'
 
-      const object = new (NitroModules.getHybridClass<typeof Base>(name))()
+      const hybridClass = NitroModules.getHybridClass<typeof Base>(name)
+      const object = new TestObjectSwiftKotlin().createBase()
       expect(Object.is(NitroModules.isHybridObject(object), true)).to.equal(true)
       expect(Object.is(object.constructor.name, 'Base')).to.equal(true)
+      expect(object).to.be.instanceOf(hybridClass)
+      expect(() => Reflect.construct(hybridClass, [])).to.throw('has no public constructor.')
     },
 
     'getHybridClass(\'test.Child\') returns an object named "Child"': () => {
       const name = 'test.Child'
 
-      const object = new (NitroModules.getHybridClass<typeof Base>(name))()
+      const hybridClass = NitroModules.getHybridClass<typeof Child>(name)
+      const object = new TestObjectSwiftKotlin().createChild()
       expect(Object.is(NitroModules.isHybridObject(object), true)).to.equal(true)
       expect(Object.is(object.constructor.name, 'Child')).to.equal(true)
+      expect(object).to.be.instanceOf(hybridClass)
+      expect(() => Reflect.construct(hybridClass, [])).to.throw('has no public constructor.')
     },
 
     'getHybridClass(\'test.PlatformObject\') returns an object named "PlatformObject"': () => {
       const name = 'test.PlatformObject'
 
-      const object = new (NitroModules.getHybridClass<typeof Base>(name))()
+      const object = new (NitroModules.getHybridClass<typeof PlatformObject>(name))()
       expect(Object.is(NitroModules.isHybridObject(object), true)).to.equal(true)
       expect(Object.is(object.constructor.name, 'PlatformObject')).to.equal(true)
     },
@@ -188,14 +194,18 @@ export const cases = {
     'getHybridClass(\'test.external.SomeExternalObject\') returns an object named "SomeExternalObject"': () => {
       const name = 'test.external.SomeExternalObject'
 
-      const object = new (NitroModules.getHybridClass<typeof Base>(name))()
+      const hybridClass = NitroModules.getHybridClass<typeof SomeExternalObject>(name)
+      const object = new ExternalBase().createExternalObject()
       expect(Object.is(NitroModules.isHybridObject(object), true)).to.equal(true)
       expect(Object.is(object.constructor.name, 'SomeExternalObject')).to.equal(true)
+      expect(object).to.be.instanceOf(hybridClass)
+      expect(() => Reflect.construct(hybridClass, [])).to.throw('has no public constructor.')
     },
 
-    'getHybridClass(...) returns a new instance every call': () => {
-      const a = new Base()
-      const b = new Base()
+    'getHybridClass(...) returns a class that creates independent instances': () => {
+      const hybridClass = NitroModules.getHybridClass<typeof TestObjectSwiftKotlin>('test.TestObjectSwiftKotlin')
+      const a = new hybridClass()
+      const b = new hybridClass()
       expect(Object.is(a, b)).to.equal(false)
       expect(Object.is(a.equals(b), false)).to.equal(true)
     },

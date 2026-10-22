@@ -58,6 +58,7 @@ namespace margelo::nitro::test { class HybridCppGrandchildSpec; }
 // Forward declaration of `HybridObject` to properly resolve imports.
 namespace margelo::nitro { class HybridObject; }
 #include "CustomString.hpp"
+#include <NitroTest/HybridPlatformObjectSpecCxx.hpp>
 
 namespace margelo::nitro::test {
 

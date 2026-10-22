@@ -34,21 +34,10 @@ namespace margelo::nitro::test {
     return std::move(__result.value());
   }
 
-  // Constructor
-
-  ::NitroTest::HybridChildSpec_cxx HybridChildSpecSwift::constructor() {
-    auto __result = ::NitroTest::HybridChildSpec_cxx::constructor();
-    if (__result.hasError()) [[unlikely]] {
-      std::rethrow_exception(__result.error());
-    }
-    return ::NitroTest::HybridChildSpec_cxx::fromUnsafe(__result.value());
-  }
-
   const std::shared_ptr<const HybridClass>& HybridChildSpecSwift::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridProperty("childValue", &HybridChildSpecSwift::getChildValue);
       clazz.registerHybridMethod("bounceVariant", &HybridChildSpecSwift::bounceVariant);
-      clazz.registerHybridConstructor(&HybridChildSpecSwift::constructor);
     });
     return hybridClass;
   }

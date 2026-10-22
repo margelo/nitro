@@ -18,15 +18,12 @@ export interface OptionalPrimitivesHolder {
 @iOS({
   language: 'swift',
   allowMultipleImplementations: true,
-  implementation: { className: 'HybridSomeExternalObject' },
 })
 @Android({
   language: 'kotlin',
   allowMultipleImplementations: true,
-  implementation: { className: 'HybridSomeExternalObject' },
 })
 export declare class SomeExternalObject extends HybridObject {
-  constructor()
   getValue(): string
 
   // This tests a weird Swift bug: when a Hybrid Object imported in another

@@ -12,8 +12,6 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import dalvik.annotation.optimization.FastNative
 import com.margelo.nitro.core.Promise
-import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
-import com.margelo.nitro.test.HybridBase
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -73,41 +71,10 @@ abstract class HybridBaseSpec: HybridObject() {
 
 
     // Static Methods
-    fun createAlternativeBase(): HybridBaseSpec
 
-    fun createInternalExternalObject(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
   }
 
   protected companion object Bridge {
     protected const val TAG = "HybridBaseSpec"
-
-    private val implementationCompanion: Companion
-      get() = HybridBase
-
-    // Constructor
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    private fun constructor_cxx(): HybridBaseSpec {
-      val __result = HybridBase()
-      return __result
-    }
-
-    // Static methods
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    private fun createAlternativeBase_cxx(): HybridBaseSpec {
-      val __result = HybridBase.createAlternativeBase()
-      return __result
-    }
-
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    private fun createInternalExternalObject_cxx(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
-      val __result = HybridBase.createInternalExternalObject()
-      return __result
-    }
   }
 }

@@ -12,24 +12,17 @@
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
 #include <NitroTest/private/JCar.hpp>
-#include <memory>
-#include <NitroModules/JNIConverter+HybridObject.hpp>
 
 namespace margelo::nitro::test {
 
   JHybridChildSpec::~JHybridChildSpec() = default;
 
-  std::shared_ptr<JHybridChildSpec> JHybridChildSpec::constructor() {
-    static const auto __method = JHybridChildSpec::JavaPart::javaClassStatic()->getStaticMethod<jni::local_ref<JHybridChildSpecJavaPart>()>("constructor_cxx");
-    auto __result = __method(JHybridChildSpec::JavaPart::javaClassStatic());
-    return JNIConverter<std::shared_ptr<JHybridChildSpec>, jni::local_ref<JHybridChildSpecJavaPart>>::fromJNI(__result);
-  }
+
 
   const std::shared_ptr<const HybridClass>& JHybridChildSpec::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridProperty("childValue", &JHybridChildSpec::getChildValue);
       clazz.registerHybridMethod("bounceVariant", &JHybridChildSpec::bounceVariant);
-      clazz.registerHybridConstructor(&JHybridChildSpec::constructor);
     });
     return hybridClass;
   }

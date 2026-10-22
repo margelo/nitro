@@ -23,6 +23,8 @@ target_sources(NitroTest PRIVATE
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridCppGrandchildSpecClass.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridGrandchildSpecCxx+JNI.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridGrandchildSpecCxx.android.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridPlatformObjectSpecCxx+JNI.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridPlatformObjectSpecCxx.android.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridSomeExternalObjectSpecCxx+NitroTestExternal+JNI.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridSomeExternalObjectSpecCxx+NitroTestExternal.android.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/HybridTestObjectCppSpecClass.cpp"

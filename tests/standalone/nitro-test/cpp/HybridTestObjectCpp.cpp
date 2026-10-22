@@ -26,6 +26,9 @@ const std::shared_ptr<const HybridClass>& HybridTestObjectCpp::Class::get() {
   return hybridClass;
 }
 
+HybridTestObjectCpp::HybridTestObjectCpp(const std::optional<HybridPlatformObjectSpecCxx>& nativeFactory)
+    : _nativeFactory(nativeFactory.has_value() ? nativeFactory.value() : HybridPlatformObjectSpecCxx::create()) {}
+
 size_t HybridTestObjectCpp::getExternalMemorySize() noexcept {
   return _string.size();
 }
@@ -911,15 +914,15 @@ jsi::Value HybridTestObjectCpp::rawJsiFunc(jsi::Runtime& runtime, const jsi::Val
 }
 
 HybridBaseSpecCxx HybridTestObjectCpp::createBase() {
-  return HybridBaseSpecCxx::create();
+  return _nativeFactory.createBase();
 }
 
 HybridChildSpecCxx HybridTestObjectCpp::createChild() {
-  return HybridChildSpecCxx::create();
+  return _nativeFactory.createChild();
 }
 
 HybridBaseSpecCxx HybridTestObjectCpp::createBaseActualChild() {
-  return HybridChildSpecCxx::create();
+  return _nativeFactory.createChild();
 }
 
 HybridGrandchildSpecCxx HybridTestObjectCpp::createGrandchild() {
@@ -1000,7 +1003,7 @@ OptionalPrimitivesHolder HybridTestObjectCpp::createExternalOptionalPrimitives(
 }
 
 HybridBaseSpecCxx HybridTestObjectCpp::createAlternativeBase() {
-  return HybridBaseSpecCxx::createAlternativeBase();
+  return _nativeFactory.createAlternativeBase();
 }
 
 std::shared_ptr<HybridCppBaseSpec> HybridTestObjectCpp::createCppBase() {
@@ -1066,7 +1069,7 @@ adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx HybridTestObjectCpp
 }
 
 adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx HybridTestObjectCpp::createInternalObject() {
-  return HybridBaseSpecCxx::createInternalExternalObject();
+  return _nativeFactory.createInternalObject();
 }
 
 void HybridTestObjectCpp::dispose() {

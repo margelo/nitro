@@ -14,9 +14,13 @@
 #include <NitroTest/private/JHybridPlatformObjectSpecJavaPart.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
+#include <NitroTest/private/JHybridBaseSpecJavaPart.hpp>
+#include <NitroModules/JNIConverter+HybridObject.hpp>
+#include <NitroModules/JSIConverter+JHybridObject.hpp>
+#include <NitroTest/private/JHybridChildSpecJavaPart.hpp>
+#include <NitroTestExternal/private/JHybridSomeExternalObjectSpecJavaPart.hpp>
 #include <NitroTest/private/JHybridPlatformObjectSpec.hpp>
 #include <memory>
-#include <NitroModules/JNIConverter+HybridObject.hpp>
 // Forward declaration of `JHybridPlatformObjectSpec` to properly resolve imports.
 namespace margelo::nitro::test { class JHybridPlatformObjectSpec; }
 
@@ -69,6 +73,10 @@ namespace margelo::nitro::test {
   public:
     // Methods
     jni::local_ref<jni::JString> getOSVersion();
+    jni::local_ref<JHybridBaseSpecJavaPart> createBase();
+    jni::local_ref<JHybridChildSpecJavaPart> createChild();
+    jni::local_ref<JHybridBaseSpecJavaPart> createAlternativeBase();
+    jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> createInternalObject();
 
   public:
     // Constructor and static members

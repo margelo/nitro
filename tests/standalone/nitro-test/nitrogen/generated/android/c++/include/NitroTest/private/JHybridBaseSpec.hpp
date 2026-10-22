@@ -18,15 +18,8 @@
 #include <NitroTest/private/JSizeUnit.hpp>
 #include <NitroModules/JNIConverter+Promise.hpp>
 #include <NitroModules/JSIConverter+JTypedPromise.hpp>
-#include <NitroModules/JNIConverter+HybridObject.hpp>
-#include <NitroModules/JSIConverter+JHybridObject.hpp>
-#include <NitroTestExternal/private/JHybridSomeExternalObjectSpecJavaPart.hpp>
 #include <NitroTest/private/JCallback_Size_Size.hpp>
 #include <NitroModules/JNIConverter+Callback.hpp>
-#include <NitroTest/private/JHybridBaseSpec.hpp>
-#include <memory>
-// Forward declaration of `JHybridBaseSpec` to properly resolve imports.
-namespace margelo::nitro::test { class JHybridBaseSpec; }
 
 namespace margelo::nitro::test {
 
@@ -78,9 +71,7 @@ namespace margelo::nitro::test {
 
   public:
     // Constructor and static members
-    static std::shared_ptr<JHybridBaseSpec> constructor();
-    static jni::local_ref<JHybridBaseSpecJavaPart> createAlternativeBase();
-    static jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> createInternalExternalObject();
+
 
   protected:
     const std::shared_ptr<const HybridClass>& getHybridClass() override {

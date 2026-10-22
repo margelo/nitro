@@ -23,8 +23,8 @@ export * from '#nitro/Math'
 
 :::tip
 
-Hybrid Objects with constructors or static methods always require a concrete `implementation`, while Hybrid Objects without constructors or
-static methods can also be declared abstract via `allowMultipleImplementations: true`.
+Choose exactly one of `implementation` or `allowMultipleImplementations: true` on each platform. Public constructors, static methods and
+static properties require a concrete `implementation`.
 
 :::
 
@@ -101,18 +101,21 @@ Now, ensure `HybridMath` is implemented:
 
 ### Allow inheritance
 
-Hybrid Objects can be extended to create inheritance chains. If you want your Hybrid Object to be extendable, set `allowInheritance: true`:
+To let other HybridObject specs extend a base spec, set `allowInheritance: true` and `allowMultipleImplementations: true` on the base. Omit
+`implementation` and keep its API limited to instance members:
 
 ```ts
 import { type HybridObject, iOS, Android } from 'nitro-core'
 
 @iOS({
-  ...
+  language: 'swift',
+  allowMultipleImplementations: true,
   // highlight-next-line
   allowInheritance: true
 })
 @Android({
-  ...
+  language: 'kotlin',
+  allowMultipleImplementations: true,
   // highlight-next-line
   allowInheritance: true
 })
@@ -155,8 +158,8 @@ export * from '#nitro/Math'
 
 ## Multiple implementations
 
-If your Hybrid Object is not bound to one specific implementation, set `allowMultipleImplementations: true`. For example, an `Image` could
-be backed by a `UIImage`, a `CGImage`, or a GPU buffer:
+If your Hybrid Object is not bound to one specific implementation, set `allowMultipleImplementations: true` and omit `implementation`. For
+example, an `Image` could be backed by a `UIImage`, a `CGImage`, or a GPU buffer:
 
 ```ts title="Image.nitro.ts"
 import { type HybridObject, iOS } from 'nitro-core'
@@ -187,8 +190,8 @@ class HybridGPUImage: HybridImageSpec {
 }
 ```
 
-`Image` can no longer have a constructor or static methods, but you can still create other Hybrid Objects that can create `Image`
-instances - this is a factory pattern:
+`Image` cannot have a public constructor, static methods or static properties. A separate HybridObject with a concrete implementation can
+create and return `Image` instances:
 
 ```ts title="ImageFactory.nitro.ts"
 import { type HybridObject, iOS } from 'nitro-core'

@@ -11,6 +11,7 @@ import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import dalvik.annotation.optimization.FastNative
+import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 import com.margelo.nitro.test.HybridPlatformObject
 import com.margelo.nitro.core.HybridObject
 
@@ -33,6 +34,22 @@ abstract class HybridPlatformObjectSpec: HybridObject() {
   @DoNotStrip
   @Keep
   abstract fun getOSVersion(): String
+
+  @DoNotStrip
+  @Keep
+  abstract fun createBase(): HybridBaseSpec
+
+  @DoNotStrip
+  @Keep
+  abstract fun createChild(): HybridChildSpec
+
+  @DoNotStrip
+  @Keep
+  abstract fun createAlternativeBase(): HybridBaseSpec
+
+  @DoNotStrip
+  @Keep
+  abstract fun createInternalObject(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 
   // Default implementation of `HybridObject.toString()`
   override fun toString(): String {

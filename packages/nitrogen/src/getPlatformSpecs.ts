@@ -115,6 +115,7 @@ const concreteImplementationOptions = {
 const multipleImplementationOptions = {
   allowInheritance: z.boolean().default(false),
   allowMultipleImplementations: z.literal(true),
+  implementation: z.never().optional(),
 }
 const platformOptionsSchema = z.union([
   z.strictObject({
@@ -138,18 +139,15 @@ const platformOptionsSchema = z.union([
     ...multipleImplementationOptions,
     ...swiftOptions,
     language: z.literal('swift'),
-    implementation: swiftImplementationSchema.optional(),
   }),
   z.strictObject({
     ...multipleImplementationOptions,
     language: z.literal('c++'),
-    implementation: cppImplementationSchema.optional(),
   }),
   z.strictObject({
     ...multipleImplementationOptions,
     ...kotlinOptions,
     language: z.literal('kotlin'),
-    implementation: kotlinImplementationSchema.optional(),
   }),
 ])
 export type HybridObjectPlatformOptions = z.infer<typeof platformOptionsSchema>

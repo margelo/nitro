@@ -9,28 +9,16 @@
 #include <string>
 #include <NitroTest/Car.hpp>
 #include <variant>
-#include <utility>
-#include "HybridCppChild.hpp"
-#include <memory>
-#include <type_traits>
+
 
 namespace margelo::nitro::test {
 
-  namespace {
-    struct HybridCppChildSpecBindings final {
-      static std::shared_ptr<HybridCppChildSpec> constructor() {
-        static_assert(std::is_constructible_v<::margelo::nitro::test::HybridCppChild>,
-                      "CppChild: ::margelo::nitro::test::HybridCppChild must implement the declared public constructor.");
-        return std::make_shared<::margelo::nitro::test::HybridCppChild>();
-      }
-    };
-  }
+
 
   const std::shared_ptr<const HybridClass>& HybridCppChildSpec::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
       clazz.registerHybridProperty("childValue", &HybridCppChildSpec::getChildValue);
       clazz.registerHybridMethod("bounceVariant", &HybridCppChildSpec::bounceVariant);
-      clazz.registerHybridConstructor(&HybridCppChildSpecBindings::constructor);
     });
     return hybridClass;
   }
