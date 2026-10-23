@@ -63,6 +63,8 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridTestObjectSwiftK
   func bounceOptionalUnsignedArray(array: [UInt64]?) throws -> [UInt64]?
   func bounceUnsignedArrayAsync(array: [UInt64]) throws -> any Promise<[UInt64]>
   func callUnsignedArrayCallback(array: [UInt64], callback: any Callback<(/* array */ [UInt64]), [UInt64]>) throws -> [UInt64]
+  func bounceUnsignedVariant(variant: Variant_UInt64_String) throws -> Variant_UInt64_String
+  func bounceUnsignedArrayVariant(variant: Variant__UInt64__String) throws -> Variant__UInt64__String
   func bounceHybridObjects(array: [(any HybridChildSpec)]) throws -> [(any HybridChildSpec)]
   func bounceFunctions(functions: [any Callback<(), Void>]) throws -> [any Callback<(), Void>]
   func bounceMaps(maps: [AnyJSON]) throws -> [AnyJSON]

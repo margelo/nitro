@@ -559,6 +559,26 @@ public final class HybridTestObjectSwiftKotlinSpec_cxx {
     }
   }
 
+  public final func bounceUnsignedVariant(variant: Variant_UInt64_String_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceUnsignedVariant(variant: variant.value)
+      __outResult.assumingMemoryBound(to: Variant_UInt64_String_cxx.self).initialize(to: Variant_UInt64_String_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceUnsignedArrayVariant(variant: Variant__UInt64__String_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceUnsignedArrayVariant(variant: variant.value)
+      __outResult.assumingMemoryBound(to: Variant__UInt64__String_cxx.self).initialize(to: Variant__UInt64__String_cxx(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
   public final func bounceHybridObjects(array: [HybridChildSpec_cxx], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.bounceHybridObjects(array: array.map { $0.getHybridChildSpec() })

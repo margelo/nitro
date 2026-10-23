@@ -17,7 +17,13 @@ import com.margelo.nitro.core.Callback
 @DoNotStrip
 sealed class Variant_Callback_______Unit__Double private constructor(@DoNotStrip private val index: Int) {
   @DoNotStrip
-  data class First(@DoNotStrip val value: Callback_void): Variant_Callback_______Unit__Double(0)
+  data class First(@DoNotStrip val value: Callback<() -> Unit>): Variant_Callback_______Unit__Double(0) {
+    @DoNotStrip
+    @Suppress("unused", "FunctionName")
+    private fun getValue_cxx(): Callback_void {
+      return Callback_void.fromKotlin(value)
+    }
+  }
   @DoNotStrip
   data class Second(@DoNotStrip val value: Double): Variant_Callback_______Unit__Double(1)
 
@@ -55,7 +61,7 @@ sealed class Variant_Callback_______Unit__Double private constructor(@DoNotStrip
     @JvmStatic
     @JvmName("createFirst")
     @DoNotStrip
-    fun create(value: Callback<() -> Unit>): Variant_Callback_______Unit__Double = First(Callback_void.fromKotlin(value))
+    fun create(value: Callback<() -> Unit>): Variant_Callback_______Unit__Double = First(value)
 
     @JvmStatic
     @DoNotStrip

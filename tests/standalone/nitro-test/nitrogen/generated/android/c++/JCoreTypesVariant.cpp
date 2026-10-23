@@ -44,8 +44,9 @@ namespace margelo::nitro::test {
   }
 
   JCoreTypesVariant_impl::Second::Value JCoreTypesVariant_impl::Second::getValue() const {
-    static const auto field = javaClassStatic()->getField<margelo::nitro::test::JCallback_void_double::JavaPart>("value");
-    return getFieldValue(field);
+    static const auto clazz = javaClassStatic();
+    static const auto method = clazz->getNonvirtualMethod<margelo::nitro::test::JCallback_void_double::JavaPart()>("getValue_cxx");
+    return method(self(), clazz);
   }
 
   jni::local_ref<JCoreTypesVariant> JCoreTypesVariant_impl::Third::create(jni::alias_ref<JWrappedJsStruct> value) {

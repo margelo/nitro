@@ -382,6 +382,15 @@ HybridTestObjectCpp::callUnsignedArrayCallback(const std::vector<uint64_t>& arra
   return callback.callSync(array);
 }
 
+std::variant<uint64_t, std::string> HybridTestObjectCpp::bounceUnsignedVariant(const std::variant<uint64_t, std::string>& variant) {
+  return variant;
+}
+
+std::variant<std::vector<uint64_t>, std::string>
+HybridTestObjectCpp::bounceUnsignedArrayVariant(const std::variant<std::vector<uint64_t>, std::string>& variant) {
+  return variant;
+}
+
 std::vector<HybridChildSpecCxx> HybridTestObjectCpp::bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) {
   return array;
 }

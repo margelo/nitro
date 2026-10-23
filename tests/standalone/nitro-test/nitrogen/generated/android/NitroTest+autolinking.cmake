@@ -89,6 +89,8 @@ target_sources(NitroTest PRIVATE
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JVariant_OldEnum_Boolean.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JVariant_Person_Car.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JVariant_Powertrain_Car.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JVariant_ULongArray_String.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JVariant_ULong_String.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JVariant_WeirdNumbersEnum_Boolean.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JWeirdNumbersEnum.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JWrappedJsStruct.cpp"
