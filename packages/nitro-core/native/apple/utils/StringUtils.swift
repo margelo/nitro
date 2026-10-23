@@ -71,7 +71,7 @@ public final class StringUtils {
       }
       return
     }
-    if #available(iOS 26.0, macOS 26.0, *) {
+    if #available(iOS 26.0, macOS 26.0, tvOS 26.0, visionOS 26.0, *) {
       let utf8 = value.utf8Span
       utf8.span.withUnsafeBufferPointer { bytes in
         if utf8.isKnownASCII {
