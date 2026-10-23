@@ -90,10 +90,10 @@ export declare class Math extends HybridObject {
   writeJSON(path.join(consumer, 'nitro.json'), {
     environment: 'bare',
     cxxNamespace: ['releasecheck'],
-    apple: { appleModuleName: 'ReleaseCheck' },
+    apple: { moduleName: 'ReleaseCheck' },
     android: {
-      androidNamespace: ['releasecheck'],
-      androidCxxLibName: 'ReleaseCheck',
+      namespace: ['releasecheck'],
+      cxxLibName: 'ReleaseCheck',
     },
     ignorePaths: ['**/node_modules'],
   })
