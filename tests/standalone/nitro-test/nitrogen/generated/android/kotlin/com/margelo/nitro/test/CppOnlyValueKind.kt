@@ -19,5 +19,28 @@ enum class CppOnlyValueKind(@DoNotStrip @Keep val value: Int) {
   FIRST(0),
   SECOND(3);
 
-  companion object
+  /**
+   * Get the String value this CppOnlyValueKind represents.
+   */
+  val stringValue: String
+    get() =
+      when (this) {
+        FIRST -> "First"
+        SECOND -> "Second"
+      }
+
+  override fun toString(): String = stringValue
+
+  companion object {
+    /**
+     * Get a CppOnlyValueKind for the given String value, or
+     * return `null` if the given value was invalid/unknown.
+     */
+    fun fromString(value: String): CppOnlyValueKind? =
+      when (value) {
+        "First" -> FIRST
+        "Second" -> SECOND
+        else -> null
+      }
+  }
 }

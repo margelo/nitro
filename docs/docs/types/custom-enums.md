@@ -1,6 +1,8 @@
 ---
 ---
 
+import Tabs from '@theme/Tabs'; import TabItem from '@theme/TabItem';
+
 # Custom Enums (`A | B`)
 
 There's two different types of enums - [enums](#typescript-enums) and [unions](#typescript-union).
@@ -42,6 +44,28 @@ export declare class Person extends HybridObject {
 
 Nitrogen statically generates hashes for the strings `"male"` and `"female"` at compile-time, allowing for very efficient conversions
 between JS `string`s and native `enum`s.
+
+### String values in Swift and Kotlin
+
+Generated Swift and Kotlin enums can convert to and from the string each value has in JS. For a union that is the literal (`"male"`), and
+for a TypeScript enum it is the member name (`"MALE"`).
+
+<Tabs>
+  <TabItem value="swift" label="Swift" default>
+    ```swift
+    let gender = Gender(fromString: "male") // .male, or nil for an unknown string
+    let string = Gender.male.stringValue // "male"
+    ```
+  </TabItem>
+  <TabItem value="kotlin" label="Kotlin">
+    ```kotlin
+    val gender = Gender.fromString("male") // Gender.MALE, or null for an unknown string
+    val string = Gender.MALE.stringValue // "male"
+    ```
+  </TabItem>
+</Tabs>
+
+Swift's `description` and Kotlin's `toString()` also return this string. In Kotlin, `name` still returns the generated entry name (`MALE`).
 
 ### Unions need a name
 
