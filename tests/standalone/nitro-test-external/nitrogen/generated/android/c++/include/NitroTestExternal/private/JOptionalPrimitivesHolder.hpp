@@ -40,8 +40,9 @@ namespace margelo::nitro::test::external {
     }
 
     jni::local_ref<JOptional<JUInt64>> getOptionalUInt64() const {
-      static const auto method = javaClassStatic()->getMethod<JOptional<JUInt64>()>("getOptionalUInt64_cxx");
-      return method(this->self());
+      static const auto clazz = javaClassStatic();
+      static const auto method = clazz->getNonvirtualMethod<JOptional<JUInt64>()>("getOptionalUInt64_cxx");
+      return method(this->self(), clazz);
     }
 
     jni::local_ref<JOptional<jni::JLong>> getOptionalInt64() const {

@@ -429,6 +429,26 @@ namespace margelo::nitro::test {
     return std::move(__result.value());
   }
 
+  ::NitroTest::Variant_UInt64_String_cxx HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedVariant(const ::NitroTest::Variant_UInt64_String_cxx& variant) {
+    auto __result = withSwiftResult<::NitroTest::Variant_UInt64_String_cxx>([&](void* __outResult) {
+      return _swiftPart.bounceUnsignedVariant(variant, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  ::NitroTest::Variant__UInt64__String_cxx HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedArrayVariant(const ::NitroTest::Variant__UInt64__String_cxx& variant) {
+    auto __result = withSwiftResult<::NitroTest::Variant__UInt64__String_cxx>([&](void* __outResult) {
+      return _swiftPart.bounceUnsignedArrayVariant(variant, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
   swift::Array<::NitroTest::HybridChildSpec_cxx> HybridTestObjectSwiftKotlinSpecSwift::bounceHybridObjects(const swift::Array<::NitroTest::HybridChildSpec_cxx>& array) {
     auto __result = withSwiftResult<swift::Array<::NitroTest::HybridChildSpec_cxx>>([&](void* __outResult) {
       return _swiftPart.bounceHybridObjects(array, __outResult);
@@ -1676,6 +1696,8 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("bounceOptionalUnsignedArray", &HybridTestObjectSwiftKotlinSpecSwift::bounceOptionalUnsignedArray);
       clazz.registerHybridMethod("bounceUnsignedArrayAsync", &HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedArrayAsync);
       clazz.registerHybridMethod("callUnsignedArrayCallback", &HybridTestObjectSwiftKotlinSpecSwift::callUnsignedArrayCallback);
+      clazz.registerHybridMethod("bounceUnsignedVariant", &HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedVariant);
+      clazz.registerHybridMethod("bounceUnsignedArrayVariant", &HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedArrayVariant);
       clazz.registerHybridMethod("bounceHybridObjects", &HybridTestObjectSwiftKotlinSpecSwift::bounceHybridObjects);
       clazz.registerHybridMethod("bounceFunctions", &HybridTestObjectSwiftKotlinSpecSwift::bounceFunctions);
       clazz.registerHybridMethod("bounceMaps", &HybridTestObjectSwiftKotlinSpecSwift::bounceMaps);

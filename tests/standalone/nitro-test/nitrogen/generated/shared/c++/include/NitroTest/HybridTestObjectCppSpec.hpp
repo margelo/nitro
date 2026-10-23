@@ -171,6 +171,8 @@ namespace margelo::nitro::test {
       virtual std::optional<std::vector<uint64_t>> bounceOptionalUnsignedArray(const std::optional<std::vector<uint64_t>>& array) = 0;
       virtual Promise<std::vector<uint64_t>> bounceUnsignedArrayAsync(const std::vector<uint64_t>& array) = 0;
       virtual std::vector<uint64_t> callUnsignedArrayCallback(const std::vector<uint64_t>& array, const Callback<std::vector<uint64_t>(const std::vector<uint64_t>& /* array */)>& callback) = 0;
+      virtual std::variant<uint64_t, std::string> bounceUnsignedVariant(const std::variant<uint64_t, std::string>& variant) = 0;
+      virtual std::variant<std::vector<uint64_t>, std::string> bounceUnsignedArrayVariant(const std::variant<std::vector<uint64_t>, std::string>& variant) = 0;
       virtual std::vector<HybridChildSpecCxx> bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) = 0;
       virtual std::vector<Callback<void()>> bounceFunctions(const std::vector<Callback<void()>>& functions) = 0;
       virtual std::vector<AnyJSON> bounceMaps(const std::vector<AnyJSON>& maps) = 0;

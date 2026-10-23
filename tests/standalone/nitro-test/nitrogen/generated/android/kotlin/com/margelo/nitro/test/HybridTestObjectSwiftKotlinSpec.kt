@@ -333,6 +333,14 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   @DoNotStrip
   @Keep
+  abstract fun bounceUnsignedVariant(variant: Variant_ULong_String): Variant_ULong_String
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceUnsignedArrayVariant(variant: Variant_ULongArray_String): Variant_ULongArray_String
+
+  @DoNotStrip
+  @Keep
   abstract fun bounceHybridObjects(array: Array<HybridChildSpec>): Array<HybridChildSpec>
 
   abstract fun bounceFunctions(functions: Array<Callback<() -> Unit>>): Array<Callback<() -> Unit>>

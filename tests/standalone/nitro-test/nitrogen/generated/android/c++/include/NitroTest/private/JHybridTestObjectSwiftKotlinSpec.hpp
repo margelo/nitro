@@ -38,6 +38,8 @@
 #include <NitroTest/private/JCallback_std__vector_Powertrain__std__vector_Powertrain_.hpp>
 #include <NitroModules/JNIConverter+Promise.hpp>
 #include <NitroModules/JSIConverter+JTypedPromise.hpp>
+#include <NitroTest/private/JVariant_ULong_String.hpp>
+#include <NitroTest/private/JVariant_ULongArray_String.hpp>
 #include <NitroTest/private/JHybridChildSpecJavaPart.hpp>
 #include <NitroTest/private/JCallback_void.hpp>
 #include <NitroModules/AnyJSON.hpp>
@@ -217,6 +219,8 @@ namespace margelo::nitro::test {
     jni::local_ref<JOptional<JArrayUInt64>> bounceOptionalUnsignedArray(const jni::local_ref<JOptional<JArrayUInt64>>& array);
     jni::local_ref<JTypedPromise<jni::local_ref<JArrayUInt64>>> bounceUnsignedArrayAsync(const jni::local_ref<JArrayUInt64>& array);
     jni::local_ref<JArrayUInt64> callUnsignedArrayCallback(const jni::local_ref<JArrayUInt64>& array, const jni::local_ref<margelo::nitro::test::JCallback_std__vector_uint64_t__std__vector_uint64_t_::JavaPart>& callback);
+    jni::local_ref<JVariant_ULong_String> bounceUnsignedVariant(const jni::local_ref<JVariant_ULong_String>& variant);
+    jni::local_ref<JVariant_ULongArray_String> bounceUnsignedArrayVariant(const jni::local_ref<JVariant_ULongArray_String>& variant);
     jni::local_ref<jni::JArrayClass<JHybridChildSpecJavaPart>> bounceHybridObjects(const jni::local_ref<jni::JArrayClass<JHybridChildSpecJavaPart>>& array);
     jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_void::JavaPart>> bounceFunctions(const jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_void::JavaPart>>& functions);
     jni::local_ref<jni::JArrayClass<JAnyJSON>> bounceMaps(const jni::local_ref<jni::JArrayClass<JAnyJSON>>& maps);

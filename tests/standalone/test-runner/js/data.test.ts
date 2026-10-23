@@ -184,6 +184,19 @@ export const cases = {
       expect(received).to.deep.equal([UNSIGNED_BOUNDARIES])
       expect(result).to.deep.equal([...UNSIGNED_BOUNDARIES].reverse())
     },
+
+    'bounceUnsignedVariant(...) preserves all 64 bits and strings': (testObject) => {
+      for (const unsigned of UNSIGNED_BOUNDARIES) {
+        expect(testObject.bounceUnsignedVariant(unsigned)).to.equal(unsigned)
+      }
+      expect(testObject.bounceUnsignedVariant('18446744073709551615')).to.equal('18446744073709551615')
+    },
+
+    'bounceUnsignedArrayVariant(...) preserves arrays and strings': (testObject) => {
+      expect(testObject.bounceUnsignedArrayVariant(UNSIGNED_BOUNDARIES)).to.deep.equal(UNSIGNED_BOUNDARIES)
+      expect(testObject.bounceUnsignedArrayVariant([])).to.deep.equal([])
+      expect(testObject.bounceUnsignedArrayVariant('values')).to.equal('values')
+    },
   }),
   ...casesForTestObjects('Struct roundtrips', {
     'bouncePartialStruct(...) keeps an empty struct': (testObject) => {
