@@ -2,7 +2,16 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Nitro Modules Configuration",
   "type": "object",
-  "required": ["cxxNamespace", "apple", "android", "autolinking"],
+  "required": ["cxxNamespace", "apple", "android"],
+  "definitions": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+      "not": {
+        "enum": ["nitro", "NitroModules"]
+      }
+    }
+  },
   "properties": {
     "environment": {
       "type": "string",
@@ -13,7 +22,7 @@
     "cxxNamespace": {
       "type": "array",
       "items": {
-        "type": "string"
+        "$ref": "#/definitions/name"
       },
       "minItems": 1,
       "description": "Represents the C++ namespace of the module that will be generated. This can have multiple sub-namespaces, and is always relative to `margelo::nitro`."
@@ -23,9 +32,8 @@
       "required": ["appleModuleName"],
       "properties": {
         "appleModuleName": {
-          "type": "string",
-          "minLength": 1,
-          "description": "Represents the Apple module name of the module that will be generated. It names the generated Swift module and SwiftPM library product."
+          "$ref": "#/definitions/name",
+          "description": "Represents the Apple module name of the module that will be generated. It names the generated Swift module and SwiftPM library product. Use the same name in the library's `swiftpmConfig` in package.json."
         }
       },
       "description": "Required: Apple configuration, for iOS, macOS, tvOS and visionOS"
@@ -37,103 +45,17 @@
         "androidNamespace": {
           "type": "array",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/name"
           },
           "minItems": 1,
           "description": "Represents the Android namespace ('package') of the module that will be generated. This can have multiple sub-namespaces, and is always relative to `com.margelo.nitro`."
         },
         "androidCxxLibName": {
-          "type": "string",
-          "minLength": 1,
+          "$ref": "#/definitions/name",
           "description": "Represents the name of the Android C++ library (aka name in CMakeLists.txt `add_library(..)`). This will be loaded via `System.loadLibrary(...)`."
         }
       },
       "description": "Required: Android configuration"
-    },
-    "autolinking": {
-      "type": "object",
-      "description": "Configures the code that gets generated for autolinking (registering) Hybrid Object constructors.",
-      "patternProperties": {
-        "^.*$": {
-          "type": "object",
-          "oneOf": [
-            {
-              "required": ["all"],
-              "properties": {
-                "all": {
-                  "type": "object",
-                  "required": ["language", "implementationClassName"],
-                  "properties": {
-                    "language": {
-                      "type": "string",
-                      "enum": ["c++"]
-                    },
-                    "implementationClassName": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              },
-              "additionalProperties": false
-            },
-            {
-              "type": "object",
-              "not": {
-                "required": ["all"]
-              },
-              "minProperties": 1,
-              "properties": {
-                "ios": {
-                  "type": "object",
-                  "required": ["language", "implementationClassName"],
-                  "properties": {
-                    "language": {
-                      "type": "string",
-                      "enum": ["c++", "swift"]
-                    },
-                    "implementationClassName": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                },
-                "android": {
-                  "type": "object",
-                  "required": ["language", "implementationClassName"],
-                  "properties": {
-                    "language": {
-                      "type": "string",
-                      "enum": ["c++", "kotlin"]
-                    },
-                    "implementationClassName": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              },
-              "patternProperties": {
-                "^(?!all$|ios$|android$).+$": {
-                  "type": "object",
-                  "required": ["language", "implementationClassName"],
-                  "properties": {
-                    "language": {
-                      "type": "string",
-                      "enum": ["c++", "swift", "kotlin"]
-                    },
-                    "implementationClassName": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              },
-              "additionalProperties": false
-            }
-          ]
-        }
-      }
     },
     "ignorePaths": {
       "type": "array",
@@ -141,6 +63,10 @@
         "type": "string"
       },
       "description": "A list of paths relative to the project directory that should be ignored by nitrogen. Nitrogen will not look for `.nitro.ts` files in these directories."
+    },
+    "autolinking": {
+      "not": {},
+      "description": "Removed. Autolinking moved to `.nitro.ts`: declare an `implementation` in each platform decorator and a public constructor to enable `new`."
     }
   }
 }
