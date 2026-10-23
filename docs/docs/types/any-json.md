@@ -31,6 +31,19 @@ import Tabs from '@theme/Tabs'; import TabItem from '@theme/TabItem';
     Swift stores the encoded JSON as `Data`. Use `AnyJSON(data:)` for existing UTF-8 JSON, or `AnyJSON(encoding:)` for an `Encodable` value. Decode it with `let value: MyDecodableType = try json.decode()`.
 
   </TabItem>
+  <TabItem value="kotlin" label="Kotlin">
+    ```kotlin
+    import com.margelo.nitro.core.AnyJSON
+    import com.margelo.nitro.core.encode
+
+    override fun get(url: String): AnyJSON {
+      return AnyJSON.encode(mapOf("status" to "ok"))
+    }
+    ```
+
+    Kotlin stores the encoded JSON as a `String`. Use `AnyJSON(stringRepresentation)` for existing JSON text, or `AnyJSON.encode(value)` for a `@Serializable` value. Decode it with `val value: MyType = json.decode()`. These use [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization), so add `kotlinx-serialization-json` and the serialization plugin to your module.
+
+  </TabItem>
   <TabItem value="cpp" label="C++">
     ```cpp
     #include <NitroModules/AnyJSON.hpp>

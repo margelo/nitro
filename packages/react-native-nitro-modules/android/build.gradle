@@ -132,6 +132,11 @@ repositories {
 dependencies {
   // The React Native Gradle plugin supplies the version.
   implementation "com.facebook.react:react-android"
+  // Only compiles AnyJSON+Serialization.kt and is not shipped to apps. Modules that call
+  // AnyJSON.encode/decode add kotlinx-serialization-json themselves. Every app compiles this
+  // module with its own Kotlin, which reads metadata at most one minor version newer than
+  // itself, so keep this version old.
+  compileOnly "org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1"
 }
 
 react {
