@@ -28,8 +28,7 @@ typealias BoxedHardwareBuffer = Any
 /**
  * An ArrayBuffer instance shared between native (Kotlin/C++) and JS.
  *
- * A `ByteBuffer` will be used as the underlying `ArrayBuffer`'s data,
- * which has to remain valid for as long as the `ArrayBuffer` is alive.
+ * Its data can live in native memory, a `ByteBuffer`, a `HardwareBuffer`, or a JS `ArrayBuffer`.
  *
  * An `ArrayBuffer` holds a reference to its memory until the Java garbage collector frees it.
  * Call [close] (or use [use]) to release it right away.
@@ -119,7 +118,8 @@ class ArrayBuffer : AutoCloseable {
   fun getBuffer(copyIfNeeded: Boolean): ByteBuffer {
     checkNotClosed()
     if (copyIfNeeded && !getIsOwner()) {
-      return copyByteBuffer()
+      // The view keeps the copy alive, so this reference can go right away.
+      return copyNative().use { it.getBuffer(false) }
     }
     val view = getScopedByteBuffer()
     if (view.capacity() > 0) {
@@ -214,7 +214,7 @@ class ArrayBuffer : AutoCloseable {
    */
   fun asOwning(): ArrayBuffer {
     if (!isOwner) {
-      return ArrayBuffer.copy(this)
+      return copyNative()
     }
     return this
   }
@@ -296,7 +296,7 @@ class ArrayBuffer : AutoCloseable {
 
   private external fun getByteBuffer(): ByteBuffer
 
-  private external fun copyByteBuffer(): ByteBuffer
+  private external fun copyNative(): ArrayBuffer
 
   @FastNative
   private external fun retainArrayBuffer(): Long
@@ -336,16 +336,22 @@ class ArrayBuffer : AutoCloseable {
     @JvmStatic
     private external fun releaseArrayBuffer(reference: Long)
 
+    @JvmStatic
+    private external fun allocateNative(size: Int): ArrayBuffer
+
     /**
-     * Allocate a new `ArrayBuffer` with the given [size].
+     * Allocate a new **owning** `ArrayBuffer` with the given [size] in native memory.
+     * The bytes are not initialized.
      */
     fun allocate(size: Int): ArrayBuffer {
-      val buffer = ByteBuffer.allocateDirect(size)
-      return ArrayBuffer(buffer)
+      require(size >= 0) { "ArrayBuffer size must not be negative!" }
+      return allocateNative(size)
     }
 
     /**
      * Copy the given `ArrayBuffer` into a new **owning** `ArrayBuffer`.
+     * Copies of `HardwareBuffer`-backed `ArrayBuffer`s are also backed by a `HardwareBuffer`,
+     * others are copied into native memory.
      */
     fun copy(other: ArrayBuffer): ArrayBuffer {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && other.isHardwareBuffer) {
@@ -363,36 +369,30 @@ class ArrayBuffer : AutoCloseable {
         }
       }
 
-      return other.withByteBuffer { copy(it) }
+      other.checkNotClosed()
+      return other.copyNative()
     }
 
     /**
-     * Copy the given `ByteBuffer` into a new **owning** `ArrayBuffer`.
+     * Copy the given `ByteBuffer` into a new **owning** `ArrayBuffer` in native memory.
      * This copies from the start of the buffer up to its current `limit`, and does not mutate the
      * given `ByteBuffer`'s cursor state.
      */
     fun copy(byteBuffer: ByteBuffer): ArrayBuffer {
-      // 1. Find out size
       val source = byteBuffer.duplicate()
       source.rewind()
-      val size = source.remaining()
-      // 2. Create a new buffer with the same size as the other
-      val newBuffer = ByteBuffer.allocateDirect(size)
-      // 3. Copy over the source buffer into the new buffer
-      newBuffer.put(source)
-      // 4. Flip the new buffer for reads
-      newBuffer.flip()
-      // 5. Create a new `ArrayBuffer`
-      return ArrayBuffer(newBuffer)
+      val arrayBuffer = allocate(source.remaining())
+      arrayBuffer.withByteBuffer { it.put(source) }
+      return arrayBuffer
     }
 
     /**
-     * Copy the given `ByteArray` into a new **owning** `ArrayBuffer`.
+     * Copy the given `ByteArray` into a new **owning** `ArrayBuffer` in native memory.
      */
     fun copy(byteArray: ByteArray): ArrayBuffer {
-      val byteBuffer = ByteBuffer.allocateDirect(byteArray.size)
-      byteBuffer.put(byteArray)
-      return ArrayBuffer.wrap(byteBuffer)
+      val arrayBuffer = allocate(byteArray.size)
+      arrayBuffer.withByteBuffer { it.put(byteArray) }
+      return arrayBuffer
     }
 
     /**

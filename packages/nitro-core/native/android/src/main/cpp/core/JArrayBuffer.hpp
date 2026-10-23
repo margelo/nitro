@@ -13,7 +13,6 @@
 #include <NitroModules/ArrayBuffer.hpp>
 #include <android/hardware_buffer.h>
 #include <android/hardware_buffer_jni.h>
-#include <cstring>
 #include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
 #include <functional>
@@ -120,16 +119,17 @@ public:
   }
 
   /**
-   * Copy the `ArrayBuffer`'s data into a new `ByteBuffer`.
+   * Copy the `ArrayBuffer`'s data into a new owning `ArrayBuffer` in native memory.
    */
-  [[nodiscard]] jni::local_ref<jni::JByteBuffer> copyByteBuffer() {
-    size_t size = _arrayBuffer.size();
-    auto buffer = jni::JByteBuffer::allocateDirect(static_cast<jint>(size));
-    buffer->order(jni::JByteOrder::nativeOrder());
-    if (size > 0) {
-      memcpy(buffer->getDirectAddress(), _arrayBuffer.data(), size);
-    }
-    return buffer;
+  [[nodiscard]] jni::local_ref<JArrayBuffer::javaobject> copyNative() {
+    return wrap(ArrayBuffer::copy(_arrayBuffer));
+  }
+
+  /**
+   * Allocate a new owning `ArrayBuffer` of the given size in native memory, without initializing it.
+   */
+  static jni::local_ref<JArrayBuffer::javaobject> allocateNative(jni::alias_ref<jni::JClass>, jint size) {
+    return wrap(ArrayBuffer::allocate(static_cast<size_t>(size)));
   }
 
   /**
@@ -206,7 +206,8 @@ public:
     registerHybrid(
         {makeNativeMethod("initHybrid", JArrayBuffer::initHybridByteBuffer),
          makeNativeMethod("initHybridBoxedHardwareBuffer", JArrayBuffer::initHybridHardwareBuffer),
-         makeNativeMethod("getByteBuffer", JArrayBuffer::getByteBuffer), makeNativeMethod("copyByteBuffer", JArrayBuffer::copyByteBuffer),
+         makeNativeMethod("getByteBuffer", JArrayBuffer::getByteBuffer), makeNativeMethod("copyNative", JArrayBuffer::copyNative),
+         makeNativeMethod("allocateNative", JArrayBuffer::allocateNative),
          makeNativeMethod("retainArrayBuffer", JArrayBuffer::retainArrayBuffer),
          makeNativeMethod("releaseArrayBuffer", JArrayBuffer::releaseArrayBuffer),
          makeNativeMethod("getIsByteBuffer", JArrayBuffer::getIsByteBuffer),
