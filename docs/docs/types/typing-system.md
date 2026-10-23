@@ -120,21 +120,21 @@ These are all the types Nitro supports out of the box:
   </tr>
   <tr>
     <td><code>(T...) =&gt; void</code></td>
-    <td><code>std::function&lt;void (T...)&gt;</code></td>
-    <td><code>@escaping (T...) -&gt; Void</code></td>
-    <td><code>(T...) -&gt; Unit</code></td>
+    <td><code>Callback&lt;void(T...)&gt;</code></td>
+    <td><code>any Callback&lt;(T...), Void&gt;</code></td>
+    <td><code>Callback&lt;(T...) -&gt; Unit&gt;</code></td>
   </tr>
   <tr>
     <td><code>(T...) =&gt; R</code></td>
-    <td><code>std::function&lt;std::shared_ptr&lt;Promise&lt;R&gt;&gt; (T...)&gt;</code></td>
-    <td><code>@escaping (T...) -&gt; <a href="https://github.com/margelo/nitro/tree/main/packages/nitro-core/native/apple/core/Promise.swift">Promise&lt;R&gt;</a></code></td>
-    <td><code>(T...) -&gt; <a href="https://github.com/margelo/nitro/tree/main/packages/nitro-core/native/android/src/main/java/com/margelo/nitro/core/Promise.kt">Promise&lt;R&gt;</a></code></td>
+    <td><code>Callback&lt;R(T...)&gt;</code></td>
+    <td><code>any Callback&lt;(T...), R&gt;</code></td>
+    <td><code>Callback&lt;(T...) -&gt; R&gt;</code></td>
   </tr>
   <tr>
-    <td><code>Sync&lt;(T...) =&gt; R&gt;</code></td>
-    <td><code>std::function&lt;R (T...)&gt;</code></td>
-    <td><code>@escaping (T...) -&gt; R</code></td>
-    <td><code>(T...) -&gt; R</code></td>
+    <td><code>Inline&lt;(T...) =&gt; R&gt;</code></td>
+    <td><code>InlineCallback&lt;R(T...)&gt;</code></td>
+    <td><code>some InlineCallback&lt;(T...), R&gt; &amp; ~Copyable &amp; ~Escapable</code></td>
+    <td><code>Callback&lt;(T...) -&gt; R&gt;</code></td>
   </tr>
   <tr>
     <td><code>Record&lt;string, T&gt;</code></td>
