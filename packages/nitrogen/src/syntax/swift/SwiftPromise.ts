@@ -195,7 +195,7 @@ extension Promise<${swiftResultType}> {
       content: swiftCode,
       language: 'swift',
       name: `${swiftClassName}.swift`,
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
     },
   ]

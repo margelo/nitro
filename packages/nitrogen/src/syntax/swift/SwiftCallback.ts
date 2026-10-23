@@ -253,7 +253,7 @@ extension Callback<(${swiftParameterTypes.join(', ')}), ${swiftReturnType}> {
       name: `${swiftClassName}.swift`,
       content: swiftCode,
       language: 'swift',
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
     },
   ]
@@ -304,7 +304,7 @@ extension ${swiftStructName} {
       name: `${swiftStructName}.swift`,
       content: swiftCode,
       language: 'swift',
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
     },
   ]

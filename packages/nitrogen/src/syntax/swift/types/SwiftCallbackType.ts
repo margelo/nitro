@@ -204,7 +204,7 @@ export class SwiftCallbackType extends CallbackType implements SwiftType {
       case 'swift':
         imports.push({
           language: language,
-          name: `${NitroConfig.current.getIosModuleName()}AppleCxx`,
+          name: `${NitroConfig.current.getAppleModuleName()}AppleCxx`,
           access: 'internal',
         })
         break

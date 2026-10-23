@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "classes": {
     "TestView": {
       "android": {
@@ -8,7 +8,7 @@
         },
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridTestView"
         },

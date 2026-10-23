@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "classes": {
     "Base": {
       "android": {
@@ -7,7 +7,7 @@
         "allowMultipleImplementations": true,
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
         "language": "swift"
@@ -19,7 +19,7 @@
         "allowMultipleImplementations": true,
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
         "language": "swift"
@@ -31,7 +31,7 @@
         "allowMultipleImplementations": true,
         "language": "c++"
       },
-      "ios": {
+      "apple": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
         "language": "c++"
@@ -43,7 +43,7 @@
         "allowMultipleImplementations": true,
         "language": "c++"
       },
-      "ios": {
+      "apple": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
         "language": "c++"
@@ -57,7 +57,7 @@
         },
         "language": "c++"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridCppGrandchild",
           "include": "\"HybridCppGrandchild.hpp\""
@@ -72,7 +72,7 @@
         },
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridGrandchild"
         },
@@ -86,7 +86,7 @@
         },
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridPlatformObject"
         },
@@ -101,7 +101,7 @@
         },
         "language": "c++"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridTestObjectCpp",
           "include": "\"HybridTestObjectCpp.hpp\""
@@ -116,7 +116,7 @@
         },
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridTestObjectSwift"
         },

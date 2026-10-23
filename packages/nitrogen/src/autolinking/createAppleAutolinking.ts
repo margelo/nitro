@@ -55,21 +55,21 @@ export function createAppleAutolinking(specs: HybridObjectSpec[]): AppleAutolink
   const swiftBridgeModuleMap: SourceFile = {
     name: 'module.modulemap',
     language: 'c++',
-    platform: 'ios',
+    platform: 'apple',
     subdirectory: ['c++', 'include'],
     content: `
 ${createFileMetadataString('module.modulemap')}
 
 // Headers used by Swift belong to the AppleCxx module.
 // This implementation target must not claim them through an umbrella directory.
-module ${NitroConfig.current.getIosModuleName()}SwiftBridge {
+module ${NitroConfig.current.getAppleModuleName()}SwiftBridge {
   requires cplusplus
 }
 `.trim(),
   }
 
   return {
-    platform: 'ios',
+    platform: 'apple',
     sourceFiles: [
       swiftCxxBridge.implementation,
       swiftUmbrellaHeader,

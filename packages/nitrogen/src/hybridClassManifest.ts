@@ -11,19 +11,19 @@ import { readJsonFile } from './readJsonFile.js'
 import { getNitroModuleDirectory } from './utils.js'
 
 const HYBRID_CLASS_MANIFEST_NAME = 'hybrid-classes.json'
-const HYBRID_CLASS_MANIFEST_VERSION = 1
+const HYBRID_CLASS_MANIFEST_VERSION = 2
 
 const literalValueSchema: z.ZodType<LiteralValue, LiteralValue> = z.lazy(() =>
   z.union([z.string(), z.boolean(), z.array(literalValueSchema), z.record(z.string(), literalValueSchema)])
 )
 const literalOptionsSchema = z.record(z.string(), literalValueSchema)
 const hybridClassPlatformsSchema = z.strictObject({
-  ios: literalOptionsSchema.optional(),
+  apple: literalOptionsSchema.optional(),
   android: literalOptionsSchema.optional(),
 })
 const hybridClassManifestSchema = z.strictObject({
   version: z.literal(HYBRID_CLASS_MANIFEST_VERSION, {
-    error: 'Unsupported version. Update nitrogen to read this file.',
+    error: 'Unsupported version. Regenerate this file with the nitrogen version that reads it.',
   }),
   classes: z.record(z.string(), hybridClassPlatformsSchema),
 })
@@ -120,8 +120,8 @@ function getSortedPlatforms(platforms: DecoratorOptions): HybridClassPlatforms {
   if (platforms.android != null) {
     sortedPlatforms.android = sortLiteralOptions(platforms.android)
   }
-  if (platforms.ios != null) {
-    sortedPlatforms.ios = sortLiteralOptions(platforms.ios)
+  if (platforms.apple != null) {
+    sortedPlatforms.apple = sortLiteralOptions(platforms.apple)
   }
   return sortedPlatforms
 }

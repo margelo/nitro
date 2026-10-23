@@ -120,7 +120,7 @@ export class SwiftPromiseType extends PromiseType implements SwiftType {
       case 'swift':
         imports.push({
           language,
-          name: `${NitroConfig.current.getIosModuleName()}AppleCxx`,
+          name: `${NitroConfig.current.getAppleModuleName()}AppleCxx`,
           access: 'internal',
         })
         break

@@ -157,7 +157,7 @@ public typealias ${protocolName} = ${protocolName}_protocol & ${protocolName}_ba
     language: 'swift',
     name: `${protocolName}.swift`,
     subdirectory: [],
-    platform: 'ios',
+    platform: 'apple',
   })
   files.push(...swiftBridge)
   if (spec.isHybridView) {

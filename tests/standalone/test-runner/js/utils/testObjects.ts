@@ -5,7 +5,7 @@ import { TestObjectSwiftKotlin, type TestObjectCpp } from 'nitro-test'
 export type TestObject = TestObjectCpp | TestObjectSwiftKotlin
 
 declare global {
-  var __nitroTestPlatform: 'ios' | 'android'
+  var __nitroTestPlatform: 'apple' | 'android'
   function gc(): void
 }
 
@@ -13,7 +13,7 @@ export const HybridChild = new TestObjectSwiftKotlin().createChild()
 export const HybridSomeExternalObject = new ExternalBase().createExternalObject()
 
 export function isSwift(testObject: TestObject): boolean {
-  return testObject.constructor.name === 'TestObjectSwiftKotlin' && globalThis.__nitroTestPlatform === 'ios'
+  return testObject.constructor.name === 'TestObjectSwiftKotlin' && globalThis.__nitroTestPlatform === 'apple'
 }
 
 export function isKotlin(testObject: TestObject): boolean {

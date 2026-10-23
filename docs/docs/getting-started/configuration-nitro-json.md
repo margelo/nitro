@@ -1,7 +1,7 @@
 ---
 title: Configuration (nitro.json)
 description:
-  Configure nitro.json for a React Native Nitro Module, including C++ namespace, iOS module name, Android package, and code generation
+  Configure nitro.json for a React Native Nitro Module, including C++ namespace, Apple module name, Android package, and code generation
   paths.
 ---
 
@@ -15,8 +15,8 @@ description:
   "$schema": "https://nitro.margelo.com/nitro.schema.json",
   "environment": "react-native",
   "cxxNamespace": ["$$cxxNamespace$$"],
-  "ios": {
-    "iosModuleName": "$$iosModuleName$$"
+  "apple": {
+    "appleModuleName": "$$appleModuleName$$"
   },
   "android": {
     "androidNamespace": ["$$androidNamespace$$"],
@@ -60,20 +60,20 @@ have multiple sub-namespaces:
   </div>
 </div>
 
-## `ios`
+## `apple`
 
-Settings specifically for the iOS platform.
+Settings for the Apple platforms: iOS, macOS, tvOS and visionOS.
 
-### `iosModuleName`
+### `appleModuleName`
 
-The `iosModuleName` names the generated Swift module and SwiftPM library product. Use the same name in your library's `swiftpmConfig`:
+The `appleModuleName` names the generated Swift module and SwiftPM library product. Use the same name in your library's `swiftpmConfig`:
 
 <div className="side-by-side-container">
   <div className="side-by-side-block">
   ```json
   {
-    "ios": {
-      "iosModuleName": "NitroMath"
+    "apple": {
+      "appleModuleName": "NitroMath"
     }
   }
   ```

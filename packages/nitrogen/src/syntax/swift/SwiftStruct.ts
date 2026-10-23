@@ -42,7 +42,7 @@ public borrowing func get${capitalizeName(p.escapedName)}_cxx() -> ${p.getCode('
   const swiftFile: SourceFile = {
     name: `${structType.structName}.swift`,
     language: 'swift',
-    platform: 'ios',
+    platform: 'apple',
     subdirectory: [],
     content: `
 ${createFileMetadataString(`${structType.structName}.swift`)}

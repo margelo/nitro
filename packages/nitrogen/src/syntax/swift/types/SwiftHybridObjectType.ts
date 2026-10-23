@@ -32,9 +32,9 @@ export class SwiftHybridObjectType extends HybridObjectType implements SwiftType
   }
 
   getProtocolConformances(): ProtocolConformance[] {
-    const ios = this.platforms.ios
-    if (ios?.language !== 'swift') {
-      throw new Error(`${this.hybridObjectName}: Swift protocol conformances require an iOS declaration with language 'swift'.`)
+    const apple = this.platforms.apple
+    if (apple?.language !== 'swift') {
+      throw new Error(`${this.hybridObjectName}: Swift protocol conformances require an \`@iOS(...)\` declaration with language 'swift'.`)
     }
     const conformances: ProtocolConformance[] = [
       {
@@ -54,17 +54,17 @@ export class SwiftHybridObjectType extends HybridObjectType implements SwiftType
       if (base.sourceConfig.isExternalConfig) {
         conformance.requiredImport = {
           language: 'swift',
-          name: base.sourceConfig.getIosModuleName(),
+          name: base.sourceConfig.getAppleModuleName(),
           access: 'public',
         }
       }
       conformances.push(conformance)
     }
-    for (const protocol of ios.protocolConformances) {
+    for (const protocol of apple.protocolConformances) {
       const conformance: ProtocolConformance = { name: protocol.protocol }
       let module = protocol.module
       if (module == null && this.sourceConfig.isExternalConfig) {
-        module = this.sourceConfig.getIosModuleName()
+        module = this.sourceConfig.getAppleModuleName()
       }
       if (module != null) {
         conformance.requiredImport = {
@@ -86,7 +86,7 @@ export class SwiftHybridObjectType extends HybridObjectType implements SwiftType
     return false
   }
   get moduleName(): string {
-    return this.type.sourceConfig.getIosModuleName()
+    return this.type.sourceConfig.getAppleModuleName()
   }
   readonly requiresExplicitSwiftTarget = false
 
@@ -129,13 +129,13 @@ export class SwiftHybridObjectType extends HybridObjectType implements SwiftType
   }
 
   override getCode(language: Language, options: GetCodeOptions): string {
-    const ios = this.platforms.ios
-    if (ios == null) {
-      throw new Error(`HybridObject "${this.hybridObjectName}" is not implemented on iOS and cannot be referenced from Swift.`)
+    const apple = this.platforms.apple
+    if (apple == null) {
+      throw new Error(`HybridObject "${this.hybridObjectName}" is not implemented on Apple platforms and cannot be referenced from Swift.`)
     }
-    if (ios.language !== 'swift') {
+    if (apple.language !== 'swift') {
       throw new Error(
-        `HybridObject "${this.hybridObjectName}" is implemented in ${ios.language} on iOS, but this reference requires Swift. Cross-language HybridObject references are currently supported only in C++ APIs.`
+        `HybridObject "${this.hybridObjectName}" is implemented in ${apple.language} on Apple platforms, but this reference requires Swift. Cross-language HybridObject references are currently supported only in C++ APIs.`
       )
     }
 

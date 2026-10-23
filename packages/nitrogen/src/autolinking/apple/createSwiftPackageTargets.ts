@@ -1,5 +1,4 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
-import { getPlatformDirectory } from '../../syntax/SourceFile.js'
 import { indent } from '../../utils.js'
 
 export const SWIFT_PACKAGE_SECTION_BEGIN = '// nitrogen:begin'
@@ -38,17 +37,17 @@ interface SwiftPackageTargetsOptions {
  * section inside the manifest instead of a separate file under `nitrogen/generated`.
  */
 export function createSwiftPackageTargets({ generatedDirectory, moduleDependencies }: SwiftPackageTargetsOptions): string {
-  const moduleName = NitroConfig.current.getIosModuleName()
+  const moduleName = NitroConfig.current.getAppleModuleName()
   const cxxTargetName = `${moduleName}Cxx`
   const appleCxxTargetName = NitroConfig.current.getAppleCxxTargetName()
   const swiftBridgeTargetName = `${moduleName}SwiftBridge`
-  const appleDirectory = `${generatedDirectory}/${getPlatformDirectory('ios')}`
+  const appleDirectory = `${generatedDirectory}/apple`
   const bridgeSourceName = NitroConfig.current.getSwiftBridgeSourceName()
   const autolinkingSourceName = `${moduleName}Autolinking.cpp`
   const autolinkingObjcSourceName = `${moduleName}Autolinking.mm`
   const nitroModules = NITRO_MODULES_PACKAGE_NAME
   const reactNative = REACT_NATIVE_PACKAGE_NAME
-  const dependencyModuleNames = moduleDependencies.map((config) => config.getIosModuleName())
+  const dependencyModuleNames = moduleDependencies.map((config) => config.getAppleModuleName())
   const packageDependencies = [
     `.package(name: "${reactNative}", path: "../../../../xcframeworks"),`,
     `.package(name: "${nitroModules}", path: "../${nitroModules}"),`,

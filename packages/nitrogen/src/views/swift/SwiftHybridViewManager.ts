@@ -10,11 +10,11 @@ import { wrapSwiftType } from '../../syntax/swift/wrapSwiftType.js'
 
 export function createSwiftHybridViewManager(spec: HybridObjectSpec<'swift'>): SourceFile[] {
   const namespace = spec.config.getCxxNamespace('c++')
-  const swiftNamespace = spec.config.getIosModuleName()
+  const swiftNamespace = spec.config.getAppleModuleName()
   const { HybridTSpecSwift, HybridTSpecCxx } = getHybridObjectName(spec.name)
   const { component, descriptorClassName, propsClassName, shadowNodeClassName } = getViewComponentNames(spec)
   if (spec.implementation == null) {
-    throw new Error(`Cannot create Swift HybridView ViewManager for ${spec.name} without an iOS implementation class.`)
+    throw new Error(`Cannot create Swift HybridView ViewManager for ${spec.name} without an Apple implementation class.`)
   }
   const viewProperties = getHybridViewProperties(spec).map(({ property, config }) => {
     const swiftType = wrapSwiftType(property.type, config)
@@ -29,7 +29,7 @@ export function createSwiftHybridViewManager(spec: HybridObjectSpec<'swift'>): S
     declaration: spec.config.getCxxHeader(getUmbrellaHeaderName(spec.config), 'private'),
   }
   const cppFiles = createViewComponentShadowNodeFiles(spec, {
-    platform: 'ios',
+    platform: 'apple',
     properties: viewProperties,
     imports: [swiftUmbrellaImport],
   })
@@ -202,7 +202,7 @@ using namespace ${namespace}::views;
       content: mmFile,
       language: 'c++',
       name: `${component}.mm`,
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: ['views'],
     },
   ]

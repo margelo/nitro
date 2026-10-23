@@ -90,8 +90,8 @@ Create a `nitro.json` file in the root directory of your Nitro Module (next to `
 {
   "$schema": "https://nitro.margelo.com/nitro.schema.json",
   "cxxNamespace": ["math"],
-  "ios": {
-    "iosModuleName": "NitroMath"
+  "apple": {
+    "appleModuleName": "NitroMath"
   },
   "android": {
     "androidNamespace": ["math"],
@@ -110,8 +110,8 @@ A Nitro spec file consists of one or more `declare class` statements and combine
 
 - `declare class` describes your native class via instance methods, properties (get + set), `constructor(...)`, or static methods.
 - The `@iOS` and `@Android` decorators on `declare class` describe the connection between the JS types and the native implementation - for
-  example, `language: 'swift'` means that `Math` is implemented in Swift on iOS. `implementation: ...` defines the actual Swift class that
-  implements the spec natively, which is required for it to have a `constructor()` or static methods.
+  example, `language: 'swift'` means that `Math` is implemented in Swift on Apple platforms. `implementation: ...` defines the actual Swift
+  class that implements the spec natively, which is required for it to have a `constructor()` or static methods.
 - Since `declare class` is type-only, no JS runtime code exists. Nitrogen generates this, which must be re-exported via
   `export * from '#nitro/Math'`.
 
@@ -196,7 +196,7 @@ Nitrogen themselves.
 
 ### 3. Add generated sources to your library
 
-All the generated sources (`./nitrogen/generated/`) need to be part of your library's code - so we need to add it to the iOS/Android build
+All the generated sources (`./nitrogen/generated/`) need to be part of your library's code - so we need to add it to the Apple/Android build
 files.
 
 <Tabs>
@@ -231,9 +231,9 @@ React Native's default `typescript-config` does not allow overridden `imports` i
 }
 ```
 
-#### iOS
+#### Apple
 
-iOS builds use Swift Package Manager. Create a `Package.swift` next to your library's `nitro.json`:
+Apple builds use Swift Package Manager. Create a `Package.swift` next to your library's `nitro.json`:
 
 ```swift title="Package.swift"
 // swift-tools-version: 6.4
@@ -273,11 +273,11 @@ Add `swiftpmConfig` to your library's `package.json` so React Native links the g
 }
 ```
 
-`name` must match `ios.iosModuleName` in `nitro.json`. Add the npm names of any other Nitro modules your library depends on to
+`name` must match `apple.appleModuleName` in `nitro.json`. Add the npm names of any other Nitro modules your library depends on to
 `dependencies`.
 
 Keep a `.podspec` with your library's metadata so React Native CLI can discover the iOS dependency, as in the
-[template podspec](https://github.com/margelo/nitro/blob/v1/packages/template/%24%24iosModuleName%24%24.podspec). Native sources and
+[template podspec](https://github.com/margelo/nitro/blob/v1/packages/template/%24%24appleModuleName%24%24.podspec). Native sources and
 dependencies belong in `Package.swift`; remove the old `add_nitrogen_files(...)` call. Commit the updated manifest and include both
 `Package.swift` and the `.podspec` in your npm package.
 

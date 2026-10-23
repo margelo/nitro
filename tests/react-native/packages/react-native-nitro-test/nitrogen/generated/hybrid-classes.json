@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "classes": {
     "BenchmarkObjectCpp": {
       "android": {
@@ -9,7 +9,7 @@
         },
         "language": "c++"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridBenchmarkObjectCpp",
           "include": "\"HybridBenchmarkObjectCpp.hpp\""
@@ -24,7 +24,7 @@
         },
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridBenchmarkObjectSwift"
         },
@@ -38,7 +38,7 @@
         },
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridRecyclableTestView"
         },
@@ -52,7 +52,7 @@
         },
         "language": "kotlin"
       },
-      "ios": {
+      "apple": {
         "implementation": {
           "className": "HybridTestView"
         },

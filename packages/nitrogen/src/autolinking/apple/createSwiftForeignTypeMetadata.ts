@@ -44,7 +44,7 @@ function getSwiftGenericArguments(type: SwiftType): SwiftType[] {
 
 /** The imported C++ records whose type metadata C++ requests from Swift. */
 function getForeignTypeMetadata(types: SwiftType[]): ForeignTypeMetadata[] {
-  const moduleName = NitroConfig.current.getIosModuleName()
+  const moduleName = NitroConfig.current.getAppleModuleName()
   const metadata = new Map<string, ForeignTypeMetadata>()
   for (const type of types.flatMap(getSwiftGenericArguments)) {
     const record = type.importedCxxRecord
@@ -68,7 +68,7 @@ function getForeignTypeMetadata(types: SwiftType[]): ForeignTypeMetadata[] {
 export function createForeignTypeMetadataPragmas(types: SwiftType[]): string {
   const metadata = getForeignTypeMetadata(types)
   if (metadata.length === 0) return ''
-  const moduleName = NitroConfig.current.getIosModuleName()
+  const moduleName = NitroConfig.current.getAppleModuleName()
   // Mach-O symbols of C and Swift functions start with an underscore.
   const pragmas = metadata.map(({ accessor, forwarder }) => `#pragma redefine_extname ${accessor} _${forwarder}`)
   return `
@@ -87,7 +87,7 @@ ${pragmas.join('\n')}
 export function createSwiftForeignTypeMetadata(types: SwiftType[]): SourceFile[] {
   const metadata = getForeignTypeMetadata(types)
   if (metadata.length === 0) return []
-  const moduleName = NitroConfig.current.getIosModuleName()
+  const moduleName = NitroConfig.current.getAppleModuleName()
   const filename = `${moduleName}+ForeignTypeMetadata.swift`
   const imports = getImportsCode(
     getSwiftImports(
@@ -124,7 +124,7 @@ ${forwarders.join('\n\n')}
     {
       name: filename,
       language: 'swift',
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: ['swift'],
       content: code,
     },

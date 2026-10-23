@@ -24,7 +24,7 @@ export function getCppHybridObjectAdapterNames(
   const sourceNamespace = type.sourceConfig.getCxxNamespace('c++')
   const ownerNamespace = owner.getCxxNamespace('c++')
   const isExternal = sourceNamespace !== ownerNamespace
-  const sourceModule = type.sourceConfig.getIosModuleName()
+  const sourceModule = type.sourceConfig.getAppleModuleName()
   const namespace = isExternal ? `${ownerNamespace}::adapters::${sourceModule}` : ownerNamespace
   const fileName = isExternal ? `${className}+${sourceModule}` : className
   return {

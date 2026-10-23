@@ -7,7 +7,7 @@ import { getHybridClassManifestOptions } from './hybridClassManifest.js'
 import { NitroConfig } from './config/NitroConfig.js'
 import type { SourceImport } from './syntax/SourceFile.js'
 
-const platformSchema = z.enum(['ios', 'android'])
+const platformSchema = z.enum(['apple', 'android'])
 export type Platform = z.infer<typeof platformSchema>
 export type Language = 'c++' | 'swift' | 'kotlin'
 
@@ -154,9 +154,9 @@ export type HybridObjectPlatformOptions = z.infer<typeof platformOptionsSchema>
 export type HybridObjectPlatforms = Partial<Record<Platform, HybridObjectPlatformOptions>>
 
 const platformOptionsSchemas = {
-  ios: platformOptionsSchema.refine((options) => options.language !== 'kotlin', {
+  apple: platformOptionsSchema.refine((options) => options.language !== 'kotlin', {
     path: ['language'],
-    message: 'iOS supports only Swift and C++ implementations.',
+    message: 'Apple platforms support only Swift and C++ implementations.',
   }),
   android: platformOptionsSchema.refine((options) => options.language !== 'swift', {
     path: ['language'],

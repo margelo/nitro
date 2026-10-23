@@ -50,8 +50,8 @@ for (const [index, file] of files.entries()) {
         const entryType = checker.getTypeOfSymbolAtLocation(entry, source)
         for (const rule of literalProperties(entryType, `${file}: skips.${entry.name}`)) {
           const reason = checker.getTypeOfSymbolAtLocation(rule, source)
-          if (!['ios', 'android', 'release'].includes(rule.name) || !reason.isStringLiteral() || !reason.value.trim()) {
-            throw new Error(`${file}: ${entry.name} exclusion must have an ios/android/release key and a literal reason`)
+          if (!['apple', 'android', 'release'].includes(rule.name) || !reason.isStringLiteral() || !reason.value.trim()) {
+            throw new Error(`${file}: ${entry.name} exclusion must have an apple/android/release key and a literal reason`)
           }
           rules[rule.name] = reason.value
         }

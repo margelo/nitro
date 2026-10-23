@@ -14,7 +14,7 @@ function createDecoratorCallError(name: 'iOS' | 'Android'): Error {
 }
 
 /**
- * Selects the iOS implementation of a declared HybridObject class.
+ * Selects the Apple implementation (iOS, macOS, tvOS and visionOS) of a declared HybridObject class.
  * Nitrogen reads this literal configuration from the `.nitro.ts` spec.
  * Use it only on an `export declare class`, which emits no JavaScript, so this never runs.
  * @throws Always. A call means the spec uses `class` instead of `declare class`,

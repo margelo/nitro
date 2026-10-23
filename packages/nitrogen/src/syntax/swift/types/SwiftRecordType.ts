@@ -78,7 +78,7 @@ export class SwiftRecordType extends RecordType implements SwiftType {
 
   readonly canImportFromCpp = false
   get moduleName(): string {
-    return this.config.getIosModuleName()
+    return this.config.getAppleModuleName()
   }
   get forwardDeclaration(): string {
     return getForwardDeclaration('class', this.name, this.moduleName)

@@ -94,14 +94,14 @@ namespace margelo::nitro {
     {
       name: `${converterName}.hpp`,
       language: 'c++',
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
       content: cppHeaderCode,
     },
     {
       name: `${converterName}.cpp`,
       language: 'c++',
-      platform: 'ios',
+      platform: 'apple',
       subdirectory: [],
       content: cppImplementationCode,
     },

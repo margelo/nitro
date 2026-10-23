@@ -22,7 +22,7 @@ import { createKotlinConverters, getKotlinConverter } from '../kotlin/KotlinConv
  * The handle owns the existing object. Its JS identity and prototype remain
  * those of its native bridge, even after a derived handle is copied as its base.
  */
-export function createCppHybridObjectAdapter(spec: HybridObjectSpec, platform: Platform = 'ios'): SourceFile[] {
+export function createCppHybridObjectAdapter(spec: HybridObjectSpec, platform: Platform = 'apple'): SourceFile[] {
   const hierarchy = [spec, ...getAncestors(spec)]
   const reserved = ['fromNative', 'getNativeObject']
   if (hierarchy.some((current) => current.constructor != null)) reserved.push('create')

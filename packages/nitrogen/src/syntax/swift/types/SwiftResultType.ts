@@ -116,7 +116,7 @@ using ${this.specializationName} = ${this.getCode('c++', { context: 'value' })};
       case 'swift':
         imports.push({
           language: language,
-          name: `${this.sourceConfig.getIosModuleName()}AppleCxx`,
+          name: `${this.sourceConfig.getAppleModuleName()}AppleCxx`,
           access: 'internal',
         })
         break

@@ -40,7 +40,7 @@ export class SwiftStaticProperty extends StaticProperty {
       throw new Error(`${spec.name}: Cannot generate a static property without a Swift implementation.`)
     }
     this.implementationClassName = implementation.className
-    const moduleName = spec.config.getIosModuleName()
+    const moduleName = spec.config.getAppleModuleName()
     const { HybridTSpecCxx } = getHybridObjectName(spec.name)
     this.cppInvocationTarget = `::${moduleName}::${HybridTSpecCxx}`
     // Plain property results can have identical inherited signatures, even
