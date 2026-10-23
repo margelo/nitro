@@ -8,6 +8,7 @@
 #pragma once
 
 #include "JHardwareBufferUtils.hpp"
+#include "JRunnable.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 #include <android/hardware_buffer.h>
 #include <android/hardware_buffer_jni.h>
@@ -29,19 +30,22 @@ public:
    * Create a new `HardwareBufferArrayBuffer` instance that wraps the given `HardwareBuffer`.
    * This constructor will add a +1 retain count on the given `hardwareBuffer` using
    * `AHardwareBuffer_acquire(...)`, and release it again once it is destructured.
+   * If an `onDelete` `Runnable` is given, it runs after that release.
    */
-  explicit HardwareBufferArrayBuffer(AHardwareBuffer* hardwareBuffer)
+  HardwareBufferArrayBuffer(AHardwareBuffer* hardwareBuffer, const jni::alias_ref<JRunnable>& onDelete)
       : _hardwareBuffer(hardwareBuffer), _dataCached(nullptr), _isLocked(false) {
     if (!isHardwareBufferCPUReadable(hardwareBuffer)) [[unlikely]] {
       throw std::runtime_error("Cannot create HardwareBuffer-backed ArrayBuffer - the given HardwareBuffer does not allow CPU reads!");
     }
 
     AHardwareBuffer_acquire(hardwareBuffer);
+    _onDelete = jni::make_global(onDelete);
   }
 
   ~HardwareBufferArrayBuffer() override {
     unlock();
     AHardwareBuffer_release(_hardwareBuffer);
+    runAndResetGlobalRef(_onDelete);
   }
 
 public:
@@ -95,6 +99,7 @@ private:
   AHardwareBuffer* _hardwareBuffer;
   uint8_t* _dataCached;
   bool _isLocked;
+  jni::global_ref<JRunnable> _onDelete;
 };
 #endif
 

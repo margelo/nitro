@@ -187,28 +187,30 @@ class ArrayBuffer : AutoCloseable {
   /**
    * Create a new **owning-** `ArrayBuffer` that holds the given `ByteBuffer`.
    * The `ByteBuffer` needs to remain valid for as long as the `ArrayBuffer` is alive.
+   * [onDelete] runs once the last owner released the `ArrayBuffer`.
    */
-  internal constructor(byteBuffer: ByteBuffer) {
+  internal constructor(byteBuffer: ByteBuffer, onDelete: Runnable? = null) {
     if (!byteBuffer.isDirect) {
       throw Error(
         "ArrayBuffers can only be created from direct ByteBuffers, " +
           "and the given ByteBuffer is not direct!",
       )
     }
-    mHybridData = initHybrid(byteBuffer)
+    mHybridData = initHybrid(byteBuffer, onDelete)
     isByteBuffer = true
   }
 
   /**
    * Create a new **owning-** `ArrayBuffer` that holds the given `HardwareBuffer`.
    * The `HardwareBuffer` needs to remain valid for as long as the `ArrayBuffer` is alive.
+   * [onDelete] runs once the last owner released the `ArrayBuffer`.
    */
   @RequiresApi(Build.VERSION_CODES.O)
-  internal constructor(hardwareBuffer: HardwareBuffer) {
+  internal constructor(hardwareBuffer: HardwareBuffer, onDelete: Runnable? = null) {
     if (hardwareBuffer.isClosed) {
       throw Error("Cannot create ArrayBuffer from an already-closed HardwareBuffer!")
     }
-    mHybridData = initHybridBoxedHardwareBuffer(hardwareBuffer)
+    mHybridData = initHybridBoxedHardwareBuffer(hardwareBuffer, onDelete)
     isByteBuffer = false
   }
 
@@ -224,11 +226,17 @@ class ArrayBuffer : AutoCloseable {
   }
 
   @FastNative
-  private external fun initHybrid(buffer: ByteBuffer): HybridData
+  private external fun initHybrid(
+    buffer: ByteBuffer,
+    onDelete: Runnable?,
+  ): HybridData
 
   @RequiresApi(Build.VERSION_CODES.O)
   @FastNative
-  private external fun initHybridBoxedHardwareBuffer(hardwareBufferBoxed: BoxedHardwareBuffer): HybridData
+  private external fun initHybridBoxedHardwareBuffer(
+    hardwareBufferBoxed: BoxedHardwareBuffer,
+    onDelete: Runnable?,
+  ): HybridData
 
   private external fun getByteBuffer(copyIfNeeded: Boolean): ByteBuffer
 
@@ -331,11 +339,50 @@ class ArrayBuffer : AutoCloseable {
     }
 
     /**
+     * Wrap the given `ByteBuffer` in a new **owning** `ArrayBuffer` without copying it, and
+     * call [onDelete] once the last owner (JS or native) released the `ArrayBuffer`.
+     *
+     * The bytes need to stay valid until [onDelete] runs. Use it to release the memory, e.g.
+     * by closing an `Image`, calling `MediaCodec.releaseOutputBuffer(...)`, or returning the
+     * `ByteBuffer` to a pool.
+     *
+     * [onDelete] runs once, on whichever thread released the last owner. Errors it throws are
+     * reported to Nitro's global error handler. If this function throws, [onDelete] never runs.
+     */
+    fun wrap(
+      byteBuffer: ByteBuffer,
+      onDelete: () -> Unit,
+    ): ArrayBuffer {
+      return ArrayBuffer(byteBuffer.arrayBufferView(), onDeleteRunnable(onDelete))
+    }
+
+    /**
      * Wrap the given `HardwareBuffer` in a new **owning** `ArrayBuffer`.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     fun wrap(hardwareBuffer: HardwareBuffer): ArrayBuffer {
       return ArrayBuffer(hardwareBuffer)
     }
+
+    /**
+     * Wrap the given `HardwareBuffer` in a new **owning** `ArrayBuffer` without copying it, and
+     * call [onDelete] once the last owner (JS or native) released the `ArrayBuffer`.
+     *
+     * The `ArrayBuffer` retains the `HardwareBuffer` itself, so the given `HardwareBuffer`
+     * object can be closed right away. Use [onDelete] to release what owns its contents, e.g.
+     * by closing the `Image` it came from.
+     *
+     * [onDelete] runs once, on whichever thread released the last owner. Errors it throws are
+     * reported to Nitro's global error handler. If this function throws, [onDelete] never runs.
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun wrap(
+      hardwareBuffer: HardwareBuffer,
+      onDelete: () -> Unit,
+    ): ArrayBuffer {
+      return ArrayBuffer(hardwareBuffer, onDeleteRunnable(onDelete))
+    }
+
+    private fun onDeleteRunnable(onDelete: () -> Unit): Runnable = Runnable { callNativeAndForget(onDelete) }
   }
 }

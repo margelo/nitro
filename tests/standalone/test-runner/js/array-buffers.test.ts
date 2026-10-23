@@ -1,11 +1,11 @@
 import { expect } from 'chai'
-import { casesForTestObjects } from './utils/cases'
+import { casesForTestObjects, waitFor } from './utils/cases'
 
 import { NitroModules } from 'nitro-core'
 
 import { HARDWARE_BUFFER_FORMATS } from './utils/fixtures'
 
-import { isKotlin } from './utils/testObjects'
+import { isKotlin, type TestObject } from './utils/testObjects'
 
 const LARGE_BUFFER_SIZE = 16 * 1024 * 1024
 
@@ -31,6 +31,26 @@ function fillTestPattern(array: Uint8Array): number[] {
 
 function bytesAt(array: Uint8Array, indices: number[]): number[] {
   return indices.map((index) => array[index])
+}
+
+const WRAPPED_BUFFER_COUNT = 100
+const WRAPPED_BUFFER_SIZE = 1024
+
+function wrapArrayBuffers(testObject: TestObject): ArrayBuffer[] {
+  const buffers: ArrayBuffer[] = []
+  for (let i = 0; i < WRAPPED_BUFFER_COUNT; i++) {
+    const buffer = testObject.wrapArrayBuffer(WRAPPED_BUFFER_SIZE)
+    expect(buffer.byteLength).to.equal(WRAPPED_BUFFER_SIZE)
+    buffers.push(buffer)
+  }
+  return buffers
+}
+
+/**
+ * Wraps buffers without keeping a JS reference to them after returning.
+ */
+function wrapAndDropArrayBuffers(testObject: TestObject): void {
+  wrapArrayBuffers(testObject)
 }
 
 /**
@@ -479,6 +499,43 @@ export const cases = {
       const bounced = testObject.bounceArrayBuffer(originalArray.buffer)
       expect(Object.is(bounced, originalArray.buffer)).to.equal(true)
       expect(Object.is(new Uint8Array(bounced)[73], 4)).to.equal(true)
+    },
+
+    'wrapArrayBuffer(...) is deleted once after native and then JS released it': async (testObject) => {
+      const before = testObject.getWrappedArrayBufferDeleteCount()
+      const deleted = () => testObject.getWrappedArrayBufferDeleteCount() - before
+      const buffers = wrapArrayBuffers(testObject)
+
+      testObject.releaseWrappedArrayBuffers()
+      gc()
+      expect(deleted(), 'deleted while JS still holds the buffers').to.equal(0)
+
+      buffers.length = 0
+      await waitFor(
+        () => {
+          gc()
+          expect(deleted()).to.equal(WRAPPED_BUFFER_COUNT)
+        },
+        { timeout: 2000 }
+      )
+    },
+
+    'wrapArrayBuffer(...) is deleted once after JS and then native released it': async (testObject) => {
+      const before = testObject.getWrappedArrayBufferDeleteCount()
+      const deleted = () => testObject.getWrappedArrayBufferDeleteCount() - before
+      wrapAndDropArrayBuffers(testObject)
+
+      gc()
+      expect(deleted(), 'deleted while native still holds the buffers').to.equal(0)
+
+      testObject.releaseWrappedArrayBuffers()
+      await waitFor(
+        () => {
+          gc()
+          expect(deleted()).to.equal(WRAPPED_BUFFER_COUNT)
+        },
+        { timeout: 2000 }
+      )
     },
   }),
   ...casesForTestObjects('HardwareBuffers', {

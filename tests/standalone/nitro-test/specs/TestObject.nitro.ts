@@ -352,6 +352,11 @@ export declare class TestObjectCpp extends HybridObject {
   setAllValuesTo(buffer: ArrayBuffer, value: number): void
   createArrayBufferAsync(): Promise<ArrayBuffer>
   bounceArrayBuffer(buffer: ArrayBuffer): ArrayBuffer
+  // Wraps new native memory without copying it, and keeps a reference to the buffer until
+  // `releaseWrappedArrayBuffers()` is called. Deleting it increments `getWrappedArrayBufferDeleteCount()`.
+  wrapArrayBuffer(size: number): ArrayBuffer
+  releaseWrappedArrayBuffers(): void
+  getWrappedArrayBufferDeleteCount(): number
 
   // Complex variants
   passVariant(either: number | string | number[] | string[] | boolean): number | string
@@ -631,6 +636,11 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
   setAllValuesTo(buffer: ArrayBuffer, value: number): void
   createArrayBufferAsync(): Promise<ArrayBuffer>
   bounceArrayBuffer(buffer: ArrayBuffer): ArrayBuffer
+  // Wraps new native memory without copying it, and keeps a reference to the buffer until
+  // `releaseWrappedArrayBuffers()` is called. Deleting it increments `getWrappedArrayBufferDeleteCount()`.
+  wrapArrayBuffer(size: number): ArrayBuffer
+  releaseWrappedArrayBuffers(): void
+  getWrappedArrayBufferDeleteCount(): number
 
   // Complex variants
   passVariant(either: number | string | number[] | string[] | boolean): number | string

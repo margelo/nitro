@@ -31,6 +31,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import java.math.BigDecimal
+import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicInteger
 
 @Keep
 @DoNotStrip
@@ -788,6 +790,26 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
 
   override fun bounceArrayBuffer(buffer: ArrayBuffer): ArrayBuffer {
     return buffer
+  }
+
+  private val wrappedArrayBuffers = mutableListOf<ArrayBuffer>()
+  private val wrappedArrayBufferDeleteCount = AtomicInteger(0)
+
+  override fun wrapArrayBuffer(size: Double): ArrayBuffer {
+    val deleteCount = wrappedArrayBufferDeleteCount
+    val buffer = ArrayBuffer.wrap(ByteBuffer.allocateDirect(size.toInt())) { deleteCount.incrementAndGet() }
+    wrappedArrayBuffers.add(buffer)
+    return buffer
+  }
+
+  override fun releaseWrappedArrayBuffers() {
+    // Release our references now instead of waiting for the Java GC.
+    wrappedArrayBuffers.forEach { it.close() }
+    wrappedArrayBuffers.clear()
+  }
+
+  override fun getWrappedArrayBufferDeleteCount(): Double {
+    return wrappedArrayBufferDeleteCount.get().toDouble()
   }
 
   override fun createChild(): HybridChildSpec {

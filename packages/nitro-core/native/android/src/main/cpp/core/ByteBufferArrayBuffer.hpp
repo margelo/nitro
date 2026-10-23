@@ -8,6 +8,7 @@
 #pragma once
 
 #include "JNIGlobalRef.hpp"
+#include "JRunnable.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 #include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
@@ -19,17 +20,20 @@ namespace jsi = facebook::jsi;
 
 /**
  * Represents an `ArrayBuffer` that holds a `ByteBuffer`.
+ * If an `onDelete` `Runnable` is given, it runs once this buffer is destroyed.
  */
 class ByteBufferArrayBuffer final : public jsi::MutableBuffer {
 public:
-  explicit ByteBufferArrayBuffer(const jni::alias_ref<jni::JByteBuffer>& byteBuffer)
-      : _byteBuffer(jni::make_global(byteBuffer)), _data(byteBuffer->getDirectBytes()), _size(byteBuffer->getDirectSize()) {
+  ByteBufferArrayBuffer(const jni::alias_ref<jni::JByteBuffer>& byteBuffer, const jni::alias_ref<JRunnable>& onDelete)
+      : _byteBuffer(jni::make_global(byteBuffer)), _onDelete(jni::make_global(onDelete)), _data(byteBuffer->getDirectBytes()),
+        _size(byteBuffer->getDirectSize()) {
     _byteBuffer->order(jni::JByteOrder::nativeOrder());
   }
 
   ~ByteBufferArrayBuffer() {
     // Hermes GC can destroy JS objects on a non-JNI Thread.
     resetGlobalRef(_byteBuffer);
+    runAndResetGlobalRef(_onDelete);
   }
 
 public:
@@ -47,6 +51,7 @@ public:
 
 private:
   jni::global_ref<jni::JByteBuffer> _byteBuffer;
+  jni::global_ref<JRunnable> _onDelete;
   // Direct storage stays valid while _byteBuffer is retained. Read it without
   // JNI so owning ArrayBuffers can be used from unattached native workers.
   uint8_t* _data;
