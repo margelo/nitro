@@ -67,7 +67,7 @@ export function checkConsumer(tarballs) {
   )
   writeFileSync(
     path.join(consumer, 'Math.nitro.ts'),
-    `import { iOS, type HybridObject } from 'nitro-core'
+    `import { Apple, type HybridObject } from 'nitro-core'
 @Apple({ language: 'swift', allowMultipleImplementations: true })
 export declare class Math extends HybridObject {
   add(a: number, b: number): number

@@ -80,7 +80,7 @@ declare abstract class HybridObject {
  * @example
  * ```ts
  * // Image.nitro.ts
- * import { iOS, type HybridObject } from 'nitro-core'
+ * import { Apple, type HybridObject } from 'nitro-core'
  *
  * export * from '#nitro/Image'
  *

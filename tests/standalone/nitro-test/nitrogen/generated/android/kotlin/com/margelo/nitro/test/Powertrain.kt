@@ -20,5 +20,30 @@ enum class Powertrain(@DoNotStrip @Keep val value: Int) {
   GAS(1),
   HYBRID(2);
 
-  companion object
+  /**
+   * Get the String value this Powertrain represents.
+   */
+  val stringValue: String
+    get() =
+      when (this) {
+        ELECTRIC -> "electric"
+        GAS -> "gas"
+        HYBRID -> "hybrid"
+      }
+
+  override fun toString(): String = stringValue
+
+  companion object {
+    /**
+     * Get a Powertrain for the given String value, or
+     * return `null` if the given value was invalid/unknown.
+     */
+    fun fromString(value: String): Powertrain? =
+      when (value) {
+        "electric" -> ELECTRIC
+        "gas" -> GAS
+        "hybrid" -> HYBRID
+        else -> null
+      }
+  }
 }
