@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
-import java.util.concurrent.RejectedExecutionException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -176,18 +175,13 @@ class Promise<T> {
       run: () -> T,
     ): Promise<T> {
       val promise = Promise<T>()
-      try {
-        executor.execute {
-          try {
-            val result = run()
-            promise.resolve(result)
-          } catch (e: Throwable) {
-            promise.reject(e)
-          }
+      executor.execute {
+        try {
+          val result = run()
+          promise.resolve(result)
+        } catch (e: Throwable) {
+          promise.reject(e)
         }
-      } catch (e: RejectedExecutionException) {
-        // A custom executor can refuse the task, e.g. after it was shut down.
-        promise.reject(e)
       }
       return promise
     }
