@@ -27,7 +27,7 @@ namespace margelo::nitro::test::external {
 
   namespace jni = facebook::jni;
 
-  class JHybridSomeExternalObjectSpec final : public JHybridObject {
+  class JHybridSomeExternalObjectSpec : public JHybridObject {
   public:
     struct Class {
       using Base = JHybridObject::Class;

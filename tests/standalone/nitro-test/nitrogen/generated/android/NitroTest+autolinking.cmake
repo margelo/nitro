@@ -58,6 +58,7 @@ target_sources(NitroTest PRIVATE
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridChildSpec.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridGrandchildSpec.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridPlatformObjectSpec.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridSomeExternalObjectChildSpec.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridTestObjectSwiftKotlinSpec.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JJsStyleStruct.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JMapWrapper.cpp"
