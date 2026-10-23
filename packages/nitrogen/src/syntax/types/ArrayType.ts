@@ -38,7 +38,7 @@ export class ArrayType implements Type {
           case 'int64':
             return 'LongArray'
           case 'uint64':
-            return 'Array<ULong>'
+            return 'ULongArray'
           default:
             return `Array<${itemCode}>`
         }

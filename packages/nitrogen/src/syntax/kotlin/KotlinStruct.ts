@@ -2,6 +2,7 @@ import { capitalizeName, indent } from '../../utils.js'
 import { createFileMetadataString } from '../helpers.js'
 import type { SourceFile } from '../SourceFile.js'
 import type { KotlinStructType } from './types/KotlinStructType.js'
+import type { KotlinNamedType } from './types/KotlinNamedType.js'
 import { getImportsCode } from '../getImportCode.js'
 import { convertJniValue, getJniCode } from './types/KotlinType.js'
 
@@ -50,8 +51,17 @@ private fun get${name}_cxx(): ${type} {
     })
     .join('\n\n')
 
-  const equalityComparators = structType.properties.map((p) => `Objects.deepEquals(this.${p.escapedName}, other.${p.escapedName})`)
-  const propertiesList = structType.properties.map((p) => p.escapedName).join(',\n')
+  // Values whose boxes compare by identity, such as `ULongArray`, compare by their JNI representation.
+  const getEqualityValue = (property: KotlinNamedType, value: string): string => {
+    if (property.isKotlinEqualityCompatible) return value
+    return property.convert(value, { from: 'kotlin', to: 'c++', in: 'kotlin' })
+  }
+  const equalityComparators = structType.properties.map((property) => {
+    const value = getEqualityValue(property, `this.${property.escapedName}`)
+    const otherValue = getEqualityValue(property, `other.${property.escapedName}`)
+    return `Objects.deepEquals(${value}, ${otherValue})`
+  })
+  const propertiesList = structType.properties.map((property) => getEqualityValue(property, property.escapedName)).join(',\n')
 
   const code = `
 ${createFileMetadataString(`${structType.structName}.kt`)}

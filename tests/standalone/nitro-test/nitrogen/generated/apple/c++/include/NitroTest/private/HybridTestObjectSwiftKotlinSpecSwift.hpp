@@ -120,6 +120,11 @@ namespace margelo::nitro::test {
     Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_> callEnumArrayPromiseCallback(const Callback<Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_>()>& callback);
     Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_> awaitEnumArrayPromise(const Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_>& promise);
     swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>> callNestedStructCallback(const swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>>& value, const Callback<::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(const ::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___&)>& callback);
+    swift::Array<uint64_t> bounceUnsignedArray(const swift::Array<uint64_t>& array);
+    swift::Array<swift::Array<uint64_t>> bounceNestedUnsignedArray(const swift::Array<swift::Array<uint64_t>>& array);
+    swift::Optional<swift::Array<uint64_t>> bounceOptionalUnsignedArray(const swift::Optional<swift::Array<uint64_t>>& array);
+    Promise<swift::Array<uint64_t>> bounceUnsignedArrayAsync(const swift::Array<uint64_t>& array);
+    swift::Array<uint64_t> callUnsignedArrayCallback(const swift::Array<uint64_t>& array, const Callback<swift::Array<uint64_t>(const swift::Array<uint64_t>&)>& callback);
     swift::Array<::NitroTest::HybridChildSpec_cxx> bounceHybridObjects(const swift::Array<::NitroTest::HybridChildSpec_cxx>& array);
     swift::Array<Callback<void()>> bounceFunctions(const swift::Array<Callback<void()>>& functions);
     swift::Array<NitroModules::AnyJSON> bounceMaps(const swift::Array<NitroModules::AnyJSON>& maps);

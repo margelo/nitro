@@ -58,6 +58,11 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridTestObjectSwiftK
   func callEnumArrayPromiseCallback(callback: any Callback<(), any Promise<[Powertrain]>>) throws -> any Promise<[Powertrain]>
   func awaitEnumArrayPromise(promise: any Promise<[Powertrain]>) throws -> any Promise<[Powertrain]>
   func callNestedStructCallback(value: [[Person?]], callback: any Callback<(/* value */ [[Person?]]), [[Person?]]>) throws -> [[Person?]]
+  func bounceUnsignedArray(array: [UInt64]) throws -> [UInt64]
+  func bounceNestedUnsignedArray(array: [[UInt64]]) throws -> [[UInt64]]
+  func bounceOptionalUnsignedArray(array: [UInt64]?) throws -> [UInt64]?
+  func bounceUnsignedArrayAsync(array: [UInt64]) throws -> any Promise<[UInt64]>
+  func callUnsignedArrayCallback(array: [UInt64], callback: any Callback<(/* array */ [UInt64]), [UInt64]>) throws -> [UInt64]
   func bounceHybridObjects(array: [(any HybridChildSpec)]) throws -> [(any HybridChildSpec)]
   func bounceFunctions(functions: [any Callback<(), Void>]) throws -> [any Callback<(), Void>]
   func bounceMaps(maps: [AnyJSON]) throws -> [AnyJSON]

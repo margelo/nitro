@@ -56,3 +56,8 @@ into `Object`s, and provides bulk copy methods. This makes all array operations 
 - `Array<Double>` -> [`DoubleArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double-array/)
 - `Array<Boolean>` -> [`BooleanArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean-array/)
 - `Array<Long>` -> [`LongArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long-array/)
+- `Array<ULong>` -> [`ULongArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-u-long-array/)
+
+`ULongArray` shares its `LongArray` with JNI, so `UInt64[]` crosses without copying. Kotlin still marks `ULongArray` as experimental, so
+Nitrogen's generated `+autolinking.gradle` opts your module in to `kotlin.ExperimentalUnsignedTypes`. Generated code and your
+implementations can use it without warnings. Other modules that use these APIs, such as your app, need their own opt-in.

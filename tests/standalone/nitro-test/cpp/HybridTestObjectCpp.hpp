@@ -179,6 +179,12 @@ public:
       const std::vector<std::vector<std::optional<Person>>>& value,
       const Callback<std::vector<std::vector<std::optional<Person>>>(const std::vector<std::vector<std::optional<Person>>>&)>& callback)
       override;
+  std::vector<uint64_t> bounceUnsignedArray(const std::vector<uint64_t>& array) override;
+  std::vector<std::vector<uint64_t>> bounceNestedUnsignedArray(const std::vector<std::vector<uint64_t>>& array) override;
+  std::optional<std::vector<uint64_t>> bounceOptionalUnsignedArray(const std::optional<std::vector<uint64_t>>& array) override;
+  Promise<std::vector<uint64_t>> bounceUnsignedArrayAsync(const std::vector<uint64_t>& array) override;
+  std::vector<uint64_t> callUnsignedArrayCallback(const std::vector<uint64_t>& array,
+                                                  const Callback<std::vector<uint64_t>(const std::vector<uint64_t>&)>& callback) override;
 
   std::vector<HybridChildSpecCxx> bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) override;
   std::vector<Callback<void()>> bounceFunctions(const std::vector<Callback<void()>>& functions) override;
