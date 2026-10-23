@@ -12,21 +12,23 @@ struct JNIConverter<Promise<CppResult>, jni::local_ref<JTypedPromise<JavaResult>
 
   static jni::local_ref<JavaPromise> toJNI(const Promise<CppResult>& value) {
     auto promise = JavaPromise::create();
-    auto owner = jni::make_global(promise);
+    // The native Promise's listeners own this, and the JS engine may destroy them on any thread.
+    auto owner = makeSharedGlobalRef(jni::make_global(promise));
     if constexpr (std::is_void_v<CppResult>) {
       static_assert(std::is_void_v<JavaResult>);
-      value.addOnResolvedListener([owner] { owner->cthis()->resolve(JUnit::instance()); });
+      value.addOnResolvedListener([owner] { (*owner)->cthis()->resolve(JUnit::instance()); });
     } else {
       value.addOnResolvedListener([owner](const CppResult& result) {
         try {
           JavaResult converted = JNIConverter<CppResult, JavaResult>::toJNI(result);
-          owner->cthis()->resolve(converted);
+          (*owner)->cthis()->resolve(converted);
         } catch (...) {
-          owner->cthis()->reject(std::current_exception());
+          (*owner)->cthis()->reject(std::current_exception());
         }
       });
     }
-    value.addOnRejectedListener([owner](const std::exception_ptr& error) { owner->cthis()->reject(error); });
+    // Destroying the pending native Promise, e.g. on the JS engine's GC thread, rejects it.
+    value.addOnRejectedListener([owner](const std::exception_ptr& error) { runAttached([&] { (*owner)->cthis()->reject(error); }); });
     return promise;
   }
 
