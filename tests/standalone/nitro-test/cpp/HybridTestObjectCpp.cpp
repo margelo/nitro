@@ -10,6 +10,7 @@
 #include <NitroModules/AnyJSON.hpp>
 #include <NitroModules/NitroLogger.hpp>
 #include <NitroModules/ThreadPool.hpp>
+#include <NitroTestExternal/HybridSharedSpecializationsCppSpec.hpp>
 #include <chrono>
 #include <sstream>
 #include <thread>
@@ -830,6 +831,11 @@ Promise<double> HybridTestObjectCpp::callInlineCallbackThenEscape(double value,
   double first = callback.call(value);
   Callback<double(double)> escaped = callback.escape();
   return escaped.callAsync(first);
+}
+
+Callback<void(double /* value */)>
+HybridTestObjectCpp::getSharedNumberCallback(const std::shared_ptr<external::HybridSharedSpecializationsCppSpec>& shared) {
+  return shared->getNumberCallback();
 }
 
 Car HybridTestObjectCpp::getCar() {

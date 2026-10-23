@@ -35,6 +35,8 @@ namespace margelo::nitro::test { class HybridTestObjectCppSpec; }
 #include <NitroTest/MapWrapper.hpp>
 #include <exception>
 #include <NitroModules/InlineCallback.hpp>
+// Forward declaration of `HybridSharedSpecializationsCppSpec` to properly resolve imports.
+namespace margelo::nitro::test::external { class HybridSharedSpecializationsCppSpec; }
 #include <NitroTest/JsStyleStruct.hpp>
 #include <NitroTest/UnsignedScalar.hpp>
 #include <NitroTest/UnsignedValues.hpp>
@@ -234,6 +236,7 @@ namespace margelo::nitro::test {
       virtual Promise<void> callThrowingNativeCallbackAsync(const std::string& message) = 0;
       virtual void callThrowingNativeCallbackAndForget(const std::string& message) = 0;
       virtual Promise<double> callInlineCallbackThenEscape(double value, const InlineCallback<double(double /* value */)>& callback) = 0;
+      virtual Callback<void(double /* value */)> getSharedNumberCallback(const std::shared_ptr<margelo::nitro::test::external::HybridSharedSpecializationsCppSpec>& shared) = 0;
       virtual Car getCar() = 0;
       virtual bool isCarElectric(const Car& car) = 0;
       virtual bool areCarsEqual(const Car& a, const Car& b) = 0;

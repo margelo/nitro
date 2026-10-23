@@ -705,6 +705,14 @@ namespace margelo::nitro::test::swift_bridge {
     });
   }
 
+  std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_ create_std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_(void* NON_NULL pointer) {
+    return margelo::nitro::test::external::swift_bridge::create_std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_(pointer);
+  }
+
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_(const std::shared_ptr<HybridObject>& value) {
+    return margelo::nitro::test::external::swift_bridge::get_std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_(value);
+  }
+
   Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx create_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx() { return Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx::pending(); }
 
   void reject_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(const Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx& promise, std::exception_ptr error) { promise.reject(std::move(error)); }

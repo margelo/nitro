@@ -1,6 +1,12 @@
 import { Android, iOS } from 'nitro-core'
 import { type HybridObject, type AnyJSON, type CustomType, type AnyHybridObject, type UInt64, type Int64, type Inline } from 'nitro-core'
-import type { SomeExternalObject, OptionalPrimitivesHolder, CppOnlyValue } from 'nitro-test-external'
+import type {
+  SomeExternalObject,
+  OptionalPrimitivesHolder,
+  CppOnlyValue,
+  SharedSpecializations,
+  SharedSpecializationsCpp,
+} from 'nitro-test-external'
 import type { Child } from './Child.nitro'
 import type { Grandchild } from './Grandchild.nitro'
 import type { Base, Size } from './Base.nitro'
@@ -319,6 +325,7 @@ export declare class TestObjectCpp extends HybridObject {
   callThrowingNativeCallbackAsync(message: string): Promise<void>
   callThrowingNativeCallbackAndForget(message: string): void
   callInlineCallbackThenEscape(value: number, callback: Inline<(value: number) => number>): Promise<number>
+  getSharedNumberCallback(shared: SharedSpecializationsCpp): (value: number) => void
 
   // Objects
   getCar(): Car
@@ -596,6 +603,7 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
   callThrowingNativeCallbackAsync(message: string): Promise<void>
   callThrowingNativeCallbackAndForget(message: string): void
   callInlineCallbackThenEscape(value: number, callback: Inline<(value: number) => number>): Promise<number>
+  getSharedNumberCallback(shared: SharedSpecializations): (value: number) => void
 
   // Objects
   getCar(): Car

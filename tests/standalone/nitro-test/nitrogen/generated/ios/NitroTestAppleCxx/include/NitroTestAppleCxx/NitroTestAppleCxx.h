@@ -125,6 +125,8 @@ namespace NitroTest { class SecondMapWrapper; }
 namespace NitroTest { class MapWrapper; }
 #include <exception>
 #include <NitroModules/InlineCallback.hpp>
+// Forward declaration of `HybridSharedSpecializationsSpec_cxx` to properly resolve imports.
+namespace NitroTestExternal { class HybridSharedSpecializationsSpec_cxx; }
 // Forward declaration of `HardwareBufferFormat` to properly resolve imports.
 namespace NitroTest { class HardwareBufferFormat; }
 // Forward declaration of `Variant_Bool__Double___String__Double_String_cxx` to properly resolve imports.
@@ -146,6 +148,8 @@ namespace margelo::nitro::test::external { class HybridSomeExternalObjectSpecSwi
 // Forward declaration of `HybridTestObjectSwiftKotlinSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test { class HybridTestObjectSwiftKotlinSpecSwift; }
 #include <memory>
+// Forward declaration of `HybridSharedSpecializationsSpecSwift` to properly resolve imports.
+namespace margelo::nitro::test::external { class HybridSharedSpecializationsSpecSwift; }
 
 namespace margelo::nitro::test::swift_bridge {
   using std__shared_ptr_margelo__nitro__test__HybridBaseSpec_ = std::shared_ptr<margelo::nitro::test::HybridBaseSpecSwift>;
@@ -371,6 +375,13 @@ namespace margelo::nitro::test::swift_bridge {
   using Callback_bool_bool = Callback<bool(bool)>;
   Result<bool, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_bool_bool(const Callback_bool_bool& callback, bool param0) noexcept;
   Callback_bool_bool create_Callback_bool_bool(std::function<Result<bool, margelo::nitro::test::swift_bridge::ResultTag>(bool param0)> closure);
+  using std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_ = std::shared_ptr<margelo::nitro::test::external::HybridSharedSpecializationsSpecSwift>;
+  using std__weak_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_ = std::weak_ptr<margelo::nitro::test::external::HybridSharedSpecializationsSpecSwift>;
+  inline std__weak_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_ weakify_std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_(const std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_& value) {
+    return value;
+  }
+  std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_ create_std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_(void* NON_NULL pointer);
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__test__external__HybridSharedSpecializationsSpec_(const std::shared_ptr<HybridObject>& value);
   using Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx = Promise<::NitroTestExternal::HybridSomeExternalObjectSpec_cxx>;
   Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx create_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx();
   void reject_Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx(const Promise___NitroTestExternal__HybridSomeExternalObjectSpec_cxx& promise, std::exception_ptr error);

@@ -244,6 +244,8 @@ public:
   Promise<void> callThrowingNativeCallbackAsync(const std::string& message) override;
   void callThrowingNativeCallbackAndForget(const std::string& message) override;
   Promise<double> callInlineCallbackThenEscape(double value, const InlineCallback<double(double /* value */)>& callback) override;
+  Callback<void(double /* value */)>
+  getSharedNumberCallback(const std::shared_ptr<external::HybridSharedSpecializationsCppSpec>& shared) override;
   Promise<double> awaitAndGetPromise(const Promise<double>& promise) override;
   Promise<Car> awaitAndGetComplexPromise(const Promise<Car>& promise) override;
   Promise<void> awaitPromise(const Promise<void>& promise) override;

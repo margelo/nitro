@@ -101,6 +101,7 @@
 #include <NitroTest/private/MapWrapper-Swift.hpp>
 #include <exception>
 #include <NitroModules/InlineCallback.hpp>
+#include <NitroTestExternal/private/HybridSharedSpecializationsSpec_cxx-Swift.hpp>
 #include <NitroTest/private/HardwareBufferFormat-Swift.hpp>
 #include <NitroTest/private/Variant_Bool__Double___String__Double_String-Swift.hpp>
 #include <NitroTestExternal/private/OptionalPrimitivesHolder-Swift.hpp>

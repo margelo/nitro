@@ -23,6 +23,8 @@ import {
   CppOnlyValueKind,
   SizeUnit as ExternalSizeUnit,
   type Size as ExternalSize,
+  SharedSpecializations,
+  SharedSpecializationsCpp,
   SomeExternalObject,
 } from 'nitro-test-external'
 
@@ -676,6 +678,22 @@ export const cases = {
       expect(calls).to.equal(2)
       expect(external.callInlineWithNumber(6, (value) => value * 2)).to.equal(12)
       expect(local.callInlineCallbackWithValue(7, (value) => value * 2)).to.equal(14)
+    },
+  }),
+  ...namedCases('Callbacks across modules', {
+    'TestObjectCpp returns the JS function set on SharedSpecializationsCpp': () => {
+      const shared = new SharedSpecializationsCpp()
+      const callback = recordCallback<(value: number) => void>()
+      shared.numberCallback = callback
+      expect(Object.is(new TestObjectCpp().getSharedNumberCallback(shared), callback)).to.equal(true)
+    },
+
+    // On Kotlin, this module converts a callback object that the external module created.
+    'TestObjectSwiftKotlin returns the JS function set on SharedSpecializations': () => {
+      const shared = new SharedSpecializations()
+      const callback = recordCallback<(value: number) => void>()
+      shared.numberCallback = callback
+      expect(Object.is(new TestObjectSwiftKotlin().getSharedNumberCallback(shared), callback)).to.equal(true)
     },
   }),
   ...namedCases('SomeExternalObject optional primitives', {

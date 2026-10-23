@@ -232,6 +232,12 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return escaped.callAsync(first)
   }
 
+  func getSharedNumberCallback(shared: any HybridSharedSpecializationsSpec) throws
+    -> any Callback<Double, Void>
+  {
+    return shared.numberCallback
+  }
+
   func callSumUpNTimes(callback: any Callback<(), Double>, n: Double) throws -> any Promise<Double> {
     var result = 0.0
     return .async {

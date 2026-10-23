@@ -19,6 +19,7 @@ import com.margelo.nitro.utils.mapToLongArray
 import com.margelo.nitro.core.AnyJSON
 import com.margelo.nitro.core.ArrayBuffer
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
+import com.margelo.nitro.test.external.HybridSharedSpecializationsSpec
 import com.margelo.nitro.test.HybridTestObjectKotlin
 import com.margelo.nitro.core.HybridObject
 
@@ -651,6 +652,15 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   private fun callInlineCallbackThenEscape_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
     val __result = callInlineCallbackThenEscape(value, callback)
     return __result
+  }
+
+  abstract fun getSharedNumberCallback(shared: com.margelo.nitro.test.external.HybridSharedSpecializationsSpec): Callback<(value: Double) -> Unit>
+
+  @DoNotStrip
+  @Keep
+  private fun getSharedNumberCallback_cxx(shared: com.margelo.nitro.test.external.HybridSharedSpecializationsSpec): Callback_void_double {
+    val __result = getSharedNumberCallback(shared)
+    return Callback_void_double.fromKotlin(__result)
   }
 
   @DoNotStrip
