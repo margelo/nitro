@@ -8,6 +8,7 @@ internal import NitroModules
 internal import CxxStdlib
 internal import NitroTestAppleCxx
 internal import NitroTestExternal
+internal import NitroModulesAppleCxx
 
 /**
  * A class implementation that bridges HybridPlatformObjectSpec over to C++.
@@ -130,10 +131,12 @@ public final class HybridPlatformObjectSpec_cxx {
 
   // Methods
 
-  public final func getOSVersion(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func getOSVersion(__onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.getOSVersion()
-      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())

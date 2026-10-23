@@ -7,6 +7,7 @@
 internal import NitroModules
 internal import CxxStdlib
 internal import NitroTestExternalAppleCxx
+internal import NitroModulesAppleCxx
 
 /**
  * A class implementation that bridges HybridSharedSpecializationsSpec over to C++.
@@ -255,10 +256,12 @@ public final class HybridSharedSpecializationsSpec_cxx {
     }
   }
 
-  public final func bounceCallbackStruct(value: SharedCallbackStruct, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func bounceCallbackStruct(value: SharedCallbackStruct, __onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.bounceCallbackStruct(value: value)
-      __outResult.assumingMemoryBound(to: SharedCallbackStruct.self).initialize(to: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())

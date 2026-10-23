@@ -7,6 +7,7 @@
 internal import NitroModules
 internal import CxxStdlib
 internal import NitroTestAppleCxx
+internal import NitroModulesAppleCxx
 
 /**
  * A class implementation that bridges HybridChildSpec over to C++.
@@ -137,10 +138,12 @@ open class HybridChildSpec_cxx: HybridBaseSpec_cxx {
 
   // Methods
 
-  public final func bounceVariant(variant: NamedVariant_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func bounceVariant(variant: NamedVariant_cxx, __onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.bounceVariant(variant: variant.value)
-      __outResult.assumingMemoryBound(to: NamedVariant_cxx.self).initialize(to: NamedVariant_cxx(value))
+      withUnsafePointer(to: NamedVariant_cxx(value)) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())

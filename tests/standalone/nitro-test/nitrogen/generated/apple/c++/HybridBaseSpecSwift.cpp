@@ -25,8 +25,8 @@ namespace margelo::nitro::test {
   // Methods
 
   ::NitroTest::Size HybridBaseSpecSwift::bounceSize(const ::NitroTest::Size& size) {
-    auto __result = withSwiftResult<::NitroTest::Size>([&](void* __outResult) {
-      return _swiftPart.bounceSize(size, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Size>([&](const void* __onResult) {
+      return _swiftPart.bounceSize(size, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -35,8 +35,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::SizeUnit HybridBaseSpecSwift::bounceSizeUnit(::NitroTest::SizeUnit unit) {
-    auto __result = withSwiftResult<::NitroTest::SizeUnit>([&](void* __outResult) {
-      return _swiftPart.bounceSizeUnit(unit, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::SizeUnit>([&](const void* __onResult) {
+      return _swiftPart.bounceSizeUnit(unit, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());

@@ -25,8 +25,8 @@ namespace margelo::nitro::test {
   // Methods
 
   ::NitroTest::NamedVariant_cxx HybridChildSpecSwift::bounceVariant(const ::NitroTest::NamedVariant_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::NamedVariant_cxx>([&](void* __outResult) {
-      return _swiftPart.bounceVariant(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::NamedVariant_cxx>([&](const void* __onResult) {
+      return _swiftPart.bounceVariant(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
