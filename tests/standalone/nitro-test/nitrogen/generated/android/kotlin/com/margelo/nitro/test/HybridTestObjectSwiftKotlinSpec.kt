@@ -299,9 +299,9 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   @DoNotStrip
   @Keep
-  private fun bounceNestedUnsignedArray_cxx(array: Array<LongArray>): Array<LongArray> {
-    val __result = bounceNestedUnsignedArray(array.mapToArray<LongArray, ULongArray> { __item -> __item.asULongArray() })
-    return __result.mapToArray<ULongArray, LongArray> { __item -> __item.asLongArray() }
+  private fun bounceNestedUnsignedArray_cxx(array: Array<*>): Array<*> {
+    val __result = bounceNestedUnsignedArray((@Suppress("UNCHECKED_CAST") (array as Array<ULongArray>)))
+    return __result
   }
 
   abstract fun bounceOptionalUnsignedArray(array: ULongArray?): ULongArray?
@@ -371,6 +371,24 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @Keep
   private fun callUnsignedArrayCallbackAsync_cxx(array: LongArray, callback: Callback_std__vector_uint64_t__std__vector_uint64_t_): Promise<ULongArray> {
     val __result = callUnsignedArrayCallbackAsync(array.asULongArray(), callback)
+    return __result
+  }
+
+  abstract fun bounceNestedUnsignedArrayAsync(array: Array<ULongArray>): Promise<Array<ULongArray>>
+
+  @DoNotStrip
+  @Keep
+  private fun bounceNestedUnsignedArrayAsync_cxx(array: Array<*>): Promise<Array<ULongArray>> {
+    val __result = bounceNestedUnsignedArrayAsync((@Suppress("UNCHECKED_CAST") (array as Array<ULongArray>)))
+    return __result
+  }
+
+  abstract fun callNestedUnsignedArrayCallback(array: Array<ULongArray>, callback: Callback<(array: Array<ULongArray>) -> Array<ULongArray>>): Array<ULongArray>
+
+  @DoNotStrip
+  @Keep
+  private fun callNestedUnsignedArrayCallback_cxx(array: Array<*>, callback: Callback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__): Array<*> {
+    val __result = callNestedUnsignedArrayCallback((@Suppress("UNCHECKED_CAST") (array as Array<ULongArray>)), callback)
     return __result
   }
 

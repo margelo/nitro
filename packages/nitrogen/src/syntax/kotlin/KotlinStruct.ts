@@ -51,10 +51,9 @@ private fun get${name}_cxx(): ${type} {
     })
     .join('\n\n')
 
-  // Values whose boxes compare by identity, such as `ULongArray`, compare by their JNI representation.
+  // Values whose boxes compare by identity, such as `ULongArray`, compare by their contents.
   const getEqualityValue = (property: KotlinNamedType, value: string): string => {
-    if (property.isKotlinEqualityCompatible) return value
-    return property.convert(value, { from: 'kotlin', to: 'c++', in: 'kotlin' })
+    return property.getKotlinEqualityValue(value) ?? value
   }
   const equalityComparators = structType.properties.map((property) => {
     const value = getEqualityValue(property, `this.${property.escapedName}`)

@@ -269,6 +269,19 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return callback.callAsync(array)
   }
 
+  override fun bounceNestedUnsignedArrayAsync(array: Array<ULongArray>): Promise<Array<ULongArray>> {
+    return Promise.async {
+      return@async array
+    }
+  }
+
+  override fun callNestedUnsignedArrayCallback(
+    array: Array<ULongArray>,
+    callback: Callback<(array: Array<ULongArray>) -> Array<ULongArray>>,
+  ): Array<ULongArray> {
+    return callback.callSync(array)
+  }
+
   override fun bounceHybridObjects(array: Array<HybridChildSpec>): Array<HybridChildSpec> {
     return array
   }

@@ -178,6 +178,8 @@ namespace margelo::nitro::test {
       virtual Promise<uint64_t> bounceUnsignedAsync(uint64_t value) = 0;
       virtual Promise<uint64_t> callUnsignedCallbackAsync(uint64_t value, const Callback<uint64_t(uint64_t /* value */)>& callback) = 0;
       virtual Promise<std::vector<uint64_t>> callUnsignedArrayCallbackAsync(const std::vector<uint64_t>& array, const Callback<std::vector<uint64_t>(const std::vector<uint64_t>& /* array */)>& callback) = 0;
+      virtual Promise<std::vector<std::vector<uint64_t>>> bounceNestedUnsignedArrayAsync(const std::vector<std::vector<uint64_t>>& array) = 0;
+      virtual std::vector<std::vector<uint64_t>> callNestedUnsignedArrayCallback(const std::vector<std::vector<uint64_t>>& array, const Callback<std::vector<std::vector<uint64_t>>(const std::vector<std::vector<uint64_t>>& /* array */)>& callback) = 0;
       virtual std::vector<HybridChildSpecCxx> bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) = 0;
       virtual std::vector<Callback<void()>> bounceFunctions(const std::vector<Callback<void()>>& functions) = 0;
       virtual std::vector<AnyJSON> bounceMaps(const std::vector<AnyJSON>& maps) = 0;

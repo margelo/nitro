@@ -37,6 +37,14 @@ struct JULongArray : jni::JavaClass<JULongArray> {
 };
 
 /**
+ * A Kotlin Array<ULongArray>, whose JVM class names kotlin.ULongArray. JNI only sees an Object[],
+ * creates it with JULongBox, and creates or reads each element's ULongArray box itself.
+ */
+struct JULongArrays : jni::JavaClass<JULongArrays, jni::JArrayClass<jni::JObject>> {
+  static constexpr const char* kJavaDescriptor = nullptr;
+};
+
+/**
  * Creates and reads JULong and JULongArray boxes without calling into Kotlin. nitro-core's ULongBox
  * gives JNI their classes and value fields once, since JNI cannot name them.
  */
@@ -65,6 +73,11 @@ struct JULongBox : jni::JavaClass<JULongBox> {
   static jni::local_ref<JArrayUInt64> unboxArray(jni::alias_ref<JULongArray> value) {
     jobject array = jni::Environment::current()->GetObjectField(value.get(), getULongArrayLayout().field);
     return jni::adopt_local(static_cast<JArrayUInt64::javaobject>(array));
+  }
+  static jni::local_ref<JULongArrays> newArrays(jsize size) {
+    jobjectArray arrays = jni::Environment::current()->NewObjectArray(size, getULongArrayLayout().clazz, nullptr);
+    FACEBOOK_JNI_THROW_PENDING_EXCEPTION();
+    return jni::adopt_local(static_cast<JULongArrays::javaobject>(arrays));
   }
 
 private:

@@ -75,6 +75,33 @@ struct JNIConverter<jni::global_ref<JArrayUInt64>, jni::local_ref<JULongArray>> 
   }
 };
 
+template <>
+struct JNIConverter<std::vector<std::vector<uint64_t>>, jni::local_ref<JULongArrays>> {
+  using JavaArray = jni::local_ref<JArrayUInt64>;
+
+  static jni::local_ref<JULongArrays> toJNI(const std::vector<std::vector<uint64_t>>& value) {
+    const jsize size = static_cast<jsize>(value.size());
+    auto arrays = JULongBox::newArrays(size);
+    for (jsize i = 0; i < size; ++i) {
+      auto array = JNIConverter<std::vector<uint64_t>, JavaArray>::toJNI(value[i]);
+      auto box = JULongBox::boxArray(array);
+      arrays->setElement(i, *box);
+    }
+    return arrays;
+  }
+  static std::vector<std::vector<uint64_t>> fromJNI(jni::alias_ref<JULongArrays> value) {
+    const jsize size = static_cast<jsize>(value->size());
+    std::vector<std::vector<uint64_t>> result;
+    result.reserve(size);
+    for (jsize i = 0; i < size; ++i) {
+      auto box = jni::static_ref_cast<JULongArray>(value->getElement(i));
+      auto array = JULongBox::unboxArray(box);
+      result.push_back(JNIConverter<std::vector<uint64_t>, JavaArray>::fromJNI(array));
+    }
+    return result;
+  }
+};
+
 template <typename CppElement, typename JavaElement>
 struct JNIConverter<std::vector<CppElement>, jni::local_ref<jni::JArrayClass<JavaElement>>> {
   using JavaArray = jni::JArrayClass<JavaElement>;

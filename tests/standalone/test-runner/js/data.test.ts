@@ -220,6 +220,22 @@ export const cases = {
       expect(result).to.equal(18446744073709551615n)
     },
 
+    'bounceNestedUnsignedArrayAsync(...) resolves every level': async (testObject) => {
+      const nested = [[], UNSIGNED_BOUNDARIES, [18446744073709551615n]]
+      expect(await withTimeout(testObject.bounceNestedUnsignedArrayAsync(nested))).to.deep.equal(nested)
+    },
+
+    'callNestedUnsignedArrayCallback(...) passes every level to JS and back': (testObject) => {
+      const nested = [[], UNSIGNED_BOUNDARIES]
+      const received: bigint[][][] = []
+      const result = testObject.callNestedUnsignedArrayCallback(nested, (array) => {
+        received.push(array)
+        return [...array].reverse()
+      })
+      expect(received).to.deep.equal([nested])
+      expect(result).to.deep.equal([...nested].reverse())
+    },
+
     'callUnsignedArrayCallbackAsync(...) resolves the JS array': async (testObject) => {
       const result = await withTimeout(testObject.callUnsignedArrayCallbackAsync(UNSIGNED_BOUNDARIES, (array) => [...array].reverse()))
       expect(result).to.deep.equal([...UNSIGNED_BOUNDARIES].reverse())

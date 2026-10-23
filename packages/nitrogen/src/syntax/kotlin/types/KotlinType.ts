@@ -73,10 +73,10 @@ export interface KotlinType extends Type {
   /** Whether a generated Kotlin backing field already has this JNI representation. */
   readonly isKotlinFieldCompatible?: boolean
   /**
-   * Whether `Objects.deepEquals` and `contentDeepHashCode` compare the public Kotlin value
-   * by its contents. Otherwise, generated structs compare its JNI representation.
+   * A Kotlin expression that `Objects.deepEquals` and `contentDeepHashCode` compare by contents,
+   * for public values whose boxes compare by identity, e.g. `ULongArray`. Otherwise `undefined`.
    */
-  readonly isKotlinEqualityCompatible?: boolean
+  getKotlinEqualityValue?(value: string): string | undefined
   /** Overrides a native value's printer only when its JVM signature differs. */
   getJniCode?(options: GetKotlinCodeOptions): string
   /** Adapts a native scalar at the JNI boundary when its JVM ABI differs. */
