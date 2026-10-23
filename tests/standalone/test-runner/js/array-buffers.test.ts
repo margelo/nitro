@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { casesForTestObjects, waitFor } from './utils/cases'
+import { casesForTestObjects, delay, waitFor } from './utils/cases'
 
 import { NitroModules } from 'nitro-core'
 
@@ -51,6 +51,16 @@ function wrapArrayBuffers(testObject: TestObject): ArrayBuffer[] {
  */
 function wrapAndDropArrayBuffers(testObject: TestObject): void {
   wrapArrayBuffers(testObject)
+}
+
+/**
+ * Wraps a buffer whose last byte is 42 and retains a view of it, without
+ * keeping a JS reference to the buffer after returning.
+ */
+function wrapAndRetainArrayBufferView(testObject: TestObject): void {
+  const buffer = testObject.wrapArrayBuffer(WRAPPED_BUFFER_SIZE)
+  new Uint8Array(buffer)[WRAPPED_BUFFER_SIZE - 1] = 42
+  testObject.retainArrayBufferView(buffer)
 }
 
 /**
@@ -515,6 +525,29 @@ export const cases = {
         () => {
           gc()
           expect(deleted()).to.equal(WRAPPED_BUFFER_COUNT)
+        },
+        { timeout: 2000 }
+      )
+    },
+
+    'retainArrayBufferView(...) keeps a wrapped buffer alive until the view is released': async (testObject) => {
+      const before = testObject.getWrappedArrayBufferDeleteCount()
+      const deleted = () => testObject.getWrappedArrayBufferDeleteCount() - before
+      wrapAndRetainArrayBufferView(testObject)
+
+      testObject.releaseWrappedArrayBuffers()
+      gc()
+      // Deleting can happen on a GC thread, so give it time to show up.
+      await delay(50)
+      gc()
+      expect(deleted(), 'deleted while the view still holds the buffer').to.equal(0)
+      expect(testObject.getRetainedArrayBufferViewLastItem()).to.equal(42)
+
+      await waitFor(
+        () => {
+          testObject.releaseArrayBufferView()
+          gc()
+          expect(deleted()).to.equal(1)
         },
         { timeout: 2000 }
       )

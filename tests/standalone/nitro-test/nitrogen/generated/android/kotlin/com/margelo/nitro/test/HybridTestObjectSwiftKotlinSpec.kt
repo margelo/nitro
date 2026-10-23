@@ -757,6 +757,18 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   @DoNotStrip
   @Keep
+  abstract fun retainArrayBufferView(buffer: ArrayBuffer): Unit
+
+  @DoNotStrip
+  @Keep
+  abstract fun getRetainedArrayBufferViewLastItem(): Double
+
+  @DoNotStrip
+  @Keep
+  abstract fun releaseArrayBufferView(): Unit
+
+  @DoNotStrip
+  @Keep
   abstract fun passVariant(either: Variant_Boolean_DoubleArray_Array_String__Double_String): Variant_Double_String
 
   @DoNotStrip

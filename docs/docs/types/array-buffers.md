@@ -151,6 +151,16 @@ buffer.withUnsafeMutableBytes { bytes in
 }
 ```
 
+In Kotlin, use `withByteBuffer { }` for scoped access, and do not let its `ByteBuffer` escape. `getBuffer(false)` returns a `ByteBuffer`
+that keeps the data alive until the Java garbage collector frees it, so prefer `withByteBuffer` for temporary access:
+
+```kotlin
+val buffer = ArrayBuffer.allocate(4096)
+buffer.withByteBuffer { bytes ->
+  bytes.put(0, 42)
+}
+```
+
 ## Threading
 
 An `ArrayBuffer` can be accessed from both JS and native, and even from multiple Threads at once, but they are **not thread-safe**. To

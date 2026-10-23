@@ -300,6 +300,9 @@ namespace margelo::nitro::test {
     jni::local_ref<JArrayBuffer::JavaPart> wrapArrayBuffer(jdouble size);
     void releaseWrappedArrayBuffers();
     jdouble getWrappedArrayBufferDeleteCount();
+    void retainArrayBufferView(const jni::local_ref<JArrayBuffer::JavaPart>& buffer);
+    jdouble getRetainedArrayBufferViewLastItem();
+    void releaseArrayBufferView();
     jni::local_ref<JVariant_Double_String> passVariant(const jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>& either);
     jni::local_ref<JVariant_OldEnum_Boolean> getVariantEnum(const jni::local_ref<JVariant_OldEnum_Boolean>& variant);
     jni::local_ref<JVariant_Powertrain_Car> bounceVariantUnionEnum(const jni::local_ref<JVariant_Powertrain_Car>& variant);

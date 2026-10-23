@@ -73,6 +73,7 @@ private:
   std::vector<ArrayBuffer> _wrappedArrayBuffers;
   // Wrapped buffers can be deleted after this object, and on any thread.
   std::shared_ptr<std::atomic<int>> _wrappedArrayBufferDeleteCount = std::make_shared<std::atomic<int>>(0);
+  std::optional<ArrayBuffer> _retainedArrayBufferView;
 
 private:
   static inline uint64_t calculateFibonacci(int count) noexcept {
@@ -283,6 +284,9 @@ public:
   ArrayBuffer wrapArrayBuffer(double size) override;
   void releaseWrappedArrayBuffers() override;
   double getWrappedArrayBufferDeleteCount() override;
+  void retainArrayBufferView(const ArrayBuffer& buffer) override;
+  double getRetainedArrayBufferViewLastItem() override;
+  void releaseArrayBufferView() override;
   std::shared_ptr<HybridTestObjectCppSpec> newTestObject() override;
   Promise<std::shared_ptr<HybridTestObjectCppSpec>> newTestObjectAsync() override;
   HybridBaseSpecCxx createBase() override;
