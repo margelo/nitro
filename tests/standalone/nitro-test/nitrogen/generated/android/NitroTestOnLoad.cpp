@@ -30,6 +30,7 @@
 #include <NitroTest/private/JCallback_void_std__string.hpp>
 #include <NitroTest/private/JCallback_void_std__exception_ptr.hpp>
 #include <NitroTest/private/JCallback_std__string.hpp>
+#include <NitroTest/private/JCallback_bool_bool.hpp>
 #include <NitroTest/private/JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_.hpp>
 #include <NitroTest/HybridCppBaseSpec.hpp>
 #include <NitroTest/HybridCppChildSpec.hpp>
@@ -61,6 +62,7 @@ namespace margelo::nitro::test {
     margelo::nitro::test::JCallback_void_std__string_cxx::registerNatives();
     margelo::nitro::test::JCallback_void_std__exception_ptr_cxx::registerNatives();
     margelo::nitro::test::JCallback_std__string_cxx::registerNatives();
+    margelo::nitro::test::JCallback_bool_bool_cxx::registerNatives();
     margelo::nitro::test::JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__cxx::registerNatives();
 
     HybridClassRegistry::registerHybridClass("test.Base", JHybridBaseSpec::Class::get());

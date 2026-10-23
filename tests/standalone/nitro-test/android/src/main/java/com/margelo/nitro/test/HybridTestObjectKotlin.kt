@@ -477,6 +477,49 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return asPromise { andThenCall(callback()) }
   }
 
+  // Kotlin callbacks are lambdas, so these cannot choose a calling convention yet.
+  override fun callSyncCallback(
+    value: Double,
+    callback: (value: Double) -> Unit,
+  ): Unit = unsupportedCallingConvention()
+
+  override fun callAsyncCallback(
+    value: Double,
+    callback: (value: Double) -> Double,
+  ): Promise<Double> = unsupportedCallingConvention()
+
+  override fun callAsyncVoidCallback(callback: () -> Unit): Promise<Unit> = unsupportedCallingConvention()
+
+  override fun callAsyncBooleanCallback(
+    value: Boolean,
+    callback: (value: Boolean) -> Boolean,
+  ): Promise<Boolean> = unsupportedCallingConvention()
+
+  override fun awaitAsyncCallback(
+    value: Double,
+    callback: (value: Double) -> Double,
+  ): Promise<Double> = unsupportedCallingConvention()
+
+  override fun callAndForgetCallback(
+    value: Double,
+    callback: (value: Double) -> Double,
+  ): Unit = unsupportedCallingConvention()
+
+  override fun callNativeCallbackAsync(value: Double): Promise<Double> = unsupportedCallingConvention()
+
+  override fun callThrowingNativeCallbackAsync(message: String): Promise<Unit> = unsupportedCallingConvention()
+
+  override fun callThrowingNativeCallbackAndForget(message: String): Unit = unsupportedCallingConvention()
+
+  override fun callInlineCallbackThenEscape(
+    value: Double,
+    callback: (value: Double) -> Double,
+  ): Promise<Double> = unsupportedCallingConvention()
+
+  private fun unsupportedCallingConvention(): Nothing {
+    throw UnsupportedOperationException("Kotlin callbacks cannot choose a calling convention yet")
+  }
+
   override fun callAll(
     first: () -> Unit,
     second: () -> Unit,

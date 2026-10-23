@@ -33,6 +33,7 @@ target_sources(NitroTest PRIVATE
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_Promise_std__vector_Powertrain__.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_Promise_void_.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_Size_Size.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_bool_bool.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_double.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_double_double.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_int64_t_int64_t.cpp"

@@ -91,6 +91,7 @@
 #include <NitroTest/private/JCallback_void_std__string.hpp>
 #include <NitroTest/private/JCallback_void_std__exception_ptr.hpp>
 #include <NitroTest/private/JCallback_std__string.hpp>
+#include <NitroTest/private/JCallback_bool_bool.hpp>
 #include <NitroTest/private/JJsStyleStruct.hpp>
 #include <NitroTest/private/JHardwareBufferFormat.hpp>
 #include <NitroTest/private/JVariant_Boolean_DoubleArray_Array_String__Double_String.hpp>
@@ -265,6 +266,16 @@ namespace margelo::nitro::test {
     jni::local_ref<margelo::nitro::test::JCallback_void_double> createNativeCallback(const jni::local_ref<margelo::nitro::test::JCallback_void_double>& wrappingJsCallback);
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> getValueFromJSCallbackAndWait(const jni::local_ref<margelo::nitro::test::JCallback_double>& getValue);
     jni::local_ref<JTypedPromise<void>> getValueFromJsCallback(const jni::local_ref<margelo::nitro::test::JCallback_std__string>& callback, const jni::local_ref<margelo::nitro::test::JCallback_void_std__string>& andThenCall);
+    void callSyncCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_void_double>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callAsyncCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double>& callback);
+    jni::local_ref<JTypedPromise<void>> callAsyncVoidCallback(const jni::local_ref<margelo::nitro::test::JCallback_void>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JBoolean>>> callAsyncBooleanCallback(jboolean value, const jni::local_ref<margelo::nitro::test::JCallback_bool_bool>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> awaitAsyncCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double>& callback);
+    void callAndForgetCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callNativeCallbackAsync(jdouble value);
+    jni::local_ref<JTypedPromise<void>> callThrowingNativeCallbackAsync(const jni::local_ref<jni::JString>& message);
+    void callThrowingNativeCallbackAndForget(const jni::local_ref<jni::JString>& message);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callInlineCallbackThenEscape(jdouble value, const jni::local_ref<margelo::nitro::JInlineCallback<margelo::nitro::test::JCallback_double_double>>& callback);
     jni::local_ref<JCar> getCar();
     jboolean isCarElectric(const jni::local_ref<JCar>& car);
     jboolean areCarsEqual(const jni::local_ref<JCar>& a, const jni::local_ref<JCar>& b);

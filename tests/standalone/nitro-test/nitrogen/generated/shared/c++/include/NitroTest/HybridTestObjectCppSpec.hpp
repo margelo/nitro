@@ -224,6 +224,16 @@ namespace margelo::nitro::test {
       virtual Callback<void(double /* num */)> createNativeCallback(const Callback<void(double /* num */)>& wrappingJsCallback) = 0;
       virtual Promise<double> getValueFromJSCallbackAndWait(const Callback<double()>& getValue) = 0;
       virtual Promise<void> getValueFromJsCallback(const Callback<std::string()>& callback, const Callback<void(const std::string& /* valueFromJs */)>& andThenCall) = 0;
+      virtual void callSyncCallback(double value, const Callback<void(double /* value */)>& callback) = 0;
+      virtual Promise<double> callAsyncCallback(double value, const Callback<double(double /* value */)>& callback) = 0;
+      virtual Promise<void> callAsyncVoidCallback(const Callback<void()>& callback) = 0;
+      virtual Promise<bool> callAsyncBooleanCallback(bool value, const Callback<bool(bool /* value */)>& callback) = 0;
+      virtual Promise<double> awaitAsyncCallback(double value, const Callback<double(double /* value */)>& callback) = 0;
+      virtual void callAndForgetCallback(double value, const Callback<double(double /* value */)>& callback) = 0;
+      virtual Promise<double> callNativeCallbackAsync(double value) = 0;
+      virtual Promise<void> callThrowingNativeCallbackAsync(const std::string& message) = 0;
+      virtual void callThrowingNativeCallbackAndForget(const std::string& message) = 0;
+      virtual Promise<double> callInlineCallbackThenEscape(double value, const InlineCallback<double(double /* value */)>& callback) = 0;
       virtual Car getCar() = 0;
       virtual bool isCarElectric(const Car& car) = 0;
       virtual bool areCarsEqual(const Car& a, const Car& b) = 0;

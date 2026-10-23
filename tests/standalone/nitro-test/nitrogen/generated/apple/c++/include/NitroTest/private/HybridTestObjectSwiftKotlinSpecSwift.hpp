@@ -175,6 +175,16 @@ namespace margelo::nitro::test {
     Callback<void(double)> createNativeCallback(const Callback<void(double)>& wrappingJsCallback);
     Promise<double> getValueFromJSCallbackAndWait(const Callback<double()>& getValue);
     Promise<void> getValueFromJsCallback(const Callback<swift::String()>& callback, const Callback<void(const swift::String&)>& andThenCall);
+    void callSyncCallback(double value, const Callback<void(double)>& callback);
+    Promise<double> callAsyncCallback(double value, const Callback<double(double)>& callback);
+    Promise<void> callAsyncVoidCallback(const Callback<void()>& callback);
+    Promise<bool> callAsyncBooleanCallback(bool value, const Callback<bool(bool)>& callback);
+    Promise<double> awaitAsyncCallback(double value, const Callback<double(double)>& callback);
+    void callAndForgetCallback(double value, const Callback<double(double)>& callback);
+    Promise<double> callNativeCallbackAsync(double value);
+    Promise<void> callThrowingNativeCallbackAsync(const swift::String& message);
+    void callThrowingNativeCallbackAndForget(const swift::String& message);
+    Promise<double> callInlineCallbackThenEscape(double value, const InlineCallback<double(double)>& callback);
     ::NitroTest::Car getCar();
     bool isCarElectric(const ::NitroTest::Car& car);
     bool areCarsEqual(const ::NitroTest::Car& a, const ::NitroTest::Car& b);
