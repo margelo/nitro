@@ -28,25 +28,32 @@ export class KotlinArrayType extends ArrayType implements KotlinType {
   get needsKotlinConversion(): boolean {
     return this.itemType.needsKotlinConversion
   }
+  /** `ULongArray` is a value class, so its field holds the `long[]` JNI uses. */
+  get isKotlinFieldCompatible(): boolean {
+    return this.isULongArray || !this.needsKotlinConversion
+  }
+  /** `ULongArray` boxes compare by identity, so compare their `long[]`s instead. */
+  get isKotlinEqualityCompatible(): boolean {
+    return !this.isULongArray && (this.itemType.isKotlinEqualityCompatible ?? true)
+  }
+  private get isULongArray(): boolean {
+    return this.itemType.kind === 'uint64'
+  }
   convert(value: string, conversion: KotlinConversion): string {
     switch (conversion.in) {
       case 'kotlin': {
         if (!this.needsKotlinConversion) return value
-        const item = this.itemType.convert('__item', conversion)
-        const resultType = conversion.from === 'c++' ? this.type.itemType : this.itemType
-        const resultCode = resultType.getCode('kotlin', {
-          context: 'type-argument',
-        })
-        let conversionFunction: string
-        if (this.itemType.kind === 'uint64') {
-          conversionFunction = conversion.from === 'kotlin' ? 'mapToLongArray' : `mapToArray<${resultCode}>`
-        } else {
-          const sourceType = conversion.from === 'c++' ? this.itemType : this.type.itemType
-          const sourceCode = sourceType.getCode('kotlin', { context: 'type-argument' })
-          conversionFunction = `mapToArray<${sourceCode}, ${resultCode}>`
+        if (this.isULongArray) {
+          // Both reinterpret the same array without copying it.
+          return conversion.from === 'kotlin' ? `${value}.asLongArray()` : `${value}.asULongArray()`
         }
+        const item = this.itemType.convert('__item', conversion)
+        const sourceType = conversion.from === 'c++' ? this.itemType : this.type.itemType
+        const resultType = conversion.from === 'c++' ? this.type.itemType : this.itemType
+        const sourceCode = sourceType.getCode('kotlin', { context: 'type-argument' })
+        const resultCode = resultType.getCode('kotlin', { context: 'type-argument' })
         return `
-${value}.${conversionFunction} { __item -> ${item} }
+${value}.mapToArray<${sourceCode}, ${resultCode}> { __item -> ${item} }
 `.trim()
       }
       case 'c++': {
@@ -130,11 +137,8 @@ ${value}.${conversionFunction} { __item -> ${item} }
         break
       }
       case 'kotlin':
-        if (this.needsKotlinConversion) {
-          imports.push(
-            { language: language, name: 'com.margelo.nitro.utils.mapToArray' },
-            { language: language, name: 'com.margelo.nitro.utils.mapToLongArray' }
-          )
+        if (this.needsKotlinConversion && !this.isULongArray) {
+          imports.push({ language: language, name: 'com.margelo.nitro.utils.mapToArray' })
         }
         imports.push(...this.type.getRequiredImports(language))
         break

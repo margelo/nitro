@@ -66,6 +66,11 @@ export interface KotlinType extends Type {
   readonly hasStaticJNIReference?: boolean
   /** Whether a generated Kotlin backing field already has this JNI representation. */
   readonly isKotlinFieldCompatible?: boolean
+  /**
+   * Whether `Objects.deepEquals` and `contentDeepHashCode` compare the public Kotlin value
+   * by its contents. Otherwise, generated structs compare its JNI representation.
+   */
+  readonly isKotlinEqualityCompatible?: boolean
   /** Overrides a native value's printer only when its JVM signature differs. */
   getJniCode?(options: GetKotlinCodeOptions): string
   /** Adapts a native scalar at the JNI boundary when its JVM ABI differs. */

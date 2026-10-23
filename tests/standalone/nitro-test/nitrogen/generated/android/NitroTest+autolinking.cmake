@@ -41,6 +41,7 @@ target_sources(NitroTest PRIVATE
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_std__string.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_std__vector_Powertrain__std__vector_Powertrain_.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_std__vector_uint64_t__std__vector_uint64_t_.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_uint64_t_uint64_t.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_void.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JCallback_void_double.cpp"

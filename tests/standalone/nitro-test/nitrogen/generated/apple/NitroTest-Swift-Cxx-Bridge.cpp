@@ -216,6 +216,24 @@ namespace margelo::nitro::test::swift_bridge {
     });
   }
 
+  Promise_swift__Array_uint64_t_ create_Promise_swift__Array_uint64_t_() { return Promise_swift__Array_uint64_t_::pending(); }
+
+  void reject_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, std::exception_ptr error) { promise.reject(std::move(error)); }
+
+  void listenRejected_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, std::function<void(const std::exception_ptr&)> listener) { promise.addOnRejectedListener(std::move(listener)); }
+
+  void resolve_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, const void* NON_NULL value) {
+    promise.resolve(NitroModules::copySwiftValue<swift::Array<uint64_t>>(value));
+  }
+
+  void listen_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, std::function<void(const void* NON_NULL)> listener) {
+    promise.addOnResolvedListener([listener = std::move(listener)](const swift::Array<uint64_t>& value) {
+      NitroModules::withSwiftValue(value, [&](const void* pointer) {
+        listener(pointer);
+      });
+    });
+  }
+
   Result<void, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_void(const Callback_void& callback) noexcept {
     try {
       callback.callSync();
@@ -435,6 +453,37 @@ namespace margelo::nitro::test::swift_bridge {
     return Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___::make([closure = std::move(closure)](const ::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___& param0) -> ::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___ {
       auto __result = borrowSwiftValue(param0, [&](const void* param0) {
         return withSwiftResult<::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___>([&](void* __outResult) {
+          return closure(param0, __outResult);
+        });
+      });
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      return std::move(__result.value());
+    });
+  }
+
+  Result<void, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(const Callback_swift__Array_uint64_t__swift__Array_uint64_t_& callback, const void* NON_NULL param0, void* NON_NULL __outResult) noexcept {
+    try {
+      NitroModules::initializeSwiftValue(__outResult, callback.callSync(NitroModules::copySwiftValue<swift::Array<uint64_t>>(param0)));
+      return Result<void, margelo::nitro::test::swift_bridge::ResultTag>::withValue();
+    } catch (...) {
+      return Result<void, margelo::nitro::test::swift_bridge::ResultTag>::withError(std::current_exception());
+    }
+  }
+
+  Promise<swift::Array<uint64_t>> callAsync_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(const Callback_swift__Array_uint64_t__swift__Array_uint64_t_& callback, const void* NON_NULL param0) {
+    return callback.callAsync(NitroModules::copySwiftValue<swift::Array<uint64_t>>(param0));
+  }
+
+  void callAndForget_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(const Callback_swift__Array_uint64_t__swift__Array_uint64_t_& callback, const void* NON_NULL param0) {
+    callback.callAndForget(NitroModules::copySwiftValue<swift::Array<uint64_t>>(param0));
+  }
+
+  Callback_swift__Array_uint64_t__swift__Array_uint64_t_ create_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure) {
+    return Callback_swift__Array_uint64_t__swift__Array_uint64_t_::make([closure = std::move(closure)](const swift::Array<uint64_t>& param0) -> swift::Array<uint64_t> {
+      auto __result = borrowSwiftValue(param0, [&](const void* param0) {
+        return withSwiftResult<swift::Array<uint64_t>>([&](void* __outResult) {
           return closure(param0, __outResult);
         });
       });

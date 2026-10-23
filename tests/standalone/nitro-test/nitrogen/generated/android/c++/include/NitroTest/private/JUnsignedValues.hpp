@@ -49,8 +49,8 @@ namespace margelo::nitro::test {
     }
 
     jni::local_ref<JArrayUInt64> getValues() const {
-      static const auto method = javaClassStatic()->getMethod<JArrayUInt64()>("getValues_cxx");
-      return method(this->self());
+      static const auto field = javaClassStatic()->getField<JArrayUInt64>("values");
+      return getFieldValue(field);
     }
 
     jni::local_ref<jni::JArrayClass<JArrayUInt64>> getNested() const {

@@ -360,6 +360,28 @@ std::vector<std::vector<std::optional<Person>>> HybridTestObjectCpp::callNestedS
   return callback.callSync(value);
 }
 
+std::vector<uint64_t> HybridTestObjectCpp::bounceUnsignedArray(const std::vector<uint64_t>& array) {
+  return array;
+}
+
+std::vector<std::vector<uint64_t>> HybridTestObjectCpp::bounceNestedUnsignedArray(const std::vector<std::vector<uint64_t>>& array) {
+  return array;
+}
+
+std::optional<std::vector<uint64_t>> HybridTestObjectCpp::bounceOptionalUnsignedArray(const std::optional<std::vector<uint64_t>>& array) {
+  return array;
+}
+
+Promise<std::vector<uint64_t>> HybridTestObjectCpp::bounceUnsignedArrayAsync(const std::vector<uint64_t>& array) {
+  return Promise<std::vector<uint64_t>>::async([=]() { return array; });
+}
+
+std::vector<uint64_t>
+HybridTestObjectCpp::callUnsignedArrayCallback(const std::vector<uint64_t>& array,
+                                               const Callback<std::vector<uint64_t>(const std::vector<uint64_t>&)>& callback) {
+  return callback.callSync(array);
+}
+
 std::vector<HybridChildSpecCxx> HybridTestObjectCpp::bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) {
   return array;
 }
