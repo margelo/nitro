@@ -317,9 +317,9 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   @DoNotStrip
   @Keep
-  private fun bounceUnsignedArrayAsync_cxx(array: LongArray): Promise<LongArray> {
+  private fun bounceUnsignedArrayAsync_cxx(array: LongArray): Promise<ULongArray> {
     val __result = bounceUnsignedArrayAsync(array.asULongArray())
-    return __result.let { __source -> Promise<LongArray>().also { __promise -> __source.then { __result -> __promise.resolve(__result.asLongArray()) }.catch { __promise.reject(it) } } }
+    return __result
   }
 
   abstract fun callUnsignedArrayCallback(array: ULongArray, callback: Callback<(array: ULongArray) -> ULongArray>): ULongArray
@@ -338,6 +338,41 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @DoNotStrip
   @Keep
   abstract fun bounceUnsignedArrayVariant(variant: Variant_ULongArray_String): Variant_ULongArray_String
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceUnsignedMap(map: Map<String, ULong>): Map<String, ULong>
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceUnsignedArrayMap(map: Map<String, ULongArray>): Map<String, ULongArray>
+
+  abstract fun bounceUnsignedAsync(value: ULong): Promise<ULong>
+
+  @DoNotStrip
+  @Keep
+  private fun bounceUnsignedAsync_cxx(value: Long): Promise<ULong> {
+    val __result = bounceUnsignedAsync(value.toULong())
+    return __result
+  }
+
+  abstract fun callUnsignedCallbackAsync(value: ULong, callback: Callback<(value: ULong) -> ULong>): Promise<ULong>
+
+  @DoNotStrip
+  @Keep
+  private fun callUnsignedCallbackAsync_cxx(value: Long, callback: Callback_uint64_t_uint64_t): Promise<ULong> {
+    val __result = callUnsignedCallbackAsync(value.toULong(), callback)
+    return __result
+  }
+
+  abstract fun callUnsignedArrayCallbackAsync(array: ULongArray, callback: Callback<(array: ULongArray) -> ULongArray>): Promise<ULongArray>
+
+  @DoNotStrip
+  @Keep
+  private fun callUnsignedArrayCallbackAsync_cxx(array: LongArray, callback: Callback_std__vector_uint64_t__std__vector_uint64_t_): Promise<ULongArray> {
+    val __result = callUnsignedArrayCallbackAsync(array.asULongArray(), callback)
+    return __result
+  }
 
   @DoNotStrip
   @Keep

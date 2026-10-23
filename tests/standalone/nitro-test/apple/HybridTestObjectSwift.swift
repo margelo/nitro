@@ -395,6 +395,32 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return variant
   }
 
+  func bounceUnsignedMap(map: [String: UInt64]) throws -> [String: UInt64] {
+    return map
+  }
+
+  func bounceUnsignedArrayMap(map: [String: [UInt64]]) throws -> [String: [UInt64]] {
+    return map
+  }
+
+  func bounceUnsignedAsync(value: UInt64) throws -> any Promise<UInt64> {
+    return .async {
+      return value
+    }
+  }
+
+  func callUnsignedCallbackAsync(value: UInt64, callback: any Callback<UInt64, UInt64>) throws
+    -> any Promise<UInt64>
+  {
+    return callback.callAsync(value)
+  }
+
+  func callUnsignedArrayCallbackAsync(
+    array: [UInt64], callback: any Callback<[UInt64], [UInt64]>
+  ) throws -> any Promise<[UInt64]> {
+    return callback.callAsync(array)
+  }
+
   func bounceHybridObjects(array: [(any HybridChildSpec)]) throws -> [(any HybridChildSpec)] {
     return array
   }

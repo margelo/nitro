@@ -65,6 +65,10 @@ namespace NitroTest { class SwiftContainer_swift__Array___NitroTest__Powertrain_
 namespace NitroTest { class Variant_UInt64_String_cxx; }
 // Forward declaration of `Variant__UInt64__String_cxx` to properly resolve imports.
 namespace NitroTest { class Variant__UInt64__String_cxx; }
+// Forward declaration of `Record_swift__String_uint64_t` to properly resolve imports.
+namespace NitroTest { class Record_swift__String_uint64_t; }
+// Forward declaration of `Record_swift__String_swift__Array_uint64_t_` to properly resolve imports.
+namespace NitroTest { class Record_swift__String_swift__Array_uint64_t_; }
 namespace NitroModules { class AnyJSON; }
 #include <NitroModules/ArrayBuffer.hpp>
 // Forward declaration of `Variant_Bool_Double_cxx` to properly resolve imports.
@@ -248,6 +252,7 @@ namespace margelo::nitro::test::swift_bridge {
   void listenRejected_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, std::function<void(const std::exception_ptr&)> listener);
   void resolve_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, const void* NON_NULL value);
   void listen_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, std::function<void(const void* NON_NULL)> listener);
+  using Promise_uint64_t = Promise<uint64_t>;
   using Callback_void = Callback<void()>;
   Result<void, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_void(const Callback_void& callback) noexcept;
   Callback_void create_Callback_void(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>()> closure);
@@ -267,7 +272,6 @@ namespace margelo::nitro::test::swift_bridge {
   void listen_Promise___NitroTest__Car(const Promise___NitroTest__Car& promise, std::function<void(const void* NON_NULL)> listener);
   using Promise_ArrayBuffer = Promise<ArrayBuffer>;
   using Promise_bool = Promise<bool>;
-  using Promise_uint64_t = Promise<uint64_t>;
   using Result_uint64_t = Result<uint64_t, margelo::nitro::test::swift_bridge::ResultTag>;
   using Callback_uint64_t_uint64_t = Callback<uint64_t(uint64_t)>;
   Result<uint64_t, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_uint64_t_uint64_t(const Callback_uint64_t_uint64_t& callback, uint64_t param0) noexcept;

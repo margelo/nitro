@@ -32,9 +32,9 @@ namespace margelo::nitro::test {
   struct JUnsignedValues final : public jni::JavaClass<JUnsignedValues> {
     static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/UnsignedValues;";
 
-    static jni::local_ref<JUnsignedValues> create(uint64_t unsignedValue, jni::alias_ref<JOptional<JUInt64>> optionalUnsigned, jni::alias_ref<JArrayUInt64> values, jni::alias_ref<jni::JArrayClass<JArrayUInt64>> nested, jni::alias_ref<jni::JMap<jni::JString, JOptional<JUInt64>>> record, jni::alias_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>> callbacks) {
+    static jni::local_ref<JUnsignedValues> create(uint64_t unsignedValue, jni::alias_ref<JOptional<JUInt64>> optionalUnsigned, jni::alias_ref<JArrayUInt64> values, jni::alias_ref<jni::JArrayClass<JArrayUInt64>> nested, jni::alias_ref<jni::JMap<jni::JString, JOptional<JULong>>> record, jni::alias_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>> callbacks) {
       static const auto clazz = javaClassStatic();
-      static const auto create = clazz->getStaticMethod<JUnsignedValues(jlong, jni::alias_ref<JOptional<JUInt64>>, jni::alias_ref<JArrayUInt64>, jni::alias_ref<jni::JArrayClass<JArrayUInt64>>, jni::alias_ref<jni::JMap<jni::JString, JOptional<JUInt64>>>, jni::alias_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>)>("fromCpp");
+      static const auto create = clazz->getStaticMethod<JUnsignedValues(jlong, jni::alias_ref<JOptional<JUInt64>>, jni::alias_ref<JArrayUInt64>, jni::alias_ref<jni::JArrayClass<JArrayUInt64>>, jni::alias_ref<jni::JMap<jni::JString, JOptional<JULong>>>, jni::alias_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>)>("fromCpp");
       return create(clazz, JNIConverter<uint64_t, jlong>::toJNI(unsignedValue), optionalUnsigned, values, nested, record, callbacks);
     }
 
@@ -60,10 +60,9 @@ namespace margelo::nitro::test {
       return method(this->self(), clazz);
     }
 
-    jni::local_ref<jni::JMap<jni::JString, JOptional<JUInt64>>> getRecord() const {
-      static const auto clazz = javaClassStatic();
-      static const auto method = clazz->getNonvirtualMethod<jni::JMap<jni::JString, JOptional<JUInt64>>()>("getRecord_cxx");
-      return method(this->self(), clazz);
+    jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>> getRecord() const {
+      static const auto field = javaClassStatic()->getField<jni::JMap<jni::JString, JOptional<JULong>>>("record");
+      return getFieldValue(field);
     }
 
     jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>> getCallbacks() const {

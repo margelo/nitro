@@ -55,13 +55,6 @@ data class UnsignedValues(
   @DoNotStrip
   @Keep
   @Suppress("unused", "FunctionName")
-  private fun getRecord_cxx(): Map<String, Long?> {
-    return record.mapValues { (_, __value) -> __value?.let { it.toLong() } }
-  }
-
-  @DoNotStrip
-  @Keep
-  @Suppress("unused", "FunctionName")
   private fun getCallbacks_cxx(): Array<Callback_uint64_t_uint64_t> {
     return callbacks.mapToArray<Callback<(value: ULong) -> ULong>, Callback_uint64_t_uint64_t> { __item -> Callback_uint64_t_uint64_t.fromKotlin(__item) }
   }
@@ -96,8 +89,8 @@ data class UnsignedValues(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(unsignedValue: Long, optionalUnsigned: Long?, values: LongArray, nested: Array<LongArray>, record: Map<String, Long?>, callbacks: Array<Callback_uint64_t_uint64_t>): UnsignedValues {
-      return UnsignedValues(unsignedValue.toULong(), optionalUnsigned?.let { it.toULong() }, values.asULongArray(), nested.mapToArray<LongArray, ULongArray> { __item -> __item.asULongArray() }, record.mapValues { (_, __value) -> __value?.let { it.toULong() } }, callbacks.mapToArray<Callback_uint64_t_uint64_t, Callback<(value: ULong) -> ULong>> { __item -> __item })
+    private fun fromCpp(unsignedValue: Long, optionalUnsigned: Long?, values: LongArray, nested: Array<LongArray>, record: Map<String, ULong?>, callbacks: Array<Callback_uint64_t_uint64_t>): UnsignedValues {
+      return UnsignedValues(unsignedValue.toULong(), optionalUnsigned?.let { it.toULong() }, values.asULongArray(), nested.mapToArray<LongArray, ULongArray> { __item -> __item.asULongArray() }, record, callbacks.mapToArray<Callback_uint64_t_uint64_t, Callback<(value: ULong) -> ULong>> { __item -> __item })
     }
   }
 }

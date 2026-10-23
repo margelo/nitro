@@ -29,8 +29,8 @@ namespace margelo::nitro::test {
     return callSync(array);
   }
 
-  jni::local_ref<JTypedPromise<jni::local_ref<JArrayUInt64>>> JCallback_std__vector_uint64_t__std__vector_uint64_t_::callAsync_cxx(jni::alias_ref<JArrayUInt64> array) {
-    return callAsync<JTypedPromise<jni::local_ref<JArrayUInt64>>>(array);
+  jni::local_ref<JTypedPromise<jni::local_ref<JULongArray>>> JCallback_std__vector_uint64_t__std__vector_uint64_t_::callAsync_cxx(jni::alias_ref<JArrayUInt64> array) {
+    return callAsync<JTypedPromise<jni::local_ref<JULongArray>>>(array);
   }
 
   void JCallback_std__vector_uint64_t__std__vector_uint64_t_::callAndForget_cxx(jni::alias_ref<JArrayUInt64> array) {

@@ -41,7 +41,7 @@ namespace margelo::nitro::test {
 
   private:
     jlong callSync_cxx(jlong value);
-    jni::local_ref<JTypedPromise<jni::local_ref<JUInt64>>> callAsync_cxx(jlong value);
+    jni::local_ref<JTypedPromise<jni::local_ref<JULong>>> callAsync_cxx(jlong value);
     void callAndForget_cxx(jlong value);
     static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
     static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
