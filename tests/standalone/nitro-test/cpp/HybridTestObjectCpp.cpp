@@ -1015,6 +1015,11 @@ std::string HybridTestObjectCpp::readExternalValue(const adapters::NitroTestExte
   return externalObject.getValue();
 }
 
+void HybridTestObjectCpp::callExternalNumberCallback(const adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx& externalObject,
+                                                     double value) {
+  externalObject.getNumberCallback()(value);
+}
+
 OptionalPrimitivesHolder HybridTestObjectCpp::createExternalOptionalPrimitives(
     const adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx& externalObject, const std::optional<double>& optionalNumber,
     const std::optional<bool>& optionalBoolean, const std::optional<uint64_t>& optionalUInt64,

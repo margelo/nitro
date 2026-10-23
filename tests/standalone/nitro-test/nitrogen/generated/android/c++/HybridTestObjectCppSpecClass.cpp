@@ -251,6 +251,7 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("mapSizeThroughBase", &HybridTestObjectCppSpec::mapSizeThroughBase);
       clazz.registerHybridMethod("bounceVariantThroughChild", &HybridTestObjectCppSpec::bounceVariantThroughChild);
       clazz.registerHybridMethod("readExternalValue", &HybridTestObjectCppSpec::readExternalValue);
+      clazz.registerHybridMethod("callExternalNumberCallback", &HybridTestObjectCppSpec::callExternalNumberCallback);
       clazz.registerHybridMethod("createExternalOptionalPrimitives", &HybridTestObjectCppSpec::createExternalOptionalPrimitives);
       clazz.registerHybridMethod("createAlternativeBase", &HybridTestObjectCppSpec::createAlternativeBase);
       clazz.registerHybridMethod("createCppBase", &HybridTestObjectCppSpec::createCppBase);

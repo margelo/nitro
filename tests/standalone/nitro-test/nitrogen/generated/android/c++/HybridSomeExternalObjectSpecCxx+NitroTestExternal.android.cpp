@@ -8,16 +8,20 @@
 #include <NitroTest/HybridSomeExternalObjectSpecCxx+NitroTestExternal.hpp>
 #include <NitroTestExternal/private/JHybridSomeExternalObjectSpec.hpp>
 #include <stdexcept>
+#include <NitroModules/Callback.hpp>
+#include <functional>
 #include <string>
 #include <NitroTest/OptionalPrimitivesHolder.hpp>
 #include <optional>
 #include <NitroModules/JNIConverter+HybridObject.hpp>
 #include <NitroModules/JSIConverter+JHybridObject.hpp>
 #include <NitroTest/private/HybridSomeExternalObjectSpecCxx+NitroTestExternal+JNI.hpp>
-#include <NitroModules/JNIConverter+String.hpp>
-#include <NitroTest/private/OptionalPrimitivesHolder+Kotlin+NitroTest.hpp>
+#include <NitroTestExternal/private/JCallback_void_double.hpp>
+#include <NitroModules/JNIConverter+Callback.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
+#include <NitroModules/JNIConverter+String.hpp>
+#include <NitroTest/private/OptionalPrimitivesHolder+Kotlin+NitroTest.hpp>
 #include <NitroModules/JNIConverter+Optional.hpp>
 #include <NitroModules/JSIConverter+JOptional.hpp>
 #include <NitroModules/JUInt64.hpp>
@@ -29,6 +33,23 @@ namespace margelo::nitro::test::adapters::NitroTestExternal {
       throw std::invalid_argument("Cannot use a HybridObject that does not implement SomeExternalObject as HybridSomeExternalObjectSpecCxx.");
     }
     return HybridSomeExternalObjectSpecCxx(implementation);
+  }
+
+  margelo::nitro::Callback<void(double /* value */)> HybridSomeExternalObjectSpecCxx::getNumberCallback() const {
+    auto __implementation = std::dynamic_pointer_cast<margelo::nitro::test::external::JHybridSomeExternalObjectSpec>(getNativeObject());
+    if (__implementation == nullptr) [[unlikely]] {
+      throw std::invalid_argument("Cannot call SomeExternalObject.getNumberCallback on an empty or incompatible C++ adapter.");
+    }
+    auto __result = __implementation->getNumberCallback();
+    return JNIConverter<margelo::nitro::Callback<void(double /* value */)>, jni::local_ref<margelo::nitro::test::external::JCallback_void_double>>::fromJNI(__result);
+  }
+
+  void HybridSomeExternalObjectSpecCxx::setNumberCallback(const Callback<void(double /* value */)>& numberCallback) const {
+    auto __implementation = std::dynamic_pointer_cast<margelo::nitro::test::external::JHybridSomeExternalObjectSpec>(getNativeObject());
+    if (__implementation == nullptr) [[unlikely]] {
+      throw std::invalid_argument("Cannot call SomeExternalObject.setNumberCallback on an empty or incompatible C++ adapter.");
+    }
+    __implementation->setNumberCallback(JNIConverter<margelo::nitro::Callback<void(double /* value */)>, jni::local_ref<margelo::nitro::test::external::JCallback_void_double>>::toJNI(numberCallback));
   }
 
   std::string HybridSomeExternalObjectSpecCxx::getValue() const {

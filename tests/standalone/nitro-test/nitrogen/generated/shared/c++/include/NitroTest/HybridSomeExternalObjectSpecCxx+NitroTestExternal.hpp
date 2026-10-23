@@ -11,6 +11,8 @@
 #include <utility>
 #include <NitroModules/HybridObject.hpp>
 #include <NitroModules/JSIConverter.hpp>
+#include <NitroModules/Callback.hpp>
+#include <functional>
 #include <string>
 // Forward declaration of `OptionalPrimitivesHolder` to properly resolve imports.
 namespace margelo::nitro::test { struct OptionalPrimitivesHolder; }
@@ -26,6 +28,8 @@ namespace margelo::nitro::test::adapters::NitroTestExternal {
       return _implementation;
     }
 
+    margelo::nitro::Callback<void(double /* value */)> getNumberCallback() const;
+    void setNumberCallback(const Callback<void(double /* value */)>& numberCallback) const;
     std::string getValue() const;
     margelo::nitro::test::OptionalPrimitivesHolder createOptionalPrimitivesHolder(const std::optional<double>& optionalNumber, const std::optional<bool>& optionalBoolean, const std::optional<uint64_t>& optionalUInt64, const std::optional<int64_t>& optionalInt64) const;
 

@@ -56,6 +56,8 @@ namespace margelo::nitro::test::external {
     std::string toString() override;
 
     // Properties
+    Callback<void(double)> getNumberCallback();
+    void setNumberCallback(const Callback<void(double)>& numberCallback);
     // Methods
     swift::String getValue();
     ::NitroTestExternal::OptionalPrimitivesHolder createOptionalPrimitivesHolder(const swift::Optional<double>& optionalNumber, const swift::Optional<bool>& optionalBoolean, const swift::Optional<uint64_t>& optionalUInt64, const swift::Optional<int64_t>& optionalInt64);

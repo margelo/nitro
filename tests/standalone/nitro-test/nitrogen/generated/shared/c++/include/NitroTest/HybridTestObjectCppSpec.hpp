@@ -269,6 +269,7 @@ namespace margelo::nitro::test {
       virtual Promise<Size> mapSizeThroughBase(const HybridBaseSpecCxx& base, const Size& size, const Callback<Size(const Size& /* size */)>& callback) = 0;
       virtual std::variant<std::string, Car> bounceVariantThroughChild(const HybridChildSpecCxx& child, const std::variant<std::string, Car>& variant) = 0;
       virtual std::string readExternalValue(const margelo::nitro::test::adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx& externalObject) = 0;
+      virtual void callExternalNumberCallback(const margelo::nitro::test::adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx& externalObject, double value) = 0;
       virtual OptionalPrimitivesHolder createExternalOptionalPrimitives(const margelo::nitro::test::adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx& externalObject, const std::optional<double>& optionalNumber, const std::optional<bool>& optionalBoolean, const std::optional<uint64_t>& optionalUInt64, const std::optional<int64_t>& optionalInt64) = 0;
       virtual HybridBaseSpecCxx createAlternativeBase() = 0;
       virtual std::shared_ptr<HybridCppBaseSpec> createCppBase() = 0;

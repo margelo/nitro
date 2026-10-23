@@ -18,6 +18,18 @@ namespace margelo::nitro::test::external {
 
   // Properties
 
+  Callback<void(double)> HybridSomeExternalObjectSpecSwift::getNumberCallback() {
+    return makeCxxValue<Callback<void(double)>>([&](void* __outResult) {
+      _swiftPart.getNumberCallback(__outResult);
+    });
+  }
+
+  void HybridSomeExternalObjectSpecSwift::setNumberCallback(const Callback<void(double)>& numberCallback) {
+    return ([&](const void* numberCallback) {
+      return _swiftPart.setNumberCallback(numberCallback);
+    })(std::addressof(numberCallback));
+  }
+
   // Methods
 
   swift::String HybridSomeExternalObjectSpecSwift::getValue() {
@@ -42,6 +54,7 @@ namespace margelo::nitro::test::external {
 
   const std::shared_ptr<const HybridClass>& HybridSomeExternalObjectSpecSwift::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
+      clazz.registerHybridProperty("numberCallback", &HybridSomeExternalObjectSpecSwift::getNumberCallback, &HybridSomeExternalObjectSpecSwift::setNumberCallback);
       clazz.registerHybridMethod("getValue", &HybridSomeExternalObjectSpecSwift::getValue);
       clazz.registerHybridMethod("createOptionalPrimitivesHolder", &HybridSomeExternalObjectSpecSwift::createOptionalPrimitivesHolder);
     });

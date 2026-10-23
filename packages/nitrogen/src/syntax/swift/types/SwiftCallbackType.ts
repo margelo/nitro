@@ -165,6 +165,10 @@ export class SwiftCallbackType extends CallbackType implements SwiftType {
   }
 
   get requiredCppHelpers(): CppHelper[] {
+    // The owning module's bridge declares these for its Swift code. Their
+    // results use that module's ResultTag, so they would collide with this
+    // module's helpers for the same signature.
+    if (this.config.isExternalConfig) return []
     const helpers = [
       ...this.parameters.flatMap((p) => p.requiredCppHelpers),
       ...this.asyncResult.requiredCppHelpers,
