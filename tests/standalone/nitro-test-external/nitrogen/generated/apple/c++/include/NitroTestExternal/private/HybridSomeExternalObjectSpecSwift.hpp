@@ -22,7 +22,7 @@ namespace margelo::nitro::test::external {
    * HybridSomeExternalObjectSpecSwift accesses the concrete Swift wrapper and registers
    * its Swift signatures for JS. C++ callers use a separate adapter when needed.
    */
-  class HybridSomeExternalObjectSpecSwift final : public HybridObject {
+  class HybridSomeExternalObjectSpecSwift : public HybridObject {
   public:
     struct Class {
       using Base = HybridObject::Class;

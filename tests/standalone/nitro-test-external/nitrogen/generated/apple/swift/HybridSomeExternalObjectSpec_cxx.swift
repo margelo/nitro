@@ -13,7 +13,7 @@ internal import NitroTestExternalAppleCxx
  * In C++, we cannot use Swift protocols - so we need to wrap it in a class to make it strongly defined.
  */
 @_expose(Cxx)
-public final class HybridSomeExternalObjectSpec_cxx {
+open class HybridSomeExternalObjectSpec_cxx {
   /**
    * The Swift <> C++ bridge's namespace (`margelo::nitro::test::external::swift_bridge`)
    * from `NitroTestExternalAppleCxx/NitroTestExternalAppleCxx.h`.
@@ -51,7 +51,7 @@ public final class HybridSomeExternalObjectSpec_cxx {
    * Casts this instance to a retained unsafe raw pointer.
    * This acquires one additional strong reference on the object!
    */
-  public func toUnsafe() -> UnsafeMutableRawPointer {
+  open func toUnsafe() -> UnsafeMutableRawPointer {
     return Unmanaged.passRetained(self).toOpaque()
   }
 
@@ -60,7 +60,7 @@ public final class HybridSomeExternalObjectSpec_cxx {
    * The pointer has to be a retained opaque `Unmanaged<HybridSomeExternalObjectSpec_cxx>`.
    * This removes one strong reference from the object!
    */
-  public class func fromUnsafe(pointer: UnsafeMutableRawPointer) -> HybridSomeExternalObjectSpec_cxx {
+  open class func fromUnsafe(pointer: UnsafeMutableRawPointer) -> HybridSomeExternalObjectSpec_cxx {
     return Unmanaged<HybridSomeExternalObjectSpec_cxx>.fromOpaque(pointer).takeRetainedValue()
   }
 
@@ -68,7 +68,7 @@ public final class HybridSomeExternalObjectSpec_cxx {
    * Gets (or creates) the C++ part of this Hybrid Object.
    * This handle keeps the original native object alive.
    */
-  public func getCxxPart() -> bridge.std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ {
+  open func getCxxPart() -> bridge.std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ {
     let cached = __cxxPart.lock()
     if cached.use_count() > 0 {
       return cached
@@ -93,7 +93,7 @@ public final class HybridSomeExternalObjectSpec_cxx {
    * so the JS VM can properly track it and garbage-collect the JS object if needed.
    */
   @inline(__always)
-  public var memorySize: Int {
+  open var memorySize: Int {
     return MemoryHelper.getSizeOf(__implementation) + __implementation.memorySize
   }
 
@@ -110,7 +110,7 @@ public final class HybridSomeExternalObjectSpec_cxx {
    * This _may_ be called manually from JS.
    */
   @inline(__always)
-  public func dispose() {
+  open func dispose() {
     __implementation.dispose()
   }
 
@@ -118,7 +118,7 @@ public final class HybridSomeExternalObjectSpec_cxx {
    * Call toString() on the Swift class.
    */
   @inline(__always)
-  public func toString() -> String {
+  open func toString() -> String {
     return __implementation.toString()
   }
 

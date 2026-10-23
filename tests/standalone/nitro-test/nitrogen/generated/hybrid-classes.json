@@ -93,6 +93,20 @@
         "language": "swift"
       }
     },
+    "SomeExternalObjectChild": {
+      "android": {
+        "implementation": {
+          "className": "HybridSomeExternalObjectChild"
+        },
+        "language": "kotlin"
+      },
+      "apple": {
+        "implementation": {
+          "className": "HybridSomeExternalObjectChild"
+        },
+        "language": "swift"
+      }
+    },
     "TestObjectCpp": {
       "android": {
         "implementation": {

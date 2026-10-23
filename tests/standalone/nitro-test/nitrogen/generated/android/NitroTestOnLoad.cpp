@@ -12,6 +12,7 @@
 #include <NitroTest/private/JHybridChildSpec.hpp>
 #include <NitroTest/private/JHybridGrandchildSpec.hpp>
 #include <NitroTest/private/JHybridPlatformObjectSpec.hpp>
+#include <NitroTest/private/JHybridSomeExternalObjectChildSpec.hpp>
 #include <NitroTest/private/JHybridTestObjectSwiftKotlinSpec.hpp>
 #include <NitroTest/private/JCallback_void_double.hpp>
 #include <NitroTest/private/JCallback_std__vector_Powertrain__std__vector_Powertrain_.hpp>
@@ -44,6 +45,7 @@ namespace margelo::nitro::test {
     margelo::nitro::test::JHybridChildSpec::CxxPart::registerNatives();
     margelo::nitro::test::JHybridGrandchildSpec::CxxPart::registerNatives();
     margelo::nitro::test::JHybridPlatformObjectSpec::CxxPart::registerNatives();
+    margelo::nitro::test::JHybridSomeExternalObjectChildSpec::CxxPart::registerNatives();
     margelo::nitro::test::JHybridTestObjectSwiftKotlinSpec::CxxPart::registerNatives();
     margelo::nitro::test::JCallback_void_double::registerNatives();
     margelo::nitro::test::JCallback_std__vector_Powertrain__std__vector_Powertrain_::registerNatives();
@@ -72,6 +74,7 @@ namespace margelo::nitro::test {
     HybridClassRegistry::registerHybridClass("test.CppGrandchild", HybridCppGrandchildSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.Grandchild", JHybridGrandchildSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.PlatformObject", JHybridPlatformObjectSpec::Class::get());
+    HybridClassRegistry::registerHybridClass("test.SomeExternalObjectChild", JHybridSomeExternalObjectChildSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.TestObjectCpp", HybridTestObjectCppSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.TestObjectSwiftKotlin", JHybridTestObjectSwiftKotlinSpec::Class::get());
   }

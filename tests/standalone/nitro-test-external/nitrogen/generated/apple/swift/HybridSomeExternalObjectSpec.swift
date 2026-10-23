@@ -38,7 +38,7 @@ open class HybridSomeExternalObjectSpec_base {
   private weak var cxxWrapper: HybridSomeExternalObjectSpec_cxx? = nil
   public init() throws {
   }
-  public final func getCxxWrapper() -> HybridSomeExternalObjectSpec_cxx {
+  open func getCxxWrapper() -> HybridSomeExternalObjectSpec_cxx {
   #if DEBUG
     guard self is any HybridSomeExternalObjectSpec else {
       fatalError("`self` is not a `HybridSomeExternalObjectSpec`! Did you accidentally inherit from `HybridSomeExternalObjectSpec_base` instead of `HybridSomeExternalObjectSpec`?")

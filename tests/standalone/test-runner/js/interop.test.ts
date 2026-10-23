@@ -14,6 +14,7 @@ import {
   CppChild,
   CppGrandchild,
   Grandchild,
+  SomeExternalObjectChild,
 } from 'nitro-test'
 import { HybridSomeExternalObject, isKotlin, isSwift } from './utils/testObjects'
 import { TEST_CUSTOM_TYPE, TEST_PERSON, TEST_CAR } from './utils/fixtures'
@@ -776,6 +777,62 @@ export const cases = {
       external.numberCallback = callback
       external.numberCallback(4)
       await waitFor(() => expect(callback.calls).to.deep.equal([[4]]), CALLBACK_TIMEOUT)
+    },
+  }),
+  ...namedCases('Subclasses of external HybridObjects', {
+    'read their own and inherited members': () => {
+      const child = new SomeExternalObjectChild()
+      expect(child.childValue).to.equal(42)
+      expect(child.getValue()).to.equal('Hello from SomeExternalObjectChild!')
+    },
+
+    "extend the other module's JS class": () => {
+      const child = new SomeExternalObjectChild()
+      expect(child).to.be.instanceOf(SomeExternalObjectChild)
+      expect(child).to.be.instanceOf(SomeExternalObject)
+      expect(Object.is(Object.getPrototypeOf(SomeExternalObjectChild.prototype), SomeExternalObject.prototype)).to.equal(true)
+      expect(child.constructor.name).to.equal('SomeExternalObjectChild')
+      expect(child.toString()).to.equal('[HybridObject SomeExternalObjectChild]')
+    },
+
+    "inherited methods return the other module's structs": () => {
+      expect(new SomeExternalObjectChild().createOptionalPrimitivesHolder(1.5, false, 2n, -3n)).to.deep.equal({
+        optionalNumber: 1.5,
+        optionalBoolean: false,
+        optionalUInt64: 2n,
+        optionalInt64: -3n,
+      })
+    },
+
+    'inherited callback properties keep their value': async () => {
+      const child = new SomeExternalObjectChild()
+      const callback = recordCallback()
+      child.numberCallback = callback
+      child.numberCallback(4)
+      await waitFor(() => expect(callback.calls).to.deep.equal([[4]]), CALLBACK_TIMEOUT)
+    },
+
+    'pass through APIs that take the base type': () => {
+      const child = new SomeExternalObjectChild()
+      for (const testObject of [new TestObjectCpp(), new TestObjectSwiftKotlin()]) {
+        expect(Object.is(testObject.bounceExternalHybrid(child), child)).to.equal(true)
+      }
+    },
+
+    'C++ adapters dispatch to the subclass': async () => {
+      const object = new TestObjectCpp()
+      const child = new SomeExternalObjectChild()
+      const callback = recordCallback()
+      child.numberCallback = callback
+      expect(object.readExternalValue(child)).to.equal('Hello from SomeExternalObjectChild!')
+      expect(object.createExternalOptionalPrimitives(child, 4.5, true, 13n, -7n)).to.deep.equal({
+        optionalNumber: 4.5,
+        optionalBoolean: true,
+        optionalUInt64: 13n,
+        optionalInt64: -7n,
+      })
+      object.callExternalNumberCallback(child, 5)
+      await waitFor(() => expect(callback.calls).to.deep.equal([[5]]), CALLBACK_TIMEOUT)
     },
   }),
   ...casesForTestObjects('External HybridObjects', {

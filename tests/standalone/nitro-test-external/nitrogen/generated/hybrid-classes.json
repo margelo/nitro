@@ -57,10 +57,12 @@
     },
     "SomeExternalObject": {
       "android": {
+        "allowInheritance": true,
         "allowMultipleImplementations": true,
         "language": "kotlin"
       },
       "apple": {
+        "allowInheritance": true,
         "allowMultipleImplementations": true,
         "language": "swift"
       }

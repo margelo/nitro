@@ -14,14 +14,17 @@ export interface OptionalPrimitivesHolder {
 /**
  * This hybrid object is implemented in Swift and Kotlin.
  * It can be called from Swift/Kotlin, as well as C++ directly.
+ * `nitro-test`'s `SomeExternalObjectChild` inherits from it.
  */
 @iOS({
   language: 'swift',
   allowMultipleImplementations: true,
+  allowInheritance: true,
 })
 @Android({
   language: 'kotlin',
   allowMultipleImplementations: true,
+  allowInheritance: true,
 })
 export declare class SomeExternalObject extends HybridObject {
   getValue(): string

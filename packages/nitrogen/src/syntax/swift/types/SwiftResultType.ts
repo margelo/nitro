@@ -74,6 +74,10 @@ export class SwiftResultType implements SwiftType {
   }
 
   get requiredCppHelpers(): CppHelper[] {
+    // The owning module's bridge declares this alias for its Swift code. It
+    // uses that module's ResultTag, so it would collide with this module's
+    // alias for the same payload.
+    if (this.sourceConfig.isExternalConfig) return []
     const resultTagCode = `
 // Distinct specializations prevent duplicate Swift metadata across module headers.
 struct ResultTag {};
