@@ -4,7 +4,7 @@
   "homepage": "https://nitro.margelo.com",
   "packageManager": "bun@1.3.14",
   "private": true,
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.nightly.90.g08f78ee20cf0",
   "repository": "https://github.com/margelo/nitro.git",
   "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
   "workspaces": [
