@@ -19,5 +19,28 @@ enum class SizeUnit(@DoNotStrip @Keep val value: Int) {
   POINTS(1),
   PIXELS(2);
 
-  companion object
+  /**
+   * Get the String value this SizeUnit represents.
+   */
+  val stringValue: String
+    get() =
+      when (this) {
+        POINTS -> "Points"
+        PIXELS -> "Pixels"
+      }
+
+  override fun toString(): String = stringValue
+
+  companion object {
+    /**
+     * Get a SizeUnit for the given String value, or
+     * return `null` if the given value was invalid/unknown.
+     */
+    fun fromString(value: String): SizeUnit? =
+      when (value) {
+        "Points" -> POINTS
+        "Pixels" -> PIXELS
+        else -> null
+      }
+  }
 }

@@ -20,5 +20,30 @@ enum class WeirdNumbersEnum(@DoNotStrip @Keep val value: Int) {
   B(32),
   C(64);
 
-  companion object
+  /**
+   * Get the String value this WeirdNumbersEnum represents.
+   */
+  val stringValue: String
+    get() =
+      when (this) {
+        A -> "A"
+        B -> "B"
+        C -> "C"
+      }
+
+  override fun toString(): String = stringValue
+
+  companion object {
+    /**
+     * Get a WeirdNumbersEnum for the given String value, or
+     * return `null` if the given value was invalid/unknown.
+     */
+    fun fromString(value: String): WeirdNumbersEnum? =
+      when (value) {
+        "A" -> A
+        "B" -> B
+        "C" -> C
+        else -> null
+      }
+  }
 }

@@ -19,5 +19,28 @@ enum class ColorScheme(@DoNotStrip @Keep val value: Int) {
   LIGHT(0),
   DARK(1);
 
-  companion object
+  /**
+   * Get the String value this ColorScheme represents.
+   */
+  val stringValue: String
+    get() =
+      when (this) {
+        LIGHT -> "light"
+        DARK -> "dark"
+      }
+
+  override fun toString(): String = stringValue
+
+  companion object {
+    /**
+     * Get a ColorScheme for the given String value, or
+     * return `null` if the given value was invalid/unknown.
+     */
+    fun fromString(value: String): ColorScheme? =
+      when (value) {
+        "light" -> LIGHT
+        "dark" -> DARK
+        else -> null
+      }
+  }
 }
