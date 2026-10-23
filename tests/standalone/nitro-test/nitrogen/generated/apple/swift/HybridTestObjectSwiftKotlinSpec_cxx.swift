@@ -629,6 +629,26 @@ public final class HybridTestObjectSwiftKotlinSpec_cxx {
     }
   }
 
+  public final func bounceNestedUnsignedArrayAsync(array: [[UInt64]], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceNestedUnsignedArrayAsync(array: array)
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_swift__Array_swift__Array_uint64_t__.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callNestedUnsignedArrayCallback(array: [[UInt64]], callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callNestedUnsignedArrayCallback(array: array, callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__.self))
+      __outResult.assumingMemoryBound(to: [[UInt64]].self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
   public final func bounceHybridObjects(array: [HybridChildSpec_cxx], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.bounceHybridObjects(array: array.map { $0.getHybridChildSpec() })

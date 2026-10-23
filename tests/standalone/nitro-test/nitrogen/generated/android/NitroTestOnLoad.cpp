@@ -23,6 +23,7 @@
 #include <NitroTest/private/JCallback_Promise_std__vector_Powertrain__.hpp>
 #include <NitroTest/private/JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___.hpp>
 #include <NitroTest/private/JCallback_std__vector_uint64_t__std__vector_uint64_t_.hpp>
+#include <NitroTest/private/JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__.hpp>
 #include <NitroTest/private/JCallback_double_double.hpp>
 #include <NitroTest/private/JCallback_Promise_void_.hpp>
 #include <NitroTest/private/JCallback_void_std__optional_double_.hpp>
@@ -56,6 +57,7 @@ namespace margelo::nitro::test {
     margelo::nitro::test::JCallback_Promise_std__vector_Powertrain__::registerNatives();
     margelo::nitro::test::JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::registerNatives();
     margelo::nitro::test::JCallback_std__vector_uint64_t__std__vector_uint64_t_::registerNatives();
+    margelo::nitro::test::JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__::registerNatives();
     margelo::nitro::test::JCallback_double_double::registerNatives();
     margelo::nitro::test::JCallback_Promise_void_::registerNatives();
     margelo::nitro::test::JCallback_void_std__optional_double_::registerNatives();

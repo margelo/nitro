@@ -241,6 +241,12 @@ namespace margelo::nitro::test::swift_bridge {
   void resolve_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, const void* NON_NULL value);
   void listen_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, std::function<void(const void* NON_NULL)> listener);
   using Promise_uint64_t = Promise<uint64_t>;
+  using Promise_swift__Array_swift__Array_uint64_t__ = Promise<swift::Array<swift::Array<uint64_t>>>;
+  Promise_swift__Array_swift__Array_uint64_t__ create_Promise_swift__Array_swift__Array_uint64_t__();
+  void reject_Promise_swift__Array_swift__Array_uint64_t__(const Promise_swift__Array_swift__Array_uint64_t__& promise, std::exception_ptr error);
+  void listenRejected_Promise_swift__Array_swift__Array_uint64_t__(const Promise_swift__Array_swift__Array_uint64_t__& promise, std::function<void(const std::exception_ptr&)> listener);
+  void resolve_Promise_swift__Array_swift__Array_uint64_t__(const Promise_swift__Array_swift__Array_uint64_t__& promise, const void* NON_NULL value);
+  void listen_Promise_swift__Array_swift__Array_uint64_t__(const Promise_swift__Array_swift__Array_uint64_t__& promise, std::function<void(const void* NON_NULL)> listener);
   using Callback_void = Callback<void()>;
   Result<void, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_void(const Callback_void& callback) noexcept;
   Callback_void create_Callback_void(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>()> closure);
@@ -306,6 +312,11 @@ namespace margelo::nitro::test::swift_bridge {
   Promise<swift::Array<uint64_t>> callAsync_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(const Callback_swift__Array_uint64_t__swift__Array_uint64_t_& callback, const void* NON_NULL param0);
   void callAndForget_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(const Callback_swift__Array_uint64_t__swift__Array_uint64_t_& callback, const void* NON_NULL param0);
   Callback_swift__Array_uint64_t__swift__Array_uint64_t_ create_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
+  using Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__ = Callback<swift::Array<swift::Array<uint64_t>>(const swift::Array<swift::Array<uint64_t>>&)>;
+  Result<void, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__(const Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__& callback, const void* NON_NULL param0, void* NON_NULL __outResult) noexcept;
+  Promise<swift::Array<swift::Array<uint64_t>>> callAsync_Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__(const Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__& callback, const void* NON_NULL param0);
+  void callAndForget_Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__(const Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__& callback, const void* NON_NULL param0);
+  Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__ create_Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
   // TODO: Replace this borrowing facade with a typealias once our minimum Xcode includes
   // https://github.com/swiftlang/swift/pull/93321, which fixes https://github.com/swiftlang/swift/issues/93318.
   // Exporting the same imported InlineCallback specialization from two Swift headers duplicates its traits.

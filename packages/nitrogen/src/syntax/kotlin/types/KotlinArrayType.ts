@@ -29,19 +29,30 @@ export class KotlinArrayType extends ArrayType implements KotlinType {
   }
 
   get needsKotlinConversion(): boolean {
-    if (this.isULongArray && this.erasedToObject) return false
+    if (this.erasedToObject && (this.isULongArray || this.isULongArrays)) return false
     return this.itemType.needsKotlinConversion
   }
   /** `ULongArray` is a value class, so its field holds the `long[]` JNI uses. */
   get isKotlinFieldCompatible(): boolean {
     return this.isULongArray || !this.needsKotlinConversion
   }
-  /** `ULongArray` boxes compare by identity, so compare their `long[]`s instead. */
-  get isKotlinEqualityCompatible(): boolean {
-    return !this.isULongArray && (this.itemType.isKotlinEqualityCompatible ?? true)
+  /** `ULongArray` boxes compare by identity, so structs compare their `long[]`s instead. */
+  getKotlinEqualityValue(value: string): string | undefined {
+    if (this.isULongArray) return `${value}.asLongArray()`
+    const item = this.itemType.getKotlinEqualityValue?.('__item')
+    if (item == null) return undefined
+    const sourceCode = this.type.itemType.getCode('kotlin', { context: 'type-argument' })
+    const resultCode = this.itemType.getCode('kotlin', { context: 'type-argument' })
+    return `
+${value}.mapToArray<${sourceCode}, ${resultCode}> { __item -> ${item} }
+`.trim()
   }
   private get isULongArray(): boolean {
     return this.itemType.kind === 'uint64'
+  }
+  /** `Array<ULongArray>`, which JNI creates and reads itself since its JVM class names `kotlin.ULongArray`. */
+  private get isULongArrays(): boolean {
+    return this.itemType instanceof KotlinArrayType && this.itemType.isULongArray
   }
   convert(value: string, conversion: KotlinConversion): string {
     switch (conversion.in) {
@@ -50,6 +61,12 @@ export class KotlinArrayType extends ArrayType implements KotlinType {
         if (this.isULongArray) {
           // Both reinterpret the same array without copying it.
           return conversion.from === 'kotlin' ? `${value}.asLongArray()` : `${value}.asULongArray()`
+        }
+        if (this.isULongArrays) {
+          // JNI creates a `ULongArray[]` and only declares it as an `Object[]`, so the cast always holds.
+          if (conversion.from === 'kotlin') return value
+          const publicType = this.type.getCode('kotlin', { context: 'type-argument' })
+          return `(@Suppress("UNCHECKED_CAST") (${value} as ${publicType}))`
         }
         const item = this.itemType.convert('__item', conversion)
         const sourceType = conversion.from === 'c++' ? this.itemType : this.type.itemType
@@ -92,6 +109,10 @@ ${value}.mapToArray<${sourceCode}, ${resultCode}> { __item -> ${item} }
             jniType = this.erasedToObject ? 'JULongArray' : 'JArrayUInt64'
             break
           default: {
+            if (this.isULongArrays) {
+              jniType = 'JULongArrays'
+              break
+            }
             const item = this.itemType.getCode(language, { ...options, context: 'type-argument' })
             jniType = `jni::JArrayClass<${item}>`
             break
@@ -110,6 +131,11 @@ ${value}.mapToArray<${sourceCode}, ${resultCode}> { __item -> ${item} }
           case 'uint64':
             return this.erasedToObject ? 'ULongArray' : 'LongArray'
           default: {
+            if (this.isULongArrays) {
+              // JNI only declares it as an `Object[]`, see `JULongArrays`.
+              if (this.erasedToObject) return this.type.getCode(language, options)
+              return 'Array<*>'
+            }
             const item = this.itemType.getCode(language, { ...options, context: 'type-argument' })
             return `Array<${item}>`
           }
@@ -132,7 +158,10 @@ ${value}.mapToArray<${sourceCode}, ${resultCode}> { __item -> ${item} }
             jsiConverterHeader = 'NitroModules/JSIConverter+JPrimitiveArray.hpp'
             break
           default:
-            jsiConverterHeader = 'NitroModules/JSIConverter+JArrayClass.hpp'
+            // `JULongArrays` converts its `JArrayUInt64` elements.
+            jsiConverterHeader = this.isULongArrays
+              ? 'NitroModules/JSIConverter+JPrimitiveArray.hpp'
+              : 'NitroModules/JSIConverter+JArrayClass.hpp'
             break
         }
         imports.push(

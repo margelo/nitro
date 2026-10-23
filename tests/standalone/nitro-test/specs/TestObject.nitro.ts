@@ -244,6 +244,8 @@ export declare class TestObjectCpp extends HybridObject {
   bounceUnsignedAsync(value: UInt64): Promise<UInt64>
   callUnsignedCallbackAsync(value: UInt64, callback: (value: UInt64) => UInt64): Promise<UInt64>
   callUnsignedArrayCallbackAsync(array: UInt64[], callback: (array: UInt64[]) => UInt64[]): Promise<UInt64[]>
+  bounceNestedUnsignedArrayAsync(array: UInt64[][]): Promise<UInt64[][]>
+  callNestedUnsignedArrayCallback(array: UInt64[][], callback: (array: UInt64[][]) => UInt64[][]): UInt64[][]
 
   // Arrays (complex)
   bounceHybridObjects(array: Child[]): Child[]
@@ -542,6 +544,8 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
   bounceUnsignedAsync(value: UInt64): Promise<UInt64>
   callUnsignedCallbackAsync(value: UInt64, callback: (value: UInt64) => UInt64): Promise<UInt64>
   callUnsignedArrayCallbackAsync(array: UInt64[], callback: (array: UInt64[]) => UInt64[]): Promise<UInt64[]>
+  bounceNestedUnsignedArrayAsync(array: UInt64[][]): Promise<UInt64[][]>
+  callNestedUnsignedArrayCallback(array: UInt64[][], callback: (array: UInt64[][]) => UInt64[][]): UInt64[][]
 
   // Arrays (complex)
   bounceHybridObjects(array: Child[]): Child[]
