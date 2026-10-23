@@ -1,10 +1,12 @@
 #pragma once
 
 #include <NitroModules/Result.hpp>
+#include <NitroModules/SwiftResultConsumer.hpp>
 #include <cstddef>
 #include <memory>
 #include <new>
 #include <optional>
+#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
@@ -99,6 +101,40 @@ Result<T> withSwiftResult(Initializer&& initializer) {
     return Result<T>::withError(status.error());
   }
   return Result<T>::withValue(value.get());
+}
+
+/**
+ * Calls invocation with an opaque pointer to a SwiftResultConsumer. On success, Swift lends
+ * its value to the consumer, which copies it into Result<T>. Unlike withSwiftResult(), no
+ * swift::Optional<T> crosses the boundary, so a successful call does not allocate a box for it.
+ */
+template <typename T, typename Invocation>
+  requires detail::isSwiftResultStatus<std::invoke_result_t<Invocation&, const void*>>
+Result<T> receiveSwiftResult(Invocation&& invocation) {
+  std::optional<Result<T>> result;
+  SwiftResultConsumer consumer(&result, [](void* raw, const void* value) noexcept {
+    auto& context = *static_cast<std::optional<Result<T>>*>(raw);
+    try {
+      context.emplace(Result<T>::withValue(NitroModules::copySwiftValue<T>(value)));
+    } catch (...) {
+      // We are still in the Swift frame that lends value, and Swift
+      // cannot catch C++ exceptions yet, so keep the error for later.
+      context.emplace(Result<T>::withError(std::current_exception()));
+    }
+  });
+  auto status = invocation(static_cast<const void*>(&consumer));
+  if (result && result->hasError()) [[unlikely]] {
+    return std::move(*result);
+  }
+  if (status.hasError()) [[unlikely]] {
+    return Result<T>::withError(status.error());
+  }
+#ifdef NITRO_DEBUG
+  if (!result) [[unlikely]] {
+    throw std::runtime_error("A successful Swift call did not provide its return value!");
+  }
+#endif
+  return std::move(result.value());
 }
 
 /**
