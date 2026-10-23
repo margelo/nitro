@@ -14,6 +14,10 @@
 
 namespace margelo::nitro::test {
 
+  jni::local_ref<JCallback_Promise_std__vector_Powertrain__::JFunction_cxx> JCallback_Promise_std__vector_Powertrain__::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    return newInstance(callback);
+  }
+
   JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>>::Type JCallback_Promise_std__vector_Powertrain__::JFunction_cxx::invoke() const {
     static const auto __method = javaClassStatic()->getMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>>()>("call");
     auto result = __method(self());
@@ -36,12 +40,9 @@ namespace margelo::nitro::test {
     callAndForget();
   }
 
-  jni::local_ref<JCallback_Promise_std__vector_Powertrain__::JavaPart> JCallback_Promise_std__vector_Powertrain__::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    return create(getCallback(callback));
-  }
-
-  jni::local_ref<JCallback_Promise_std__vector_Powertrain__::JavaPart> JCallback_Promise_std__vector_Powertrain__::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
-    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  JCallback_Promise_std__vector_Powertrain__::CallbackType JCallback_Promise_std__vector_Powertrain__::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    auto function = JFunction_cxx::create(callback);
+    return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
 
   void JCallback_Promise_std__vector_Powertrain__::registerNatives() {
@@ -49,8 +50,6 @@ namespace margelo::nitro::test {
       makeNativeMethod("callSync_cxx", JCallback_Promise_std__vector_Powertrain__::callSync_cxx),
       makeNativeMethod("callAsync_cxx", JCallback_Promise_std__vector_Powertrain__::callAsync_cxx),
       makeNativeMethod("callAndForget_cxx", JCallback_Promise_std__vector_Powertrain__::callAndForget_cxx),
-      makeNativeMethod("fromCxx_cxx", JCallback_Promise_std__vector_Powertrain__::fromCxx_cxx),
-      makeNativeMethod("fromFunction_cxx", JCallback_Promise_std__vector_Powertrain__::fromFunction_cxx),
     });
   }
 

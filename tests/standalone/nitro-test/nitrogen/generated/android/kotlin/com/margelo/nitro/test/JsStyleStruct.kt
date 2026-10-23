@@ -25,12 +25,7 @@ data class JsStyleStruct(
   @Keep
   val onChanged: Callback<(num: Double) -> Unit>
 ) {
-  @DoNotStrip
-  @Keep
-  @Suppress("unused", "FunctionName")
-  private fun getOnChanged_cxx(): Callback_void_double {
-    return Callback_void_double.fromKotlin(onChanged)
-  }
+
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -54,7 +49,7 @@ data class JsStyleStruct(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(value: Double, onChanged: Callback_void_double): JsStyleStruct {
+    private fun fromCpp(value: Double, onChanged: Callback<(num: Double) -> Unit>): JsStyleStruct {
       return JsStyleStruct(value, onChanged)
     }
   }

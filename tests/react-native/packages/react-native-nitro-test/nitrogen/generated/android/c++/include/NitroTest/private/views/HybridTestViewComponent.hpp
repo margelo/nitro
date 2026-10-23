@@ -56,7 +56,7 @@ namespace margelo::nitro::test::views {
     nitro::ReactProp<jboolean> hasBeenCalled;
     nitro::ReactProp<jlong> int64Value;
     nitro::ReactProp<jni::alias_ref<JColorScheme>> colorScheme;
-    nitro::ReactProp<jni::global_ref<margelo::nitro::test::JCallback_void::JavaPart>> someCallback;
+    nitro::ReactProp<jni::global_ref<JTypedCallback<margelo::nitro::test::JCallback_void::JavaPart>>> someCallback;
     nitro::ReactProp<jni::global_ref<JOptional<jni::JDouble>>> nativeDefaultValue;
     nitro::ReactProp<std::optional<Callback<void(const std::shared_ptr<HybridObject>& /* ref */)>>> hybridRef;
 

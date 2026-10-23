@@ -29,19 +29,11 @@ import com.margelo.nitro.core.HybridObject
 )
 abstract class HybridSharedSpecializationsSpec: HybridObject() {
   // Properties
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
   abstract var numberCallback: Callback<(value: Double) -> Unit>
-
-  @DoNotStrip
-  @Keep
-  private fun getNumberCallback_cxx(): Callback_void_double {
-    return Callback_void_double.fromKotlin(this.numberCallback)
-  }
-
-  @DoNotStrip
-  @Keep
-  private fun setNumberCallback_cxx(value: Callback_void_double): Unit {
-    this.numberCallback = value
-  }
 
   // Methods
   @DoNotStrip
@@ -64,82 +56,41 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
   @Keep
   abstract fun awaitNumber(promise: Promise<Double>): Promise<Double>
 
+  @DoNotStrip
+  @Keep
   abstract fun callVoid(callback: Callback<() -> Unit>): Unit
 
   @DoNotStrip
   @Keep
-  private fun callVoid_cxx(callback: Callback_void): Unit {
-    callVoid(callback)
-  }
-
   abstract fun callWithNumber(value: Double, callback: Callback<(value: Double) -> Unit>): Unit
 
   @DoNotStrip
   @Keep
-  private fun callWithNumber_cxx(value: Double, callback: Callback_void_double): Unit {
-    callWithNumber(value, callback)
-  }
-
   abstract fun callWithString(value: String, callback: Callback<(value: String) -> Unit>): Unit
 
   @DoNotStrip
   @Keep
-  private fun callWithString_cxx(value: String, callback: Callback_void_std__string): Unit {
-    callWithString(value, callback)
-  }
-
   abstract fun mapNumber(value: Double, callback: Callback<(value: Double) -> Double>): Promise<Double>
 
   @DoNotStrip
   @Keep
-  private fun mapNumber_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
-    val __result = mapNumber(value, callback)
-    return __result
-  }
-
   abstract fun wrapNumberCallback(callback: Callback<(value: Double) -> Unit>): Callback<(value: Double) -> Unit>
 
   @DoNotStrip
   @Keep
-  private fun wrapNumberCallback_cxx(callback: Callback_void_double): Callback_void_double {
-    val __result = wrapNumberCallback(callback)
-    return Callback_void_double.fromKotlin(__result)
-  }
-
   abstract fun callVoidPromiseCallback(callback: Callback<() -> Promise<Unit>>): Promise<Unit>
 
   @DoNotStrip
   @Keep
-  private fun callVoidPromiseCallback_cxx(callback: Callback_Promise_void_): Promise<Unit> {
-    val __result = callVoidPromiseCallback(callback)
-    return __result
-  }
-
   abstract fun callNumberPromiseCallback(callback: Callback<() -> Promise<Double>>): Promise<Double>
 
   @DoNotStrip
   @Keep
-  private fun callNumberPromiseCallback_cxx(callback: Callback_Promise_double_): Promise<Double> {
-    val __result = callNumberPromiseCallback(callback)
-    return __result
-  }
-
   abstract fun callInline(callback: Callback<() -> Unit>): Unit
 
   @DoNotStrip
   @Keep
-  private fun callInline_cxx(callback: Callback_void): Unit {
-    callInline(callback)
-  }
-
   abstract fun callInlineWithNumber(value: Double, callback: Callback<(value: Double) -> Double>): Double
-
-  @DoNotStrip
-  @Keep
-  private fun callInlineWithNumber_cxx(value: Double, callback: Callback_double_double): Double {
-    val __result = callInlineWithNumber(value, callback)
-    return __result
-  }
 
   // Default implementation of `HybridObject.toString()`
   override fun toString(): String {

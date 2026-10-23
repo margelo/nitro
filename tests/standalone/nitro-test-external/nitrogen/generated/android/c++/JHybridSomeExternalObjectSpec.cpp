@@ -64,14 +64,14 @@ namespace margelo::nitro::test::external {
   }
 
   // Properties
-  jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> JHybridSomeExternalObjectSpec::getNumberCallback() {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>()>("getNumberCallback_cxx");
-    auto __result = __method(_javaPart, CxxPart::getClass());
+  jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>> JHybridSomeExternalObjectSpec::getNumberCallback() {
+    static const auto __method = CxxPart::getClass()->getMethod<jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>>()>("getNumberCallback");
+    auto __result = __method(_javaPart);
     return __result;
   }
-  void JHybridSomeExternalObjectSpec::setNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>& numberCallback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> /* numberCallback */)>("setNumberCallback_cxx");
-    __method(_javaPart, CxxPart::getClass(), numberCallback);
+  void JHybridSomeExternalObjectSpec::setNumberCallback(const jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>>& numberCallback) {
+    static const auto __method = CxxPart::getClass()->getMethod<void(jni::alias_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>> /* numberCallback */)>("setNumberCallback");
+    __method(_javaPart, numberCallback);
   }
 
   // Methods

@@ -9,6 +9,7 @@
 
 #include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
+#include <NitroModules/JTypedCallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
@@ -32,19 +33,20 @@ namespace margelo::nitro::test {
      */
     struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
       static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_uint64_t_uint64_t$Function_cxx;";
+      static jni::local_ref<JFunction_cxx> create(jni::alias_ref<JTypedCallback<JavaPart>> callback);
       JNIRetainedValue<uint64_t>::Type invoke(JNIRetainedValue<uint64_t>::Type value) const;
     };
 
   public:
     static jni::local_ref<JavaPart> create(CallbackType callback);
+    /** Wraps a callback implemented in Kotlin in a C++ `Callback<...>`. */
+    static CallbackType fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback);
     static void registerNatives();
 
   private:
     jlong callSync_cxx(jlong value);
     jni::local_ref<JTypedPromise<jni::local_ref<JULong>>> callAsync_cxx(jlong value);
     void callAndForget_cxx(jlong value);
-    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
-    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
 
   private:
     friend HybridBase;

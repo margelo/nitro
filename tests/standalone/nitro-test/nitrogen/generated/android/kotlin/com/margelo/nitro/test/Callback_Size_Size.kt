@@ -42,7 +42,8 @@ class Callback_Size_Size @DoNotStrip @Keep private constructor(hybridData: Hybri
   }
 
   /**
-   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   * Lets C++ call a callback implemented in Kotlin with JNI types, e.g. `Long` instead of `ULong`.
+   * C++ creates it when such a callback crosses JNI.
    */
   @DoNotStrip
   @Keep
@@ -65,30 +66,4 @@ class Callback_Size_Size @DoNotStrip @Keep private constructor(hybridData: Hybri
   @DoNotStrip
   @Keep
   private external fun callAndForget_cxx(size: Size): Unit
-
-  companion object {
-    /**
-     * Returns the given [callback] as its JNI representation.
-     * A callback from another module keeps its C++ `Callback<...>`, and
-     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
-     */
-    @JvmStatic
-    fun fromKotlin(callback: Callback<(size: Size) -> Size>): Callback_Size_Size {
-      return when (callback) {
-        is Callback_Size_Size -> callback
-        is CxxCallback -> fromCxx_cxx(callback)
-        else -> fromFunction_cxx(Function_cxx(callback))
-      }
-    }
-
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    private external fun fromCxx_cxx(callback: CxxCallback): Callback_Size_Size
-
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    private external fun fromFunction_cxx(function: Function_cxx): Callback_Size_Size
-  }
 }
