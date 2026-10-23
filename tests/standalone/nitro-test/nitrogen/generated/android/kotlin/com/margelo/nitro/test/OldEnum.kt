@@ -20,5 +20,30 @@ enum class OldEnum(@DoNotStrip @Keep val value: Int) {
   SECOND(1),
   THIRD(2);
 
-  companion object
+  /**
+   * Get the String value this OldEnum represents.
+   */
+  val stringValue: String
+    get() =
+      when (this) {
+        FIRST -> "FIRST"
+        SECOND -> "SECOND"
+        THIRD -> "THIRD"
+      }
+
+  override fun toString(): String = stringValue
+
+  companion object {
+    /**
+     * Get a OldEnum for the given String value, or
+     * return `null` if the given value was invalid/unknown.
+     */
+    fun fromString(value: String): OldEnum? =
+      when (value) {
+        "FIRST" -> FIRST
+        "SECOND" -> SECOND
+        "THIRD" -> THIRD
+        else -> null
+      }
+  }
 }

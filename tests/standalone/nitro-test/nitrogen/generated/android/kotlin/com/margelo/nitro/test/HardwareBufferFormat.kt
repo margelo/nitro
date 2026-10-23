@@ -21,5 +21,32 @@ enum class HardwareBufferFormat(@DoNotStrip @Keep val value: Int) {
   RGBA_FP16(2),
   BLOB(3);
 
-  companion object
+  /**
+   * Get the String value this HardwareBufferFormat represents.
+   */
+  val stringValue: String
+    get() =
+      when (this) {
+        RGBA_8888 -> "rgba-8888"
+        RGB_565 -> "rgb-565"
+        RGBA_FP16 -> "rgba-fp16"
+        BLOB -> "blob"
+      }
+
+  override fun toString(): String = stringValue
+
+  companion object {
+    /**
+     * Get a HardwareBufferFormat for the given String value, or
+     * return `null` if the given value was invalid/unknown.
+     */
+    fun fromString(value: String): HardwareBufferFormat? =
+      when (value) {
+        "rgba-8888" -> RGBA_8888
+        "rgb-565" -> RGB_565
+        "rgba-fp16" -> RGBA_FP16
+        "blob" -> BLOB
+        else -> null
+      }
+  }
 }
