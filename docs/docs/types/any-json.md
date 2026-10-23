@@ -41,10 +41,7 @@ import Tabs from '@theme/Tabs'; import TabItem from '@theme/TabItem';
     }
     ```
 
-    Kotlin stores the encoded JSON as a `String`. Use `AnyJSON(stringRepresentation)` for existing JSON text, or `AnyJSON.encode(value)` for
-    a value that [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) can encode. Decode it with
-    `val value: MyType = json.decode()`. Both functions need `kotlinx-serialization-json` in your module, see [Kotlin setup](#kotlin-setup).
-    For maps with mixed value types, build a `JsonObject` with `buildJsonObject { ... }` instead of `mapOf(...)`.
+    Kotlin stores the encoded JSON as a `String`. Use `AnyJSON(stringRepresentation)` for existing JSON text, or `AnyJSON.encode(value)` for a `@Serializable` value. Decode it with `val value: MyType = json.decode()`. These use [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization), so add `kotlinx-serialization-json` and the serialization plugin to your module.
 
   </TabItem>
   <TabItem value="cpp" label="C++">
@@ -66,60 +63,6 @@ When JS values or objects are passed to native, `AnyJSON` serializes them via `J
 decoders, or separate JSON libraries.
 
 When `AnyJSON` values are returned to JS, they are parsed via `JSON.parse(...)` to construct JS values or objects.
-
-## Kotlin setup
-
-`AnyJSON.encode(...)` and `json.decode()` use [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization). Nitro compiles
-against it without adding it to your app. Add it to the module that calls these functions, and apply the serialization plugin for your
-`@Serializable` types:
-
-```groovy
-buildscript {
-  dependencies {
-    // Use the same version as your Kotlin Gradle plugin
-    classpath "org.jetbrains.kotlin:kotlin-serialization:2.2.10"
-  }
-}
-
-apply plugin: "org.jetbrains.kotlin.plugin.serialization"
-
-dependencies {
-  implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1"
-}
-```
-
-```kotlin
-import com.margelo.nitro.core.AnyJSON
-import com.margelo.nitro.core.decode
-import com.margelo.nitro.core.encode
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class User(val name: String, val email: String? = null)
-
-override fun greet(json: AnyJSON): AnyJSON {
-  val user: User = json.decode()
-  return AnyJSON.encode(user.copy(name = "Hello ${user.name}"))
-}
-```
-
-The defaults match Swift's `JSONDecoder` and `JSONEncoder`: unknown keys are ignored, a missing key decodes to `null` for nullable
-properties without a default value, `null` properties are left out when encoding, and properties are encoded even if they equal their
-default value. To change this, pass your own `Json`. Keep it in a top-level `val`, because creating one per call is slow:
-
-```kotlin
-import com.margelo.nitro.core.defaultJson
-import kotlinx.serialization.json.Json
-
-private val lenientJson = Json(AnyJSON.defaultJson) { isLenient = true }
-
-val user = json.decode<User>(lenientJson)
-```
-
-If `kotlinx-serialization-json` is missing, `encode` and `decode` throw a `NoClassDefFoundError` at runtime. If the serialization plugin is
-missing, decoding a `@Serializable` class throws `Serializer for class 'User' is not found`.
-
-For untyped access without any dependency, Android's `org.json` works too, for example `JSONObject(json.stringRepresentation)`.
 
 ## Use custom structs instead
 
