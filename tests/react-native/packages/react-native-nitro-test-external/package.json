@@ -11,7 +11,7 @@
   "files": [
     "src",
     "lib",
-    "ios",
+    "apple",
     "android",
     "nitrogen/generated",
     "react-native.config.js",

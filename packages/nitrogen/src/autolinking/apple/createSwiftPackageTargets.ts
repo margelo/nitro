@@ -1,4 +1,5 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
+import { getPlatformDirectory } from '../../syntax/SourceFile.js'
 import { indent } from '../../utils.js'
 
 export const SWIFT_PACKAGE_SECTION_BEGIN = '// nitrogen:begin'
@@ -41,7 +42,7 @@ export function createSwiftPackageTargets({ generatedDirectory, moduleDependenci
   const cxxTargetName = `${moduleName}Cxx`
   const appleCxxTargetName = NitroConfig.current.getAppleCxxTargetName()
   const swiftBridgeTargetName = `${moduleName}SwiftBridge`
-  const iosDirectory = `${generatedDirectory}/ios`
+  const appleDirectory = `${generatedDirectory}/${getPlatformDirectory('ios')}`
   const bridgeSourceName = NitroConfig.current.getSwiftBridgeSourceName()
   const autolinkingSourceName = `${moduleName}Autolinking.cpp`
   const autolinkingObjcSourceName = `${moduleName}Autolinking.mm`
@@ -97,7 +98,7 @@ import Foundation
 // swift-format-ignore
 func ${SWIFT_PACKAGE_FUNCTION_NAME}(
     to package: Package,
-    swiftSources: [String] = ["ios"],
+    swiftSources: [String] = ["apple"],
     cxxSources: [String] = ["cpp"],
     dependencies: [Target.Dependency] = [],
     swiftSettings: [SwiftSetting] = [],
@@ -159,12 +160,12 @@ func ${SWIFT_PACKAGE_FUNCTION_NAME}(
     let appleCxxTarget: Target = .target(
         name: "${appleCxxTargetName}",
         dependencies: ["${cxxTargetName}"] + nitroModuleDependencies,
-        path: "${iosDirectory}/${appleCxxTargetName}",
-        cxxSettings: commonCxxSettings + userHeaderSearchPaths(relativeTo: "${iosDirectory}/${appleCxxTargetName}")
+        path: "${appleDirectory}/${appleCxxTargetName}",
+        cxxSettings: commonCxxSettings + userHeaderSearchPaths(relativeTo: "${appleDirectory}/${appleCxxTargetName}")
     )
 
     let swiftSourcesInTarget = userSwiftSources + [
-        "${iosDirectory}/swift",
+        "${appleDirectory}/swift",
     ]
     let swiftDependencies: [Target.Dependency] = ["${appleCxxTargetName}"] + nitroModuleDependencies
     let generatedSwiftSettings: [SwiftSetting] = [
@@ -193,7 +194,7 @@ func ${SWIFT_PACKAGE_FUNCTION_NAME}(
         "${bridgeSourceName}",
         "${autolinkingSourceName}",
         "${autolinkingObjcSourceName}",
-    ].filter { exists("${iosDirectory}/" + $0) }
+    ].filter { exists("${appleDirectory}/" + $0) }
     let swiftBridgeSettings: [CXXSetting] = [
         // Include Swift's generated header textually after the C++ declarations it uses.
         // Swift Build and Xcode provide the generated header directory.
@@ -205,12 +206,12 @@ func ${SWIFT_PACKAGE_FUNCTION_NAME}(
             "${moduleName}",
             "${appleCxxTargetName}",
         ] + nitroModuleDependencies + reactNativeDependencies,
-        path: "${iosDirectory}",
-        exclude: nitrogenExcludes(in: "${iosDirectory}", keeping: swiftBridgeSources)
+        path: "${appleDirectory}",
+        exclude: nitrogenExcludes(in: "${appleDirectory}", keeping: swiftBridgeSources)
             + ["c++/include"],
         sources: swiftBridgeSources,
         publicHeadersPath: "c++/include",
-        cxxSettings: commonCxxSettings + userHeaderSearchPaths(relativeTo: "${iosDirectory}") + swiftBridgeSettings + cxxSettings
+        cxxSettings: commonCxxSettings + userHeaderSearchPaths(relativeTo: "${appleDirectory}") + swiftBridgeSettings + cxxSettings
     )
 
     package.products.append(

@@ -251,7 +251,7 @@ addNitrogenTargets(to: package)
 Run `nitrogen` again after adding this file. Nitrogen appends the `addNitrogenTargets` helper between `// nitrogen:begin` and
 `// nitrogen:end`, and updates that section on subsequent runs. Keep your package declaration and helper call outside the generated section.
 
-The helper adds your Swift sources from `ios/`, C++ sources from `cpp/`, and the generated specs and bridges. It also configures Swift/C++
+The helper adds your Swift sources from `apple/`, C++ sources from `cpp/`, and the generated specs and bridges. It also configures Swift/C++
 interoperability, C++20, and native dependencies. To use different source directories, pass paths relative to the package root:
 
 ```swift

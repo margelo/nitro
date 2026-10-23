@@ -31,13 +31,13 @@ bun tests/standalone/hermes/build.mjs ios --arch arm64
 
 This also builds the host compiler, then combines the upstream `hermesvm_a` and `jsi` static libraries into
 `tests/standalone/.build/hermes/ios-simulator-arm64/lib/libNitroTestHermes.a`. It stages the Hermes and JSI headers and creates
-`tests/standalone/.build/hermes/NitroTestHermes.xcframework` for the local Swift package. Use `--arch x86_64` on Intel Macs. Each
-XCFramework contains the selected simulator architecture. The default deployment target is iOS 16.0; pass `--deployment-target VERSION` to
-raise it.
+`tests/standalone/.build/hermes/NitroTestHermes.xcframework` for the root Swift package. Use `--arch x86_64` on Intel Macs. Each XCFramework
+contains the selected simulator architecture. The default deployment target is iOS 16.0; pass `--deployment-target VERSION` to raise it.
 
-The `Hermes` Swift package wraps that generated XCFramework and supplies its Foundation and CoreFoundation dependencies. Hermes itself is
-compiled by upstream CMake, so its source lists stay in the submodule. Build the XCFramework before resolving the package; the native test
-runner does this automatically. All generated headers, archives and build caches stay under `tests/standalone/.build/hermes`.
+The root `Package.swift` builds the `Hermes` target from `tests/standalone/hermes/apple`. It wraps that generated XCFramework and supplies
+its Foundation and CoreFoundation dependencies. Hermes itself is compiled by upstream CMake, so its source lists stay in the submodule.
+Build the XCFramework before resolving the package; the native test runner does this automatically. All generated headers, archives and
+build caches stay under `tests/standalone/.build/hermes`.
 
 Android's `:hermes` Gradle library lives in `tests/standalone/hermes/android`. It builds upstream's shared `hermesvm` target and exports it
 as `hermes::hermesvm` through Prefab. Nitro Core and the test library link the same engine and JSI instance. The module also owns the host

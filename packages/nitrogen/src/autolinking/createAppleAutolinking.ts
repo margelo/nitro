@@ -1,10 +1,10 @@
 import type { Autolinking } from './Autolinking.js'
 import type { SourceFile } from '../syntax/SourceFile.js'
-import { createHybridObjectInitializer } from './ios/createHybridObjectInitializer.js'
-import { createAppleCxxTarget } from './ios/createAppleCxxTarget.js'
-import { createSwiftCxxBridge } from './ios/createSwiftCxxBridge.js'
-import { createSwiftForeignTypeMetadata } from './ios/createSwiftForeignTypeMetadata.js'
-import { createSwiftUmbrellaHeader } from './ios/createSwiftUmbrellaHeader.js'
+import { createHybridObjectInitializer } from './apple/createHybridObjectInitializer.js'
+import { createAppleCxxTarget } from './apple/createAppleCxxTarget.js'
+import { createSwiftCxxBridge } from './apple/createSwiftCxxBridge.js'
+import { createSwiftForeignTypeMetadata } from './apple/createSwiftForeignTypeMetadata.js'
+import { createSwiftUmbrellaHeader } from './apple/createSwiftUmbrellaHeader.js'
 import { NitroConfig } from '../config/NitroConfig.js'
 import { createFileMetadataString } from '../syntax/helpers.js'
 import { wrapSwiftType } from '../syntax/swift/wrapSwiftType.js'
@@ -17,7 +17,7 @@ import type { SwiftType } from '../syntax/swift/types/SwiftType.js'
 import { ForeignHybridObjectType } from '../syntax/c++/ForeignHybridObjectType.js'
 import { StaticMethod } from '../syntax/StaticMethod.js'
 
-interface IOSAutolinking extends Autolinking {}
+interface AppleAutolinking extends Autolinking {}
 
 /** Swift bridge dependencies come from the APIs emitted in this module. */
 function getSwiftTypes(specs: HybridObjectSpec[]): SwiftType[] {
@@ -36,7 +36,7 @@ function getSwiftTypes(specs: HybridObjectSpec[]): SwiftType[] {
   })
 }
 
-export function createIOSAutolinking(specs: HybridObjectSpec[]): IOSAutolinking {
+export function createAppleAutolinking(specs: HybridObjectSpec[]): AppleAutolinking {
   const foreignSwiftTypes = specs
     .flatMap(getAllReferencedTypes)
     .flatMap((type) => (type instanceof ForeignHybridObjectType ? type.getSwiftTypes() : []))

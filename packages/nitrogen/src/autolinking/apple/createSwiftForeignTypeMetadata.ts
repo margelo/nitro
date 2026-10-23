@@ -13,7 +13,7 @@ import type { SwiftType } from '../../syntax/swift/types/SwiftType.js'
 // once our minimum Xcode includes https://github.com/swiftlang/swift/pull/93293.
 // Delete this file, ImportedCxxRecord.ts, SwiftType's `importedCxxRecord` and
 // `getClangImporterName()` with their implementations, and the calls in
-// createIOSAutolinking.ts and createSwiftUmbrellaHeader.ts. Each of them has a
+// createAppleAutolinking.ts and createSwiftUmbrellaHeader.ts. Each of them has a
 // TODO that links the pull request.
 //
 // C++ gets the type metadata of an imported C++ record from Swift's metadata

@@ -220,7 +220,7 @@ To actually use Nitro, you need to create [Hybrid Objects](../concepts/hybrid-ob
 
         <div className="side-by-side-container">
           <div className="side-by-side-block">
-            Create a new file (e.g. `ios/HybridMath.swift`), and implement the `HybridMathSpec` protocol:
+            Create a new file (e.g. `apple/HybridMath.swift`), and implement the `HybridMathSpec` protocol:
 
             ```swift title="HybridMath.swift"
             import Foundation

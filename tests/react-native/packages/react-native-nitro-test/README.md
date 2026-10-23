@@ -14,5 +14,5 @@ After changing a spec in `src/specs`, regenerate the committed bindings from the
 bun specs
 ```
 
-Native implementations live in `cpp/`, `ios/`, and `android/src/main/java/com/margelo/nitro/test/`. `nitro.json` configures their
+Native implementations live in `cpp/`, `apple/`, and `android/src/main/java/com/margelo/nitro/test/`. `nitro.json` configures their
 registration and generated bindings.
