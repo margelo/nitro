@@ -30,6 +30,7 @@
 #include <NitroTest/MapWrapper.hpp>
 #include <exception>
 #include <NitroModules/InlineCallback.hpp>
+#include <NitroTestExternal/HybridSharedSpecializationsCppSpec.hpp>
 #include <NitroTest/JsStyleStruct.hpp>
 #include <NitroTest/UnsignedScalar.hpp>
 #include <NitroTest/UnsignedValues.hpp>
@@ -216,6 +217,7 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("callThrowingNativeCallbackAsync", &HybridTestObjectCppSpec::callThrowingNativeCallbackAsync);
       clazz.registerHybridMethod("callThrowingNativeCallbackAndForget", &HybridTestObjectCppSpec::callThrowingNativeCallbackAndForget);
       clazz.registerHybridMethod("callInlineCallbackThenEscape", &HybridTestObjectCppSpec::callInlineCallbackThenEscape);
+      clazz.registerHybridMethod("getSharedNumberCallback", &HybridTestObjectCppSpec::getSharedNumberCallback);
       clazz.registerHybridMethod("getCar", &HybridTestObjectCppSpec::getCar);
       clazz.registerHybridMethod("isCarElectric", &HybridTestObjectCppSpec::isCarElectric);
       clazz.registerHybridMethod("areCarsEqual", &HybridTestObjectCppSpec::areCarsEqual);

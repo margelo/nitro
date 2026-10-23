@@ -1032,6 +1032,16 @@ namespace margelo::nitro::test {
     return std::move(__result.value());
   }
 
+  Callback<void(double)> HybridTestObjectSwiftKotlinSpecSwift::getSharedNumberCallback(const ::NitroTestExternal::HybridSharedSpecializationsSpec_cxx& shared) {
+    auto __result = withCxxResult<Callback<void(double)>>([&](void* __outResult) {
+      return _swiftPart.getSharedNumberCallback(shared, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
   ::NitroTest::Car HybridTestObjectSwiftKotlinSpecSwift::getCar() {
     auto __result = withSwiftResult<::NitroTest::Car>([&](void* __outResult) {
       return _swiftPart.getCar(__outResult);
@@ -1674,6 +1684,7 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("callThrowingNativeCallbackAsync", &HybridTestObjectSwiftKotlinSpecSwift::callThrowingNativeCallbackAsync);
       clazz.registerHybridMethod("callThrowingNativeCallbackAndForget", &HybridTestObjectSwiftKotlinSpecSwift::callThrowingNativeCallbackAndForget);
       clazz.registerHybridMethod("callInlineCallbackThenEscape", &HybridTestObjectSwiftKotlinSpecSwift::callInlineCallbackThenEscape);
+      clazz.registerHybridMethod("getSharedNumberCallback", &HybridTestObjectSwiftKotlinSpecSwift::getSharedNumberCallback);
       clazz.registerHybridMethod("getCar", &HybridTestObjectSwiftKotlinSpecSwift::getCar);
       clazz.registerHybridMethod("isCarElectric", &HybridTestObjectSwiftKotlinSpecSwift::isCarElectric);
       clazz.registerHybridMethod("areCarsEqual", &HybridTestObjectSwiftKotlinSpecSwift::areCarsEqual);

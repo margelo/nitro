@@ -123,6 +123,7 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridTestObjectSwiftK
   func callThrowingNativeCallbackAsync(message: String) throws -> any Promise<Void>
   func callThrowingNativeCallbackAndForget(message: String) throws -> Void
   func callInlineCallbackThenEscape(value: Double, callback: borrowing some InlineCallback<(/* value */ Double), Double> & ~Copyable & ~Escapable) throws -> any Promise<Double>
+  func getSharedNumberCallback(shared: (any HybridSharedSpecializationsSpec)) throws -> any Callback<(/* value */ Double), Void>
   func getCar() throws -> Car
   func isCarElectric(car: Car) throws -> Bool
   func areCarsEqual(a: Car, b: Car) throws -> Bool

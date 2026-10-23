@@ -185,6 +185,7 @@ namespace margelo::nitro::test {
     Promise<void> callThrowingNativeCallbackAsync(const swift::String& message);
     void callThrowingNativeCallbackAndForget(const swift::String& message);
     Promise<double> callInlineCallbackThenEscape(double value, const InlineCallback<double(double)>& callback);
+    Callback<void(double)> getSharedNumberCallback(const ::NitroTestExternal::HybridSharedSpecializationsSpec_cxx& shared);
     ::NitroTest::Car getCar();
     bool isCarElectric(const ::NitroTest::Car& car);
     bool areCarsEqual(const ::NitroTest::Car& a, const ::NitroTest::Car& b);
