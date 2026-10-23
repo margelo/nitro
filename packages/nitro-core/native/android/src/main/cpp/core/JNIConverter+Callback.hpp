@@ -1,6 +1,7 @@
 #pragma once
 
 #include "JNICallback.hpp"
+#include "JTypedCallback.hpp"
 
 namespace margelo::nitro {
 
@@ -127,35 +128,35 @@ struct JNICallbackConverter<InlineCallback<CppResult(CppArgs...)>, Callback<Java
   }
 };
 
-/** Converts a C++ callback to and from its generated Kotlin callback class. */
+/** Converts a C++ callback to and from a Kotlin `Callback<...>`. */
 template <typename CppResult, typename... CppArgs, typename JavaCallback>
-struct JNIConverter<Callback<CppResult(CppArgs...)>, jni::local_ref<JavaCallback>> {
+struct JNIConverter<Callback<CppResult(CppArgs...)>, jni::local_ref<JTypedCallback<JavaCallback>>> {
   using Cpp = Callback<CppResult(CppArgs...)>;
-  using CxxPart = typename JavaCallback::HybridType;
-  using NativeCallback = Callback<typename CxxPart::NativeSignature>;
+  using KotlinCallback = JTypedCallback<JavaCallback>;
+  using NativeCallback = typename JavaCallback::HybridType::CallbackType;
 
-  static jni::local_ref<JavaCallback> toJNI(const Cpp& value) {
-    return CxxPart::create(JNICallbackConverter<Cpp, NativeCallback>::toJNI(value));
+  static jni::local_ref<KotlinCallback> toJNI(const Cpp& value) {
+    return KotlinCallback::create(JNICallbackConverter<Cpp, NativeCallback>::toJNI(value));
   }
 
-  static Cpp fromJNI(jni::alias_ref<JavaCallback> value) {
-    return JNICallbackConverter<Cpp, NativeCallback>::fromJNI(getJNICallback<JavaCallback>(value));
+  static Cpp fromJNI(jni::alias_ref<KotlinCallback> value) {
+    return JNICallbackConverter<Cpp, NativeCallback>::fromJNI(value->getCallback());
   }
 };
 
-/** Kotlin cannot borrow a callback, so an `InlineCallback` escapes into its Kotlin callback class. */
+/** Kotlin cannot borrow a callback, so an `InlineCallback` escapes into a Kotlin `Callback<...>`. */
 template <typename CppResult, typename... CppArgs, typename JavaCallback>
-struct JNIConverter<InlineCallback<CppResult(CppArgs...)>, jni::local_ref<JavaCallback>> {
+struct JNIConverter<InlineCallback<CppResult(CppArgs...)>, jni::local_ref<JTypedCallback<JavaCallback>>> {
   using Cpp = InlineCallback<CppResult(CppArgs...)>;
-  using CxxPart = typename JavaCallback::HybridType;
-  using NativeCallback = Callback<typename CxxPart::NativeSignature>;
+  using KotlinCallback = JTypedCallback<JavaCallback>;
+  using NativeCallback = typename JavaCallback::HybridType::CallbackType;
 
-  static jni::local_ref<JavaCallback> toJNI(const Cpp& value) {
-    return CxxPart::create(JNICallbackConverter<Cpp, NativeCallback>::toJNI(value));
+  static jni::local_ref<KotlinCallback> toJNI(const Cpp& value) {
+    return KotlinCallback::create(JNICallbackConverter<Cpp, NativeCallback>::toJNI(value));
   }
 
-  static Cpp fromJNI(jni::alias_ref<JavaCallback> value) {
-    return JNICallbackConverter<Cpp, NativeCallback>::fromJNI(getJNICallback<JavaCallback>(value));
+  static Cpp fromJNI(jni::alias_ref<KotlinCallback> value) {
+    return JNICallbackConverter<Cpp, NativeCallback>::fromJNI(value->getCallback());
   }
 };
 

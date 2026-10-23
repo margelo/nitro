@@ -81,14 +81,9 @@ abstract class HybridBenchmarkObjectSwiftKotlinSpec: HybridObject() {
   @Keep
   abstract fun copyBuffer(buffer: ArrayBuffer): ArrayBuffer
 
-  abstract fun callbackSync(callback: Callback<() -> Double>): Double
-
   @DoNotStrip
   @Keep
-  private fun callbackSync_cxx(callback: Callback_double): Double {
-    val __result = callbackSync(callback)
-    return __result
-  }
+  abstract fun callbackSync(callback: Callback<() -> Double>): Double
 
   @DoNotStrip
   @Keep

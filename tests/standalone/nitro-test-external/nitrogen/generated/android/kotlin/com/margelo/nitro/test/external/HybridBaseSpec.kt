@@ -46,14 +46,9 @@ abstract class HybridBaseSpec: HybridObject() {
   @Keep
   abstract fun bounceSizeUnit(unit: SizeUnit): SizeUnit
 
-  abstract fun mapSize(size: Size, callback: Callback<(size: Size) -> Size>): Promise<Size>
-
   @DoNotStrip
   @Keep
-  private fun mapSize_cxx(size: Size, callback: Callback_Size_Size): Promise<Size> {
-    val __result = mapSize(size, callback)
-    return __result
-  }
+  abstract fun mapSize(size: Size, callback: Callback<(size: Size) -> Size>): Promise<Size>
 
   // Default implementation of `HybridObject.toString()`
   override fun toString(): String {

@@ -52,13 +52,6 @@ data class UnsignedValues(
     return nested
   }
 
-  @DoNotStrip
-  @Keep
-  @Suppress("unused", "FunctionName")
-  private fun getCallbacks_cxx(): Array<Callback_uint64_t_uint64_t> {
-    return callbacks.mapToArray<Callback<(value: ULong) -> ULong>, Callback_uint64_t_uint64_t> { __item -> Callback_uint64_t_uint64_t.fromKotlin(__item) }
-  }
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is UnsignedValues) return false
@@ -89,8 +82,8 @@ data class UnsignedValues(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(unsignedValue: Long, optionalUnsigned: Long?, values: LongArray, nested: Array<*>, record: Map<String, ULong?>, callbacks: Array<Callback_uint64_t_uint64_t>): UnsignedValues {
-      return UnsignedValues(unsignedValue.toULong(), optionalUnsigned?.let { it.toULong() }, values.asULongArray(), (@Suppress("UNCHECKED_CAST") (nested as Array<ULongArray>)), record, callbacks.mapToArray<Callback_uint64_t_uint64_t, Callback<(value: ULong) -> ULong>> { __item -> __item })
+    private fun fromCpp(unsignedValue: Long, optionalUnsigned: Long?, values: LongArray, nested: Array<*>, record: Map<String, ULong?>, callbacks: Array<Callback<(value: ULong) -> ULong>>): UnsignedValues {
+      return UnsignedValues(unsignedValue.toULong(), optionalUnsigned?.let { it.toULong() }, values.asULongArray(), (@Suppress("UNCHECKED_CAST") (nested as Array<ULongArray>)), record, callbacks)
     }
   }
 }

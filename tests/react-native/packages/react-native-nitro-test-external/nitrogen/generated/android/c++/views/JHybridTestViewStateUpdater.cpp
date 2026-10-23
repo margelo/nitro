@@ -71,7 +71,7 @@ void JHybridTestViewStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /*
     if (oldProps == nullptr
           ? newProps->someCallback.isProvided()
           : !newProps->someCallback.hasSameValue(oldProps->someCallback)) {
-      static const auto __setter = JHybridTestViewSpec::CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void::JavaPart>)>("setSomeCallback_cxx");
+      static const auto __setter = JHybridTestViewSpec::CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void::JavaPart>>)>("setSomeCallback");
       __setter(javaView, JHybridTestViewSpec::CxxPart::getClass(), newProps->someCallback.get().get());
     }
 

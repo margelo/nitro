@@ -38,15 +38,14 @@ namespace margelo::nitro::test {
     return getFieldValue(field);
   }
 
-  jni::local_ref<JCoreTypesVariant> JCoreTypesVariant_impl::Second::create(jni::alias_ref<margelo::nitro::test::JCallback_void_double::JavaPart> value) {
-    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<margelo::nitro::test::JCallback_void_double::JavaPart>)>("fromCpp_1");
+  jni::local_ref<JCoreTypesVariant> JCoreTypesVariant_impl::Second::create(jni::alias_ref<JTypedCallback<margelo::nitro::test::JCallback_void_double::JavaPart>> value) {
+    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JTypedCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>)>("fromCpp_1");
     return method(JCoreTypesVariant::javaClassStatic(), value);
   }
 
   JCoreTypesVariant_impl::Second::Value JCoreTypesVariant_impl::Second::getValue() const {
-    static const auto clazz = javaClassStatic();
-    static const auto method = clazz->getNonvirtualMethod<margelo::nitro::test::JCallback_void_double::JavaPart()>("getValue_cxx");
-    return method(self(), clazz);
+    static const auto field = javaClassStatic()->getField<JTypedCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>("value");
+    return getFieldValue(field);
   }
 
   jni::local_ref<JCoreTypesVariant> JCoreTypesVariant_impl::Third::create(jni::alias_ref<JWrappedJsStruct> value) {

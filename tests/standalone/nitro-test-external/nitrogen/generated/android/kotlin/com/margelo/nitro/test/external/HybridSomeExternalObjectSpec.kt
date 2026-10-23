@@ -27,19 +27,11 @@ import com.margelo.nitro.core.HybridObject
 )
 abstract class HybridSomeExternalObjectSpec: HybridObject() {
   // Properties
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
   abstract var numberCallback: Callback<(value: Double) -> Unit>
-
-  @DoNotStrip
-  @Keep
-  private fun getNumberCallback_cxx(): Callback_void_double {
-    return Callback_void_double.fromKotlin(this.numberCallback)
-  }
-
-  @DoNotStrip
-  @Keep
-  private fun setNumberCallback_cxx(value: Callback_void_double): Unit {
-    this.numberCallback = value
-  }
 
   // Methods
   @DoNotStrip

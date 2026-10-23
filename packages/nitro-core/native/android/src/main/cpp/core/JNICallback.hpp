@@ -119,10 +119,4 @@ private:
   CallbackType _callback;
 };
 
-/** Obtain the C++ `Callback` held by a generated Kotlin callback class. */
-template <typename JavaCallback>
-Callback<typename JavaCallback::HybridType::NativeSignature> getJNICallback(jni::alias_ref<JavaCallback> value) {
-  return value->cthis()->getCallback();
-}
-
 } // namespace margelo::nitro

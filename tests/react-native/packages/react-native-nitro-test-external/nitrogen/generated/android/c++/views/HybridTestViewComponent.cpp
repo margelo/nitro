@@ -23,7 +23,7 @@ namespace margelo::nitro::test::external::views {
                                            const react::RawProps& rawProps):
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
     isBlue(nitro::ReactProp<jboolean>::fromRawValue("TestView", "isBlue", rawProps, sourceProps.isBlue)),
-    someCallback(nitro::ReactProp<jni::global_ref<margelo::nitro::test::external::JCallback_void::JavaPart>>::fromRawValue("TestView", "someCallback", rawProps, sourceProps.someCallback)),
+    someCallback(nitro::ReactProp<jni::global_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void::JavaPart>>>::fromRawValue("TestView", "someCallback", rawProps, sourceProps.someCallback)),
     hybridRef(nitro::ReactProp<std::optional<Callback<void(const std::shared_ptr<HybridObject>& /* ref */)>>>::fromRawValue("TestView", "hybridRef", rawProps, sourceProps.hybridRef)) {
 #ifdef ANDROID
     nitro::RawPropsCompat::initializeDynamicProps(*this, sourceProps, rawProps, filterObjectKeys);

@@ -12,6 +12,9 @@
 
 package com.margelo.nitro.core
 
+import androidx.annotation.Keep
+import com.facebook.proguard.annotations.DoNotStrip
+
 /**
  * A callback to either a JS function or a Kotlin function, for example `Callback<(value: Double) -> Unit>`.
  *
@@ -26,6 +29,8 @@ package com.margelo.nitro.core
  * A Kotlin function created with [Callback.native] runs immediately on the calling thread.
  * Callbacks can be shared across threads. Callers must still synchronize access to mutable arguments and results.
  */
+@Keep
+@DoNotStrip
 sealed interface Callback<out F : Function<*>> {
   // Each number of parameters, up to 22, has an interface with the three calls.
   // Generated classes override all three calls for JS and C++ callbacks.
