@@ -38,3 +38,15 @@ jobs:
       - name: Run nitrogen init outside the checkout
         working-directory: ${{ runner.temp }}
         run: bun run --bun nitrogen init react-native-math
+
+      - name: Check that all template placeholders were replaced
+        working-directory: ${{ runner.temp }}/react-native-math
+        run: |
+          if find . -name '*$$*' | grep .; then
+            echo "::error::File names above still contain \$\$ template placeholders"
+            exit 1
+          fi
+          if grep -rnIF '$$' .; then
+            echo "::error::File contents above still contain \$\$ template placeholders"
+            exit 1
+          fi
