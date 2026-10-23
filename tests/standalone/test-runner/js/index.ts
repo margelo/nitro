@@ -1,5 +1,5 @@
 import { config } from 'chai'
-import type { TestCase } from './utils/cases'
+import type { TestCase } from './utils/suites'
 
 config.includeStack = true
 config.truncateThreshold = 0
