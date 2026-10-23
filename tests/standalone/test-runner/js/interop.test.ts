@@ -751,6 +751,14 @@ export const cases = {
     'toString() is "[HybridObject SomeExternalObject]"': () => {
       expect(Object.is(HybridSomeExternalObject.toString(), '[HybridObject SomeExternalObject]')).to.equal(true)
     },
+
+    'numberCallback keeps its value': async () => {
+      const external = new ExternalBase().createExternalObject()
+      const callback = recordCallback()
+      external.numberCallback = callback
+      external.numberCallback(4)
+      await waitFor(() => expect(callback.calls).to.deep.equal([[4]]), CALLBACK_TIMEOUT)
+    },
   }),
   ...casesForTestObjects('External HybridObjects', {
     'bounceExternalHybrid(...) returns the same object': (testObject) => {
@@ -965,6 +973,18 @@ export const cases = {
       const external = new ExternalBase().createExternalObject()
       expect(object.readExternalValue(external)).to.equal('Hello world!')
       expect(object.bounceExternalHybrid(external)).to.equal(external)
+    },
+
+    'external adapters read callback properties': async () => {
+      const object = new TestObjectCpp()
+      const external = new ExternalBase().createExternalObject()
+      const internal = object.createInternalObject()
+      const callback = recordCallback()
+      external.numberCallback = callback
+      internal.numberCallback = callback
+      object.callExternalNumberCallback(external, 5)
+      object.callExternalNumberCallback(internal, 6)
+      await waitFor(() => expect(callback.calls).to.have.deep.members([[5], [6]]), CALLBACK_TIMEOUT)
     },
 
     'external Swift structs preserve populated optional fields': () => {

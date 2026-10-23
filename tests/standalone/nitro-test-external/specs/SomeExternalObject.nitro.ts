@@ -37,4 +37,9 @@ export declare class SomeExternalObject extends HybridObject {
     optionalUInt64?: UInt64,
     optionalInt64?: Int64
   ): OptionalPrimitivesHolder
+
+  // `nitro-test` calls this through its C++ adapter. Its Swift bridge must not
+  // redeclare this module's callback helpers, which use this module's
+  // `ResultTag`.
+  numberCallback: (value: number) => void
 }

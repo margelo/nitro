@@ -6,6 +6,8 @@ import com.facebook.proguard.annotations.DoNotStrip
 @Keep
 @DoNotStrip
 class HybridSomeExternalObject : HybridSomeExternalObjectSpec() {
+  override var numberCallback: (value: Double) -> Unit = {}
+
   override fun getValue(): String {
     return "Hello world!"
   }

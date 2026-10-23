@@ -8,6 +8,8 @@
 import NitroModules
 
 class HybridSomeExternalObject: HybridSomeExternalObjectSpec {
+  var numberCallback: any Callback<Double, Void> = .native { _ in }
+
   required override init() throws {
     try super.init()
   }

@@ -13,7 +13,7 @@ public protocol HybridSomeExternalObjectSpec_protocol: HybridSomeExternalObjectS
 
 
   // Properties
-
+  var numberCallback: any Callback<(/* value */ Double), Void> { get set }
 
   // Methods
   func getValue() throws -> String

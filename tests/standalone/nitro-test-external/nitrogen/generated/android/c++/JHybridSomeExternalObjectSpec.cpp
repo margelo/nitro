@@ -6,11 +6,13 @@
 ///
 
 #include <NitroTestExternal/private/JHybridSomeExternalObjectSpec.hpp>
+#include <NitroTestExternal/private/JCallback_void_double.hpp>
+#include <NitroModules/JNIConverter+Callback.hpp>
+#include <NitroModules/JNIConverter+Primitives.hpp>
+#include <NitroModules/JSIConverter+JNIPrimitives.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
 #include <NitroTestExternal/private/JOptionalPrimitivesHolder.hpp>
-#include <NitroModules/JNIConverter+Primitives.hpp>
-#include <NitroModules/JSIConverter+JNIPrimitives.hpp>
 #include <NitroModules/JNIConverter+Optional.hpp>
 #include <NitroModules/JSIConverter+JOptional.hpp>
 #include <NitroModules/JUInt64.hpp>
@@ -23,6 +25,7 @@ namespace margelo::nitro::test::external {
 
   const std::shared_ptr<const HybridClass>& JHybridSomeExternalObjectSpec::Class::get() {
     static const auto hybridClass = HybridClass::create<Class>([](HybridClass& clazz) {
+      clazz.registerHybridProperty("numberCallback", &JHybridSomeExternalObjectSpec::getNumberCallback, &JHybridSomeExternalObjectSpec::setNumberCallback);
       clazz.registerHybridMethod("getValue", &JHybridSomeExternalObjectSpec::getValue);
       clazz.registerHybridMethod("createOptionalPrimitivesHolder", &JHybridSomeExternalObjectSpec::createOptionalPrimitivesHolder);
     });
@@ -61,7 +64,15 @@ namespace margelo::nitro::test::external {
   }
 
   // Properties
-
+  jni::local_ref<margelo::nitro::test::external::JCallback_void_double> JHybridSomeExternalObjectSpec::getNumberCallback() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<margelo::nitro::test::external::JCallback_void_double>()>("getNumberCallback_cxx");
+    auto __result = __method(_javaPart, CxxPart::getClass());
+    return __result;
+  }
+  void JHybridSomeExternalObjectSpec::setNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double>& numberCallback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void_double> /* numberCallback */)>("setNumberCallback_cxx");
+    __method(_javaPart, CxxPart::getClass(), numberCallback);
+  }
 
   // Methods
   jni::local_ref<jni::JString> JHybridSomeExternalObjectSpec::getValue() {

@@ -287,6 +287,8 @@ public:
   std::variant<std::string, Car> bounceVariantThroughChild(const HybridChildSpecCxx& child,
                                                            const std::variant<std::string, Car>& variant) override;
   std::string readExternalValue(const adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx& externalObject) override;
+  void callExternalNumberCallback(const adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx& externalObject,
+                                  double value) override;
   OptionalPrimitivesHolder
   createExternalOptionalPrimitives(const adapters::NitroTestExternal::HybridSomeExternalObjectSpecCxx& externalObject,
                                    const std::optional<double>& optionalNumber, const std::optional<bool>& optionalBoolean,

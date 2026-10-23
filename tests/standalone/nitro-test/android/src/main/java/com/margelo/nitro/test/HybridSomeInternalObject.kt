@@ -6,6 +6,8 @@ import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 import com.margelo.nitro.test.external.OptionalPrimitivesHolder
 
 class HybridSomeInternalObject : HybridSomeExternalObjectSpec() {
+  override var numberCallback: (value: Double) -> Unit = {}
+
   override fun getValue(): String {
     return "This is overridden!"
   }

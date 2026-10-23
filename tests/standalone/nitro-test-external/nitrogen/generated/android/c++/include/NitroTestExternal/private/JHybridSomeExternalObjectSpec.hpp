@@ -12,11 +12,13 @@
 #include <fbjni/fbjni.h>
 #include <stdexcept>
 #include <NitroTestExternal/private/JHybridSomeExternalObjectSpecJavaPart.hpp>
+#include <NitroTestExternal/private/JCallback_void_double.hpp>
+#include <NitroModules/JNIConverter+Callback.hpp>
+#include <NitroModules/JNIConverter+Primitives.hpp>
+#include <NitroModules/JSIConverter+JNIPrimitives.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
 #include <NitroTestExternal/private/JOptionalPrimitivesHolder.hpp>
-#include <NitroModules/JNIConverter+Primitives.hpp>
-#include <NitroModules/JSIConverter+JNIPrimitives.hpp>
 #include <NitroModules/JNIConverter+Optional.hpp>
 #include <NitroModules/JSIConverter+JOptional.hpp>
 #include <NitroModules/JUInt64.hpp>
@@ -61,7 +63,8 @@ namespace margelo::nitro::test::external {
 
   public:
     // Properties
-
+    jni::local_ref<margelo::nitro::test::external::JCallback_void_double> getNumberCallback();
+    void setNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double>& numberCallback);
 
   public:
     // Methods

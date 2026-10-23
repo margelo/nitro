@@ -8,6 +8,8 @@
 #include <NitroTest/HybridSomeExternalObjectSpecCxx+NitroTestExternal.hpp>
 #include <NitroTestExternal/private/HybridSomeExternalObjectSpecSwift.hpp>
 #include <stdexcept>
+#include <NitroModules/Callback.hpp>
+#include <functional>
 #include <string>
 #include <NitroTest/OptionalPrimitivesHolder.hpp>
 #include <optional>
@@ -23,6 +25,23 @@ namespace margelo::nitro::test::adapters::NitroTestExternal {
       throw std::invalid_argument("Cannot use a HybridObject that does not implement SomeExternalObject as HybridSomeExternalObjectSpecCxx.");
     }
     return HybridSomeExternalObjectSpecCxx(implementation);
+  }
+
+  margelo::nitro::Callback<void(double /* value */)> HybridSomeExternalObjectSpecCxx::getNumberCallback() const {
+    auto __implementation = std::dynamic_pointer_cast<margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift>(getNativeObject());
+    if (__implementation == nullptr) [[unlikely]] {
+      throw std::invalid_argument("Cannot call SomeExternalObject.getNumberCallback on an empty or incompatible C++ adapter.");
+    }
+    auto __result = __implementation->getNumberCallback();
+    return SwiftConverter<margelo::nitro::Callback<void(double /* value */)>, margelo::nitro::Callback<void(double)>>::fromSwift(__result);
+  }
+
+  void HybridSomeExternalObjectSpecCxx::setNumberCallback(const Callback<void(double /* value */)>& numberCallback) const {
+    auto __implementation = std::dynamic_pointer_cast<margelo::nitro::test::external::HybridSomeExternalObjectSpecSwift>(getNativeObject());
+    if (__implementation == nullptr) [[unlikely]] {
+      throw std::invalid_argument("Cannot call SomeExternalObject.setNumberCallback on an empty or incompatible C++ adapter.");
+    }
+    __implementation->setNumberCallback(SwiftConverter<margelo::nitro::Callback<void(double /* value */)>, margelo::nitro::Callback<void(double)>>::toSwift(numberCallback));
   }
 
   std::string HybridSomeExternalObjectSpecCxx::getValue() const {

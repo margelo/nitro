@@ -124,6 +124,15 @@ public final class HybridSomeExternalObjectSpec_cxx {
 
   // Properties
 
+  public final func getNumberCallback(__outResult: UnsafeMutableRawPointer) -> Void {
+    let value = __implementation.numberCallback
+    __outResult.initializeMemory(as: margelo.nitro.test.external.swift_bridge.Callback_void_double.self, repeating: value.toCpp(), count: 1)
+  }
+
+  public final func setNumberCallback(numberCallback: UnsafeRawPointer) -> Void {
+    __implementation.numberCallback = numberCallback.load(as: margelo.nitro.test.external.swift_bridge.Callback_void_double.self)
+  }
+
   // Methods
 
   public final func getValue(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {

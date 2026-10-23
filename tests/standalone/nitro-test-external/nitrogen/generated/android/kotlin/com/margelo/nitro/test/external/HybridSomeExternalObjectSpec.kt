@@ -26,7 +26,19 @@ import com.margelo.nitro.core.HybridObject
 )
 abstract class HybridSomeExternalObjectSpec: HybridObject() {
   // Properties
+  abstract var numberCallback: (value: Double) -> Unit
 
+  @DoNotStrip
+  @Keep
+  private fun getNumberCallback_cxx(): Callback_void_double {
+    return this.numberCallback.let { if (it is Callback_void_double) it else Callback_void_double_java(it) }
+  }
+
+  @DoNotStrip
+  @Keep
+  private fun setNumberCallback_cxx(value: Callback_void_double): Unit {
+    this.numberCallback = value
+  }
 
   // Methods
   @DoNotStrip

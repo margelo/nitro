@@ -365,6 +365,7 @@ export declare class TestObjectCpp extends HybridObject {
   mapSizeThroughBase(base: Base, size: Size, callback: (size: Size) => Size): Promise<Size>
   bounceVariantThroughChild(child: Child, variant: NamedVariant): NamedVariant
   readExternalValue(externalObject: SomeExternalObject): string
+  callExternalNumberCallback(externalObject: SomeExternalObject, value: number): void
   createExternalOptionalPrimitives(
     externalObject: SomeExternalObject,
     optionalNumber?: number,
