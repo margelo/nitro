@@ -48,8 +48,7 @@ namespace margelo::nitro::test {
     void callAndForget_cxx(jlong value);
     static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
     static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
-    const std::type_info& getCallbackType() const override { return typeid(CallbackType); }
-    const void* getCallbackPointer() const override { return &_state.getCallback(); }
+    std::optional<JSCallbackFunction> getJSFunction() const override { return _state.getJSFunction(); }
 
   private:
     friend HybridBase;

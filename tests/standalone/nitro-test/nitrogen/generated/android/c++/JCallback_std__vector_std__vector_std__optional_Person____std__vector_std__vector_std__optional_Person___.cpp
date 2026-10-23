@@ -39,11 +39,11 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JavaPart> JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    const CallbackType* held = callback->cthis()->getCallbackAs<CallbackType>();
-    if (held == nullptr) {
+    std::optional<JSCallbackFunction> function = callback->cthis()->getJSFunction();
+    if (!function.has_value()) {
       return nullptr;
     }
-    return create(*held);
+    return create(State::fromJSFunction(*function));
   }
 
   jni::local_ref<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JavaPart> JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {

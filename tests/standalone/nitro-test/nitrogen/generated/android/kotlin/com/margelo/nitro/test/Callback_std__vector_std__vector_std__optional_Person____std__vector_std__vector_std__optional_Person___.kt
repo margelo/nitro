@@ -69,8 +69,8 @@ class Callback_std__vector_std__vector_std__optional_Person____std__vector_std__
   companion object {
     /**
      * Returns the given [callback] as its JNI representation.
-     * A callback from another module keeps its C++ `Callback<...>`, and
-     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     * A JS callback from another module keeps its JS function, and any other callback
+     * is wrapped in a C++ `Callback<...>` that calls it in Kotlin.
      */
     @JvmStatic
     fun fromKotlin(callback: Callback<(value: Array<Array<Person?>>) -> Array<Array<Person?>>>): Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___ {

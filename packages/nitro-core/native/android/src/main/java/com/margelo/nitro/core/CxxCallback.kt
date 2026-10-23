@@ -8,7 +8,7 @@ import com.facebook.proguard.annotations.DoNotStrip
  * The base class of generated callback classes, which hold a C++ `Callback<...>`.
  *
  * Each module generates its own class for a callback signature. Through this base class,
- * a module reuses the C++ `Callback` of a callback that another module created.
+ * a module calls the JS function of a callback that another module created.
  */
 @Suppress("unused")
 @Keep

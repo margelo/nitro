@@ -69,8 +69,8 @@ class Callback_void @DoNotStrip @Keep private constructor(hybridData: HybridData
   companion object {
     /**
      * Returns the given [callback] as its JNI representation.
-     * A callback from another module keeps its C++ `Callback<...>`, and
-     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     * A JS callback from another module keeps its JS function, and any other callback
+     * is wrapped in a C++ `Callback<...>` that calls it in Kotlin.
      */
     @JvmStatic
     fun fromKotlin(callback: Callback<() -> Unit>): Callback_void {

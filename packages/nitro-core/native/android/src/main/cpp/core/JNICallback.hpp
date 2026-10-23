@@ -6,6 +6,8 @@
 #include "JSIConverter+JNIGlobalRef.hpp"
 #include <NitroModules/Callback.hpp>
 #include <NitroModules/InlineCallback.hpp>
+#include <optional>
+#include <variant>
 
 namespace margelo::nitro {
 
@@ -49,6 +51,27 @@ struct JNIRetainedValue<void> {
   using Local = void;
 };
 
+template <typename CppCallback, typename JavaCallback>
+struct JNICallbackConverter;
+
+/** Reads and creates JS callbacks of any signature, because their JS function is untyped. */
+template <typename R, typename... Args>
+struct JNICallbackConverter<Callback<R(Args...)>, JSCallbackFunction> {
+  using Cpp = Callback<R(Args...)>;
+
+  static std::optional<JSCallbackFunction> toJSFunction(const Cpp& value) {
+    const auto* callback = std::get_if<typename Cpp::JSCallback>(&value._impl);
+    if (callback == nullptr) {
+      return std::nullopt;
+    }
+    return JSCallbackFunction{callback->_runtime, callback->_function, callback->_dispatcher};
+  }
+
+  static Cpp fromJSFunction(const JSCallbackFunction& value) {
+    return Cpp(typename Cpp::JSCallback(value.runtime, BorrowingReference(value.function), value.dispatcher));
+  }
+};
+
 template <typename Signature>
 class JNICallbackState;
 
@@ -88,6 +111,14 @@ public:
 
   const CallbackType& getCallback() const {
     return _callback;
+  }
+
+  std::optional<JSCallbackFunction> getJSFunction() const {
+    return JNICallbackConverter<CallbackType, JSCallbackFunction>::toJSFunction(_callback);
+  }
+
+  static CallbackType fromJSFunction(const JSCallbackFunction& function) {
+    return JNICallbackConverter<CallbackType, JSCallbackFunction>::fromJSFunction(function);
   }
 
 private:

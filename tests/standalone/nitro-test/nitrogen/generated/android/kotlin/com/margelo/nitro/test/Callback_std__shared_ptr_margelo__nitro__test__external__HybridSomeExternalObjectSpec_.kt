@@ -70,8 +70,8 @@ class Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExterna
   companion object {
     /**
      * Returns the given [callback] as its JNI representation.
-     * A callback from another module keeps its C++ `Callback<...>`, and
-     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     * A JS callback from another module keeps its JS function, and any other callback
+     * is wrapped in a C++ `Callback<...>` that calls it in Kotlin.
      */
     @JvmStatic
     fun fromKotlin(callback: Callback<() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>): Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_ {

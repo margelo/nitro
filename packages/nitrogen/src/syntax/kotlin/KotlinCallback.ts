@@ -148,8 +148,8 @@ class ${name} @DoNotStrip @Keep private constructor(hybridData: HybridData): Cxx
   companion object {
     /**
      * Returns the given [callback] as its JNI representation.
-     * A callback from another module keeps its C++ \`Callback<...>\`, and
-     * a callback created in Kotlin is wrapped in a C++ \`Callback<...>\` that calls it.
+     * A JS callback from another module keeps its JS function, and any other callback
+     * is wrapped in a C++ \`Callback<...>\` that calls it in Kotlin.
      */
     @JvmStatic
     fun fromKotlin(callback: ${kotlinCallbackType}): ${name} {
@@ -263,8 +263,7 @@ namespace ${cxxNamespace} {
     void callAndForget_cxx(${nativeParams.join(', ')});
     static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
     static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
-    const std::type_info& getCallbackType() const override { return typeid(CallbackType); }
-    const void* getCallbackPointer() const override { return &_state.getCallback(); }
+    std::optional<JSCallbackFunction> getJSFunction() const override { return _state.getJSFunction(); }
 
   private:
     friend HybridBase;
@@ -305,11 +304,11 @@ namespace ${cxxNamespace} {
   }
 
   jni::local_ref<${jniName}::JavaPart> ${jniName}::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    const CallbackType* held = callback->cthis()->getCallbackAs<CallbackType>();
-    if (held == nullptr) {
+    std::optional<JSCallbackFunction> function = callback->cthis()->getJSFunction();
+    if (!function.has_value()) {
       return nullptr;
     }
-    return create(*held);
+    return create(State::fromJSFunction(*function));
   }
 
   jni::local_ref<${jniName}::JavaPart> ${jniName}::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
