@@ -57,6 +57,10 @@ namespace NitroTest { class TruckPowertrain; }
 namespace NitroTest { class PartialPerson; }
 // Forward declaration of `SwiftContainer_swift__Array___NitroTest__Powertrain_` to properly resolve imports.
 namespace NitroTest { class SwiftContainer_swift__Array___NitroTest__Powertrain_; }
+// Forward declaration of `Variant_UInt64_String_cxx` to properly resolve imports.
+namespace NitroTest { class Variant_UInt64_String_cxx; }
+// Forward declaration of `Variant__UInt64__String_cxx` to properly resolve imports.
+namespace NitroTest { class Variant__UInt64__String_cxx; }
 namespace NitroModules { class AnyJSON; }
 #include <NitroModules/ArrayBuffer.hpp>
 // Forward declaration of `Variant_Bool_Double_cxx` to properly resolve imports.

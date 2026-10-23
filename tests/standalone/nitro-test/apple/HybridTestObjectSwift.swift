@@ -387,6 +387,14 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return try callback.callSync(array)
   }
 
+  func bounceUnsignedVariant(variant: Variant_UInt64_String) throws -> Variant_UInt64_String {
+    return variant
+  }
+
+  func bounceUnsignedArrayVariant(variant: Variant__UInt64__String) throws -> Variant__UInt64__String {
+    return variant
+  }
+
   func bounceHybridObjects(array: [(any HybridChildSpec)]) throws -> [(any HybridChildSpec)] {
     return array
   }

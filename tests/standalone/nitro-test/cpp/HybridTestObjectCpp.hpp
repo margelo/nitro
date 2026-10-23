@@ -185,6 +185,9 @@ public:
   Promise<std::vector<uint64_t>> bounceUnsignedArrayAsync(const std::vector<uint64_t>& array) override;
   std::vector<uint64_t> callUnsignedArrayCallback(const std::vector<uint64_t>& array,
                                                   const Callback<std::vector<uint64_t>(const std::vector<uint64_t>&)>& callback) override;
+  std::variant<uint64_t, std::string> bounceUnsignedVariant(const std::variant<uint64_t, std::string>& variant) override;
+  std::variant<std::vector<uint64_t>, std::string>
+  bounceUnsignedArrayVariant(const std::variant<std::vector<uint64_t>, std::string>& variant) override;
 
   std::vector<HybridChildSpecCxx> bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) override;
   std::vector<Callback<void()>> bounceFunctions(const std::vector<Callback<void()>>& functions) override;

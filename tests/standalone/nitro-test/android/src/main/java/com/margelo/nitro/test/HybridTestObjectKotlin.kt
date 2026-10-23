@@ -226,6 +226,21 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return callback.callSync(array)
   }
 
+  override fun bounceUnsignedVariant(variant: Variant_ULong_String): Variant_ULong_String {
+    // Rebuild the case so it goes through the public ULong constructor.
+    return when (variant) {
+      is Variant_ULong_String.First -> Variant_ULong_String.First(variant.value)
+      is Variant_ULong_String.Second -> Variant_ULong_String.Second(variant.value)
+    }
+  }
+
+  override fun bounceUnsignedArrayVariant(variant: Variant_ULongArray_String): Variant_ULongArray_String {
+    return variant.match(
+      { array -> Variant_ULongArray_String.create(array) },
+      { string -> Variant_ULongArray_String.create(string) },
+    )
+  }
+
   override fun bounceHybridObjects(array: Array<HybridChildSpec>): Array<HybridChildSpec> {
     return array
   }

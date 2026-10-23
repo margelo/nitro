@@ -125,6 +125,8 @@ namespace margelo::nitro::test {
     swift::Optional<swift::Array<uint64_t>> bounceOptionalUnsignedArray(const swift::Optional<swift::Array<uint64_t>>& array);
     Promise<swift::Array<uint64_t>> bounceUnsignedArrayAsync(const swift::Array<uint64_t>& array);
     swift::Array<uint64_t> callUnsignedArrayCallback(const swift::Array<uint64_t>& array, const Callback<swift::Array<uint64_t>(const swift::Array<uint64_t>&)>& callback);
+    ::NitroTest::Variant_UInt64_String_cxx bounceUnsignedVariant(const ::NitroTest::Variant_UInt64_String_cxx& variant);
+    ::NitroTest::Variant__UInt64__String_cxx bounceUnsignedArrayVariant(const ::NitroTest::Variant__UInt64__String_cxx& variant);
     swift::Array<::NitroTest::HybridChildSpec_cxx> bounceHybridObjects(const swift::Array<::NitroTest::HybridChildSpec_cxx>& array);
     swift::Array<Callback<void()>> bounceFunctions(const swift::Array<Callback<void()>>& functions);
     swift::Array<NitroModules::AnyJSON> bounceMaps(const swift::Array<NitroModules::AnyJSON>& maps);
