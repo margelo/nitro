@@ -10,6 +10,7 @@ import { SwiftBorrowedPointerType } from './types/SwiftBorrowedPointerType.js'
 import { SwiftCxxBorrowedPointerType } from './types/SwiftCxxBorrowedPointerType.js'
 import { SwiftCxxOutPointerType } from './types/SwiftCxxOutPointerType.js'
 import { SwiftOutPointerType } from './types/SwiftOutPointerType.js'
+import { SwiftResultConsumerType } from './types/SwiftResultConsumerType.js'
 import { SwiftResultType } from './types/SwiftResultType.js'
 import { SwiftRetainedPointerType } from './types/SwiftRetainedPointerType.js'
 import { SwiftVoidType } from './types/SwiftVoidType.js'
@@ -22,6 +23,8 @@ export interface SwiftArgument {
 
 /** Swift functions exported to C++ take result storage as their last parameter. */
 export const SWIFT_RESULT_STORAGE = '__outResult'
+/** Throwing Swift functions returning Swift values take a result consumer instead. */
+const SWIFT_RESULT_CONSUMER = '__onResult'
 
 /** A value passed between C++ and a Swift function exported to C++. */
 export interface SwiftBridgeParameter {
@@ -88,8 +91,8 @@ export function prepareSwiftMethod(nativeMethod: Method, isThrowing: boolean, co
     exportedReturnType = new SwiftRetainedPointerType(returnType)
   } else if (isThrowing && !returnType.canImportFromCpp) {
     // Swift cannot import Result<T> while a Swift-native T is incomplete.
-    // Return Result<void> alongside its value buffer; Core constructs Result<T>.
-    exportedReturnType = new SwiftOutPointerType(returnType)
+    // Return Result<void> and lend the successful value to C++ during the call.
+    exportedReturnType = new SwiftResultConsumerType(returnType)
   } else {
     exportedReturnType = returnType
   }
@@ -104,16 +107,19 @@ export function prepareSwiftMethod(nativeMethod: Method, isThrowing: boolean, co
   }
 }
 
-/** The Result returned by a Swift function; storage holds its value instead. */
+/** The Result returned by a Swift function; indirect results use a separate parameter. */
 export function getSwiftResultType(returnType: SwiftType, config: NitroConfig = NitroConfig.current): SwiftResultType {
-  if (returnType instanceof SwiftOutPointerType) {
+  if (returnType instanceof SwiftOutPointerType || returnType instanceof SwiftResultConsumerType) {
     return new SwiftResultType(new SwiftVoidType(), config)
   }
   return new SwiftResultType(returnType, config)
 }
 
-/** The parameters of a Swift function exported to C++, including result storage. */
+/** The parameters of a Swift function exported to C++, including indirect results. */
 export function getSwiftBridgeParameters(parameters: SwiftBridgeParameter[], returnType: SwiftType): SwiftBridgeParameter[] {
+  if (returnType instanceof SwiftResultConsumerType) {
+    return [...parameters, { name: SWIFT_RESULT_CONSUMER, type: returnType }]
+  }
   if (returnType instanceof SwiftOutPointerType) {
     return [...parameters, { name: SWIFT_RESULT_STORAGE, type: returnType }]
   }
@@ -130,13 +136,17 @@ interface CppToSwiftCallOptions {
 
 /**
  * C++ code that calls a Swift function and returns its value or throws its error.
- * Pointer types pass the arguments and result storage around the call.
+ * Adapters borrow arguments and receive indirect results during the call.
  */
 export function createCppToSwiftCall({ parameters, returnType, returnsVoid, getCppInvocation }: CppToSwiftCallOptions): string {
   // Borrowed pointers shadow the values they point to.
   const cppArguments = parameters.map((parameter) => parameter.name)
   let cppSwiftInvocation: string
-  if (returnType instanceof SwiftOutPointerType) {
+  if (returnType instanceof SwiftResultConsumerType) {
+    const cppConsumerArguments = [...cppArguments, SWIFT_RESULT_CONSUMER]
+    const cppInvocation = getCppInvocation(cppConsumerArguments)
+    cppSwiftInvocation = returnType.receive({ consumer: SWIFT_RESULT_CONSUMER, invocation: cppInvocation })
+  } else if (returnType instanceof SwiftOutPointerType) {
     const cppStorageArguments = [...cppArguments, SWIFT_RESULT_STORAGE]
     cppSwiftInvocation = returnType.tryAllocate(SWIFT_RESULT_STORAGE, getCppInvocation(cppStorageArguments))
   } else {
@@ -210,7 +220,7 @@ interface SwiftResultBodyOptions {
 
 /**
  * Swift statements that return the value of `invocation` to C++ as a Result,
- * initializing the storage pointer when the value is returned through storage.
+ * supplying indirect results through a borrowed value or initialized storage.
  */
 export function createSwiftResultBody({ invocation, returnType, resultType, returnsVoid }: SwiftResultBodyOptions): string {
   if (returnsVoid) {
@@ -220,6 +230,14 @@ return ${resultType}.withValue()
 `.trim()
   }
   const swiftValue = returnType.fromSwift('value')
+  if (returnType instanceof SwiftResultConsumerType) {
+    const consumeCode = returnType.consume({ consumer: SWIFT_RESULT_CONSUMER, value: swiftValue })
+    return `
+let value = ${invocation}
+${consumeCode}
+return ${resultType}.withValue()
+`.trim()
+  }
   if (returnType instanceof SwiftOutPointerType) {
     const initializeCode = returnType.initialize('swift', SWIFT_RESULT_STORAGE, swiftValue)
     return `
@@ -318,5 +336,6 @@ export function getSwiftMethodImports(callable: SwiftMethodInfo): SourceImport<'
     publicSwiftTypes.push(callable.exportedReturnType)
   }
   const swiftParameterTypes = callable.parameters.map((parameter) => parameter.type)
-  return [...getSwiftImports(publicSwiftTypes, 'public'), ...getSwiftImports([callable.returnType, ...swiftParameterTypes], 'internal')]
+  const swiftImplementationTypes = [callable.returnType, callable.exportedReturnType, ...swiftParameterTypes]
+  return [...getSwiftImports(publicSwiftTypes, 'public'), ...getSwiftImports(swiftImplementationTypes, 'internal')]
 }

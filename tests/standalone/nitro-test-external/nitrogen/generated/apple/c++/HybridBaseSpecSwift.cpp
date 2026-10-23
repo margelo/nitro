@@ -33,8 +33,8 @@ namespace margelo::nitro::test::external {
   }
 
   ::NitroTestExternal::Size HybridBaseSpecSwift::bounceSize(const ::NitroTestExternal::Size& size) {
-    auto __result = withSwiftResult<::NitroTestExternal::Size>([&](void* __outResult) {
-      return _swiftPart.bounceSize(size, __outResult);
+    auto __result = receiveSwiftResult<::NitroTestExternal::Size>([&](const void* __onResult) {
+      return _swiftPart.bounceSize(size, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -43,8 +43,8 @@ namespace margelo::nitro::test::external {
   }
 
   ::NitroTestExternal::SizeUnit HybridBaseSpecSwift::bounceSizeUnit(::NitroTestExternal::SizeUnit unit) {
-    auto __result = withSwiftResult<::NitroTestExternal::SizeUnit>([&](void* __outResult) {
-      return _swiftPart.bounceSizeUnit(unit, __outResult);
+    auto __result = receiveSwiftResult<::NitroTestExternal::SizeUnit>([&](const void* __onResult) {
+      return _swiftPart.bounceSizeUnit(unit, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());

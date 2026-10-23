@@ -7,6 +7,7 @@
 internal import NitroModules
 internal import CxxStdlib
 internal import NitroTestExternalAppleCxx
+internal import NitroModulesAppleCxx
 
 /**
  * A class implementation that bridges HybridSomeExternalObjectSpec over to C++.
@@ -135,20 +136,24 @@ public final class HybridSomeExternalObjectSpec_cxx {
 
   // Methods
 
-  public final func getValue(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func getValue(__onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.getValue()
-      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func createOptionalPrimitivesHolder(optionalNumber: Double?, optionalBoolean: Bool?, optionalUInt64: UInt64?, optionalInt64: Int64?, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func createOptionalPrimitivesHolder(optionalNumber: Double?, optionalBoolean: Bool?, optionalUInt64: UInt64?, optionalInt64: Int64?, __onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.createOptionalPrimitivesHolder(optionalNumber: optionalNumber, optionalBoolean: optionalBoolean, optionalUInt64: optionalUInt64, optionalInt64: optionalInt64)
-      __outResult.assumingMemoryBound(to: OptionalPrimitivesHolder.self).initialize(to: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())

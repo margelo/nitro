@@ -48,8 +48,8 @@ namespace margelo::nitro::test::external {
   }
 
   swift::String HybridTestViewSpecSwift::getModuleName() {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return _swiftPart.getModuleName(__outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.getModuleName(__onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());

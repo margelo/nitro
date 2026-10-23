@@ -21,8 +21,8 @@ namespace margelo::nitro::test {
   // Methods
 
   swift::String HybridPlatformObjectSpecSwift::getOSVersion() {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return _swiftPart.getOSVersion(__outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.getOSVersion(__onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
