@@ -769,6 +769,32 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return buffer
   }
 
+  private var wrappedArrayBuffers: [ArrayBuffer] = []
+  // Wrapped buffers can be deleted after this object, and on any thread.
+  private let wrappedArrayBufferDeleteCount = OSAllocatedUnfairLock(initialState: 0)
+
+  func wrapArrayBuffer(size: Double) throws -> ArrayBuffer {
+    let byteSize = Int(size)
+    let data = UnsafeMutablePointer<UInt8>.allocate(capacity: byteSize)
+    let deleteCount = wrappedArrayBufferDeleteCount
+    let buffer = ArrayBuffer.wrap(
+      dataWithoutCopy: data, size: byteSize,
+      onDelete: {
+        data.deallocate()
+        deleteCount.withLock { $0 += 1 }
+      })
+    wrappedArrayBuffers.append(buffer)
+    return buffer
+  }
+
+  func releaseWrappedArrayBuffers() throws {
+    wrappedArrayBuffers.removeAll()
+  }
+
+  func getWrappedArrayBufferDeleteCount() throws -> Double {
+    return Double(wrappedArrayBufferDeleteCount.withLock { $0 })
+  }
+
   func getBufferLastItem(buffer: ArrayBuffer) throws -> Double {
     return try buffer.withUnsafeBytes { bytes in
       guard let lastByte = bytes.last else {

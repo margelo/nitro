@@ -1344,6 +1344,33 @@ public final class HybridTestObjectSwiftKotlinSpec_cxx {
     }
   }
 
+  public final func wrapArrayBuffer(size: Double) -> bridge.Result_ArrayBuffer {
+    do {
+      let value = try __implementation.wrapArrayBuffer(size: size)
+      return bridge.Result_ArrayBuffer.withValue(value)
+    } catch {
+      return bridge.Result_ArrayBuffer.withError(error.toCpp())
+    }
+  }
+
+  public final func releaseWrappedArrayBuffers() -> bridge.Result_void {
+    do {
+      try __implementation.releaseWrappedArrayBuffers()
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func getWrappedArrayBufferDeleteCount() -> bridge.Result_double {
+    do {
+      let value = try __implementation.getWrappedArrayBufferDeleteCount()
+      return bridge.Result_double.withValue(value)
+    } catch {
+      return bridge.Result_double.withError(error.toCpp())
+    }
+  }
+
   public final func passVariant(either: Variant_Bool__Double___String__Double_String_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.passVariant(either: either.value)

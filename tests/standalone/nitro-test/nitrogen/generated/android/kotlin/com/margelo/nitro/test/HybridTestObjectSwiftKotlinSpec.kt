@@ -745,6 +745,18 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   @DoNotStrip
   @Keep
+  abstract fun wrapArrayBuffer(size: Double): ArrayBuffer
+
+  @DoNotStrip
+  @Keep
+  abstract fun releaseWrappedArrayBuffers(): Unit
+
+  @DoNotStrip
+  @Keep
+  abstract fun getWrappedArrayBufferDeleteCount(): Double
+
+  @DoNotStrip
+  @Keep
   abstract fun passVariant(either: Variant_Boolean_DoubleArray_Array_String__Double_String): Variant_Double_String
 
   @DoNotStrip
