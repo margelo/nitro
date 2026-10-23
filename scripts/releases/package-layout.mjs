@@ -36,6 +36,7 @@ export const reactNativePackageFiles = [
   'android/core/main/cpp/src/NitroOnLoad.cpp',
   'android/build.gradle',
   'android/CMakeLists.txt',
+  'android/consumer-rules.pro',
   'src/index.ts',
   'lib/commonjs/index.js',
   'lib/module/index.js',

@@ -8,20 +8,20 @@ import com.margelo.nitro.core.AnyJSON
 import com.margelo.nitro.core.ArrayBuffer
 import com.margelo.nitro.core.NullType
 import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.decode
+import com.margelo.nitro.core.encode
 import com.margelo.nitro.core.resolved
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import java.math.BigDecimal
@@ -253,19 +253,19 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
         put("array", JsonArray(values))
         put("object", objectValue)
       }
-    return encodeJSON(jsonObjectSerializer, map)
+    return AnyJSON.encode(map)
   }
 
   override fun getMapKeys(map: AnyJSON): Array<String> {
-    return decodeJSON(jsonObjectSerializer, map).keys.toTypedArray()
+    return map.decode<JsonObject>().keys.toTypedArray()
   }
 
   override fun mergeMaps(
     a: AnyJSON,
     b: AnyJSON,
   ): AnyJSON {
-    val result = decodeJSON(jsonObjectSerializer, a) + decodeJSON(jsonObjectSerializer, b)
-    return encodeJSON(jsonObjectSerializer, result)
+    val result = a.decode(jsonObjectSerializer) + b.decode(jsonObjectSerializer)
+    return AnyJSON.encode(jsonObjectSerializer, result)
   }
 
   override fun copyAnyMap(map: AnyJSON): AnyJSON {
@@ -273,8 +273,8 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
   }
 
   override fun mapRoundtrip(map: AnyJSON): AnyJSON {
-    val value = decodeJSON(JsonElement.serializer(), map)
-    return encodeJSON(JsonElement.serializer(), value)
+    val value = map.decode<JsonElement>()
+    return AnyJSON.encode(value)
   }
 
   override fun funcThatThrows(): Double {
@@ -810,20 +810,6 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     } catch (error: Throwable) {
       Promise.rejected(error)
     }
-  }
-
-  private fun <T> encodeJSON(
-    serializer: SerializationStrategy<T>,
-    value: T,
-  ): AnyJSON {
-    return AnyJSON(Json.encodeToString(serializer, value))
-  }
-
-  private fun <T> decodeJSON(
-    serializer: DeserializationStrategy<T>,
-    value: AnyJSON,
-  ): T {
-    return Json.decodeFromString(serializer, value.stringRepresentation)
   }
 
   private fun stringify(value: Double): String {
