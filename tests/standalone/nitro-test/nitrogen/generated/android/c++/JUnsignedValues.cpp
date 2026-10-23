@@ -13,13 +13,13 @@
 #include <NitroModules/JSIConverter+JOptional.hpp>
 #include <NitroModules/JNIConverter+Array.hpp>
 #include <NitroModules/JSIConverter+JPrimitiveArray.hpp>
-#include <NitroModules/JSIConverter+JArrayClass.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
 #include <NitroModules/JNIConverter+Map.hpp>
 #include <NitroModules/JSIConverter+JMap.hpp>
 #include <NitroTest/private/JCallback_uint64_t_uint64_t.hpp>
 #include <NitroModules/JNIConverter+Callback.hpp>
+#include <NitroModules/JSIConverter+JArrayClass.hpp>
 #include <NitroModules/PropNameIDCache.hpp>
 #include <NitroModules/JSIHelpers.hpp>
 
@@ -27,7 +27,7 @@ namespace margelo::nitro {
 
   jni::local_ref<margelo::nitro::test::JUnsignedValues> JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedValues>>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
     auto object = value.asObject(runtime);
-    return margelo::nitro::test::JUnsignedValues::create(JSIConverter<uint64_t>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"))), JSIConverter<jni::local_ref<JOptional<JUInt64>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"))), JSIConverter<jni::local_ref<JArrayUInt64>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "values"))), JSIConverter<jni::local_ref<jni::JArrayClass<JArrayUInt64>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "nested"))), JSIConverter<jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "record"))), JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callbacks"))));
+    return margelo::nitro::test::JUnsignedValues::create(JSIConverter<uint64_t>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"))), JSIConverter<jni::local_ref<JOptional<JUInt64>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"))), JSIConverter<jni::local_ref<JArrayUInt64>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "values"))), JSIConverter<jni::local_ref<JULongArrays>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "nested"))), JSIConverter<jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "record"))), JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callbacks"))));
   }
 
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedValues>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JUnsignedValues> value) {
@@ -35,7 +35,7 @@ namespace margelo::nitro {
     object.setProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"), JSIConverter<uint64_t>::toJSI(runtime, value->getUnsignedValue()));
     object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"), JSIConverter<jni::local_ref<JOptional<JUInt64>>>::toJSI(runtime, value->getOptionalUnsigned()));
     object.setProperty(runtime, PropNameIDCache::get(runtime, "values"), JSIConverter<jni::local_ref<JArrayUInt64>>::toJSI(runtime, value->getValues()));
-    object.setProperty(runtime, PropNameIDCache::get(runtime, "nested"), JSIConverter<jni::local_ref<jni::JArrayClass<JArrayUInt64>>>::toJSI(runtime, value->getNested()));
+    object.setProperty(runtime, PropNameIDCache::get(runtime, "nested"), JSIConverter<jni::local_ref<JULongArrays>>::toJSI(runtime, value->getNested()));
     object.setProperty(runtime, PropNameIDCache::get(runtime, "record"), JSIConverter<jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>>>::toJSI(runtime, value->getRecord()));
     object.setProperty(runtime, PropNameIDCache::get(runtime, "callbacks"), JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>>::toJSI(runtime, value->getCallbacks()));
     return object;
@@ -45,7 +45,7 @@ namespace margelo::nitro {
     if (!value.isObject()) return false;
     auto object = value.getObject(runtime);
     if (!isPlainObject(runtime, object)) return false;
-    return JSIConverter<uint64_t>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"))) && JSIConverter<jni::local_ref<JOptional<JUInt64>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"))) && JSIConverter<jni::local_ref<JArrayUInt64>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "values"))) && JSIConverter<jni::local_ref<jni::JArrayClass<JArrayUInt64>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "nested"))) && JSIConverter<jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "record"))) && JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callbacks")));
+    return JSIConverter<uint64_t>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"))) && JSIConverter<jni::local_ref<JOptional<JUInt64>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"))) && JSIConverter<jni::local_ref<JArrayUInt64>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "values"))) && JSIConverter<jni::local_ref<JULongArrays>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "nested"))) && JSIConverter<jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "record"))) && JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callbacks")));
   }
 
 } // namespace margelo::nitro

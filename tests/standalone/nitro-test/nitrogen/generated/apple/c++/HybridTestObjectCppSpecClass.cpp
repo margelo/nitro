@@ -159,6 +159,8 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("bounceUnsignedAsync", &HybridTestObjectCppSpec::bounceUnsignedAsync);
       clazz.registerHybridMethod("callUnsignedCallbackAsync", &HybridTestObjectCppSpec::callUnsignedCallbackAsync);
       clazz.registerHybridMethod("callUnsignedArrayCallbackAsync", &HybridTestObjectCppSpec::callUnsignedArrayCallbackAsync);
+      clazz.registerHybridMethod("bounceNestedUnsignedArrayAsync", &HybridTestObjectCppSpec::bounceNestedUnsignedArrayAsync);
+      clazz.registerHybridMethod("callNestedUnsignedArrayCallback", &HybridTestObjectCppSpec::callNestedUnsignedArrayCallback);
       clazz.registerHybridMethod("bounceHybridObjects", &HybridTestObjectCppSpec::bounceHybridObjects);
       clazz.registerHybridMethod("bounceFunctions", &HybridTestObjectCppSpec::bounceFunctions);
       clazz.registerHybridMethod("bounceMaps", &HybridTestObjectCppSpec::bounceMaps);

@@ -48,8 +48,8 @@ data class UnsignedValues(
   @DoNotStrip
   @Keep
   @Suppress("unused", "FunctionName")
-  private fun getNested_cxx(): Array<LongArray> {
-    return nested.mapToArray<ULongArray, LongArray> { __item -> __item.asLongArray() }
+  private fun getNested_cxx(): Array<*> {
+    return nested
   }
 
   @DoNotStrip
@@ -89,8 +89,8 @@ data class UnsignedValues(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(unsignedValue: Long, optionalUnsigned: Long?, values: LongArray, nested: Array<LongArray>, record: Map<String, ULong?>, callbacks: Array<Callback_uint64_t_uint64_t>): UnsignedValues {
-      return UnsignedValues(unsignedValue.toULong(), optionalUnsigned?.let { it.toULong() }, values.asULongArray(), nested.mapToArray<LongArray, ULongArray> { __item -> __item.asULongArray() }, record, callbacks.mapToArray<Callback_uint64_t_uint64_t, Callback<(value: ULong) -> ULong>> { __item -> __item })
+    private fun fromCpp(unsignedValue: Long, optionalUnsigned: Long?, values: LongArray, nested: Array<*>, record: Map<String, ULong?>, callbacks: Array<Callback_uint64_t_uint64_t>): UnsignedValues {
+      return UnsignedValues(unsignedValue.toULong(), optionalUnsigned?.let { it.toULong() }, values.asULongArray(), (@Suppress("UNCHECKED_CAST") (nested as Array<ULongArray>)), record, callbacks.mapToArray<Callback_uint64_t_uint64_t, Callback<(value: ULong) -> ULong>> { __item -> __item })
     }
   }
 }

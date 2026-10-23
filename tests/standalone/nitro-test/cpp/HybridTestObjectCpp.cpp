@@ -414,6 +414,17 @@ HybridTestObjectCpp::callUnsignedArrayCallbackAsync(const std::vector<uint64_t>&
   return callback.callAsync(array);
 }
 
+Promise<std::vector<std::vector<uint64_t>>>
+HybridTestObjectCpp::bounceNestedUnsignedArrayAsync(const std::vector<std::vector<uint64_t>>& array) {
+  return Promise<std::vector<std::vector<uint64_t>>>::async([=]() { return array; });
+}
+
+std::vector<std::vector<uint64_t>> HybridTestObjectCpp::callNestedUnsignedArrayCallback(
+    const std::vector<std::vector<uint64_t>>& array,
+    const Callback<std::vector<std::vector<uint64_t>>(const std::vector<std::vector<uint64_t>>&)>& callback) {
+  return callback.callSync(array);
+}
+
 std::vector<HybridChildSpecCxx> HybridTestObjectCpp::bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) {
   return array;
 }

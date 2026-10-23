@@ -196,6 +196,10 @@ public:
   Promise<std::vector<uint64_t>>
   callUnsignedArrayCallbackAsync(const std::vector<uint64_t>& array,
                                  const Callback<std::vector<uint64_t>(const std::vector<uint64_t>&)>& callback) override;
+  Promise<std::vector<std::vector<uint64_t>>> bounceNestedUnsignedArrayAsync(const std::vector<std::vector<uint64_t>>& array) override;
+  std::vector<std::vector<uint64_t>> callNestedUnsignedArrayCallback(
+      const std::vector<std::vector<uint64_t>>& array,
+      const Callback<std::vector<std::vector<uint64_t>>(const std::vector<std::vector<uint64_t>>&)>& callback) override;
 
   std::vector<HybridChildSpecCxx> bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) override;
   std::vector<Callback<void()>> bounceFunctions(const std::vector<Callback<void()>>& functions) override;

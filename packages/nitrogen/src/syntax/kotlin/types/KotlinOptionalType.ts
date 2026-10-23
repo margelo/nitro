@@ -29,8 +29,10 @@ export class KotlinOptionalType extends OptionalType implements KotlinType {
     return this.wrappingType.jniValueKind
   }
 
-  get isKotlinEqualityCompatible(): boolean {
-    return this.wrappingType.isKotlinEqualityCompatible ?? true
+  getKotlinEqualityValue(value: string): string | undefined {
+    const wrappedValue = this.wrappingType.getKotlinEqualityValue?.('it')
+    if (wrappedValue == null) return undefined
+    return `${value}?.let { ${wrappedValue} }`
   }
 
   getCppConverter(cppType: Type): KotlinCppConverter {

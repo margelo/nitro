@@ -82,4 +82,31 @@ struct JSIConverter<jni::local_ref<JULongArray>> {
   }
 };
 
+template <>
+struct JSIConverter<jni::local_ref<JULongArrays>> {
+  using JavaArray = jni::local_ref<JArrayUInt64>;
+
+  static jni::local_ref<JULongArrays> fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    auto array = value.asObject(runtime).asArray(runtime);
+    const jsize size = static_cast<jsize>(array.size(runtime));
+    auto result = JULongBox::newArrays(size);
+    for (jsize i = 0; i < size; ++i) {
+      auto element = JSIConverter<JavaArray>::fromJSI(runtime, array.getValueAtIndex(runtime, i));
+      auto box = JULongBox::boxArray(element);
+      result->setElement(i, *box);
+    }
+    return result;
+  }
+  static jsi::Array toJSI(jsi::Runtime& runtime, jni::alias_ref<JULongArrays> value) {
+    return createJSIArray(runtime, value->size(), [&](size_t i) {
+      auto box = jni::static_ref_cast<JULongArray>(value->getElement(i));
+      return JSIConverter<JavaArray>::toJSI(runtime, JULongBox::unboxArray(box));
+    });
+  }
+  static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
+    return canConvertJSIArray(runtime, value,
+                              [&](const jsi::Value& element) { return JSIConverter<JavaArray>::canConvert(runtime, element); });
+  }
+};
+
 } // namespace margelo::nitro
