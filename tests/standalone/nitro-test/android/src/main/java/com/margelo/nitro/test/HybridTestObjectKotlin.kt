@@ -16,6 +16,7 @@ import com.margelo.nitro.core.decode
 import com.margelo.nitro.core.encode
 import com.margelo.nitro.core.invoke
 import com.margelo.nitro.core.resolved
+import com.margelo.nitro.test.external.HybridSharedSpecializationsSpec
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -547,6 +548,10 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     // Kotlin cannot borrow callbacks, so this one is already escaped.
     val first = callback.callSync(value)
     return callback.callAsync(first)
+  }
+
+  override fun getSharedNumberCallback(shared: HybridSharedSpecializationsSpec): Callback<(value: Double) -> Unit> {
+    return shared.numberCallback
   }
 
   override fun callAll(

@@ -1144,6 +1144,16 @@ public final class HybridTestObjectSwiftKotlinSpec_cxx {
     }
   }
 
+  public final func getSharedNumberCallback(shared: HybridSharedSpecializationsSpec_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.getSharedNumberCallback(shared: shared.getHybridSharedSpecializationsSpec())
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Callback_void_double.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
   public final func getCar(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.getCar()

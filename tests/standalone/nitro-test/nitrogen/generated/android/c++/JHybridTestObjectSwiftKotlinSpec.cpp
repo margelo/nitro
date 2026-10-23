@@ -85,6 +85,7 @@
 #include <NitroTest/private/JCallback_void_std__exception_ptr.hpp>
 #include <NitroTest/private/JCallback_std__string.hpp>
 #include <NitroTest/private/JCallback_bool_bool.hpp>
+#include <NitroTestExternal/private/JHybridSharedSpecializationsSpec.hpp>
 #include <NitroTest/private/JJsStyleStruct.hpp>
 #include <NitroTest/private/JHardwareBufferFormat.hpp>
 #include <NitroTest/private/JVariant_Boolean_DoubleArray_Array_String__Double_String.hpp>
@@ -256,6 +257,7 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("callThrowingNativeCallbackAsync", &JHybridTestObjectSwiftKotlinSpec::callThrowingNativeCallbackAsync);
       clazz.registerHybridMethod("callThrowingNativeCallbackAndForget", &JHybridTestObjectSwiftKotlinSpec::callThrowingNativeCallbackAndForget);
       clazz.registerHybridMethod("callInlineCallbackThenEscape", &JHybridTestObjectSwiftKotlinSpec::callInlineCallbackThenEscape);
+      clazz.registerHybridMethod("getSharedNumberCallback", &JHybridTestObjectSwiftKotlinSpec::getSharedNumberCallback);
       clazz.registerHybridMethod("getCar", &JHybridTestObjectSwiftKotlinSpec::getCar);
       clazz.registerHybridMethod("isCarElectric", &JHybridTestObjectSwiftKotlinSpec::isCarElectric);
       clazz.registerHybridMethod("areCarsEqual", &JHybridTestObjectSwiftKotlinSpec::areCarsEqual);
@@ -958,6 +960,11 @@ namespace margelo::nitro::test {
   jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> JHybridTestObjectSwiftKotlinSpec::callInlineCallbackThenEscape(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double::JavaPart>& callback) {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>(jdouble /* value */, jni::alias_ref<margelo::nitro::test::JCallback_double_double::JavaPart> /* callback */)>("callInlineCallbackThenEscape_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), value, callback);
+    return __result;
+  }
+  jni::local_ref<margelo::nitro::test::JCallback_void_double::JavaPart> JHybridTestObjectSwiftKotlinSpec::getSharedNumberCallback(const jni::local_ref<margelo::nitro::test::external::JHybridSharedSpecializationsSpecJavaPart>& shared) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<margelo::nitro::test::JCallback_void_double::JavaPart>(jni::alias_ref<margelo::nitro::test::external::JHybridSharedSpecializationsSpecJavaPart> /* shared */)>("getSharedNumberCallback_cxx");
+    auto __result = __method(_javaPart, CxxPart::getClass(), shared);
     return __result;
   }
   jni::local_ref<JCar> JHybridTestObjectSwiftKotlinSpec::getCar() {
