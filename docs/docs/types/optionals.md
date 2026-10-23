@@ -10,9 +10,9 @@ Optional or undefined values can be declared with the question mark operator (`?
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Math extends HybridObject {
       a?: number
       b: number | undefined

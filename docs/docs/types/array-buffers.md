@@ -11,9 +11,9 @@ native is zero-copy.
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Image extends HybridObject {
       getData(): ArrayBuffer
     }

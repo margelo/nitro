@@ -10,9 +10,9 @@ import Tabs from '@theme/Tabs'; import TabItem from '@theme/TabItem';
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type AnyJSON, type HybridObject, iOS } from 'nitro-core'
+    import { type AnyJSON, type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Fetch extends HybridObject {
       get(url: string): AnyJSON
     }

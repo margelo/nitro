@@ -290,7 +290,7 @@ errors and ensures undefined/null-safety.
 <div className="side-by-side-block">
 
 ```ts title="Nitrogen"
-@iOS(...)
+@Apple(...)
 export declare class Math extends HybridObject {
   constructor()
   add(a: number, b: number): Promise<number>

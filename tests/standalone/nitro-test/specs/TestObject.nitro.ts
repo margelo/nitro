@@ -1,4 +1,4 @@
-import { Android, iOS } from 'nitro-core'
+import { Android, Apple } from 'nitro-core'
 import { type HybridObject, type AnyJSON, type CustomType, type AnyHybridObject, type UInt64, type Int64, type Inline } from 'nitro-core'
 import type { SomeExternalObject, OptionalPrimitivesHolder, CppOnlyValue } from 'nitro-test-external'
 import type { Child } from './Child.nitro'
@@ -144,7 +144,7 @@ interface PartialPerson extends Partial<Person> {}
 export type HardwareBufferFormat = 'rgba-8888' | 'rgb-565' | 'rgba-fp16' | 'blob'
 
 // This is a C++-based `HybridObject`.
-@iOS({
+@Apple({
   language: 'c++',
   implementation: {
     className: 'HybridTestObjectCpp',
@@ -421,7 +421,7 @@ export declare class TestObjectCpp extends HybridObject {
 }
 
 // This is a Swift/Kotlin-based `HybridObject`.
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridTestObjectSwift' },
 })

@@ -13,12 +13,15 @@ function getDecoratorPlatform(decorator: Decorator, name: string): Platform {
   if (symbol?.isAlias()) symbol = symbol.getAliasedSymbol()
   const decoratorName = symbol?.getName() ?? decorator.getName()
   switch (decoratorName) {
+    case 'Apple':
     case 'iOS':
       return 'apple'
     case 'Android':
       return 'android'
     default:
-      throw new Error(`${name}: Unsupported decorator \`@${decorator.getName()}(...)\`. Use \`@iOS(...)\` or \`@Android(...)\`.`)
+      throw new Error(
+        `${name}: Unsupported decorator \`@${decorator.getName()}(...)\`. Use \`@Apple(...)\` (or its alias \`@iOS(...)\`) or \`@Android(...)\`.`
+      )
   }
 }
 
@@ -69,7 +72,7 @@ function getLiteralOptions(decorator: Decorator, name: string): LiteralOptions {
   const argumentsList = decorator.getArguments()
   const options = argumentsList.at(0)
   if (argumentsList.length !== 1 || options == null || !Node.isObjectLiteralExpression(options)) {
-    throw new Error(`${name}: \`@iOS(...)\` and \`@Android(...)\` require one literal options object.`)
+    throw new Error(`${name}: \`@Apple(...)\`, \`@iOS(...)\` and \`@Android(...)\` require one literal options object.`)
   }
   const result = getLiteralValue(options, name)
   if (typeof result !== 'object' || Array.isArray(result)) {
@@ -89,7 +92,8 @@ export function getHybridObjectDecoratorOptions(declaration: ClassDeclaration, n
     }
     const platform = getDecoratorPlatform(decorator, name)
     if (result[platform] != null) {
-      throw new Error(`${name}: Platform ${platform} is configured by more than one decorator.`)
+      const aliasHint = platform === 'apple' ? ' `@iOS(...)` is an alias of `@Apple(...)`, so use only one of them.' : ''
+      throw new Error(`${name}: Platform ${platform} is configured by more than one decorator.${aliasHint}`)
     }
     result[platform] = getLiteralOptions(decorator, name)
   }

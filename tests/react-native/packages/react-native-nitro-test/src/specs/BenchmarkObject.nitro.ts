@@ -1,4 +1,4 @@
-import { Android, iOS } from 'react-native-nitro-modules'
+import { Android, Apple } from 'react-native-nitro-modules'
 import type { HybridObject } from 'react-native-nitro-modules'
 
 export type Powertrain = 'electric' | 'gas' | 'hybrid'
@@ -22,7 +22,7 @@ export interface Car {
   someVariant?: number | string
 }
 
-@iOS({
+@Apple({
   language: 'c++',
   implementation: {
     className: 'HybridBenchmarkObjectCpp',
@@ -60,7 +60,7 @@ export declare class BenchmarkObjectCpp extends HybridObject {
   newBenchmarkObject(): BenchmarkObjectCpp
 }
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridBenchmarkObjectSwift' },
 })

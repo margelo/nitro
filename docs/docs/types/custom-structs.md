@@ -10,14 +10,14 @@ C++/Swift/Kotlin. Simply define the type in your `.nitro.ts` spec:
 <div className="side-by-side-block">
 
 ```ts title="Nitro.nitro.ts"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
 interface Person {
   name: string
   age: number
 }
 
-@iOS(...)
+@Apple(...)
 export declare class Nitro extends HybridObject {
   getAuthor(): Person
 }

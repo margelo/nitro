@@ -11,9 +11,9 @@ Primitive datatypes like `number`, `boolean` or `bigint` can use platform-native
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Math extends HybridObject {
       add(a: number, b: number): number
     }
@@ -63,9 +63,9 @@ A 64-bit signed integer that ranges from -2^63 to 2^63-1.
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Math extends HybridObject {
       add(a: Int64, b: Int64): Int64
     }
@@ -106,9 +106,9 @@ A 64-bit unsigned integer that ranges from 0 to 2^64-1. On 64-bit systems, this 
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Math extends HybridObject {
       add(a: UInt64, b: UInt64): UInt64
     }

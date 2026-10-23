@@ -4,7 +4,7 @@ import type { HybridObjectPlatformOptions } from './HybridObjectPlatformOptions.
 // have protected or private constructors, so only constrain the decorator kind.
 type HybridObjectDecorator = (target: unknown, context?: Pick<ClassDecoratorContext, 'kind'>) => void
 
-function createDecoratorCallError(name: 'iOS' | 'Android'): Error {
+function createDecoratorCallError(name: 'Apple' | 'Android'): Error {
   return new Error(
     `\`@${name}(...)\` is a Nitrogen annotation for \`export declare class\` HybridObject specs and must never run. ` +
       `If the spec uses \`class\`, change it to \`declare class\`. ` +
@@ -20,9 +20,14 @@ function createDecoratorCallError(name: 'iOS' | 'Android'): Error {
  * @throws Always. A call means the spec uses `class` instead of `declare class`,
  * or a transpiler emitted decorator calls for a declared class.
  */
-export function iOS(_options: HybridObjectPlatformOptions<'c++' | 'swift'>): HybridObjectDecorator {
-  throw createDecoratorCallError('iOS')
+export function Apple(_options: HybridObjectPlatformOptions<'c++' | 'swift'>): HybridObjectDecorator {
+  throw createDecoratorCallError('Apple')
 }
+
+/**
+ * Alias of {@linkcode Apple}. Selects the Apple implementation (iOS, macOS, tvOS and visionOS) of a declared HybridObject class.
+ */
+export const iOS: typeof Apple = Apple
 
 /**
  * Selects the Android implementation of a declared HybridObject class.

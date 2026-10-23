@@ -15,7 +15,7 @@ methods, properties (get + set), static methods and properties, constructors (`n
 <div className="side-by-side-block">
 
 ```ts title="Math.nitro.ts"
-@iOS(...)
+@Apple(...)
 @Android(...)
 export declare class Math extends HybridObject {
   static readonly pi: number
@@ -60,7 +60,7 @@ const math = new Math(...)
 A Hybrid Object can also create other Hybrid Objects:
 
 ```ts title="Image.nitro.ts"
-@iOS(...)
+@Apple(...)
 @Android(...)
 export declare class Image extends HybridObject {
   readonly width: number
@@ -69,7 +69,7 @@ export declare class Image extends HybridObject {
 }
 export * from '#nitro/Image'
 
-@iOS(...)
+@Apple(...)
 @Android(...)
 export declare class ImageLoader extends HybridObject {
   static loadImageFromWeb(path: string): Promise<Image>
@@ -156,7 +156,7 @@ Hybrid Objects can be implemented in C++, Swift or Kotlin:
 Nitrogen will ✨ automagically ✨ generate native specifications for each Hybrid Object based on a given TypeScript definition:
 
 ```ts title="Math.nitro.ts"
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridMath' },
 })
@@ -269,7 +269,7 @@ and static members:
     <div className="side-by-side-block" style={{ flex: 2 }}>
     <div>
     ```ts
-    @iOS({
+    @Apple({
       // ...
       // highlight-next-line
       allowInheritance: true,
@@ -284,7 +284,7 @@ and static members:
     export * from '#nitro/Media'
 
     type ImageFormat = 'jpg' | 'png'
-    @iOS(...)
+    @Apple(...)
     @Android(...)
     // highlight-next-line
     export declare class Image extends Media {
@@ -323,7 +323,7 @@ interface Media {
   readonly height: number
 }
 
-@iOS(...)
+@Apple(...)
 @Android(...)
 // highlight-next-line
 export declare class Image extends HybridObject implements Media {
@@ -332,7 +332,7 @@ export declare class Image extends HybridObject implements Media {
 }
 export * from '#nitro/Image'
 
-@iOS(...)
+@Apple(...)
 @Android(...)
 // highlight-next-line
 export declare class Video extends HybridObject implements Media {

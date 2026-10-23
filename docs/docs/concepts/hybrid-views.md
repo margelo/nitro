@@ -13,7 +13,7 @@ class-member, `view`:
 <div className="side-by-side-block">
 
 ```ts title="CameraView.nitro.ts"
-@iOS(...)
+@Apple(...)
 @Android(...)
 export declare class CameraView extends HybridView {
   enableFlash: boolean

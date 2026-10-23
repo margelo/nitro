@@ -14,7 +14,7 @@ to generate native interfaces from TypeScript definitions.
 <div className="side-by-side-block">
 
 ```ts title="Math.nitro.ts"
-@iOS(...)
+@Apple(...)
 @Android(...)
 export declare class Math extends HybridObject {
   readonly pi: number
@@ -109,19 +109,19 @@ Nitrogen parses all TypeScript files that end in `.nitro.ts`.
 A Nitro spec file consists of one or more `declare class` statements and combined `export`s.
 
 - `declare class` describes your native class via instance methods, properties (get + set), `constructor(...)`, or static methods.
-- The `@iOS` and `@Android` decorators on `declare class` describe the connection between the JS types and the native implementation - for
+- The `@Apple` and `@Android` decorators on `declare class` describe the connection between the JS types and the native implementation - for
   example, `language: 'swift'` means that `Math` is implemented in Swift on Apple platforms. `implementation: ...` defines the actual Swift
   class that implements the spec natively, which is required for it to have a `constructor()` or static methods.
 - Since `declare class` is type-only, no JS runtime code exists. Nitrogen generates this, which must be re-exported via
   `export * from '#nitro/Math'`.
 
-See [Platform decorators](platform-decorators) for all `@iOS` and `@Android` options, including multiple implementations, inheritance, and
+See [Platform decorators](platform-decorators) for all `@Apple` and `@Android` options, including multiple implementations, inheritance, and
 native protocol/interface requirements.
 
 ```ts title="Math.nitro.ts"
-import { iOS, type HybridObject } from 'nitro-core'
+import { Apple, type HybridObject } from 'nitro-core'
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridMath' },
 })

@@ -12,9 +12,9 @@ While it can be used as a separate type directly, `null` most commonly used to m
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>
     ```ts
-    import { type HybridObject, iOS } from 'nitro-core'
+    import { type HybridObject, Apple } from 'nitro-core'
 
-    @iOS(...)
+    @Apple(...)
     export declare class Math extends HybridObject {
       a: number | null
     }

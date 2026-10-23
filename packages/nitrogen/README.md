@@ -34,11 +34,11 @@ adds that line after the imports when it is missing:
 
 ```ts
 // Image.nitro.ts
-import { iOS, type HybridObject } from 'nitro-core'
+import { Apple, type HybridObject } from 'nitro-core'
 
 export * from '#nitro/Image'
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: {
     className: 'HybridImage',
@@ -106,8 +106,8 @@ cannot select a namespace or package outside that project, and `null` is invalid
 quotes, for example `'<MyImages/HybridImage.hpp>'` or `'"HybridImage.hpp"'`. Nitrogen uses that header and the fully qualified C++ class
 name; the header filename can differ from the class name.
 
-Use `@iOS({ ... })` and `@Android({ ... })` to declare platform options. Decorators require TypeScript 5 or newer; standard decorators work
-without `experimentalDecorators`. Nitrogen reads literal objects, arrays, strings, and booleans from the source. Variables, spreads and
+Use `@Apple({ ... })` and `@Android({ ... })` to declare platform options. Decorators require TypeScript 5 or newer; standard decorators
+work without `experimentalDecorators`. Nitrogen reads literal objects, arrays, strings, and booleans from the source. Variables, spreads and
 computed values are unsupported. The imported helpers provide argument checking. The decorators are metadata for Nitrogen. They sit on
 declared classes, which compile to no JavaScript, so they never run. If one does run, it throws. That happens when the spec uses `class`
 instead of `declare class`, or when a transpiler emits decorator calls for declared classes, as swc does with decorators enabled. Compile
@@ -138,7 +138,7 @@ A spec with `allowMultipleImplementations: true` has no public constructor, stat
 native code and return them through another HybridObject API. A concrete factory can expose creation methods:
 
 ```ts
-@iOS({
+@Apple({
   language: 'swift',
   allowMultipleImplementations: true,
 })
@@ -147,7 +147,7 @@ export declare class Image extends HybridObject {
   readonly height: number
 }
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridImageFactory' },
 })
@@ -170,12 +170,12 @@ with Swift signatures, such as `swift::String hello()`. It does not generate an 
 A C++ spec can accept or return a Swift object:
 
 ```ts
-@iOS({ language: 'swift', allowMultipleImplementations: true })
+@Apple({ language: 'swift', allowMultipleImplementations: true })
 export declare class PlatformSpecific extends HybridObject {
   platformAPI(): string
 }
 
-@iOS({ language: 'c++', allowMultipleImplementations: true })
+@Apple({ language: 'c++', allowMultipleImplementations: true })
 export declare class CrossPlatformObject extends HybridObject {
   doSomething(platform: PlatformSpecific): void
 }
@@ -277,9 +277,9 @@ there.
 Declare a view class extending `HybridView` from `react-native-nitro-modules`:
 
 ```ts
-import { iOS, type HybridView } from 'react-native-nitro-modules'
+import { Apple, type HybridView } from 'react-native-nitro-modules'
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridTestView' },
 })
@@ -339,9 +339,9 @@ Native code receives a callback parameter as an owning `Callback`, which it can 
 constructor only calls the callback before it returns, wrap the parameter type in `Inline<...>`:
 
 ```ts
-import { iOS, type HybridObject, type Inline } from 'nitro-core'
+import { Apple, type HybridObject, type Inline } from 'nitro-core'
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: {
     className: 'HybridList',
@@ -373,19 +373,19 @@ mode:
 
 ```ts
 // Resources.nitro.ts
-import { iOS, type HybridObject } from 'nitro-core'
+import { Apple, type HybridObject } from 'nitro-core'
 
 export * from '#nitro/Resource'
 export * from '#nitro/File'
 
-@iOS({
+@Apple({
   language: 'swift',
   allowMultipleImplementations: true,
   allowInheritance: true,
 })
 export declare class Resource extends HybridObject {}
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: {
     className: 'HybridFile',
@@ -413,7 +413,7 @@ publish `nitro.json` and its Nitrogen output directory.
 defaults to none:
 
 ```ts
-@iOS({
+@Apple({
   language: 'swift',
   allowMultipleImplementations: true,
   protocolConformances: [{ protocol: 'ImageSource' }, { protocol: 'Cacheable', module: 'ImageCache' }],

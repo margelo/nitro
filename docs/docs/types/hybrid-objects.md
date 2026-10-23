@@ -10,16 +10,16 @@ native `HybridObject`s between JS and native, allowing for safe interface-level 
 <div className="side-by-side-block">
 
 ```ts title="Camera.nitro.ts"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS({ language: 'swift', allowMultipleImplementations: true })
+@Apple({ language: 'swift', allowMultipleImplementations: true })
 export declare class Image extends HybridObject {
   readonly width: number
   readonly height: number
 }
 export * from '#nitro/Image'
 
-@iOS(...)
+@Apple(...)
 export declare class Camera extends HybridObject {
   takePhoto(): Image
 }
@@ -73,9 +73,9 @@ under the hood, they all share a common interface with properties like `width`, 
 <div className="side-by-side-block">
 
 ```ts title="Cropper.nitro.ts"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS(...)
+@Apple(...)
 export declare class Cropper
   extends HybridObject {
   crop(image: Image, size: Size): Image
@@ -115,7 +115,7 @@ import {
   iOS
 } from 'nitro-core'
 
-@iOS(...)
+@Apple(...)
 export declare class Some
   extends HybridObject {
   something(obj: AnyHybridObject): void

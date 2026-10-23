@@ -1,18 +1,18 @@
 ---
 title: Platform decorators
-description: Configure native implementations, inheritance, Swift protocol conformances, and Kotlin interfaces with @iOS and @Android.
+description: Configure native implementations, inheritance, Swift protocol conformances, and Kotlin interfaces with @Apple and @Android.
 ---
 
 import Tabs from '@theme/Tabs'; import TabItem from '@theme/TabItem';
 
 # Platform decorators
 
-Use `@iOS(...)` and `@Android(...)` on an `export declare class` in a `.nitro.ts` spec to link the native classes for each platform:
+Use `@Apple(...)` and `@Android(...)` on an `export declare class` in a `.nitro.ts` spec to link the native classes for each platform:
 
 ```ts title="Math.nitro.ts"
-import { type HybridObject, iOS, Android } from 'nitro-core'
+import { type HybridObject, Apple, Android } from 'nitro-core'
 
-@iOS(...)
+@Apple(...)
 @Android(...)
 export declare class Math extends HybridObject {
   constructor()
@@ -20,6 +20,9 @@ export declare class Math extends HybridObject {
 }
 export * from '#nitro/Math'
 ```
+
+`@Apple(...)` configures iOS, macOS, tvOS and visionOS. `@iOS(...)` is an alias of `@Apple(...)` and does the same; use one of them per
+class.
 
 :::tip
 
@@ -35,7 +38,7 @@ platform-specific languages:
 
 | Decorator  | Languages           |
 | ---------- | ------------------- |
-| `@iOS`     | `'swift'`, `'c++'`  |
+| `@Apple`   | `'swift'`, `'c++'`  |
 | `@Android` | `'kotlin'`, `'c++'` |
 
 ## Concrete implementations
@@ -43,9 +46,9 @@ platform-specific languages:
 If your Hybrid Object is known to have a concrete implementation, specify it:
 
 ```ts
-import { type HybridObject, iOS, Android } from 'nitro-core'
+import { type HybridObject, Apple, Android } from 'nitro-core'
 
-@iOS({
+@Apple({
   language: 'swift',
   // highlight-next-line
   implementation: { className: 'HybridMath' }
@@ -107,9 +110,9 @@ To let other HybridObject specs extend a base spec, set `allowInheritance: true`
 `implementation` and keep its API limited to instance members:
 
 ```ts
-import { type HybridObject, iOS, Android } from 'nitro-core'
+import { type HybridObject, Apple, Android } from 'nitro-core'
 
-@iOS({
+@Apple({
   language: 'swift',
   allowMultipleImplementations: true,
   // highlight-next-line
@@ -126,7 +129,7 @@ export declare class Image extends HybridObject {
 }
 export * from '#nitro/Image'
 
-@iOS(...)
+@Apple(...)
 @Android(...)
 // highlight-next-line
 export declare class GPUImage extends Image {
@@ -140,9 +143,9 @@ export * from '#nitro/GPUImage'
 To prevent inheritance, set `allowInheritance: false` - this is also a performance optimization and speeds up calls on your Hybrid Object:
 
 ```ts
-import { type HybridObject, iOS, Android } from 'nitro-core'
+import { type HybridObject, Apple, Android } from 'nitro-core'
 
-@iOS({
+@Apple({
   ...
   // highlight-next-line
   allowInheritance: false
@@ -164,9 +167,9 @@ If your Hybrid Object is not bound to one specific implementation, set `allowMul
 example, an `Image` could be backed by a `UIImage`, a `CGImage`, or a GPU buffer:
 
 ```ts title="Image.nitro.ts"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS({
+@Apple({
   language: 'swift',
   // highlight-next-line
   allowMultipleImplementations: true,
@@ -196,9 +199,9 @@ class HybridGPUImage: HybridImageSpec {
 create and return `Image` instances:
 
 ```ts title="ImageFactory.nitro.ts"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS({
+@Apple({
   language: 'swift',
   implementation: { className: 'HybridImageFactory' },
 })
@@ -279,9 +282,9 @@ To avoid these repeated downcasts, simply declare a native Kotlin interface/Swif
 Then declare your interface/protocol conformance via `implementedInterfaces`/`protocolConformances`:
 
 ```ts title="Image.nitro.ts"
-import { type HybridObject, iOS } from 'nitro-core'
+import { type HybridObject, Apple } from 'nitro-core'
 
-@iOS({
+@Apple({
   language: 'swift',
   allowMultipleImplementations: true,
   // highlight-next-line

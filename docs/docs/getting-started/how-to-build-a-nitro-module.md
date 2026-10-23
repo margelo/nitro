@@ -115,15 +115,15 @@ To actually use Nitro, you need to create [Hybrid Objects](../concepts/hybrid-ob
     ### 2.1. Write the HybridObject specs
 
     A spec is just a `*.nitro.ts` file that exports two things:
-    1. A **class declaration** which extends `HybridObject` and describes its implementation via the [`@iOS` or `@Android` decorators](../concepts/platform-decorators)
+    1. A **class declaration** which extends `HybridObject` and describes its implementation via the [`@Apple` or `@Android` decorators](../concepts/platform-decorators)
     2. The generated JS class bindings via `#nitro/...`
 
     <Tabs groupId="native-language">
       <TabItem value="swift-kotlin" label="Swift/Kotlin" default>
       ```ts title="Math.nitro.ts"
-      import { iOS, Android, type HybridObject } from 'nitro-core'
+      import { Apple, Android, type HybridObject } from 'nitro-core'
 
-      @iOS({ language: 'swift', allowMultipleImplementations: true })
+      @Apple({ language: 'swift', allowMultipleImplementations: true })
       @Android({ language: 'kotlin', allowMultipleImplementations: true })
       export declare class Math extends HybridObject {
         // ...
@@ -134,9 +134,9 @@ To actually use Nitro, you need to create [Hybrid Objects](../concepts/hybrid-ob
       </TabItem>
       <TabItem value="cpp" label="C++">
       ```ts title="Math.nitro.ts"
-      import { iOS, Android, type HybridObject } from 'nitro-core'
+      import { Apple, Android, type HybridObject } from 'nitro-core'
 
-      @iOS({ language: 'c++', allowMultipleImplementations: true })
+      @Apple({ language: 'c++', allowMultipleImplementations: true })
       @Android({ language: 'c++', allowMultipleImplementations: true })
       export declare class Math extends HybridObject {
         // ...
@@ -153,14 +153,14 @@ To actually use Nitro, you need to create [Hybrid Objects](../concepts/hybrid-ob
 
     For `Math` it makes sense to have an `add(...)` method that can add two numbers together - it won't make sense to create instances of `Math` via `new Math(...)`, so we make `add(...)` a **static method**.
 
-    For this, we need to connect an `implementation` via the `@iOS`/`@Android` decorators - this connects the JS class with the native implementation in Swift/Kotlin or C++:
+    For this, we need to connect an `implementation` via the `@Apple`/`@Android` decorators - this connects the JS class with the native implementation in Swift/Kotlin or C++:
 
     <Tabs groupId="native-language">
       <TabItem value="swift-kotlin" label="Swift/Kotlin" default>
       ```ts title="Math.nitro.ts"
-      import { iOS, Android, type HybridObject } from 'nitro-core'
+      import { Apple, Android, type HybridObject } from 'nitro-core'
 
-      @iOS({
+      @Apple({
         language: 'swift',
         // diff-add
         implementation: { className: 'HybridMath' }
@@ -180,9 +180,9 @@ To actually use Nitro, you need to create [Hybrid Objects](../concepts/hybrid-ob
       </TabItem>
       <TabItem value="cpp" label="C++">
       ```ts title="Math.nitro.ts"
-      import { iOS, Android, type HybridObject } from 'nitro-core'
+      import { Apple, Android, type HybridObject } from 'nitro-core'
 
-      @iOS({
+      @Apple({
         language: 'c++',
         // diff-add
         implementation: { className: 'HybridMath', include: '"HybridMath.hpp"' }
@@ -410,7 +410,7 @@ Hybrid Objects can be instances with constructors, properties and instance metho
 `Math`:
 
 ```ts title="Math.nitro.ts"
-import { iOS, Android, type HybridObject } from 'nitro-core'
+import { Apple, Android, type HybridObject } from 'nitro-core'
 
 // diff-add-start
 export interface MathOptions {
@@ -418,7 +418,7 @@ export interface MathOptions {
 }
 // diff-add-end
 
-@iOS(...)
+@Apple(...)
 @Android(...)
 export declare class Math extends HybridObject {
   // diff-add

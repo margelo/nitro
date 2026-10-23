@@ -26,7 +26,7 @@ export interface CustomTypeConfig {
  * ```ts
  * // MyHybrid.nitro.ts
  * type MyOwnString = CustomType<string, 'MyOwnString', { include: 'MyOwnString.hpp' }>
- * @iOS({ language: 'c++', allowMultipleImplementations: true })
+ * @Apple({ language: 'c++', allowMultipleImplementations: true })
  * export declare class MyHybrid extends HybridObject {
  *   getValue(): MyOwnString
  * }

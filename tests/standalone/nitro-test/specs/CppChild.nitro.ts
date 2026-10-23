@@ -1,10 +1,10 @@
-import { Android, iOS } from 'nitro-core'
+import { Android, Apple } from 'nitro-core'
 import type { CppBase } from './CppBase.nitro'
 import type { NamedVariant } from './TestObject.nitro'
 
 export * from '#nitro/CppChild'
 
-@iOS({
+@Apple({
   language: 'c++',
   allowMultipleImplementations: true,
   allowInheritance: true,

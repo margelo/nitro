@@ -90,7 +90,7 @@ Then just use the type in your methods:
       { include: 'JSIConverter+ShadowNode.hpp' }
     >
 
-    @iOS(...)
+    @Apple(...)
     export declare class MyHybrid
       extends HybridObject {
       doSomething(view: ShadowNode): void

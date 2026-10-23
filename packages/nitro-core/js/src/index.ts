@@ -5,7 +5,7 @@ export * from './AnyJSON.js'
 export * from './BoxedHybridObject.js'
 export * from './CustomType.js'
 export { HybridObject } from './HybridObject.js'
-export { iOS, Android } from './HybridObjectDecorators.js'
+export { Apple, iOS, Android } from './HybridObjectDecorators.js'
 export type {
   HybridObjectPlatformOptions,
   SwiftHybridObjectImplementation,
