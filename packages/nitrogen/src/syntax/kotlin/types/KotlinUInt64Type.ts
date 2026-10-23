@@ -15,18 +15,26 @@ import {
   type KotlinTypeOptions,
 } from './KotlinType.js'
 
-/** JNI carries ULong bits as Long; the boxed facade preserves unsigned JS semantics. */
+/**
+ * JNI carries ULong bits as Long; the boxed facade preserves unsigned JS semantics.
+ * A ULong erased to an `Object` stays boxed as `kotlin.ULong`, which JNI sees as a `JULong`.
+ */
 export class KotlinUInt64Type extends UInt64Type implements KotlinType {
-  readonly needsKotlinConversion = true
   readonly boxed: boolean
+  readonly erasedToObject: boolean
 
   get isKotlinFieldCompatible(): boolean {
     return !this.boxed
   }
 
-  constructor({ boxed }: KotlinTypeOptions = {}) {
+  get needsKotlinConversion(): boolean {
+    return !this.erasedToObject
+  }
+
+  constructor({ boxed, erasedToObject }: KotlinTypeOptions = {}) {
     super()
     this.boxed = boxed === true
+    this.erasedToObject = this.boxed && erasedToObject === true
   }
 
   get jniValueKind(): JniValueKind {
@@ -43,14 +51,15 @@ export class KotlinUInt64Type extends UInt64Type implements KotlinType {
         if (!this.boxed) return super.getCode(language, options)
         return this.getJniCode(options)
       case 'kotlin':
-        return 'Long'
+        return this.erasedToObject ? 'ULong' : 'Long'
       case 'swift':
         return super.getCode(language, options)
     }
   }
 
   getJniCode(options: GetKotlinCodeOptions): string {
-    return getJniPrimitiveCode('jlong', options, { boxedType: 'JUInt64', boxed: this.boxed })
+    const boxedType = this.erasedToObject ? 'JULong' : 'JUInt64'
+    return getJniPrimitiveCode('jlong', options, { boxedType: boxedType, boxed: this.boxed })
   }
 
   convertJniValue(value: string, direction: JniValueDirection): string {
@@ -66,6 +75,7 @@ export class KotlinUInt64Type extends UInt64Type implements KotlinType {
   convert(value: string, conversion: KotlinConversion): string {
     switch (conversion.in) {
       case 'kotlin':
+        if (this.erasedToObject) return value
         return conversion.from === 'kotlin' ? `${value}.toLong()` : `${value}.toULong()`
       case 'c++': {
         const converter = getKotlinConverter({ cppType: new UInt64Type(), kotlinType: this })

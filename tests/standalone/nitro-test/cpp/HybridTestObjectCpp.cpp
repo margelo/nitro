@@ -391,6 +391,29 @@ HybridTestObjectCpp::bounceUnsignedArrayVariant(const std::variant<std::vector<u
   return variant;
 }
 
+std::unordered_map<std::string, uint64_t> HybridTestObjectCpp::bounceUnsignedMap(const std::unordered_map<std::string, uint64_t>& map) {
+  return map;
+}
+
+std::unordered_map<std::string, std::vector<uint64_t>>
+HybridTestObjectCpp::bounceUnsignedArrayMap(const std::unordered_map<std::string, std::vector<uint64_t>>& map) {
+  return map;
+}
+
+Promise<uint64_t> HybridTestObjectCpp::bounceUnsignedAsync(uint64_t value) {
+  return Promise<uint64_t>::async([=]() { return value; });
+}
+
+Promise<uint64_t> HybridTestObjectCpp::callUnsignedCallbackAsync(uint64_t value, const Callback<uint64_t(uint64_t)>& callback) {
+  return callback.callAsync(value);
+}
+
+Promise<std::vector<uint64_t>>
+HybridTestObjectCpp::callUnsignedArrayCallbackAsync(const std::vector<uint64_t>& array,
+                                                    const Callback<std::vector<uint64_t>(const std::vector<uint64_t>&)>& callback) {
+  return callback.callAsync(array);
+}
+
 std::vector<HybridChildSpecCxx> HybridTestObjectCpp::bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) {
   return array;
 }

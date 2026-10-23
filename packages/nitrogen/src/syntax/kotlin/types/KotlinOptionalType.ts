@@ -16,7 +16,7 @@ export class KotlinOptionalType extends OptionalType implements KotlinType {
     readonly type: OptionalType,
     options: KotlinTypeOptions = {}
   ) {
-    const wrappingType = wrapKotlinType(type.wrappingType, { boxed: true, config: options.config })
+    const wrappingType = wrapKotlinType(type.wrappingType, { boxed: true, erasedToObject: options.erasedToObject, config: options.config })
     super(wrappingType)
     this.wrappingType = wrappingType
   }

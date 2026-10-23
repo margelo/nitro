@@ -19,6 +19,12 @@ export interface KotlinTypeOptions {
    * results and callback results. Only primitives box, e.g. `double` as `jni::JDouble`.
    */
   boxed?: boolean
+  /**
+   * Whether the JVM erases the value to an `Object`, as for record values and promise results.
+   * `Array<T>` elements are not erased, since the JVM array type names `T`. Kotlin value classes
+   * such as `ULong` then keep their public box, which JNI converts without naming its class.
+   */
+  erasedToObject?: boolean
 }
 
 /** A conversion of a value across JNI, written in either language. */

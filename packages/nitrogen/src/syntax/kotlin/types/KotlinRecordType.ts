@@ -22,7 +22,7 @@ export class KotlinRecordType extends RecordType implements KotlinType {
       throw new Error('Kotlin records require string keys.')
     }
     const keyType = wrapKotlinType(type.keyType, { boxed: true, config: options.config })
-    const valueType = wrapKotlinType(type.valueType, { boxed: true, config: options.config })
+    const valueType = wrapKotlinType(type.valueType, { boxed: true, erasedToObject: true, config: options.config })
     super(keyType, valueType)
     this.keyType = keyType
     this.valueType = valueType

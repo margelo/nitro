@@ -188,6 +188,14 @@ public:
   std::variant<uint64_t, std::string> bounceUnsignedVariant(const std::variant<uint64_t, std::string>& variant) override;
   std::variant<std::vector<uint64_t>, std::string>
   bounceUnsignedArrayVariant(const std::variant<std::vector<uint64_t>, std::string>& variant) override;
+  std::unordered_map<std::string, uint64_t> bounceUnsignedMap(const std::unordered_map<std::string, uint64_t>& map) override;
+  std::unordered_map<std::string, std::vector<uint64_t>>
+  bounceUnsignedArrayMap(const std::unordered_map<std::string, std::vector<uint64_t>>& map) override;
+  Promise<uint64_t> bounceUnsignedAsync(uint64_t value) override;
+  Promise<uint64_t> callUnsignedCallbackAsync(uint64_t value, const Callback<uint64_t(uint64_t)>& callback) override;
+  Promise<std::vector<uint64_t>>
+  callUnsignedArrayCallbackAsync(const std::vector<uint64_t>& array,
+                                 const Callback<std::vector<uint64_t>(const std::vector<uint64_t>&)>& callback) override;
 
   std::vector<HybridChildSpecCxx> bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) override;
   std::vector<Callback<void()>> bounceFunctions(const std::vector<Callback<void()>>& functions) override;

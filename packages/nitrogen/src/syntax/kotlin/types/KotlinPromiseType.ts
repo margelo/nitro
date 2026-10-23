@@ -20,7 +20,7 @@ export class KotlinPromiseType extends PromiseType implements KotlinType {
     options: KotlinTypeOptions = {}
   ) {
     // JNI resolves promises with objects, so primitive results are boxed.
-    const resultingType = wrapKotlinType(type.resultingType, { boxed: true, config: options.config })
+    const resultingType = wrapKotlinType(type.resultingType, { boxed: true, erasedToObject: true, config: options.config })
     super(resultingType)
     this.resultingType = resultingType
   }
