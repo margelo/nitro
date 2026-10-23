@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
@@ -18,30 +19,35 @@ namespace margelo::nitro::test::external {
 
   namespace jni = facebook::jni;
 
-  class JCallback_Promise_double__cxx;
-
-  struct JCallback_Promise_double_ : jni::JavaClass<JCallback_Promise_double_> {
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/Callback_Promise_double_;";
-    using CxxPart = JCallback_Promise_double__cxx;
-    using NativeSignature = JNICallbackState<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>()>::Signature;
-
-    JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>>::Type invoke() const;
-  };
-
-  class JCallback_Promise_double__cxx final : public jni::HybridClass<JCallback_Promise_double__cxx, JCallback_Promise_double_> {
+  /**
+   * The C++ part of the Kotlin `Callback_Promise_double_`, which holds a `Callback<...>` in `JNICallback`.
+   */
+  class JCallback_Promise_double_ final : public jni::HybridClass<JCallback_Promise_double_, JNICallback<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>()>> {
   public:
-    using CallbackType = Callback<JCallback_Promise_double_::NativeSignature>;
-    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/Callback_Promise_double__cxx;";
+    static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/Callback_Promise_double_;";
 
-    static jni::local_ref<JCallback_Promise_double_> create(CallbackType callback, bool isInline);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> invoke_cxx();
-    const CallbackType& getCallback() const { return _state.getCallback(); }
+    /**
+     * The Kotlin `Callback_Promise_double_.Function_cxx`, which calls a Kotlin callback.
+     */
+    struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/Callback_Promise_double_$Function_cxx;";
+      JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>>::Type invoke() const;
+    };
+
+  public:
+    static jni::local_ref<JavaPart> create(CallbackType callback);
     static void registerNatives();
 
   private:
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callSync_cxx();
+    jni::local_ref<JTypedPromise<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>>> callAsync_cxx();
+    void callAndForget_cxx();
+    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
+    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
+
+  private:
     friend HybridBase;
-    explicit JCallback_Promise_double__cxx(CallbackType callback, bool isInline);
-    JNICallbackState<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>()> _state;
+    explicit JCallback_Promise_double_(CallbackType callback);
   };
 
 } // namespace margelo::nitro::test::external

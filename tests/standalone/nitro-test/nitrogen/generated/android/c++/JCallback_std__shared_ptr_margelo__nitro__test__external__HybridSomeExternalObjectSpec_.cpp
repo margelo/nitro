@@ -9,27 +9,51 @@
 #include <NitroTestExternal/private/JHybridSomeExternalObjectSpec.hpp>
 #include <NitroModules/JNIConverter+HybridObject.hpp>
 #include <NitroModules/JSIConverter+JHybridObject.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>>::Type JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::invoke() const {
-    static const auto __method = javaClassStatic()->getMethod<jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>()>("invoke_jni");
+  JNIRetainedValue<jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>>::Type JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::JFunction_cxx::invoke() const {
+    static const auto __method = javaClassStatic()->getMethod<jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>()>("call");
     auto result = __method(self());
     return JNIRetainedValue<jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>>::retain(result);
   }
 
-  jni::local_ref<JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_> JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::JavaPart> JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__cxx::invoke_cxx() {
-    return _state.invoke();
+  jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::callSync_cxx() {
+    return callSync();
   }
 
-  void JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>>> JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::callAsync_cxx() {
+    return callAsync<JTypedPromise<jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>>>();
   }
 
-  JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__cxx::JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec__cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::callAndForget_cxx() {
+    callAndForget();
+  }
+
+  jni::local_ref<JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::JavaPart> JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    return create(getCallback(callback));
+  }
+
+  jni::local_ref<JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::JavaPart> JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::fromFunction_cxx),
+    });
+  }
+
+  JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_(CallbackType callback) : HybridBase(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

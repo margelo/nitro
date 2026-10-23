@@ -53,6 +53,7 @@ sealed class NamedVariant private constructor(@DoNotStrip private val index: Int
 
   companion object {
     @JvmStatic
+    @JvmName("createFirst")
     @DoNotStrip
     fun create(value: String): NamedVariant = First(value)
 
@@ -60,6 +61,7 @@ sealed class NamedVariant private constructor(@DoNotStrip private val index: Int
     @DoNotStrip
     private fun fromCpp_0(value: String): NamedVariant = First(value)
     @JvmStatic
+    @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Car): NamedVariant = Second(value)
 

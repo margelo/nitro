@@ -474,10 +474,10 @@ abstract class HybridImageSpec: HybridObject(), ImageSource, Cacheable {
 ```
 
 `package` is required and holds the interface's full package. Unlike `implementation.package`, it is not relative to `android.namespace`.
-For a nested interface, put its outer class in `package`, e.g. `{ interface: 'Callback', package: 'android.view.SurfaceHolder' }`. Generic
-interfaces are not supported. Nitrogen imports each interface by name, so its name must not match another type the spec uses, and the Gradle
-module must depend on the library declaring it. Implementations must implement each interface's abstract members. A derived spec inherits
-the interfaces through its parent's spec class.
+For a nested interface, put its outer class in `package`, e.g. `{ interface: 'OnClickListener', package: 'android.view.View' }`. Generic
+interfaces are not supported. Nitrogen imports each interface by name, so its name must not match another type the spec uses, including
+Nitro types such as `Callback` and `Promise`, and the Gradle module must depend on the library declaring it. Implementations must implement
+each interface's abstract members. A derived spec inherits the interfaces through its parent's spec class.
 
 The generated spec class redeclares every spec member without `override`. An interface therefore can't declare a property with the same name
 as a spec property, or a function with the same name and parameter types as a spec method, because Kotlin would require `override`. This

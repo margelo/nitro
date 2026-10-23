@@ -10,38 +10,15 @@ package com.margelo.nitro.test
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-
-
-/**
- * Represents the JavaScript callback `() => double`.
- * This can be either implemented in C++ (in which case it might be a callback coming from JS),
- * or in Kotlin/Java (in which case it is a native callback).
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType")
-fun interface Callback_double: () -> Double {
-  /**
-   * Call the given JS callback.
-   * @throws Throwable if the JS function itself throws an error, or if the JS function/runtime has already been deleted.
-   */
-  @DoNotStrip
-  @Keep
-  override fun invoke(): Double
-
-  // JNI uses this signature to avoid erased FunctionN and unsigned value types.
-  @DoNotStrip
-  @Keep
-  fun invoke_jni(): Double {
-    val __result = invoke()
-    return __result
-  }
-}
+import com.margelo.nitro.core.Callback
+import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.CxxCallback
+import com.margelo.nitro.core.callSync
 
 /**
- * Represents the JavaScript callback `() => double`.
- * This is implemented in C++, via a `Callback<...>`.
- * The callback might be coming from JS.
+ * The JNI representation of `Callback<() -> Double>`, for the JavaScript callback `() => double`.
+ * It holds a C++ `Callback<...>`, which calls either a JS function or a native function.
+ * Use `Callback<() -> Double>` instead of this class in your code.
  */
 @DoNotStrip
 @Keep
@@ -49,42 +26,69 @@ fun interface Callback_double: () -> Double {
   "KotlinJniMissingFunction", "unused",
   "RedundantSuppression", "RedundantUnitReturnType", "FunctionName",
   "ConvertSecondaryConstructorToPrimary", "ClassName", "LocalVariableName",
+  "PARAMETER_NAME_CHANGED_ON_OVERRIDE",
 )
-class Callback_double_cxx: Callback_double {
-  @DoNotStrip
-  @Keep
-  private val mHybridData: HybridData
+class Callback_double @DoNotStrip @Keep private constructor(hybridData: HybridData): CxxCallback(hybridData), Callback.Arity0<Double> {
+  override fun callSync(): Double {
+    return callSync_cxx()
+  }
 
+  override fun callAsync(): Promise<Double> {
+    return callAsync_cxx()
+  }
+
+  override fun callAndForget(): Unit {
+    callAndForget_cxx()
+  }
+
+  /**
+   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   */
   @DoNotStrip
   @Keep
-  private constructor(hybridData: HybridData) {
-    mHybridData = hybridData
+  private class Function_cxx(private val callback: Callback<() -> Double>) {
+    @DoNotStrip
+    @Keep
+    fun call(): Double {
+      return this.callback.callSync()
+    }
   }
 
   @DoNotStrip
   @Keep
-  override fun invoke(): Double {
-    val __result = invoke_cxx()
-    return __result
-  }
+  private external fun callSync_cxx(): Double
 
   @DoNotStrip
   @Keep
-  private external fun invoke_cxx(): Double
-}
+  private external fun callAsync_cxx(): Promise<Double>
 
-/**
- * Represents the JavaScript callback `() => double`.
- * This is implemented in Java/Kotlin, via a `() -> Double`.
- * The callback is always coming from native.
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType", "unused")
-class Callback_double_java(private val callback: () -> Double): Callback_double {
   @DoNotStrip
   @Keep
-  override fun invoke(): Double {
-    return this.callback()
+  private external fun callAndForget_cxx(): Unit
+
+  companion object {
+    /**
+     * Returns the given [callback] as its JNI representation.
+     * A callback from another module keeps its C++ `Callback<...>`, and
+     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     */
+    @JvmStatic
+    fun fromKotlin(callback: Callback<() -> Double>): Callback_double {
+      return when (callback) {
+        is Callback_double -> callback
+        is CxxCallback -> fromCxx_cxx(callback)
+        else -> fromFunction_cxx(Function_cxx(callback))
+      }
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromCxx_cxx(callback: CxxCallback): Callback_double
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromFunction_cxx(function: Function_cxx): Callback_double
   }
 }

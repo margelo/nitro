@@ -108,7 +108,7 @@ export class CallbackType implements Type {
           ...options,
           context: 'return',
         })
-        return `(${params}) -> ${returnType}`
+        return `Callback<(${params}) -> ${returnType}>`
       }
       default:
         throw new Error(`Language ${language} is not yet supported for CallbackType!`)
@@ -147,6 +147,12 @@ export class CallbackType implements Type {
           language,
           name: 'NitroModules',
           access: 'public',
+        })
+        break
+      case 'kotlin':
+        imports.push({
+          language,
+          name: 'com.margelo.nitro.core.Callback',
         })
         break
     }

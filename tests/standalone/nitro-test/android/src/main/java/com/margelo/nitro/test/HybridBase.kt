@@ -2,8 +2,9 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.Promise
-import com.margelo.nitro.core.resolved
+import com.margelo.nitro.core.invoke
 
 @Keep
 @DoNotStrip
@@ -22,9 +23,9 @@ open class HybridBase : HybridBaseSpec() {
 
   override fun mapSize(
     size: Size,
-    callback: (Size) -> Size,
+    callback: Callback<(size: Size) -> Size>,
   ): Promise<Size> {
-    return Promise.resolved(callback(size))
+    return callback(size)
   }
 }
 

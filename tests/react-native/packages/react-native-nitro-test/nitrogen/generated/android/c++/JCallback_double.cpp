@@ -8,27 +8,51 @@
 #include <NitroTest/private/JCallback_double.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
+#include <NitroModules/JNIConverter+Promise.hpp>
+#include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<jdouble>::Type JCallback_double::invoke() const {
-    static const auto __method = javaClassStatic()->getMethod<jdouble()>("invoke_jni");
+  JNIRetainedValue<jdouble>::Type JCallback_double::JFunction_cxx::invoke() const {
+    static const auto __method = javaClassStatic()->getMethod<jdouble()>("call");
     auto result = __method(self());
     return JNIRetainedValue<jdouble>::retain(result);
   }
 
-  jni::local_ref<JCallback_double> JCallback_double_cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_double::JavaPart> JCallback_double::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  jdouble JCallback_double_cxx::invoke_cxx() {
-    return _state.invoke();
+  jdouble JCallback_double::callSync_cxx() {
+    return callSync();
   }
 
-  void JCallback_double_cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_double_cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> JCallback_double::callAsync_cxx() {
+    return callAsync<JTypedPromise<jni::local_ref<jni::JDouble>>>();
   }
 
-  JCallback_double_cxx::JCallback_double_cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_double::callAndForget_cxx() {
+    callAndForget();
+  }
+
+  jni::local_ref<JCallback_double::JavaPart> JCallback_double::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    return create(getCallback(callback));
+  }
+
+  jni::local_ref<JCallback_double::JavaPart> JCallback_double::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_double::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_double::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_double::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_double::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_double::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_double::fromFunction_cxx),
+    });
+  }
+
+  JCallback_double::JCallback_double(CallbackType callback) : HybridBase(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

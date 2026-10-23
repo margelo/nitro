@@ -12,6 +12,7 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import dalvik.annotation.optimization.FastNative
 import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.test.external.HybridBase
 import com.margelo.nitro.core.HybridObject
 
@@ -45,7 +46,7 @@ abstract class HybridBaseSpec: HybridObject() {
   @Keep
   abstract fun bounceSizeUnit(unit: SizeUnit): SizeUnit
 
-  abstract fun mapSize(size: Size, callback: (size: Size) -> Size): Promise<Size>
+  abstract fun mapSize(size: Size, callback: Callback<(size: Size) -> Size>): Promise<Size>
 
   @DoNotStrip
   @Keep

@@ -74,8 +74,8 @@ namespace margelo::nitro::test {
     void setInt64Value(jlong int64Value);
     jni::local_ref<JColorScheme> getColorScheme();
     void setColorScheme(const jni::local_ref<JColorScheme>& colorScheme);
-    jni::local_ref<margelo::nitro::test::JCallback_void> getSomeCallback();
-    void setSomeCallback(const jni::local_ref<margelo::nitro::test::JCallback_void>& someCallback);
+    jni::local_ref<margelo::nitro::test::JCallback_void::JavaPart> getSomeCallback();
+    void setSomeCallback(const jni::local_ref<margelo::nitro::test::JCallback_void::JavaPart>& someCallback);
     jni::local_ref<JOptional<jni::JDouble>> getNativeDefaultValue();
     void setNativeDefaultValue(const jni::local_ref<JOptional<jni::JDouble>>& nativeDefaultValue);
 

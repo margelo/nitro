@@ -97,8 +97,8 @@ namespace margelo::nitro::test::external {
     auto __result = __method(_javaPart, CxxPart::getClass(), unit);
     return __result;
   }
-  jni::local_ref<JTypedPromise<jni::local_ref<JSize>>> JHybridBaseSpec::mapSize(const jni::local_ref<JSize>& size, const jni::local_ref<margelo::nitro::test::external::JCallback_Size_Size>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<jni::local_ref<JSize>>>(jni::alias_ref<JSize> /* size */, jni::alias_ref<margelo::nitro::test::external::JCallback_Size_Size> /* callback */)>("mapSize_cxx");
+  jni::local_ref<JTypedPromise<jni::local_ref<JSize>>> JHybridBaseSpec::mapSize(const jni::local_ref<JSize>& size, const jni::local_ref<margelo::nitro::test::external::JCallback_Size_Size::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<jni::local_ref<JSize>>>(jni::alias_ref<JSize> /* size */, jni::alias_ref<margelo::nitro::test::external::JCallback_Size_Size::JavaPart> /* callback */)>("mapSize_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), size, callback);
     return __result;
   }

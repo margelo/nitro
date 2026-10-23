@@ -11,37 +11,14 @@ import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.Callback
+import com.margelo.nitro.core.CxxCallback
+import com.margelo.nitro.core.callSync
 
 /**
- * Represents the JavaScript callback `() => Promise<std::vector<Powertrain>>`.
- * This can be either implemented in C++ (in which case it might be a callback coming from JS),
- * or in Kotlin/Java (in which case it is a native callback).
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType")
-fun interface Callback_Promise_std__vector_Powertrain__: () -> Promise<Array<Powertrain>> {
-  /**
-   * Call the given JS callback.
-   * @throws Throwable if the JS function itself throws an error, or if the JS function/runtime has already been deleted.
-   */
-  @DoNotStrip
-  @Keep
-  override fun invoke(): Promise<Array<Powertrain>>
-
-  // JNI uses this signature to avoid erased FunctionN and unsigned value types.
-  @DoNotStrip
-  @Keep
-  fun invoke_jni(): Promise<Array<Powertrain>> {
-    val __result = invoke()
-    return __result
-  }
-}
-
-/**
- * Represents the JavaScript callback `() => Promise<std::vector<Powertrain>>`.
- * This is implemented in C++, via a `Callback<...>`.
- * The callback might be coming from JS.
+ * The JNI representation of `Callback<() -> Promise<Array<Powertrain>>>`, for the JavaScript callback `() => Promise<std::vector<Powertrain>>`.
+ * It holds a C++ `Callback<...>`, which calls either a JS function or a native function.
+ * Use `Callback<() -> Promise<Array<Powertrain>>>` instead of this class in your code.
  */
 @DoNotStrip
 @Keep
@@ -49,42 +26,69 @@ fun interface Callback_Promise_std__vector_Powertrain__: () -> Promise<Array<Pow
   "KotlinJniMissingFunction", "unused",
   "RedundantSuppression", "RedundantUnitReturnType", "FunctionName",
   "ConvertSecondaryConstructorToPrimary", "ClassName", "LocalVariableName",
+  "PARAMETER_NAME_CHANGED_ON_OVERRIDE",
 )
-class Callback_Promise_std__vector_Powertrain___cxx: Callback_Promise_std__vector_Powertrain__ {
-  @DoNotStrip
-  @Keep
-  private val mHybridData: HybridData
+class Callback_Promise_std__vector_Powertrain__ @DoNotStrip @Keep private constructor(hybridData: HybridData): CxxCallback(hybridData), Callback.Arity0<Promise<Array<Powertrain>>> {
+  override fun callSync(): Promise<Array<Powertrain>> {
+    return callSync_cxx()
+  }
 
+  override fun callAsync(): Promise<Promise<Array<Powertrain>>> {
+    return callAsync_cxx()
+  }
+
+  override fun callAndForget(): Unit {
+    callAndForget_cxx()
+  }
+
+  /**
+   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   */
   @DoNotStrip
   @Keep
-  private constructor(hybridData: HybridData) {
-    mHybridData = hybridData
+  private class Function_cxx(private val callback: Callback<() -> Promise<Array<Powertrain>>>) {
+    @DoNotStrip
+    @Keep
+    fun call(): Promise<Array<Powertrain>> {
+      return this.callback.callSync()
+    }
   }
 
   @DoNotStrip
   @Keep
-  override fun invoke(): Promise<Array<Powertrain>> {
-    val __result = invoke_cxx()
-    return __result
-  }
+  private external fun callSync_cxx(): Promise<Array<Powertrain>>
 
   @DoNotStrip
   @Keep
-  private external fun invoke_cxx(): Promise<Array<Powertrain>>
-}
+  private external fun callAsync_cxx(): Promise<Promise<Array<Powertrain>>>
 
-/**
- * Represents the JavaScript callback `() => Promise<std::vector<Powertrain>>`.
- * This is implemented in Java/Kotlin, via a `() -> Promise<Array<Powertrain>>`.
- * The callback is always coming from native.
- */
-@DoNotStrip
-@Keep
-@Suppress("ClassName", "RedundantUnitReturnType", "unused")
-class Callback_Promise_std__vector_Powertrain___java(private val callback: () -> Promise<Array<Powertrain>>): Callback_Promise_std__vector_Powertrain__ {
   @DoNotStrip
   @Keep
-  override fun invoke(): Promise<Array<Powertrain>> {
-    return this.callback()
+  private external fun callAndForget_cxx(): Unit
+
+  companion object {
+    /**
+     * Returns the given [callback] as its JNI representation.
+     * A callback from another module keeps its C++ `Callback<...>`, and
+     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
+     */
+    @JvmStatic
+    fun fromKotlin(callback: Callback<() -> Promise<Array<Powertrain>>>): Callback_Promise_std__vector_Powertrain__ {
+      return when (callback) {
+        is Callback_Promise_std__vector_Powertrain__ -> callback
+        is CxxCallback -> fromCxx_cxx(callback)
+        else -> fromFunction_cxx(Function_cxx(callback))
+      }
+    }
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromCxx_cxx(callback: CxxCallback): Callback_Promise_std__vector_Powertrain__
+
+    @JvmStatic
+    @DoNotStrip
+    @Keep
+    private external fun fromFunction_cxx(function: Function_cxx): Callback_Promise_std__vector_Powertrain__
   }
 }

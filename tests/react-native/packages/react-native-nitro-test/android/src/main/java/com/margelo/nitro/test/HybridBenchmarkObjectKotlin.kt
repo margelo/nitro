@@ -3,7 +3,9 @@ package com.margelo.nitro.test
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.core.ArrayBuffer
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.callSync
 import com.margelo.nitro.core.resolved
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -84,8 +86,8 @@ class HybridBenchmarkObjectKotlin : HybridBenchmarkObjectSwiftKotlinSpec() {
     return ArrayBuffer.copy(buffer)
   }
 
-  override fun callbackSync(callback: () -> Double): Double {
-    val value = callback()
+  override fun callbackSync(callback: Callback<() -> Double>): Double {
+    val value = callback.callSync()
     return value
   }
 

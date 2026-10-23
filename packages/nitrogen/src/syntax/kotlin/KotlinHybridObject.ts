@@ -236,7 +236,7 @@ companion object {
  * They let Kotlin check the implementation at compile time, keep it from being stripped by R8,
  * and expose actual JVM static methods through `@JvmStatic`.
  * TODO: Remove the Kotlin-side conversions (`convert(..., { in: 'kotlin' })`, for `UInt64`
- * and callback lambdas) once those types cross JNI unchanged.
+ * and `Callback_*.fromKotlin(...)` for callbacks) once those types cross JNI unchanged.
  */
 function getKotlinCompanion(spec: HybridObjectSpec<'kotlin'>): KotlinCompanion {
   const name = getHybridObjectName(spec.name)

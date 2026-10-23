@@ -5,6 +5,8 @@ import android.view.View
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.uimanager.ThemedReactContext
+import com.margelo.nitro.core.Callback
+import com.margelo.nitro.core.invoke
 
 @Keep
 @DoNotStrip
@@ -20,7 +22,7 @@ class HybridTestView(
       field = value
       view.setBackgroundColor(if (value) Color.BLUE else Color.RED)
     }
-  override var someCallback: () -> Unit = {}
+  override var someCallback: Callback<() -> Unit> = Callback.native {}
 
   override fun someMethod() {
     someCallback()

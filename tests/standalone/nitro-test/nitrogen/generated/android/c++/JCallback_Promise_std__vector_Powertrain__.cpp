@@ -14,24 +14,46 @@
 
 namespace margelo::nitro::test {
 
-  JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>>::Type JCallback_Promise_std__vector_Powertrain__::invoke() const {
-    static const auto __method = javaClassStatic()->getMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>>()>("invoke_jni");
+  JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>>::Type JCallback_Promise_std__vector_Powertrain__::JFunction_cxx::invoke() const {
+    static const auto __method = javaClassStatic()->getMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>>()>("call");
     auto result = __method(self());
     return JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>>::retain(result);
   }
 
-  jni::local_ref<JCallback_Promise_std__vector_Powertrain__> JCallback_Promise_std__vector_Powertrain___cxx::create(CallbackType callback, bool isInline) {
-    return newObjectCxxArgs(std::move(callback), isInline);
+  jni::local_ref<JCallback_Promise_std__vector_Powertrain__::JavaPart> JCallback_Promise_std__vector_Powertrain__::create(CallbackType callback) {
+    return newObjectCxxArgs(std::move(callback));
   }
 
-  jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>> JCallback_Promise_std__vector_Powertrain___cxx::invoke_cxx() {
-    return _state.invoke();
+  jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>> JCallback_Promise_std__vector_Powertrain__::callSync_cxx() {
+    return callSync();
   }
 
-  void JCallback_Promise_std__vector_Powertrain___cxx::registerNatives() {
-    registerHybrid({makeNativeMethod("invoke_cxx", JCallback_Promise_std__vector_Powertrain___cxx::invoke_cxx)});
+  jni::local_ref<JTypedPromise<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>>> JCallback_Promise_std__vector_Powertrain__::callAsync_cxx() {
+    return callAsync<JTypedPromise<jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPowertrain>>>>>>();
   }
 
-  JCallback_Promise_std__vector_Powertrain___cxx::JCallback_Promise_std__vector_Powertrain___cxx(CallbackType callback, bool isInline) : _state(std::move(callback), isInline) {}
+  void JCallback_Promise_std__vector_Powertrain__::callAndForget_cxx() {
+    callAndForget();
+  }
+
+  jni::local_ref<JCallback_Promise_std__vector_Powertrain__::JavaPart> JCallback_Promise_std__vector_Powertrain__::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
+    return create(getCallback(callback));
+  }
+
+  jni::local_ref<JCallback_Promise_std__vector_Powertrain__::JavaPart> JCallback_Promise_std__vector_Powertrain__::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
+    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  }
+
+  void JCallback_Promise_std__vector_Powertrain__::registerNatives() {
+    registerHybrid({
+      makeNativeMethod("callSync_cxx", JCallback_Promise_std__vector_Powertrain__::callSync_cxx),
+      makeNativeMethod("callAsync_cxx", JCallback_Promise_std__vector_Powertrain__::callAsync_cxx),
+      makeNativeMethod("callAndForget_cxx", JCallback_Promise_std__vector_Powertrain__::callAndForget_cxx),
+      makeNativeMethod("fromCxx_cxx", JCallback_Promise_std__vector_Powertrain__::fromCxx_cxx),
+      makeNativeMethod("fromFunction_cxx", JCallback_Promise_std__vector_Powertrain__::fromFunction_cxx),
+    });
+  }
+
+  JCallback_Promise_std__vector_Powertrain__::JCallback_Promise_std__vector_Powertrain__(CallbackType callback) : HybridBase(std::move(callback)) {}
 
 } // namespace margelo::nitro::test

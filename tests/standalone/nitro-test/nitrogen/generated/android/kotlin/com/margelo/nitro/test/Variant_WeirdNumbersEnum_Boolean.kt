@@ -53,6 +53,7 @@ sealed class Variant_WeirdNumbersEnum_Boolean private constructor(@DoNotStrip pr
 
   companion object {
     @JvmStatic
+    @JvmName("createFirst")
     @DoNotStrip
     fun create(value: WeirdNumbersEnum): Variant_WeirdNumbersEnum_Boolean = First(value)
 
@@ -60,6 +61,7 @@ sealed class Variant_WeirdNumbersEnum_Boolean private constructor(@DoNotStrip pr
     @DoNotStrip
     private fun fromCpp_0(value: WeirdNumbersEnum): Variant_WeirdNumbersEnum_Boolean = First(value)
     @JvmStatic
+    @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Boolean): Variant_WeirdNumbersEnum_Boolean = Second(value)
 

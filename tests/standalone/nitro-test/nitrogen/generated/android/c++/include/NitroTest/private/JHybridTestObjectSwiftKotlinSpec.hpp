@@ -82,7 +82,6 @@
 #include <exception>
 #include <NitroModules/JNIConverter+Error.hpp>
 #include <NitroModules/JSIConverter+JThrowable.hpp>
-#include <NitroModules/JSIConverter+JInlineCallback.hpp>
 #include <NitroTest/private/JCallback_double_double.hpp>
 #include <NitroTest/private/JCallback_Promise_void_.hpp>
 #include <NitroTest/private/JCallback_void_std__optional_double_.hpp>
@@ -173,8 +172,8 @@ namespace margelo::nitro::test {
     void setOptionalOldEnum(const jni::local_ref<JOptional<JOldEnum>>& optionalOldEnum);
     jni::local_ref<JOptional<JTruckPowertrain>> getOptionalEnumPlusOne();
     void setOptionalEnumPlusOne(const jni::local_ref<JOptional<JTruckPowertrain>>& optionalEnumPlusOne);
-    jni::local_ref<JOptional<margelo::nitro::test::JCallback_void_double>> getOptionalCallback();
-    void setOptionalCallback(const jni::local_ref<JOptional<margelo::nitro::test::JCallback_void_double>>& optionalCallback);
+    jni::local_ref<JOptional<margelo::nitro::test::JCallback_void_double::JavaPart>> getOptionalCallback();
+    void setOptionalCallback(const jni::local_ref<JOptional<margelo::nitro::test::JCallback_void_double::JavaPart>>& optionalCallback);
     jboolean getHasBoolean();
     jboolean getIsBoolean();
     jboolean getHasBooleanWritable();
@@ -205,14 +204,14 @@ namespace margelo::nitro::test {
     jni::local_ref<JPartialPerson> bouncePartialStruct(const jni::local_ref<JPartialPerson>& person);
     jni::local_ref<jni::JString> sumUpAllPassengers(const jni::local_ref<jni::JArrayClass<JCar>>& cars);
     jni::local_ref<jni::JArrayClass<JPowertrain>> bounceEnums(const jni::local_ref<jni::JArrayClass<JPowertrain>>& array);
-    void complexEnumCallback(const jni::local_ref<jni::JArrayClass<JPowertrain>>& array, const jni::local_ref<margelo::nitro::test::JCallback_void_std__vector_Powertrain_>& callback);
-    jni::local_ref<jni::JArrayClass<JPowertrain>> callEnumArrayCallback(const jni::local_ref<jni::JArrayClass<JPowertrain>>& array, const jni::local_ref<margelo::nitro::test::JCallback_std__vector_Powertrain__std__vector_Powertrain_>& callback);
-    jni::local_ref<margelo::nitro::test::JCallback_std__vector_Powertrain__std__vector_Powertrain_> getEnumArrayCallback();
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>> callEnumArrayPromiseCallback(const jni::local_ref<margelo::nitro::test::JCallback_Promise_std__vector_Powertrain__>& callback);
+    void complexEnumCallback(const jni::local_ref<jni::JArrayClass<JPowertrain>>& array, const jni::local_ref<margelo::nitro::test::JCallback_void_std__vector_Powertrain_::JavaPart>& callback);
+    jni::local_ref<jni::JArrayClass<JPowertrain>> callEnumArrayCallback(const jni::local_ref<jni::JArrayClass<JPowertrain>>& array, const jni::local_ref<margelo::nitro::test::JCallback_std__vector_Powertrain__std__vector_Powertrain_::JavaPart>& callback);
+    jni::local_ref<margelo::nitro::test::JCallback_std__vector_Powertrain__std__vector_Powertrain_::JavaPart> getEnumArrayCallback();
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>> callEnumArrayPromiseCallback(const jni::local_ref<margelo::nitro::test::JCallback_Promise_std__vector_Powertrain__::JavaPart>& callback);
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>> awaitEnumArrayPromise(const jni::local_ref<JTypedPromise<jni::local_ref<jni::JArrayClass<JPowertrain>>>>& promise);
-    jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> callNestedStructCallback(const jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>>& value, const jni::local_ref<margelo::nitro::test::JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___>& callback);
+    jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> callNestedStructCallback(const jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>>& value, const jni::local_ref<margelo::nitro::test::JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JavaPart>& callback);
     jni::local_ref<jni::JArrayClass<JHybridChildSpecJavaPart>> bounceHybridObjects(const jni::local_ref<jni::JArrayClass<JHybridChildSpecJavaPart>>& array);
-    jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_void>> bounceFunctions(const jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_void>>& functions);
+    jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_void::JavaPart>> bounceFunctions(const jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_void::JavaPart>>& functions);
     jni::local_ref<jni::JArrayClass<JAnyJSON>> bounceMaps(const jni::local_ref<jni::JArrayClass<JAnyJSON>>& maps);
     jni::local_ref<jni::JArrayClass<JTypedPromise<jni::local_ref<jni::JDouble>>>> bouncePromises(const jni::local_ref<jni::JArrayClass<JTypedPromise<jni::local_ref<jni::JDouble>>>>& promises);
     jni::local_ref<jni::JArrayClass<JArrayBuffer::JavaPart>> bounceArrayBuffers(const jni::local_ref<jni::JArrayClass<JArrayBuffer::JavaPart>>& arrayBuffers);
@@ -251,31 +250,31 @@ namespace margelo::nitro::test {
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> awaitAndGetPromise(const jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>& promise);
     jni::local_ref<JTypedPromise<jni::local_ref<JCar>>> awaitAndGetComplexPromise(const jni::local_ref<JTypedPromise<jni::local_ref<JCar>>>& promise);
     jni::local_ref<JTypedPromise<void>> awaitPromise(const jni::local_ref<JTypedPromise<void>>& promise);
-    void callCallback(const jni::local_ref<margelo::nitro::test::JCallback_void>& callback);
-    void callInlineCallback(const jni::local_ref<margelo::nitro::JInlineCallback<margelo::nitro::test::JCallback_void>>& callback);
-    jdouble callInlineCallbackWithValue(jdouble value, const jni::local_ref<margelo::nitro::JInlineCallback<margelo::nitro::test::JCallback_double_double>>& callback);
-    jni::local_ref<JTypedPromise<void>> callCallbackThatReturnsPromiseVoid(const jni::local_ref<margelo::nitro::test::JCallback_Promise_void_>& callback);
-    void callAll(const jni::local_ref<margelo::nitro::test::JCallback_void>& first, const jni::local_ref<margelo::nitro::test::JCallback_void>& second, const jni::local_ref<margelo::nitro::test::JCallback_void>& third);
-    void callWithOptional(const jni::local_ref<JOptional<jni::JDouble>>& value, const jni::local_ref<margelo::nitro::test::JCallback_void_std__optional_double_>& callback);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callSumUpNTimes(const jni::local_ref<margelo::nitro::test::JCallback_double>& callback, jdouble n);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callbackAsyncPromise(const jni::local_ref<margelo::nitro::test::JCallback_Promise_double_>& callback);
-    jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>> callbackAsyncPromiseBuffer(const jni::local_ref<margelo::nitro::test::JCallback_Promise_ArrayBuffer_>& callback);
-    jni::local_ref<margelo::nitro::test::JCallback_void_double> getComplexCallback();
-    void twoOptionalCallbacks(jdouble value, const jni::local_ref<JOptional<margelo::nitro::test::JCallback_void_double>>& first, const jni::local_ref<JOptional<margelo::nitro::test::JCallback_void_std__string>>& second);
-    void errorCallback(const jni::local_ref<margelo::nitro::test::JCallback_void_std__exception_ptr>& onError);
-    jni::local_ref<margelo::nitro::test::JCallback_void_double> createNativeCallback(const jni::local_ref<margelo::nitro::test::JCallback_void_double>& wrappingJsCallback);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> getValueFromJSCallbackAndWait(const jni::local_ref<margelo::nitro::test::JCallback_double>& getValue);
-    jni::local_ref<JTypedPromise<void>> getValueFromJsCallback(const jni::local_ref<margelo::nitro::test::JCallback_std__string>& callback, const jni::local_ref<margelo::nitro::test::JCallback_void_std__string>& andThenCall);
-    void callSyncCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_void_double>& callback);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callAsyncCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double>& callback);
-    jni::local_ref<JTypedPromise<void>> callAsyncVoidCallback(const jni::local_ref<margelo::nitro::test::JCallback_void>& callback);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JBoolean>>> callAsyncBooleanCallback(jboolean value, const jni::local_ref<margelo::nitro::test::JCallback_bool_bool>& callback);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> awaitAsyncCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double>& callback);
-    void callAndForgetCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double>& callback);
+    void callCallback(const jni::local_ref<margelo::nitro::test::JCallback_void::JavaPart>& callback);
+    void callInlineCallback(const jni::local_ref<margelo::nitro::test::JCallback_void::JavaPart>& callback);
+    jdouble callInlineCallbackWithValue(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<void>> callCallbackThatReturnsPromiseVoid(const jni::local_ref<margelo::nitro::test::JCallback_Promise_void_::JavaPart>& callback);
+    void callAll(const jni::local_ref<margelo::nitro::test::JCallback_void::JavaPart>& first, const jni::local_ref<margelo::nitro::test::JCallback_void::JavaPart>& second, const jni::local_ref<margelo::nitro::test::JCallback_void::JavaPart>& third);
+    void callWithOptional(const jni::local_ref<JOptional<jni::JDouble>>& value, const jni::local_ref<margelo::nitro::test::JCallback_void_std__optional_double_::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callSumUpNTimes(const jni::local_ref<margelo::nitro::test::JCallback_double::JavaPart>& callback, jdouble n);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callbackAsyncPromise(const jni::local_ref<margelo::nitro::test::JCallback_Promise_double_::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<JArrayBuffer::JavaPart>>> callbackAsyncPromiseBuffer(const jni::local_ref<margelo::nitro::test::JCallback_Promise_ArrayBuffer_::JavaPart>& callback);
+    jni::local_ref<margelo::nitro::test::JCallback_void_double::JavaPart> getComplexCallback();
+    void twoOptionalCallbacks(jdouble value, const jni::local_ref<JOptional<margelo::nitro::test::JCallback_void_double::JavaPart>>& first, const jni::local_ref<JOptional<margelo::nitro::test::JCallback_void_std__string::JavaPart>>& second);
+    void errorCallback(const jni::local_ref<margelo::nitro::test::JCallback_void_std__exception_ptr::JavaPart>& onError);
+    jni::local_ref<margelo::nitro::test::JCallback_void_double::JavaPart> createNativeCallback(const jni::local_ref<margelo::nitro::test::JCallback_void_double::JavaPart>& wrappingJsCallback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> getValueFromJSCallbackAndWait(const jni::local_ref<margelo::nitro::test::JCallback_double::JavaPart>& getValue);
+    jni::local_ref<JTypedPromise<void>> getValueFromJsCallback(const jni::local_ref<margelo::nitro::test::JCallback_std__string::JavaPart>& callback, const jni::local_ref<margelo::nitro::test::JCallback_void_std__string::JavaPart>& andThenCall);
+    void callSyncCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_void_double::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callAsyncCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<void>> callAsyncVoidCallback(const jni::local_ref<margelo::nitro::test::JCallback_void::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JBoolean>>> callAsyncBooleanCallback(jboolean value, const jni::local_ref<margelo::nitro::test::JCallback_bool_bool::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> awaitAsyncCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double::JavaPart>& callback);
+    void callAndForgetCallback(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double::JavaPart>& callback);
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callNativeCallbackAsync(jdouble value);
     jni::local_ref<JTypedPromise<void>> callThrowingNativeCallbackAsync(const jni::local_ref<jni::JString>& message);
     void callThrowingNativeCallbackAndForget(const jni::local_ref<jni::JString>& message);
-    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callInlineCallbackThenEscape(jdouble value, const jni::local_ref<margelo::nitro::JInlineCallback<margelo::nitro::test::JCallback_double_double>>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callInlineCallbackThenEscape(jdouble value, const jni::local_ref<margelo::nitro::test::JCallback_double_double::JavaPart>& callback);
     jni::local_ref<JCar> getCar();
     jboolean isCarElectric(const jni::local_ref<JCar>& car);
     jboolean areCarsEqual(const jni::local_ref<JCar>& a, const jni::local_ref<JCar>& b);
@@ -315,14 +314,14 @@ namespace margelo::nitro::test {
     jni::local_ref<JHybridBaseSpecJavaPart> bounceBase(const jni::local_ref<JHybridBaseSpecJavaPart>& base);
     jni::local_ref<JHybridBaseSpecJavaPart> bounceChildBase(const jni::local_ref<JHybridChildSpecJavaPart>& child);
     jni::local_ref<JHybridChildSpecJavaPart> castBase(const jni::local_ref<JHybridBaseSpecJavaPart>& base);
-    jdouble callbackSync(const jni::local_ref<margelo::nitro::test::JCallback_double>& callback);
-    jni::local_ref<margelo::nitro::test::JCallback_double> getSyncNumberCallback();
-    jni::local_ref<margelo::nitro::test::JCallback_int64_t_int64_t> bounceSyncInt64Callback(const jni::local_ref<margelo::nitro::test::JCallback_int64_t_int64_t>& callback);
+    jdouble callbackSync(const jni::local_ref<margelo::nitro::test::JCallback_double::JavaPart>& callback);
+    jni::local_ref<margelo::nitro::test::JCallback_double::JavaPart> getSyncNumberCallback();
+    jni::local_ref<margelo::nitro::test::JCallback_int64_t_int64_t::JavaPart> bounceSyncInt64Callback(const jni::local_ref<margelo::nitro::test::JCallback_int64_t_int64_t::JavaPart>& callback);
     jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> bounceExternalHybrid(const jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>& externalObject);
     jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> createInternalObject();
     jni::local_ref<JExternalObjectStruct> bounceExternalStruct(const jni::local_ref<JExternalObjectStruct>& externalStruct);
     jni::local_ref<JStringOrExternal> bounceExternalVariant(const jni::local_ref<JStringOrExternal>& variant);
-    jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> createExternalVariantFromFunc(const jni::local_ref<margelo::nitro::test::JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_>& factory);
+    jni::local_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> createExternalVariantFromFunc(const jni::local_ref<margelo::nitro::test::JCallback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_::JavaPart>& factory);
     jni::local_ref<JCppOnlyValue> bounceCppOnlyValue(const jni::local_ref<JCppOnlyValue>& value);
     jni::local_ref<JHybridTestObjectSwiftKotlinSpecJavaPart> newTestObject();
     jni::local_ref<JTypedPromise<jni::local_ref<JHybridTestObjectSwiftKotlinSpecJavaPart>>> newTestObjectAsync();

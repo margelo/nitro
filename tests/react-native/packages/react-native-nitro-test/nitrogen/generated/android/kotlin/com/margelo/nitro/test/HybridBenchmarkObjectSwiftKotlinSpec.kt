@@ -13,6 +13,7 @@ import com.facebook.proguard.annotations.DoNotStrip
 import dalvik.annotation.optimization.FastNative
 import com.margelo.nitro.core.ArrayBuffer
 import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.test.HybridBenchmarkObjectKotlin
 import com.margelo.nitro.core.HybridObject
 
@@ -80,7 +81,7 @@ abstract class HybridBenchmarkObjectSwiftKotlinSpec: HybridObject() {
   @Keep
   abstract fun copyBuffer(buffer: ArrayBuffer): ArrayBuffer
 
-  abstract fun callbackSync(callback: () -> Double): Double
+  abstract fun callbackSync(callback: Callback<() -> Double>): Double
 
   @DoNotStrip
   @Keep

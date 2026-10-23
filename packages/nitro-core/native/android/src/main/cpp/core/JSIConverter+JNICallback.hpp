@@ -5,18 +5,16 @@
 
 namespace margelo::nitro {
 
+/** Converts a JS function to and from a generated Kotlin callback class. */
 template <typename JavaCallback>
-  requires requires {
-    typename JavaCallback::NativeSignature;
-    typename JavaCallback::CxxPart;
-  }
+  requires requires { typename JavaCallback::HybridType::NativeSignature; }
 struct JSIConverter<jni::local_ref<JavaCallback>> final {
-  using NativeCallback = Callback<typename JavaCallback::NativeSignature>;
+  using CxxPart = typename JavaCallback::HybridType;
+  using NativeCallback = Callback<typename CxxPart::NativeSignature>;
 
   static jni::local_ref<JavaCallback> fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
-    auto callback = JSIConverter<NativeCallback>::fromJSI(runtime, value);
-    using CxxPart = typename JavaCallback::CxxPart;
-    return CxxPart::create(std::move(callback), false);
+    NativeCallback callback = JSIConverter<NativeCallback>::fromJSI(runtime, value);
+    return CxxPart::create(std::move(callback));
   }
   static jsi::Value toJSI(jsi::Runtime& runtime, jni::alias_ref<JavaCallback> value) {
     return JSIConverter<NativeCallback>::toJSI(runtime, getJNICallback<JavaCallback>(value));

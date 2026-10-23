@@ -1,7 +1,8 @@
 package com.margelo.nitro.test.external
 
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.Promise
-import com.margelo.nitro.core.resolved
+import com.margelo.nitro.core.invoke
 
 class HybridBase : HybridBaseSpec() {
   companion object : HybridBaseSpec.Companion {
@@ -19,8 +20,8 @@ class HybridBase : HybridBaseSpec() {
 
   override fun mapSize(
     size: Size,
-    callback: (Size) -> Size,
+    callback: Callback<(size: Size) -> Size>,
   ): Promise<Size> {
-    return Promise.resolved(callback(size))
+    return callback(size)
   }
 }

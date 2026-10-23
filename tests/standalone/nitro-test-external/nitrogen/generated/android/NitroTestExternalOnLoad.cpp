@@ -24,14 +24,14 @@ namespace margelo::nitro::test::external {
   void registerAllNatives() {
     margelo::nitro::test::external::JHybridBaseSpec::CxxPart::registerNatives();
     margelo::nitro::test::external::JHybridSomeExternalObjectSpec::CxxPart::registerNatives();
-    margelo::nitro::test::external::JCallback_Size_Size_cxx::registerNatives();
+    margelo::nitro::test::external::JCallback_Size_Size::registerNatives();
     margelo::nitro::test::external::JHybridSharedSpecializationsSpec::CxxPart::registerNatives();
-    margelo::nitro::test::external::JCallback_void_double_cxx::registerNatives();
-    margelo::nitro::test::external::JCallback_void_cxx::registerNatives();
-    margelo::nitro::test::external::JCallback_void_std__string_cxx::registerNatives();
-    margelo::nitro::test::external::JCallback_double_double_cxx::registerNatives();
-    margelo::nitro::test::external::JCallback_Promise_void__cxx::registerNatives();
-    margelo::nitro::test::external::JCallback_Promise_double__cxx::registerNatives();
+    margelo::nitro::test::external::JCallback_void_double::registerNatives();
+    margelo::nitro::test::external::JCallback_void::registerNatives();
+    margelo::nitro::test::external::JCallback_void_std__string::registerNatives();
+    margelo::nitro::test::external::JCallback_double_double::registerNatives();
+    margelo::nitro::test::external::JCallback_Promise_void_::registerNatives();
+    margelo::nitro::test::external::JCallback_Promise_double_::registerNatives();
 
     HybridClassRegistry::registerHybridClass("test.external.Base", JHybridBaseSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.external.CppValueSource", HybridCppValueSourceSpec::Class::get());

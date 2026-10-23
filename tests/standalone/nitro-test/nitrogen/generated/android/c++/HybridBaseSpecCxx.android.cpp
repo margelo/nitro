@@ -66,7 +66,7 @@ namespace margelo::nitro::test {
     if (__implementation == nullptr) [[unlikely]] {
       throw std::invalid_argument("Cannot call Base.mapSize on an empty or incompatible C++ adapter.");
     }
-    auto __result = __implementation->mapSize(JNIConverter<margelo::nitro::test::Size, jni::local_ref<margelo::nitro::test::JSize>>::toJNI(size), JNIConverter<margelo::nitro::Callback<margelo::nitro::test::Size(const margelo::nitro::test::Size& /* size */)>, jni::local_ref<margelo::nitro::test::JCallback_Size_Size>>::toJNI(callback));
+    auto __result = __implementation->mapSize(JNIConverter<margelo::nitro::test::Size, jni::local_ref<margelo::nitro::test::JSize>>::toJNI(size), JNIConverter<margelo::nitro::Callback<margelo::nitro::test::Size(const margelo::nitro::test::Size& /* size */)>, jni::local_ref<margelo::nitro::test::JCallback_Size_Size::JavaPart>>::toJNI(callback));
     return JNIConverter<Promise<margelo::nitro::test::Size>, jni::local_ref<JTypedPromise<jni::local_ref<margelo::nitro::test::JSize>>>>::fromJNI(__result);
   }
 

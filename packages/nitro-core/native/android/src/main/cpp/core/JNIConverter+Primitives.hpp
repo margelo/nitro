@@ -89,6 +89,10 @@ struct JNIBoxedPrimitiveConverter {
 template <>
 struct JNIConverter<bool, jni::local_ref<jni::JBoolean>> : JNIBoxedPrimitiveConverter<bool, jni::JBoolean> {};
 
+// Callbacks retain booleans as their JNI value.
+template <>
+struct JNIConverter<jboolean, jni::local_ref<jni::JBoolean>> : JNIBoxedPrimitiveConverter<jboolean, jni::JBoolean> {};
+
 template <>
 struct JNIConverter<int32_t, jni::local_ref<jni::JInteger>> : JNIBoxedPrimitiveConverter<int32_t, jni::JInteger> {};
 

@@ -83,8 +83,10 @@ is ${innerName} -> (${publicValue}) as? T
       to: 'c++',
       in: 'kotlin',
     })
+    // Cases such as two callbacks can erase to the same JVM type, so give each a JVM name.
     return `
 @JvmStatic
+@JvmName("create${innerName}")
 @DoNotStrip
 fun create(value: ${valueType}): ${kotlinName} = ${innerName}(${bridgeValue})
 

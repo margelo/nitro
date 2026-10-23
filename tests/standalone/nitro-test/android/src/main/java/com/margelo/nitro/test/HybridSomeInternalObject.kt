@@ -2,11 +2,12 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.core.Callback
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 import com.margelo.nitro.test.external.OptionalPrimitivesHolder
 
 class HybridSomeInternalObject : HybridSomeExternalObjectSpec() {
-  override var numberCallback: (value: Double) -> Unit = {}
+  override var numberCallback: Callback<(value: Double) -> Unit> = Callback.native { _ -> }
 
   override fun getValue(): String {
     return "This is overridden!"
