@@ -72,6 +72,7 @@
 #include <NitroTest/private/JCallback_void_std__vector_Powertrain_.hpp>
 #include <NitroTest/private/JCallback_Promise_std__vector_Powertrain__.hpp>
 #include <NitroTest/private/JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___.hpp>
+#include <NitroTest/private/JCallback_std__vector_uint64_t__std__vector_uint64_t_.hpp>
 #include <NitroTest/private/JMapWrapper.hpp>
 #include <exception>
 #include <NitroModules/JNIConverter+Error.hpp>
@@ -192,6 +193,11 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("callEnumArrayPromiseCallback", &JHybridTestObjectSwiftKotlinSpec::callEnumArrayPromiseCallback);
       clazz.registerHybridMethod("awaitEnumArrayPromise", &JHybridTestObjectSwiftKotlinSpec::awaitEnumArrayPromise);
       clazz.registerHybridMethod("callNestedStructCallback", &JHybridTestObjectSwiftKotlinSpec::callNestedStructCallback);
+      clazz.registerHybridMethod("bounceUnsignedArray", &JHybridTestObjectSwiftKotlinSpec::bounceUnsignedArray);
+      clazz.registerHybridMethod("bounceNestedUnsignedArray", &JHybridTestObjectSwiftKotlinSpec::bounceNestedUnsignedArray);
+      clazz.registerHybridMethod("bounceOptionalUnsignedArray", &JHybridTestObjectSwiftKotlinSpec::bounceOptionalUnsignedArray);
+      clazz.registerHybridMethod("bounceUnsignedArrayAsync", &JHybridTestObjectSwiftKotlinSpec::bounceUnsignedArrayAsync);
+      clazz.registerHybridMethod("callUnsignedArrayCallback", &JHybridTestObjectSwiftKotlinSpec::callUnsignedArrayCallback);
       clazz.registerHybridMethod("bounceHybridObjects", &JHybridTestObjectSwiftKotlinSpec::bounceHybridObjects);
       clazz.registerHybridMethod("bounceFunctions", &JHybridTestObjectSwiftKotlinSpec::bounceFunctions);
       clazz.registerHybridMethod("bounceMaps", &JHybridTestObjectSwiftKotlinSpec::bounceMaps);
@@ -646,6 +652,31 @@ namespace margelo::nitro::test {
   jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> JHybridTestObjectSwiftKotlinSpec::callNestedStructCallback(const jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>>& value, const jni::local_ref<margelo::nitro::test::JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JavaPart>& callback) {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>>(jni::alias_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>> /* value */, jni::alias_ref<margelo::nitro::test::JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JavaPart> /* callback */)>("callNestedStructCallback_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), value, callback);
+    return __result;
+  }
+  jni::local_ref<JArrayUInt64> JHybridTestObjectSwiftKotlinSpec::bounceUnsignedArray(const jni::local_ref<JArrayUInt64>& array) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JArrayUInt64>(jni::alias_ref<JArrayUInt64> /* array */)>("bounceUnsignedArray_cxx");
+    auto __result = __method(_javaPart, CxxPart::getClass(), array);
+    return __result;
+  }
+  jni::local_ref<jni::JArrayClass<JArrayUInt64>> JHybridTestObjectSwiftKotlinSpec::bounceNestedUnsignedArray(const jni::local_ref<jni::JArrayClass<JArrayUInt64>>& array) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<jni::JArrayClass<JArrayUInt64>>(jni::alias_ref<jni::JArrayClass<JArrayUInt64>> /* array */)>("bounceNestedUnsignedArray_cxx");
+    auto __result = __method(_javaPart, CxxPart::getClass(), array);
+    return __result;
+  }
+  jni::local_ref<JOptional<JArrayUInt64>> JHybridTestObjectSwiftKotlinSpec::bounceOptionalUnsignedArray(const jni::local_ref<JOptional<JArrayUInt64>>& array) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JOptional<JArrayUInt64>>(jni::alias_ref<JOptional<JArrayUInt64>> /* array */)>("bounceOptionalUnsignedArray_cxx");
+    auto __result = __method(_javaPart, CxxPart::getClass(), array);
+    return __result;
+  }
+  jni::local_ref<JTypedPromise<jni::local_ref<JArrayUInt64>>> JHybridTestObjectSwiftKotlinSpec::bounceUnsignedArrayAsync(const jni::local_ref<JArrayUInt64>& array) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<jni::local_ref<JArrayUInt64>>>(jni::alias_ref<JArrayUInt64> /* array */)>("bounceUnsignedArrayAsync_cxx");
+    auto __result = __method(_javaPart, CxxPart::getClass(), array);
+    return __result;
+  }
+  jni::local_ref<JArrayUInt64> JHybridTestObjectSwiftKotlinSpec::callUnsignedArrayCallback(const jni::local_ref<JArrayUInt64>& array, const jni::local_ref<margelo::nitro::test::JCallback_std__vector_uint64_t__std__vector_uint64_t_::JavaPart>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JArrayUInt64>(jni::alias_ref<JArrayUInt64> /* array */, jni::alias_ref<margelo::nitro::test::JCallback_std__vector_uint64_t__std__vector_uint64_t_::JavaPart> /* callback */)>("callUnsignedArrayCallback_cxx");
+    auto __result = __method(_javaPart, CxxPart::getClass(), array, callback);
     return __result;
   }
   jni::local_ref<jni::JArrayClass<JHybridChildSpecJavaPart>> JHybridTestObjectSwiftKotlinSpec::bounceHybridObjects(const jni::local_ref<jni::JArrayClass<JHybridChildSpecJavaPart>>& array) {

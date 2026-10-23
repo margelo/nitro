@@ -15,7 +15,6 @@ import com.margelo.nitro.core.NullType
 import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.utils.mapToArray
-import com.margelo.nitro.utils.mapToLongArray
 import com.margelo.nitro.core.AnyJSON
 import com.margelo.nitro.core.ArrayBuffer
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
@@ -285,6 +284,51 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   private fun callNestedStructCallback_cxx(value: Array<Array<Person?>>, callback: Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___): Array<Array<Person?>> {
     val __result = callNestedStructCallback(value, callback)
     return __result
+  }
+
+  abstract fun bounceUnsignedArray(array: ULongArray): ULongArray
+
+  @DoNotStrip
+  @Keep
+  private fun bounceUnsignedArray_cxx(array: LongArray): LongArray {
+    val __result = bounceUnsignedArray(array.asULongArray())
+    return __result.asLongArray()
+  }
+
+  abstract fun bounceNestedUnsignedArray(array: Array<ULongArray>): Array<ULongArray>
+
+  @DoNotStrip
+  @Keep
+  private fun bounceNestedUnsignedArray_cxx(array: Array<LongArray>): Array<LongArray> {
+    val __result = bounceNestedUnsignedArray(array.mapToArray<LongArray, ULongArray> { __item -> __item.asULongArray() })
+    return __result.mapToArray<ULongArray, LongArray> { __item -> __item.asLongArray() }
+  }
+
+  abstract fun bounceOptionalUnsignedArray(array: ULongArray?): ULongArray?
+
+  @DoNotStrip
+  @Keep
+  private fun bounceOptionalUnsignedArray_cxx(array: LongArray?): LongArray? {
+    val __result = bounceOptionalUnsignedArray(array?.let { it.asULongArray() })
+    return __result?.let { it.asLongArray() }
+  }
+
+  abstract fun bounceUnsignedArrayAsync(array: ULongArray): Promise<ULongArray>
+
+  @DoNotStrip
+  @Keep
+  private fun bounceUnsignedArrayAsync_cxx(array: LongArray): Promise<LongArray> {
+    val __result = bounceUnsignedArrayAsync(array.asULongArray())
+    return __result.let { __source -> Promise<LongArray>().also { __promise -> __source.then { __result -> __promise.resolve(__result.asLongArray()) }.catch { __promise.reject(it) } } }
+  }
+
+  abstract fun callUnsignedArrayCallback(array: ULongArray, callback: Callback<(array: ULongArray) -> ULongArray>): ULongArray
+
+  @DoNotStrip
+  @Keep
+  private fun callUnsignedArrayCallback_cxx(array: LongArray, callback: Callback_std__vector_uint64_t__std__vector_uint64_t_): LongArray {
+    val __result = callUnsignedArrayCallback(array.asULongArray(), callback)
+    return __result.asLongArray()
   }
 
   @DoNotStrip

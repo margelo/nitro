@@ -166,6 +166,11 @@ namespace margelo::nitro::test {
       virtual Promise<std::vector<Powertrain>> callEnumArrayPromiseCallback(const Callback<Promise<std::vector<Powertrain>>()>& callback) = 0;
       virtual Promise<std::vector<Powertrain>> awaitEnumArrayPromise(const Promise<std::vector<Powertrain>>& promise) = 0;
       virtual std::vector<std::vector<std::optional<Person>>> callNestedStructCallback(const std::vector<std::vector<std::optional<Person>>>& value, const Callback<std::vector<std::vector<std::optional<Person>>>(const std::vector<std::vector<std::optional<Person>>>& /* value */)>& callback) = 0;
+      virtual std::vector<uint64_t> bounceUnsignedArray(const std::vector<uint64_t>& array) = 0;
+      virtual std::vector<std::vector<uint64_t>> bounceNestedUnsignedArray(const std::vector<std::vector<uint64_t>>& array) = 0;
+      virtual std::optional<std::vector<uint64_t>> bounceOptionalUnsignedArray(const std::optional<std::vector<uint64_t>>& array) = 0;
+      virtual Promise<std::vector<uint64_t>> bounceUnsignedArrayAsync(const std::vector<uint64_t>& array) = 0;
+      virtual std::vector<uint64_t> callUnsignedArrayCallback(const std::vector<uint64_t>& array, const Callback<std::vector<uint64_t>(const std::vector<uint64_t>& /* array */)>& callback) = 0;
       virtual std::vector<HybridChildSpecCxx> bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) = 0;
       virtual std::vector<Callback<void()>> bounceFunctions(const std::vector<Callback<void()>>& functions) = 0;
       virtual std::vector<AnyJSON> bounceMaps(const std::vector<AnyJSON>& maps) = 0;
