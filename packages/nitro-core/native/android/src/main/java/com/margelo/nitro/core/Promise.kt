@@ -6,8 +6,10 @@ import com.facebook.proguard.annotations.DoNotStrip
 import dalvik.annotation.optimization.FastNative
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.launch
-import kotlin.concurrent.thread
+import java.util.concurrent.Executor
+import java.util.concurrent.RejectedExecutionException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -17,7 +19,7 @@ import kotlin.coroutines.suspendCoroutine
  *
  * Create a new Promise with the following APIs:
  * - [Promise.async]` { ... }` - Creates a new Promise that runs the given suspending function in a Kotlin coroutine scope.
- * - [Promise.parallel]` { ... }` - Creates a new Promise that runs the given code in a parallel Thread.
+ * - [Promise.parallel]` { ... }` - Creates a new Promise that runs the given code on a background thread pool.
  * - [Promise.resolved]`(..)` - Creates a new already resolved Promise.
  * - [Promise.rejected]`(..)` - Creates a new already rejected Promise.
  * - [Promise]`()` - Creates a new Promise with fully manual control over the `resolve(..)`/`reject(..)` functions.
@@ -129,6 +131,9 @@ class Promise<T> {
   companion object {
     private val defaultScope = CoroutineScope(Dispatchers.Default)
 
+    // Dispatchers.IO is a shared pool for blocking work, like GCD's global queue on Apple.
+    private val defaultExecutor = Dispatchers.IO.asExecutor()
+
     /**
      * Creates a new Promise that asynchronously runs the given suspending function [run]
      * on the given coroutine scope [scope].
@@ -155,21 +160,34 @@ class Promise<T> {
     }
 
     /**
-     * Creates a new Promise that runs the given function [run] on a separate
-     * Thread.
+     * Creates a new Promise that runs the given blocking function [run]
+     * on the given [executor].
+     *
+     * If [executor] is omitted, the shared [Dispatchers.IO] thread pool will be used,
+     * so calls reuse threads instead of starting a new Thread each time.
+     * That pool is shared with the rest of the app and limited in size, so pass your own
+     * [executor] for long-running work or for tasks that wait on other parallel tasks.
      *
      * When the function returns, the Promise gets resolved. If the
      * function throws, the Promise gets rejected.
      */
-    fun <T> parallel(run: () -> T): Promise<T> {
+    fun <T> parallel(
+      executor: Executor = defaultExecutor,
+      run: () -> T,
+    ): Promise<T> {
       val promise = Promise<T>()
-      thread {
-        try {
-          val result = run()
-          promise.resolve(result)
-        } catch (e: Throwable) {
-          promise.reject(e)
+      try {
+        executor.execute {
+          try {
+            val result = run()
+            promise.resolve(result)
+          } catch (e: Throwable) {
+            promise.reject(e)
+          }
         }
+      } catch (e: RejectedExecutionException) {
+        // A custom executor can refuse the task, e.g. after it was shut down.
+        promise.reject(e)
       }
       return promise
     }
