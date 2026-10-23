@@ -4,8 +4,15 @@ import type { SourceFile } from '../SourceFile.js'
 import type { KotlinEnumType } from './types/KotlinEnumType.js'
 import { getImportCode } from '../getImportCode.js'
 
+/** Escapes a JS string value for a Kotlin string literal, where `$` starts a template. */
+function toKotlinStringLiteral(value: string): string {
+  return `"${value.replace(/[\\"$]/g, (character) => `\\${character}`)}"`
+}
+
 export function createKotlinEnum(enumType: KotlinEnumType): SourceFile[] {
   const members = enumType.enumMembers.map((m) => `${m.name.toUpperCase()}(${m.value})`)
+  const toStringCases = enumType.enumMembers.map((m) => `${m.name.toUpperCase()} -> ${toKotlinStringLiteral(m.stringValue)}`)
+  const fromStringCases = enumType.enumMembers.map((m) => `${toKotlinStringLiteral(m.stringValue)} -> ${m.name.toUpperCase()}`)
   const packageName = enumType.config.getAndroidPackage('java/kotlin')
   const code = `
 ${createFileMetadataString(`${enumType.enumName}.kt`)}
@@ -23,7 +30,28 @@ import com.facebook.proguard.annotations.DoNotStrip
 enum class ${enumType.enumName}(@DoNotStrip @Keep val value: Int) {
   ${indent(members.join(',\n'), '  ')};
 
-  companion object
+  /**
+   * Get the String value this ${enumType.enumName} represents.
+   */
+  val stringValue: String
+    get() =
+      when (this) {
+        ${indent(toStringCases.join('\n'), '        ')}
+      }
+
+  override fun toString(): String = stringValue
+
+  companion object {
+    /**
+     * Get a ${enumType.enumName} for the given String value, or
+     * return \`null\` if the given value was invalid/unknown.
+     */
+    fun fromString(value: String): ${enumType.enumName}? =
+      when (value) {
+        ${indent(fromStringCases.join('\n'), '        ')}
+        else -> null
+      }
+  }
 }
   `.trim()
 
