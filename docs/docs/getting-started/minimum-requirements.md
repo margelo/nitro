@@ -1,5 +1,5 @@
 ---
-description: Check the React Native, Apple platform, Android, and Swift requirements needed to use Nitro Modules.
+description: Check the React Native, iOS/macOS/tvOS/visionOS, Android, and environment requirements needed to use Nitro Modules.
 ---
 
 import Tabs from '@theme/Tabs'; import TabItem from '@theme/TabItem';
