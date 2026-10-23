@@ -171,7 +171,7 @@ func callResultAsync(callback: any Callback<(), Double>) async throws {
 
 :::warning
 
-For a JS callback, `callSync()` must be called on the thread of the JS Runtime the callback came from. Debug builds assert this.
+For a JS callback, `callSync()` must be called on the thread of the JS Runtime the callback came from.
 
 :::
 
