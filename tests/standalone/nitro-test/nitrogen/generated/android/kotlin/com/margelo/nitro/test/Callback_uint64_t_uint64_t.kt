@@ -35,8 +35,7 @@ class Callback_uint64_t_uint64_t @DoNotStrip @Keep private constructor(hybridDat
   }
 
   override fun callAsync(value: ULong): Promise<ULong> {
-    val __result = callAsync_cxx(value.toLong())
-    return __result.let { __source -> Promise<ULong>().also { __promise -> __source.then { __result -> __promise.resolve(__result.toULong()) }.catch { __promise.reject(it) } } }
+    return callAsync_cxx(value.toLong())
   }
 
   override fun callAndForget(value: ULong): Unit {
@@ -63,7 +62,7 @@ class Callback_uint64_t_uint64_t @DoNotStrip @Keep private constructor(hybridDat
 
   @DoNotStrip
   @Keep
-  private external fun callAsync_cxx(value: Long): Promise<Long>
+  private external fun callAsync_cxx(value: Long): Promise<ULong>
 
   @DoNotStrip
   @Keep

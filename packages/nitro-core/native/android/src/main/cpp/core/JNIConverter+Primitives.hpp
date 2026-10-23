@@ -116,6 +116,16 @@ struct JNIConverter<uint64_t, jni::local_ref<JUInt64>> {
 };
 
 template <>
+struct JNIConverter<uint64_t, jni::local_ref<JULong>> {
+  static jni::local_ref<JULong> toJNI(uint64_t value) {
+    return JULongBox::box(JNIConverter<uint64_t, jlong>::toJNI(value));
+  }
+  static uint64_t fromJNI(jni::alias_ref<JULong> value) {
+    return JNIConverter<uint64_t, jlong>::fromJNI(JULongBox::unbox(value));
+  }
+};
+
+template <>
 struct JNIConverter<float, jni::local_ref<jni::JFloat>> : JNIBoxedPrimitiveConverter<float, jni::JFloat> {};
 
 template <>

@@ -42,7 +42,7 @@ namespace margelo::nitro::test {
 
   private:
     jni::local_ref<JArrayUInt64> callSync_cxx(jni::alias_ref<JArrayUInt64> array);
-    jni::local_ref<JTypedPromise<jni::local_ref<JArrayUInt64>>> callAsync_cxx(jni::alias_ref<JArrayUInt64> array);
+    jni::local_ref<JTypedPromise<jni::local_ref<JULongArray>>> callAsync_cxx(jni::alias_ref<JArrayUInt64> array);
     void callAndForget_cxx(jni::alias_ref<JArrayUInt64> array);
     static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
     static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);

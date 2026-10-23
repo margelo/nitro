@@ -40,6 +40,9 @@
 #include <NitroModules/JSIConverter+JTypedPromise.hpp>
 #include <NitroTest/private/JVariant_ULong_String.hpp>
 #include <NitroTest/private/JVariant_ULongArray_String.hpp>
+#include <NitroModules/JUInt64.hpp>
+#include <NitroModules/JNIConverter+Map.hpp>
+#include <NitroModules/JSIConverter+JMap.hpp>
 #include <NitroTest/private/JHybridChildSpecJavaPart.hpp>
 #include <NitroTest/private/JCallback_void.hpp>
 #include <NitroModules/AnyJSON.hpp>
@@ -50,8 +53,6 @@
 #include <NitroModules/JNIConverter+ArrayBuffer.hpp>
 #include <NitroModules/JSIConverter+JArrayBuffer.hpp>
 #include <NitroTest/private/JVariant_Boolean_Double.hpp>
-#include <NitroModules/JNIConverter+Map.hpp>
-#include <NitroModules/JSIConverter+JMap.hpp>
 #include <NitroTest/private/JCar.hpp>
 #include <NitroTest/private/JUnsignedScalar.hpp>
 #include <NitroTest/private/JUnsignedValues.hpp>
@@ -81,6 +82,7 @@
 #include <NitroTest/private/JCallback_Promise_std__vector_Powertrain__.hpp>
 #include <NitroTest/private/JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___.hpp>
 #include <NitroTest/private/JCallback_std__vector_uint64_t__std__vector_uint64_t_.hpp>
+#include <NitroTest/private/JCallback_uint64_t_uint64_t.hpp>
 #include <NitroTest/private/JMapWrapper.hpp>
 #include <exception>
 #include <NitroModules/JNIConverter+Error.hpp>
@@ -217,10 +219,15 @@ namespace margelo::nitro::test {
     jni::local_ref<JArrayUInt64> bounceUnsignedArray(const jni::local_ref<JArrayUInt64>& array);
     jni::local_ref<jni::JArrayClass<JArrayUInt64>> bounceNestedUnsignedArray(const jni::local_ref<jni::JArrayClass<JArrayUInt64>>& array);
     jni::local_ref<JOptional<JArrayUInt64>> bounceOptionalUnsignedArray(const jni::local_ref<JOptional<JArrayUInt64>>& array);
-    jni::local_ref<JTypedPromise<jni::local_ref<JArrayUInt64>>> bounceUnsignedArrayAsync(const jni::local_ref<JArrayUInt64>& array);
+    jni::local_ref<JTypedPromise<jni::local_ref<JULongArray>>> bounceUnsignedArrayAsync(const jni::local_ref<JArrayUInt64>& array);
     jni::local_ref<JArrayUInt64> callUnsignedArrayCallback(const jni::local_ref<JArrayUInt64>& array, const jni::local_ref<margelo::nitro::test::JCallback_std__vector_uint64_t__std__vector_uint64_t_::JavaPart>& callback);
     jni::local_ref<JVariant_ULong_String> bounceUnsignedVariant(const jni::local_ref<JVariant_ULong_String>& variant);
     jni::local_ref<JVariant_ULongArray_String> bounceUnsignedArrayVariant(const jni::local_ref<JVariant_ULongArray_String>& variant);
+    jni::local_ref<jni::JMap<jni::JString, JULong>> bounceUnsignedMap(const jni::local_ref<jni::JMap<jni::JString, JULong>>& map);
+    jni::local_ref<jni::JMap<jni::JString, JULongArray>> bounceUnsignedArrayMap(const jni::local_ref<jni::JMap<jni::JString, JULongArray>>& map);
+    jni::local_ref<JTypedPromise<jni::local_ref<JULong>>> bounceUnsignedAsync(uint64_t value);
+    jni::local_ref<JTypedPromise<jni::local_ref<JULong>>> callUnsignedCallbackAsync(uint64_t value, const jni::local_ref<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<JULongArray>>> callUnsignedArrayCallbackAsync(const jni::local_ref<JArrayUInt64>& array, const jni::local_ref<margelo::nitro::test::JCallback_std__vector_uint64_t__std__vector_uint64_t_::JavaPart>& callback);
     jni::local_ref<jni::JArrayClass<JHybridChildSpecJavaPart>> bounceHybridObjects(const jni::local_ref<jni::JArrayClass<JHybridChildSpecJavaPart>>& array);
     jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_void::JavaPart>> bounceFunctions(const jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_void::JavaPart>>& functions);
     jni::local_ref<jni::JArrayClass<JAnyJSON>> bounceMaps(const jni::local_ref<jni::JArrayClass<JAnyJSON>>& maps);

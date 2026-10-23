@@ -241,6 +241,34 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     )
   }
 
+  override fun bounceUnsignedMap(map: Map<String, ULong>): Map<String, ULong> {
+    return map
+  }
+
+  override fun bounceUnsignedArrayMap(map: Map<String, ULongArray>): Map<String, ULongArray> {
+    return map
+  }
+
+  override fun bounceUnsignedAsync(value: ULong): Promise<ULong> {
+    return Promise.async {
+      return@async value
+    }
+  }
+
+  override fun callUnsignedCallbackAsync(
+    value: ULong,
+    callback: Callback<(value: ULong) -> ULong>,
+  ): Promise<ULong> {
+    return callback.callAsync(value)
+  }
+
+  override fun callUnsignedArrayCallbackAsync(
+    array: ULongArray,
+    callback: Callback<(array: ULongArray) -> ULongArray>,
+  ): Promise<ULongArray> {
+    return callback.callAsync(array)
+  }
+
   override fun bounceHybridObjects(array: Array<HybridChildSpec>): Array<HybridChildSpec> {
     return array
   }

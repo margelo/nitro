@@ -579,6 +579,56 @@ public final class HybridTestObjectSwiftKotlinSpec_cxx {
     }
   }
 
+  public final func bounceUnsignedMap(map: Record_swift__String_uint64_t, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceUnsignedMap(map: map.dictionary)
+      __outResult.assumingMemoryBound(to: Record_swift__String_uint64_t.self).initialize(to: Record_swift__String_uint64_t(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceUnsignedArrayMap(map: Record_swift__String_swift__Array_uint64_t_, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceUnsignedArrayMap(map: map.dictionary)
+      __outResult.assumingMemoryBound(to: Record_swift__String_swift__Array_uint64_t_.self).initialize(to: Record_swift__String_swift__Array_uint64_t_(value))
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func bounceUnsignedAsync(value: UInt64, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceUnsignedAsync(value: value)
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_uint64_t.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callUnsignedCallbackAsync(value: UInt64, callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callUnsignedCallbackAsync(value: value, callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_uint64_t_uint64_t.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_uint64_t.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func callUnsignedArrayCallbackAsync(array: [UInt64], callback: UnsafeRawPointer, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.callUnsignedArrayCallbackAsync(array: array, callback: callback.load(as: margelo.nitro.test.swift_bridge.Callback_swift__Array_uint64_t__swift__Array_uint64_t_.self))
+      __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Promise_swift__Array_uint64_t_.self, repeating: value.toCpp(), count: 1)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
   public final func bounceHybridObjects(array: [HybridChildSpec_cxx], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.bounceHybridObjects(array: array.map { $0.getHybridChildSpec() })

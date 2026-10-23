@@ -449,6 +449,60 @@ namespace margelo::nitro::test {
     return std::move(__result.value());
   }
 
+  ::NitroTest::Record_swift__String_uint64_t HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedMap(const ::NitroTest::Record_swift__String_uint64_t& map) {
+    auto __result = withSwiftResult<::NitroTest::Record_swift__String_uint64_t>([&](void* __outResult) {
+      return _swiftPart.bounceUnsignedMap(map, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  ::NitroTest::Record_swift__String_swift__Array_uint64_t_ HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedArrayMap(const ::NitroTest::Record_swift__String_swift__Array_uint64_t_& map) {
+    auto __result = withSwiftResult<::NitroTest::Record_swift__String_swift__Array_uint64_t_>([&](void* __outResult) {
+      return _swiftPart.bounceUnsignedArrayMap(map, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  Promise<uint64_t> HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedAsync(uint64_t value) {
+    auto __result = withCxxResult<Promise<uint64_t>>([&](void* __outResult) {
+      return _swiftPart.bounceUnsignedAsync(value, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  Promise<uint64_t> HybridTestObjectSwiftKotlinSpecSwift::callUnsignedCallbackAsync(uint64_t value, const Callback<uint64_t(uint64_t)>& callback) {
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<uint64_t>>([&](void* __outResult) {
+        return _swiftPart.callUnsignedCallbackAsync(value, callback, __outResult);
+      });
+    })(std::addressof(callback));
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  Promise<swift::Array<uint64_t>> HybridTestObjectSwiftKotlinSpecSwift::callUnsignedArrayCallbackAsync(const swift::Array<uint64_t>& array, const Callback<swift::Array<uint64_t>(const swift::Array<uint64_t>&)>& callback) {
+    auto __result = ([&](const void* callback) {
+      return withCxxResult<Promise<swift::Array<uint64_t>>>([&](void* __outResult) {
+        return _swiftPart.callUnsignedArrayCallbackAsync(array, callback, __outResult);
+      });
+    })(std::addressof(callback));
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
   swift::Array<::NitroTest::HybridChildSpec_cxx> HybridTestObjectSwiftKotlinSpecSwift::bounceHybridObjects(const swift::Array<::NitroTest::HybridChildSpec_cxx>& array) {
     auto __result = withSwiftResult<swift::Array<::NitroTest::HybridChildSpec_cxx>>([&](void* __outResult) {
       return _swiftPart.bounceHybridObjects(array, __outResult);
@@ -1698,6 +1752,11 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("callUnsignedArrayCallback", &HybridTestObjectSwiftKotlinSpecSwift::callUnsignedArrayCallback);
       clazz.registerHybridMethod("bounceUnsignedVariant", &HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedVariant);
       clazz.registerHybridMethod("bounceUnsignedArrayVariant", &HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedArrayVariant);
+      clazz.registerHybridMethod("bounceUnsignedMap", &HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedMap);
+      clazz.registerHybridMethod("bounceUnsignedArrayMap", &HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedArrayMap);
+      clazz.registerHybridMethod("bounceUnsignedAsync", &HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedAsync);
+      clazz.registerHybridMethod("callUnsignedCallbackAsync", &HybridTestObjectSwiftKotlinSpecSwift::callUnsignedCallbackAsync);
+      clazz.registerHybridMethod("callUnsignedArrayCallbackAsync", &HybridTestObjectSwiftKotlinSpecSwift::callUnsignedArrayCallbackAsync);
       clazz.registerHybridMethod("bounceHybridObjects", &HybridTestObjectSwiftKotlinSpecSwift::bounceHybridObjects);
       clazz.registerHybridMethod("bounceFunctions", &HybridTestObjectSwiftKotlinSpecSwift::bounceFunctions);
       clazz.registerHybridMethod("bounceMaps", &HybridTestObjectSwiftKotlinSpecSwift::bounceMaps);

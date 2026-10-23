@@ -11,6 +11,8 @@ import { getJniReferenceCode, type KotlinConversion, type KotlinType, type Kotli
 export class KotlinArrayType extends ArrayType implements KotlinType {
   override readonly itemType: KotlinType
   readonly jniValueKind = 'object'
+  /** A `ULongArray` erased to an `Object` keeps its box, which JNI sees as a `JULongArray`. */
+  readonly erasedToObject: boolean
 
   constructor(
     readonly type: ArrayType,
@@ -19,6 +21,7 @@ export class KotlinArrayType extends ArrayType implements KotlinType {
     const itemType = wrapKotlinType(type.itemType, { config: options.config })
     super(itemType)
     this.itemType = itemType
+    this.erasedToObject = options.erasedToObject === true
   }
 
   getCppConverter(cppType: Type): KotlinCppConverter {
@@ -26,6 +29,7 @@ export class KotlinArrayType extends ArrayType implements KotlinType {
   }
 
   get needsKotlinConversion(): boolean {
+    if (this.isULongArray && this.erasedToObject) return false
     return this.itemType.needsKotlinConversion
   }
   /** `ULongArray` is a value class, so its field holds the `long[]` JNI uses. */
@@ -85,7 +89,7 @@ ${value}.mapToArray<${sourceCode}, ${resultCode}> { __item -> ${item} }
             jniType = 'jni::JArrayLong'
             break
           case 'uint64':
-            jniType = 'JArrayUInt64'
+            jniType = this.erasedToObject ? 'JULongArray' : 'JArrayUInt64'
             break
           default: {
             const item = this.itemType.getCode(language, { ...options, context: 'type-argument' })
@@ -102,8 +106,9 @@ ${value}.mapToArray<${sourceCode}, ${resultCode}> { __item -> ${item} }
           case 'boolean':
             return 'BooleanArray'
           case 'int64':
-          case 'uint64':
             return 'LongArray'
+          case 'uint64':
+            return this.erasedToObject ? 'ULongArray' : 'LongArray'
           default: {
             const item = this.itemType.getCode(language, { ...options, context: 'type-argument' })
             return `Array<${item}>`

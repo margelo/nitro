@@ -197,6 +197,33 @@ export const cases = {
       expect(testObject.bounceUnsignedArrayVariant([])).to.deep.equal([])
       expect(testObject.bounceUnsignedArrayVariant('values')).to.equal('values')
     },
+
+    'bounceUnsignedMap(...) preserves all 64 bits': (testObject) => {
+      const map = { zero: 0n, signedMaximum: 9223372036854775807n, unsignedHalf: 9223372036854775808n, maximum: 18446744073709551615n }
+      expect(testObject.bounceUnsignedMap(map)).to.deep.equal(map)
+      expect(testObject.bounceUnsignedMap({})).to.deep.equal({})
+    },
+
+    'bounceUnsignedArrayMap(...) preserves arrays of all 64 bits': (testObject) => {
+      const map = { empty: [], boundaries: UNSIGNED_BOUNDARIES }
+      expect(testObject.bounceUnsignedArrayMap(map)).to.deep.equal(map)
+    },
+
+    'bounceUnsignedAsync(...) resolves all 64 bits': async (testObject) => {
+      for (const unsigned of UNSIGNED_BOUNDARIES) {
+        expect(await withTimeout(testObject.bounceUnsignedAsync(unsigned))).to.equal(unsigned)
+      }
+    },
+
+    'callUnsignedCallbackAsync(...) resolves the JS result': async (testObject) => {
+      const result = await withTimeout(testObject.callUnsignedCallbackAsync(9223372036854775808n, (value) => value * 2n - 1n))
+      expect(result).to.equal(18446744073709551615n)
+    },
+
+    'callUnsignedArrayCallbackAsync(...) resolves the JS array': async (testObject) => {
+      const result = await withTimeout(testObject.callUnsignedArrayCallbackAsync(UNSIGNED_BOUNDARIES, (array) => [...array].reverse()))
+      expect(result).to.deep.equal([...UNSIGNED_BOUNDARIES].reverse())
+    },
   }),
   ...casesForTestObjects('Struct roundtrips', {
     'bouncePartialStruct(...) keeps an empty struct': (testObject) => {

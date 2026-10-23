@@ -65,4 +65,21 @@ struct JSIConverter<jni::local_ref<JavaArray>> {
   }
 };
 
+template <>
+struct JSIConverter<jni::local_ref<JULongArray>> {
+  using JavaArray = jni::local_ref<JArrayUInt64>;
+
+  static jni::local_ref<JULongArray> fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    auto array = JSIConverter<JavaArray>::fromJSI(runtime, value);
+    return JULongBox::boxArray(array);
+  }
+  static jsi::Array toJSI(jsi::Runtime& runtime, jni::alias_ref<JULongArray> value) {
+    auto array = JULongBox::unboxArray(value);
+    return JSIConverter<JavaArray>::toJSI(runtime, array);
+  }
+  static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
+    return JSIConverter<JavaArray>::canConvert(runtime, value);
+  }
+};
+
 } // namespace margelo::nitro

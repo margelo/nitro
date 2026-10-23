@@ -35,8 +35,7 @@ class Callback_std__vector_uint64_t__std__vector_uint64_t_ @DoNotStrip @Keep pri
   }
 
   override fun callAsync(array: ULongArray): Promise<ULongArray> {
-    val __result = callAsync_cxx(array.asLongArray())
-    return __result.let { __source -> Promise<ULongArray>().also { __promise -> __source.then { __result -> __promise.resolve(__result.asULongArray()) }.catch { __promise.reject(it) } } }
+    return callAsync_cxx(array.asLongArray())
   }
 
   override fun callAndForget(array: ULongArray): Unit {
@@ -63,7 +62,7 @@ class Callback_std__vector_uint64_t__std__vector_uint64_t_ @DoNotStrip @Keep pri
 
   @DoNotStrip
   @Keep
-  private external fun callAsync_cxx(array: LongArray): Promise<LongArray>
+  private external fun callAsync_cxx(array: LongArray): Promise<ULongArray>
 
   @DoNotStrip
   @Keep

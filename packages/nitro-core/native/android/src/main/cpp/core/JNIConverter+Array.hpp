@@ -50,6 +50,31 @@ struct JNIConverter<std::vector<CppElement>, jni::local_ref<JavaArray>> {
   }
 };
 
+template <>
+struct JNIConverter<std::vector<uint64_t>, jni::local_ref<JULongArray>> {
+  using JavaArray = jni::local_ref<JArrayUInt64>;
+
+  static jni::local_ref<JULongArray> toJNI(const std::vector<uint64_t>& value) {
+    auto array = JNIConverter<std::vector<uint64_t>, JavaArray>::toJNI(value);
+    return JULongBox::boxArray(array);
+  }
+  static std::vector<uint64_t> fromJNI(jni::alias_ref<JULongArray> value) {
+    auto array = JULongBox::unboxArray(value);
+    return JNIConverter<std::vector<uint64_t>, JavaArray>::fromJNI(array);
+  }
+};
+
+/** Boxes a retained array, e.g. a callback's async result, without copying it. */
+template <>
+struct JNIConverter<jni::global_ref<JArrayUInt64>, jni::local_ref<JULongArray>> {
+  static jni::local_ref<JULongArray> toJNI(const jni::global_ref<JArrayUInt64>& value) {
+    return JULongBox::boxArray(value);
+  }
+  static jni::global_ref<JArrayUInt64> fromJNI(jni::alias_ref<JULongArray> value) {
+    return jni::make_global(JULongBox::unboxArray(value));
+  }
+};
+
 template <typename CppElement, typename JavaElement>
 struct JNIConverter<std::vector<CppElement>, jni::local_ref<jni::JArrayClass<JavaElement>>> {
   using JavaArray = jni::JArrayClass<JavaElement>;
