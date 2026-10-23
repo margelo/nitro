@@ -260,6 +260,9 @@ namespace margelo::nitro::test {
       virtual ArrayBuffer wrapArrayBuffer(double size) = 0;
       virtual void releaseWrappedArrayBuffers() = 0;
       virtual double getWrappedArrayBufferDeleteCount() = 0;
+      virtual void retainArrayBufferView(const ArrayBuffer& buffer) = 0;
+      virtual double getRetainedArrayBufferViewLastItem() = 0;
+      virtual void releaseArrayBufferView() = 0;
       virtual std::variant<double, std::string> passVariant(const std::variant<bool, std::vector<double>, std::vector<std::string>, double, std::string>& either) = 0;
       virtual std::variant<OldEnum, bool> getVariantEnum(const std::variant<OldEnum, bool>& variant) = 0;
       virtual std::variant<Powertrain, Car> bounceVariantUnionEnum(const std::variant<Powertrain, Car>& variant) = 0;

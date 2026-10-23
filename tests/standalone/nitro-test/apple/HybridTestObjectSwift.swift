@@ -795,6 +795,23 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return Double(wrappedArrayBufferDeleteCount.withLock { $0 })
   }
 
+  private var retainedArrayBufferView: Data?
+
+  func retainArrayBufferView(buffer: ArrayBuffer) throws {
+    retainedArrayBufferView = buffer.toData(copyIfNeeded: false)
+  }
+
+  func getRetainedArrayBufferViewLastItem() throws -> Double {
+    guard let lastItem = retainedArrayBufferView?.last else {
+      throw RuntimeError("No ArrayBuffer view is retained!")
+    }
+    return Double(lastItem)
+  }
+
+  func releaseArrayBufferView() throws {
+    retainedArrayBufferView = nil
+  }
+
   func getBufferLastItem(buffer: ArrayBuffer) throws -> Double {
     return try buffer.withUnsafeBytes { bytes in
       guard let lastByte = bytes.last else {

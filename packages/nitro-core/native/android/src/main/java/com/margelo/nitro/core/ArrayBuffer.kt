@@ -5,10 +5,12 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
+import com.facebook.jni.DestructorThread
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.utils.HardwareBufferUtils
 import dalvik.annotation.optimization.FastNative
+import java.lang.ref.Reference
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -66,7 +68,7 @@ class ArrayBuffer : AutoCloseable {
    * - If the `ArrayBuffer` holds a `ByteBuffer`, `getBuffer(false)` can safely be called to
    * get shared access to the underlying data, without performing any copies.
    * - If the `ArrayBuffer` doesn't hold a `ByteBuffer`, it can still be accessed via `getBuffer(false)`,
-   * but the returned `ByteBuffer` is only valid as long as its parent `ArrayBuffer` is alive and not closed.
+   * which wraps the data without copying it.
    */
   val isByteBuffer: Boolean
 
@@ -92,26 +94,81 @@ class ArrayBuffer : AutoCloseable {
     }
 
   /**
-   * Get a `ByteBuffer` that holds- or wraps- the underlying data.
-   * - If this `ArrayBuffer` has been created from Kotlin/Java, it is already holding a
-   * `ByteBuffer` (`isByteBuffer == true`). In this case, the returned buffer is safe to access,
-   * even after the `ArrayBuffer` has already been destroyed in JS.
-   * - If this `ArrayBuffer` has been created elsewhere (C++/JS), it is not holding a
-   * `ByteBuffer` (`isByteBuffer == false`). In this case, the returned buffer will either be a copy
-   * of the data (`copyIfNeeded == true`), or just wrapping the data (`copyIfNeeded == false`).
+   * Get a `ByteBuffer` that shares the underlying data without copying it.
+   * - If this `ArrayBuffer` holds a `ByteBuffer` (`isByteBuffer == true`), the returned buffer
+   * shares that `ByteBuffer`.
+   * - Otherwise, the returned buffer wraps the data.
    *
-   * @param copyIfNeeded If this `ArrayBuffer` is not holding a `ByteBuffer` (`isByteBuffer == false`),
-   * the foreign data needs to be either _wrapped_, or _copied_ to be represented as a `ByteBuffer`.
-   * This flag controls that behaviour.
+   * The returned buffer keeps the data alive for as long as it is reachable, even if this
+   * `ArrayBuffer` is closed. A `wrap(..., onDelete)` callback does not run before that.
+   *
+   * @param copyIfNeeded If this `ArrayBuffer` is **non-owning** (`isOwner == false`), its data is
+   * only valid during the synchronous call it was passed to. Pass `true` to copy the data into a
+   * new buffer that can be used later and on any thread. **Owning** `ArrayBuffer`s are never copied.
    *
    * The returned `ByteBuffer` shares the underlying bytes, uses native byte order, but has its own
    * cursor state. Reading from or writing to the returned buffer can change the bytes, but changing
    * its `position`, `limit`, or `mark` will not affect the `ArrayBuffer`'s internal `ByteBuffer`.
+   *
+   * Buffers derived from the returned buffer (e.g. with `slice()` or `duplicate()`) do not always
+   * keep the data alive on their own, so keep the returned buffer reachable while using them.
+   *
+   * For temporary access, prefer [withByteBuffer], which does not keep the data alive until the
+   * Java garbage collector frees the returned buffer.
    */
   fun getBuffer(copyIfNeeded: Boolean): ByteBuffer {
     checkNotClosed()
-    val buffer = getByteBuffer(copyIfNeeded)
+    if (copyIfNeeded && !getIsOwner()) {
+      return copyByteBuffer()
+    }
+    val view = getScopedByteBuffer()
+    if (view.capacity() > 0) {
+      // Registers itself with fbjni's DestructorThread, which keeps it until `view` is collected.
+      ViewOwner(view, retainArrayBuffer())
+    }
+    return view
+  }
+
+  /**
+   * Calls [block] with a `ByteBuffer` that wraps this `ArrayBuffer`'s data, without copying it.
+   *
+   * The `ByteBuffer` is only valid within [block]. Do not let it escape, and do not close this
+   * `ArrayBuffer` within [block]. This `ArrayBuffer` stays reachable until [block] returns.
+   * Unlike [getBuffer], this does not allocate anything to keep the data alive.
+   *
+   * **Non-owning** `ArrayBuffer`s (`isOwner == false`) can only be accessed synchronously
+   * during the call they were passed to.
+   *
+   * The `ByteBuffer` uses native byte order and has its own cursor state.
+   */
+  inline fun <R> withByteBuffer(block: (ByteBuffer) -> R): R {
+    val buffer = getScopedByteBuffer()
+    try {
+      return block(buffer)
+    } finally {
+      keepAlive()
+    }
+  }
+
+  @PublishedApi
+  internal fun getScopedByteBuffer(): ByteBuffer {
+    checkNotClosed()
+    val buffer = getByteBuffer()
     return if (isByteBuffer) buffer.arrayBufferView() else buffer
+  }
+
+  /**
+   * Keeps this `ArrayBuffer` reachable up to this call, so the Java garbage collector cannot free
+   * its data while [withByteBuffer]'s block is still running.
+   */
+  @PublishedApi
+  internal fun keepAlive() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      Reference.reachabilityFence(this)
+    } else {
+      // ART does not remove monitors, so this also keeps `this` reachable.
+      synchronized(this) {}
+    }
   }
 
   /**
@@ -131,24 +188,24 @@ class ArrayBuffer : AutoCloseable {
    * this performs a GPU-download.
    * This does not mutate the underlying `ByteBuffer`'s cursor state.
    */
-  fun toByteArray(): ByteArray {
-    val buffer = this.getBuffer(false)
-    if (buffer.hasArray()) {
-      // It's a CPU-backed array - we can return this directly if the size matches
-      val array = buffer.array()
-      if (array.size == this.size && buffer.arrayOffset() == 0) {
-        // The ByteBuffer is 1:1 mapped to a byte array - return as is!
-        return array
+  fun toByteArray(): ByteArray =
+    withByteBuffer { buffer ->
+      if (buffer.hasArray()) {
+        // It's a CPU-backed array - we can return this directly if the size matches
+        val array = buffer.array()
+        if (array.size == buffer.capacity() && buffer.arrayOffset() == 0) {
+          // The ByteBuffer is 1:1 mapped to a byte array - return as is!
+          return@withByteBuffer array
+        }
+        // we had a CPU-backed array, but its size differs from our ArrayBuffer size.
+        // This might be because the ArrayBuffer has a smaller view of the data, so we need
+        // to resort back to a good ol' copy.
       }
-      // we had a CPU-backed array, but its size differs from our ArrayBuffer size.
-      // This might be because the ArrayBuffer has a smaller view of the data, so we need
-      // to resort back to a good ol' copy.
+      // It's not a 1:1 mapped array (e.g. HardwareBuffer) - we need to copy to the CPU.
+      val copy = ByteArray(buffer.capacity())
+      buffer.get(copy)
+      copy
     }
-    // It's not a 1:1 mapped array (e.g. HardwareBuffer) - we need to copy to the CPU.
-    val copy = ByteArray(this.size)
-    buffer.get(copy)
-    return copy
-  }
 
   /**
    * Returns an **owning** version of this `ArrayBuffer`.
@@ -171,8 +228,7 @@ class ArrayBuffer : AutoCloseable {
    * - For **non-owning** `ArrayBuffer`s, this releases the reference to the JS `ArrayBuffer`.
    *
    * Accessing this `ArrayBuffer` after closing it throws an [IllegalStateException].
-   * If this `ArrayBuffer` does not hold a `ByteBuffer` (`isByteBuffer == false`), `ByteBuffer`s
-   * previously returned by `getBuffer(false)` must not be used after closing it either.
+   * `ByteBuffer`s previously returned by [getBuffer] keep the data alive and stay valid.
    * Closing an `ArrayBuffer` that has already been closed has no effect.
    * Do not close an `ArrayBuffer` while another thread is still accessing it.
    */
@@ -238,7 +294,12 @@ class ArrayBuffer : AutoCloseable {
     onDelete: Runnable?,
   ): HybridData
 
-  private external fun getByteBuffer(copyIfNeeded: Boolean): ByteBuffer
+  private external fun getByteBuffer(): ByteBuffer
+
+  private external fun copyByteBuffer(): ByteBuffer
+
+  @FastNative
+  private external fun retainArrayBuffer(): Long
 
   @FastNative
   private external fun getHardwareBufferBoxed(): BoxedHardwareBuffer
@@ -255,7 +316,26 @@ class ArrayBuffer : AutoCloseable {
   @FastNative
   private external fun getBufferSize(): Int
 
+  /**
+   * Keeps a native reference to an `ArrayBuffer`'s data until [view] has been garbage collected.
+   * Like any `PhantomReference`, it tracks [view] by identity, not by `equals`.
+   */
+  private class ViewOwner(
+    view: ByteBuffer,
+    private val reference: Long,
+  ) : DestructorThread.Destructor(view) {
+    override fun destruct() {
+      releaseArrayBuffer(reference)
+    }
+  }
+
   companion object {
+    /**
+     * Releases a reference created with [retainArrayBuffer].
+     */
+    @JvmStatic
+    private external fun releaseArrayBuffer(reference: Long)
+
     /**
      * Allocate a new `ArrayBuffer` with the given [size].
      */
@@ -283,8 +363,7 @@ class ArrayBuffer : AutoCloseable {
         }
       }
 
-      val byteBuffer = other.getBuffer(false)
-      return copy(byteBuffer)
+      return other.withByteBuffer { copy(it) }
     }
 
     /**

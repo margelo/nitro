@@ -1243,6 +1243,28 @@ namespace margelo::nitro::test {
     return std::move(__result.value());
   }
 
+  void HybridTestObjectSwiftKotlinSpecSwift::retainArrayBufferView(const ArrayBuffer& buffer) {
+    auto __result = _swiftPart.retainArrayBufferView(buffer);
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+  }
+
+  double HybridTestObjectSwiftKotlinSpecSwift::getRetainedArrayBufferViewLastItem() {
+    auto __result = _swiftPart.getRetainedArrayBufferViewLastItem();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  void HybridTestObjectSwiftKotlinSpecSwift::releaseArrayBufferView() {
+    auto __result = _swiftPart.releaseArrayBufferView();
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+  }
+
   ::NitroTest::Variant_Double_String_cxx HybridTestObjectSwiftKotlinSpecSwift::passVariant(const ::NitroTest::Variant_Bool__Double___String__Double_String_cxx& either) {
     auto __result = withSwiftResult<::NitroTest::Variant_Double_String_cxx>([&](void* __outResult) {
       return _swiftPart.passVariant(either, __outResult);
@@ -1731,6 +1753,9 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("wrapArrayBuffer", &HybridTestObjectSwiftKotlinSpecSwift::wrapArrayBuffer);
       clazz.registerHybridMethod("releaseWrappedArrayBuffers", &HybridTestObjectSwiftKotlinSpecSwift::releaseWrappedArrayBuffers);
       clazz.registerHybridMethod("getWrappedArrayBufferDeleteCount", &HybridTestObjectSwiftKotlinSpecSwift::getWrappedArrayBufferDeleteCount);
+      clazz.registerHybridMethod("retainArrayBufferView", &HybridTestObjectSwiftKotlinSpecSwift::retainArrayBufferView);
+      clazz.registerHybridMethod("getRetainedArrayBufferViewLastItem", &HybridTestObjectSwiftKotlinSpecSwift::getRetainedArrayBufferViewLastItem);
+      clazz.registerHybridMethod("releaseArrayBufferView", &HybridTestObjectSwiftKotlinSpecSwift::releaseArrayBufferView);
       clazz.registerHybridMethod("passVariant", &HybridTestObjectSwiftKotlinSpecSwift::passVariant);
       clazz.registerHybridMethod("getVariantEnum", &HybridTestObjectSwiftKotlinSpecSwift::getVariantEnum);
       clazz.registerHybridMethod("bounceVariantUnionEnum", &HybridTestObjectSwiftKotlinSpecSwift::bounceVariantUnionEnum);

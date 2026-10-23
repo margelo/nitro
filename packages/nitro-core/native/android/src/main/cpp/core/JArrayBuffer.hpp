@@ -98,33 +98,53 @@ public:
    * - If the `ArrayBuffer` was created from a `ByteBuffer` (`isByteBuffer()`), this returns
    * a reference to the original `ByteBuffer`, which is safe to be kept in memory for longer.
    * - If the `ArrayBuffer` was created elsewhere (either in JS, or in C++), it does not have a
-   * `ByteBuffer`. In this case, `getBuffer()` will **copy** the data into a new `ByteBuffer` if
-   * `copyIfNeeded` is `true`, and **wrap** the data into a new `ByteBuffer` if `copyIfNeeded` is false.
+   * `ByteBuffer`. In this case, this **wraps** the data in a new `ByteBuffer` without retaining it.
+   * The caller has to keep the data alive while the `ByteBuffer` is used, e.g. with `retainArrayBuffer()`.
    */
-  [[nodiscard]] jni::local_ref<jni::JByteBuffer> getByteBuffer(bool copyIfNeeded) {
+  [[nodiscard]] jni::local_ref<jni::JByteBuffer> getByteBuffer() {
     auto byteBufferArrayBuffer = std::dynamic_pointer_cast<ByteBufferArrayBuffer>(_arrayBuffer.getNativeBuffer());
     if (byteBufferArrayBuffer != nullptr) {
       // It is a `ByteBufferArrayBuffer`, which has a `ByteBuffer` underneath!
       return jni::make_local(byteBufferArrayBuffer->getBuffer());
-    } else {
-      // It is a different kind of `ArrayBuffer`, we need to copy or wrap the data.
-      size_t size = _arrayBuffer.size();
-      if (size == 0) {
-        auto buffer = jni::JByteBuffer::allocateDirect(0);
-        buffer->order(jni::JByteOrder::nativeOrder());
-        return buffer;
-      }
-      if (copyIfNeeded) {
-        auto buffer = jni::JByteBuffer::allocateDirect(size);
-        buffer->order(jni::JByteOrder::nativeOrder());
-        memcpy(buffer->getDirectAddress(), _arrayBuffer.data(), size);
-        return buffer;
-      } else {
-        auto buffer = jni::JByteBuffer::wrapBytes(_arrayBuffer.data(), size);
-        buffer->order(jni::JByteOrder::nativeOrder());
-        return buffer;
-      }
     }
+    // It is a different kind of `ArrayBuffer`, we need to wrap the data.
+    size_t size = _arrayBuffer.size();
+    if (size == 0) {
+      auto buffer = jni::JByteBuffer::allocateDirect(0);
+      buffer->order(jni::JByteOrder::nativeOrder());
+      return buffer;
+    }
+    auto buffer = jni::JByteBuffer::wrapBytes(_arrayBuffer.data(), size);
+    buffer->order(jni::JByteOrder::nativeOrder());
+    return buffer;
+  }
+
+  /**
+   * Copy the `ArrayBuffer`'s data into a new `ByteBuffer`.
+   */
+  [[nodiscard]] jni::local_ref<jni::JByteBuffer> copyByteBuffer() {
+    size_t size = _arrayBuffer.size();
+    auto buffer = jni::JByteBuffer::allocateDirect(static_cast<jint>(size));
+    buffer->order(jni::JByteOrder::nativeOrder());
+    if (size > 0) {
+      memcpy(buffer->getDirectAddress(), _arrayBuffer.data(), size);
+    }
+    return buffer;
+  }
+
+  /**
+   * Create a new reference to this `ArrayBuffer`'s data that stays valid after this `JArrayBuffer`
+   * is destroyed. Release it with `releaseArrayBuffer(...)`.
+   */
+  [[nodiscard]] jlong retainArrayBuffer() {
+    return reinterpret_cast<jlong>(new ArrayBuffer(_arrayBuffer));
+  }
+
+  /**
+   * Release a reference created with `retainArrayBuffer()`.
+   */
+  static void releaseArrayBuffer(jni::alias_ref<jni::JClass>, jlong reference) {
+    delete reinterpret_cast<ArrayBuffer*>(reference);
   }
 
   [[nodiscard]] jni::local_ref<jni::JObject> getHardwareBufferBoxed() {
@@ -186,7 +206,10 @@ public:
     registerHybrid(
         {makeNativeMethod("initHybrid", JArrayBuffer::initHybridByteBuffer),
          makeNativeMethod("initHybridBoxedHardwareBuffer", JArrayBuffer::initHybridHardwareBuffer),
-         makeNativeMethod("getByteBuffer", JArrayBuffer::getByteBuffer), makeNativeMethod("getIsByteBuffer", JArrayBuffer::getIsByteBuffer),
+         makeNativeMethod("getByteBuffer", JArrayBuffer::getByteBuffer), makeNativeMethod("copyByteBuffer", JArrayBuffer::copyByteBuffer),
+         makeNativeMethod("retainArrayBuffer", JArrayBuffer::retainArrayBuffer),
+         makeNativeMethod("releaseArrayBuffer", JArrayBuffer::releaseArrayBuffer),
+         makeNativeMethod("getIsByteBuffer", JArrayBuffer::getIsByteBuffer),
          makeNativeMethod("getHardwareBufferBoxed", JArrayBuffer::getHardwareBufferBoxed),
          makeNativeMethod("getIsHardwareBuffer", JArrayBuffer::getIsHardwareBuffer),
          makeNativeMethod("getIsOwner", JArrayBuffer::getIsOwner), makeNativeMethod("getBufferSize", JArrayBuffer::getBufferSize)});

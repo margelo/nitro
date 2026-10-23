@@ -209,6 +209,9 @@ namespace margelo::nitro::test {
     ArrayBuffer wrapArrayBuffer(double size);
     void releaseWrappedArrayBuffers();
     double getWrappedArrayBufferDeleteCount();
+    void retainArrayBufferView(const ArrayBuffer& buffer);
+    double getRetainedArrayBufferViewLastItem();
+    void releaseArrayBufferView();
     ::NitroTest::Variant_Double_String_cxx passVariant(const ::NitroTest::Variant_Bool__Double___String__Double_String_cxx& either);
     ::NitroTest::Variant_OldEnum_Bool_cxx getVariantEnum(const ::NitroTest::Variant_OldEnum_Bool_cxx& variant);
     ::NitroTest::Variant_Powertrain_Car_cxx bounceVariantUnionEnum(const ::NitroTest::Variant_Powertrain_Car_cxx& variant);

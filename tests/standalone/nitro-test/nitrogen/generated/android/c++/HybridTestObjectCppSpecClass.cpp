@@ -241,6 +241,9 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("wrapArrayBuffer", &HybridTestObjectCppSpec::wrapArrayBuffer);
       clazz.registerHybridMethod("releaseWrappedArrayBuffers", &HybridTestObjectCppSpec::releaseWrappedArrayBuffers);
       clazz.registerHybridMethod("getWrappedArrayBufferDeleteCount", &HybridTestObjectCppSpec::getWrappedArrayBufferDeleteCount);
+      clazz.registerHybridMethod("retainArrayBufferView", &HybridTestObjectCppSpec::retainArrayBufferView);
+      clazz.registerHybridMethod("getRetainedArrayBufferViewLastItem", &HybridTestObjectCppSpec::getRetainedArrayBufferViewLastItem);
+      clazz.registerHybridMethod("releaseArrayBufferView", &HybridTestObjectCppSpec::releaseArrayBufferView);
       clazz.registerHybridMethod("passVariant", &HybridTestObjectCppSpec::passVariant);
       clazz.registerHybridMethod("getVariantEnum", &HybridTestObjectCppSpec::getVariantEnum);
       clazz.registerHybridMethod("bounceVariantUnionEnum", &HybridTestObjectCppSpec::bounceVariantUnionEnum);

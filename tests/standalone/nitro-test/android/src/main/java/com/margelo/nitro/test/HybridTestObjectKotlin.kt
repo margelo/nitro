@@ -767,9 +767,10 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
   }
 
   override fun getBufferLastItem(buffer: ArrayBuffer): Double {
-    val byteBuffer = buffer.getBuffer(false)
-    val lastItem = byteBuffer[buffer.size - 1]
-    return lastItem.toDouble()
+    return buffer.withByteBuffer { byteBuffer ->
+      val lastItem = byteBuffer[byteBuffer.capacity() - 1]
+      lastItem.toDouble()
+    }
   }
 
   override fun setAllValuesTo(
@@ -810,6 +811,25 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
 
   override fun getWrappedArrayBufferDeleteCount(): Double {
     return wrappedArrayBufferDeleteCount.get().toDouble()
+  }
+
+  @Volatile private var retainedArrayBufferView: ByteBuffer? = null
+
+  override fun retainArrayBufferView(buffer: ArrayBuffer) {
+    retainedArrayBufferView = buffer.getBuffer(false)
+    // Only the view keeps the data alive now.
+    buffer.close()
+  }
+
+  override fun getRetainedArrayBufferViewLastItem(): Double {
+    val view = retainedArrayBufferView ?: throw Error("No ArrayBuffer view is retained!")
+    return view[view.capacity() - 1].toDouble()
+  }
+
+  override fun releaseArrayBufferView() {
+    retainedArrayBufferView = null
+    // The view keeps the data alive until the Java GC collects it.
+    Runtime.getRuntime().gc()
   }
 
   override fun createChild(): HybridChildSpec {
