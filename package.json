@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
-    "@eslint/js": "^9.39.4",
+    "@eslint/js": "^10.0.1",
     "@jamesacarr/eslint-formatter-github-actions": "^0.2.0",
     "@react-native/eslint-config": "0.88.0",
     "@react-native/jest-preset": "0.88.0",
@@ -66,7 +66,7 @@
     "@types/jest": "^30.0.0",
     "@types/bun": "1.4.0",
     "@types/react": "^19.3.0",
-    "eslint": "^9.39.4",
+    "eslint": "^10.13.0",
     "eslint-plugin-ft-flow": "^3.0.11",
     "eslint-plugin-prettier": "^5.5.5",
     "jest": "^30.5.2",
