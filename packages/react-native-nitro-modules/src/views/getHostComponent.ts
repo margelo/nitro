@@ -4,6 +4,7 @@ import type {
   HybridViewMethods,
   HybridViewProps,
 } from './HybridView'
+import { ReactNativeComponentRegistry } from './ReactNativeComponentRegistry'
 
 // Keep the runtime import compatible with React Native < 0.82. The public
 // TypeScript export was added in 0.83; use it because RN 0.88 no longer exposes
@@ -137,12 +138,12 @@ export function getHostComponent<
   name: string,
   getViewConfig: () => ViewConfig<Props>
 ): ReactNativeView<Props, Methods> {
-  if (NativeComponentRegistry == null) {
+  if (ReactNativeComponentRegistry == null) {
     throw new Error(
       `NativeComponentRegistry is not available on ${Platform.OS}!`
     )
   }
-  return NativeComponentRegistry.get(name, () => {
+  return ReactNativeComponentRegistry.get(name, () => {
     const config = getViewConfig()
     config.validAttributes = wrapValidAttributes(config.validAttributes)
     return typesafe(config)
