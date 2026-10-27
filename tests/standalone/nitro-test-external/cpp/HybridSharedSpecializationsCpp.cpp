@@ -66,6 +66,10 @@ Callback<void(double)> HybridSharedSpecializationsCpp::wrapNumberCallback(const 
   return Callback<void(double)>::make([=](double value) { callback(value); });
 }
 
+SharedCallbackStruct HybridSharedSpecializationsCpp::bounceCallbackStruct(const SharedCallbackStruct& value) {
+  return value;
+}
+
 Promise<void> HybridSharedSpecializationsCpp::callVoidPromiseCallback(const Callback<Promise<void>()>& callback) {
   return Promise<void>::async([=]() {
     Promise<Promise<void>> callPromise = callback();

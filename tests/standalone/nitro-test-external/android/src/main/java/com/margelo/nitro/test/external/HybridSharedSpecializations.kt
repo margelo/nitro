@@ -74,6 +74,10 @@ class HybridSharedSpecializations : HybridSharedSpecializationsSpec() {
     return Callback.native { value -> callback(value) }
   }
 
+  override fun bounceCallbackStruct(value: SharedCallbackStruct): SharedCallbackStruct {
+    return value
+  }
+
   override fun callVoidPromiseCallback(callback: Callback<() -> Promise<Unit>>): Promise<Unit> {
     return Promise.async {
       callback().await().await()

@@ -124,6 +124,10 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
     return __result
   }
 
+  @DoNotStrip
+  @Keep
+  abstract fun bounceCallbackStruct(value: SharedCallbackStruct): SharedCallbackStruct
+
   abstract fun callInline(callback: Callback<() -> Unit>): Unit
 
   @DoNotStrip

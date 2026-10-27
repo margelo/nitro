@@ -21,6 +21,8 @@ namespace NitroTestExternal { class Size; }
 // Forward declaration of `HybridSharedSpecializationsSpec_cxx` to properly resolve imports.
 namespace NitroTestExternal { class HybridSharedSpecializationsSpec_cxx; }
 namespace swift { class String; }
+// Forward declaration of `SharedCallbackStruct` to properly resolve imports.
+namespace NitroTestExternal { class SharedCallbackStruct; }
 #include <NitroModules/InlineCallback.hpp>
 #ifndef SWIFT_SWIFT_H
 namespace swift { template <class T> class Optional; }

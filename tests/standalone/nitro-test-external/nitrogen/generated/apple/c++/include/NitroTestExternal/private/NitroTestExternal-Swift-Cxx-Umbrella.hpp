@@ -37,6 +37,7 @@
 #include <NitroTestExternal/private/HybridSharedSpecializationsSpec_cxx-Swift.hpp>
 #include <NitroModules/NitroModules-Swift-Cxx-Umbrella.hpp>
 #include <NitroModules/JSIConverter+SwiftString.hpp>
+#include <NitroTestExternal/private/SharedCallbackStruct-Swift.hpp>
 #include <NitroModules/InlineCallback.hpp>
 #include <NitroModules/JSIConverter+SwiftOptional.hpp>
 #include <NitroTestExternal/private/OptionalPrimitivesHolder-Swift.hpp>

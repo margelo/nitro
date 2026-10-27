@@ -35,6 +35,7 @@ public:
   void callWithString(const std::string& value, const Callback<void(const std::string& /* value */)>& callback) override;
   Promise<double> mapNumber(double value, const Callback<double(double /* value */)>& callback) override;
   Callback<void(double /* value */)> wrapNumberCallback(const Callback<void(double /* value */)>& callback) override;
+  SharedCallbackStruct bounceCallbackStruct(const SharedCallbackStruct& value) override;
   Promise<void> callVoidPromiseCallback(const Callback<Promise<void>()>& callback) override;
   Promise<double> callNumberPromiseCallback(const Callback<Promise<double>()>& callback) override;
   void callInline(const InlineCallback<void()>& callback) override;

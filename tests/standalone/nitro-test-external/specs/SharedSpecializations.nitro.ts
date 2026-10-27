@@ -4,6 +4,12 @@ import type { HybridObject, Inline } from 'nitro-core'
 export * from '#nitro/SharedSpecializationsCpp'
 export * from '#nitro/SharedSpecializations'
 
+// Matches nitro-test's JsStyleStruct callback signature in a separate Swift module.
+export interface SharedCallbackStruct {
+  value: number
+  onChanged: (value: number) => void
+}
+
 /**
  * Uses the same Promise and Callback specializations as `nitro-test`, such as
  * `Promise<void>` and `(value: number) => void`. Both generated modules then
@@ -45,6 +51,7 @@ export declare class SharedSpecializationsCpp extends HybridObject {
   callVoidPromiseCallback(callback: () => Promise<void>): Promise<void>
   callNumberPromiseCallback(callback: () => Promise<number>): Promise<number>
   numberCallback: (value: number) => void
+  bounceCallbackStruct(value: SharedCallbackStruct): SharedCallbackStruct
 
   // Inline callbacks
   callInline(callback: Inline<() => void>): void
@@ -78,6 +85,7 @@ export declare class SharedSpecializations extends HybridObject {
   callVoidPromiseCallback(callback: () => Promise<void>): Promise<void>
   callNumberPromiseCallback(callback: () => Promise<number>): Promise<number>
   numberCallback: (value: number) => void
+  bounceCallbackStruct(value: SharedCallbackStruct): SharedCallbackStruct
 
   // Inline callbacks
   callInline(callback: Inline<() => void>): void

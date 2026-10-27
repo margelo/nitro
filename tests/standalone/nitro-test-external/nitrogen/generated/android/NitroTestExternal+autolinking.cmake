@@ -26,11 +26,13 @@ target_sources(NitroTestExternal PRIVATE
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridSharedSpecializationsSpec.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JHybridSomeExternalObjectSpec.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JOptionalPrimitivesHolder.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JSharedCallbackStruct.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JSize.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../android/c++/JSizeUnit.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../shared/c++/CppOnlyValue.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../shared/c++/HybridCppValueSourceSpec.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/../shared/c++/HybridSharedSpecializationsCppSpec.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/../shared/c++/SharedCallbackStruct.cpp"
 )
 
 find_package(fbjni REQUIRED CONFIG)

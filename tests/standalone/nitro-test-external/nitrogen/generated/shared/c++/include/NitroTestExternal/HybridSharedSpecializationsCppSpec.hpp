@@ -13,6 +13,7 @@
 #include <functional>
 #include <NitroModules/Promise.hpp>
 #include <string>
+#include <NitroTestExternal/SharedCallbackStruct.hpp>
 #include <NitroModules/InlineCallback.hpp>
 
 namespace margelo::nitro::test::external {
@@ -65,6 +66,7 @@ namespace margelo::nitro::test::external {
       virtual Callback<void(double /* value */)> wrapNumberCallback(const Callback<void(double /* value */)>& callback) = 0;
       virtual Promise<void> callVoidPromiseCallback(const Callback<Promise<void>()>& callback) = 0;
       virtual Promise<double> callNumberPromiseCallback(const Callback<Promise<double>()>& callback) = 0;
+      virtual SharedCallbackStruct bounceCallbackStruct(const SharedCallbackStruct& value) = 0;
       virtual void callInline(const InlineCallback<void()>& callback) = 0;
       virtual double callInlineWithNumber(double value, const InlineCallback<double(double /* value */)>& callback) = 0;
 
