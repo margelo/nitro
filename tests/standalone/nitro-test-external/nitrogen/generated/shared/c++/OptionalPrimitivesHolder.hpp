@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -46,7 +48,7 @@ namespace margelo::nitro::test::external {
 
   public:
     OptionalPrimitivesHolder() = default;
-    explicit OptionalPrimitivesHolder(std::optional<double> optionalNumber, std::optional<bool> optionalBoolean, std::optional<uint64_t> optionalUInt64, std::optional<int64_t> optionalInt64): optionalNumber(optionalNumber), optionalBoolean(optionalBoolean), optionalUInt64(optionalUInt64), optionalInt64(optionalInt64) {}
+    explicit OptionalPrimitivesHolder(std::optional<double> optionalNumber, std::optional<bool> optionalBoolean, std::optional<uint64_t> optionalUInt64, std::optional<int64_t> optionalInt64): optionalNumber(std::move(optionalNumber)), optionalBoolean(std::move(optionalBoolean)), optionalUInt64(std::move(optionalUInt64)), optionalInt64(std::move(optionalInt64)) {}
 
   public:
     friend bool operator==(const OptionalPrimitivesHolder& lhs, const OptionalPrimitivesHolder& rhs) = default;

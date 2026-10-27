@@ -68,6 +68,7 @@ namespace margelo::nitro::test {
       prototype.registerHybridMethod("getVariantHybridEnum", &HybridTestObjectCppSpec::getVariantHybridEnum);
       prototype.registerHybridMethod("bounceAnyHybrid", &HybridTestObjectCppSpec::bounceAnyHybrid);
       prototype.registerHybridMethod("bounceCustomType", &HybridTestObjectCppSpec::bounceCustomType);
+      prototype.registerHybridMethod("personConstructorMovesName", &HybridTestObjectCppSpec::personConstructorMovesName);
       prototype.registerHybridMethod("simpleFunc", &HybridTestObjectCppSpec::simpleFunc);
       prototype.registerHybridMethod("addNumbers", &HybridTestObjectCppSpec::addNumbers);
       prototype.registerHybridMethod("addStrings", &HybridTestObjectCppSpec::addStrings);

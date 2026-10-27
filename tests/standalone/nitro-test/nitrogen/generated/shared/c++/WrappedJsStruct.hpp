@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -46,7 +48,7 @@ namespace margelo::nitro::test {
 
   public:
     WrappedJsStruct() = default;
-    explicit WrappedJsStruct(JsStyleStruct value, std::vector<JsStyleStruct> items): value(value), items(items) {}
+    explicit WrappedJsStruct(JsStyleStruct value, std::vector<JsStyleStruct> items): value(std::move(value)), items(std::move(items)) {}
 
   public:
     // WrappedJsStruct is not equatable because these properties are not equatable: value, items

@@ -26,6 +26,13 @@ const POWERTRAINS: Powertrain[] = ["electric", "gas", "hybrid"];
 
 export const cases = {
   ...namedCases("C++ only / TestObjectCpp", {
+    'Person constructor moves its name buffer': () => {
+      const testObject =
+        NitroModules.createHybridObject<TestObjectCpp>('TestObjectCpp')
+
+      expect(testObject.personConstructorMovesName()).to.equal(true)
+    },
+
     "getVariantTuple(...) converts Float2": () => {
       const testObject =
         NitroModules.createHybridObject<TestObjectCpp>("TestObjectCpp");
