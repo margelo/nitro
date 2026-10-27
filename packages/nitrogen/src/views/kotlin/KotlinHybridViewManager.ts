@@ -127,10 +127,10 @@ public class ${manager}: SimpleViewManager<View>() {
     val hybridView = holder.hybridView
     holder.lastState = null
 
-    @Suppress("USELESS_IS_CHECK")
-    if (hybridView is RecyclableView) {
+    val recyclableView = (hybridView as Any) as? RecyclableView
+    if (recyclableView != null) {
       // Reset the implementation while retaining the associated view and holder.
-      hybridView.prepareForRecycle()
+      recyclableView.prepareForRecycle()
       return preparedView
     } else {
       return null
