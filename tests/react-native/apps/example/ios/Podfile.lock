@@ -11,7 +11,7 @@ PODS:
     - ReactNativeDependencies
   - glog (0.3.5):
     - ReactNativeDependencies
-  - HarnessUI (1.5.0):
+  - HarnessUI (1.6.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2173,7 +2173,7 @@ SPEC CHECKSUMS:
   FBLazyVector: fdebac2dfe9c53bca49f8218fbdf1e24e36c8be0
   fmt: ba0886e864ebb21d14c98b2e12e164b8002f5b93
   glog: 3cf7cb46f743c4bc758ae3e6d9c15bd1b4cfd6d4
-  HarnessUI: cd5fe9b789aa7573d689d4604f30ade597582d49
+  HarnessUI: aae88d05fe2eddceb8a6cc6a2368454815cdb87c
   hermes-engine: fb71bb47c9955e9cf777b685888f8e337d304a00
   NitroModules: 3757e048d8c6e19bfd40561ed59c260d03a3a9ab
   NitroTest: 3c1b7d42d08a33bde52c6b6e7d7f8bcde937bd47
@@ -2260,4 +2260,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: cc2ab22c5169410d8739c73db2747f1617e7eaf0
 
-COCOAPODS: 1.17.0
+COCOAPODS: 1.16.2
