@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-example",
-  "version": "0.37.1",
+  "version": "0.37.2-nightly.101.ge91b20f798c8",
   "private": true,
   "scripts": {
     "start": "node ../../../../scripts/sync-core.mjs && react-native start --client-logs",
@@ -22,9 +22,9 @@
     "react": "19.3.0",
     "react-native": "0.88.0",
     "react-native-nitro-test": "workspace:*",
-    "react-native-nitro-modules": "0.37.1",
+    "react-native-nitro-modules": "0.37.2-nightly.101.ge91b20f798c8",
     "react-native-safe-area-context": "^5.10.1",
-    "nitro-core": "0.37.1"
+    "nitro-core": "0.37.2-nightly.101.ge91b20f798c8"
   },
   "devDependencies": {
     "@babel/core": "^8.0.7",
@@ -42,7 +42,7 @@
     "@react-native-harness/ui": "1.5.0",
     "@types/upng-js": "2.1.5",
     "babel-plugin-module-resolver": "^5.0.3",
-    "nitrogen": "0.37.1",
+    "nitrogen": "0.37.2-nightly.101.ge91b20f798c8",
     "react-native-harness": "1.5.0",
     "upng-js": "2.1.0"
   },

@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-benchmark",
-  "version": "0.37.1",
+  "version": "0.37.2-nightly.101.ge91b20f798c8",
   "private": true,
   "scripts": {
     "android": "node ../../../../scripts/sync-core.mjs && react-native run-android --mode release",
@@ -16,7 +16,7 @@
   "dependencies": {
     "react": "19.3.0",
     "react-native": "0.88.0",
-    "react-native-nitro-modules": "0.37.1",
+    "react-native-nitro-modules": "0.37.2-nightly.101.ge91b20f798c8",
     "react-native-nitro-test": "workspace:*"
   },
   "devDependencies": {

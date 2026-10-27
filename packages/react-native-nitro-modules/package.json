@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-modules",
-  "version": "0.37.1",
+  "version": "0.37.2-nightly.101.ge91b20f798c8",
   "description": "Fast, type-safe native modules for React Native with statically compiled JSI bindings.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -118,6 +118,6 @@
     ]
   },
   "dependencies": {
-    "nitro-core": "0.37.1"
+    "nitro-core": "0.37.2-nightly.101.ge91b20f798c8"
   }
 }
