@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-test",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.nightly.102.g7b2ac8cfaaf9",
   "description": "Benchmark objects and view fixtures for Nitro React Native integration.",
   "main": "lib/index",
   "module": "lib/index",
@@ -58,10 +58,10 @@
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
-    "nitrogen": "1.0.0-alpha.0",
+    "nitrogen": "1.0.0-alpha.nightly.102.g7b2ac8cfaaf9",
     "react": "19.3.0",
     "react-native": "0.88.0",
-    "react-native-nitro-modules": "1.0.0-alpha.0"
+    "react-native-nitro-modules": "1.0.0-alpha.nightly.102.g7b2ac8cfaaf9"
   },
   "peerDependencies": {
     "react": "*",
