@@ -21,8 +21,7 @@ public struct JsStyleStruct: Sendable {
 
   @_spi(NitroCxx)
   public static func init_cxx(_ value: Double, _ onChanged: UnsafeRawPointer) -> Self {
-    let __onChanged = onChanged.load(as: margelo.nitro.test.swift_bridge.Callback_void_double.self)
-    return Self(value: value, onChanged: __onChanged)
+    return Self(value: value, onChanged: onChanged.load(as: margelo.nitro.test.swift_bridge.Callback_void_double.self))
   }
 
   @_spi(NitroCxx)
@@ -32,7 +31,6 @@ public struct JsStyleStruct: Sendable {
 
   @_spi(NitroCxx)
   public borrowing func getOnChanged_cxx(_ __outResult: UnsafeMutableRawPointer) -> Void {
-    let value = self.onChanged.toCpp()
-    __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Callback_void_double.self, repeating: value, count: 1)
+    __outResult.initializeMemory(as: margelo.nitro.test.swift_bridge.Callback_void_double.self, repeating: self.onChanged.toCpp(), count: 1)
   }
 }

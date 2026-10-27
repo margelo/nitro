@@ -12,7 +12,6 @@ import { getProtocolConformanceImports, getSwiftImports } from './getSwiftImport
 import { SWIFT_RESULT_STORAGE } from './SwiftMethodHelpers.js'
 import { createCppStructGetter, createCppStructInitializer, getSwiftStructPropertyBridges } from './SwiftStructHelpers.js'
 import { SwiftCxxOutPointerType } from './types/SwiftCxxOutPointerType.js'
-import { SwiftCxxBorrowedPointerType } from './types/SwiftCxxBorrowedPointerType.js'
 
 export function createSwiftStructBridge(swiftType: SwiftStructType): SourceFile[] {
   const structType = swiftType.type
@@ -26,50 +25,28 @@ export function createSwiftStructBridge(swiftType: SwiftStructType): SourceFile[
     .join(', ')
   const swiftPropertyInitializers = structType.properties.map((p) => `self.${p.escapedName} = ${p.escapedName}`)
   const swiftBridgeInitializerParameters = properties
-    .map(({ property, parameterType }) => {
-      const type = parameterType.getCode('swift', { context: 'property' })
-      return `_ ${property.escapedName}: ${type}`
-    })
+    .map(({ property, parameterType }) => `_ ${property.escapedName}: ${parameterType.getCode('swift', { context: 'property' })}`)
     .join(', ')
-  const swiftBridgeInitializers: string[] = []
-  const swiftBridgeInitializerArguments = properties.map(({ property, parameterType }) => {
-    const value = parameterType.toSwift(property.escapedName)
-    if (parameterType instanceof SwiftCxxBorrowedPointerType) {
-      const name = `__${property.escapedName}`
-      swiftBridgeInitializers.push(`let ${name} = ${value}`)
-      return `${property.escapedName}: ${name}`
-    }
-    return `${property.escapedName}: ${value}`
-  })
-  const swiftBridgeReturnCode = `
-return Self(${swiftBridgeInitializerArguments.join(', ')})
-`.trim()
-  const swiftBridgeInitializerBody = [...swiftBridgeInitializers, swiftBridgeReturnCode].join('\n')
+  const swiftBridgeInitializerArguments = properties
+    .map(({ property, parameterType }) => `${property.escapedName}: ${parameterType.toSwift(property.escapedName)}`)
+    .join(', ')
   const swiftBridgeGetters = properties.map(({ property, returnType }) => {
-    const getterName = capitalizeName(property.escapedName)
-    const swiftValue = `self.${property.escapedName}`
-    const swiftBridgeValue = returnType.fromSwift(swiftValue)
     let swiftGetterParameters: string
     let swiftGetterReturnType: string
     let swiftGetterBody: string
     if (returnType instanceof SwiftCxxOutPointerType) {
-      const pointerType = returnType.getCode('swift', { context: 'parameter' })
-      swiftGetterParameters = `_ ${SWIFT_RESULT_STORAGE}: ${pointerType}`
+      swiftGetterParameters = `_ ${SWIFT_RESULT_STORAGE}: ${returnType.getCode('swift', { context: 'parameter' })}`
       swiftGetterReturnType = 'Void'
-      const swiftInitializeCode = returnType.initialize('swift', SWIFT_RESULT_STORAGE, 'value')
-      swiftGetterBody = `
-let value = ${swiftBridgeValue}
-${swiftInitializeCode}
-`.trim()
+      swiftGetterBody = returnType.initialize('swift', SWIFT_RESULT_STORAGE, returnType.fromSwift(`self.${property.escapedName}`))
     } else {
       swiftGetterParameters = ''
       swiftGetterReturnType = returnType.getCode('swift', { context: 'return' })
-      swiftGetterBody = `return ${swiftBridgeValue}`
+      swiftGetterBody = `return ${returnType.fromSwift(`self.${property.escapedName}`)}`
     }
     return `
 @_spi(NitroCxx)
-public borrowing func get${getterName}_cxx(${swiftGetterParameters}) -> ${swiftGetterReturnType} {
-  ${indent(swiftGetterBody, '  ')}
+public borrowing func get${capitalizeName(property.escapedName)}_cxx(${swiftGetterParameters}) -> ${swiftGetterReturnType} {
+  ${swiftGetterBody}
 }
 `.trim()
   })
@@ -99,7 +76,7 @@ public struct ${structType.structName}${conformancePrefix}${protocolNames.join('
 
   @_spi(NitroCxx)
   public static func init_cxx(${swiftBridgeInitializerParameters}) -> Self {
-    ${indent(swiftBridgeInitializerBody, '    ')}
+    return Self(${swiftBridgeInitializerArguments})
   }
 
   ${indent(swiftBridgeGetters.join('\n\n'), '  ')}
@@ -111,28 +88,13 @@ public struct ${structType.structName}${conformancePrefix}${protocolNames.join('
   const cppInitializerCode = createCppStructInitializer({
     type: cppStructType,
     properties: properties,
-    getCppValue: (property) => {
-      const type = property.getCode('c++', { context: 'type-argument' })
-      return `JSIConverter<${type}>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "${property.name}")))`
-    },
+    getCppValue: (property) =>
+      `JSIConverter<${property.getCode('c++', { context: 'type-argument' })}>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "${property.name}")))`,
   })
   const cppPropertyConversions = properties.map((propertyBridge) => {
-    const { property, returnType } = propertyBridge
-    const cppType = property.getCode('c++', { context: 'type-argument' })
+    const { property } = propertyBridge
     const cppGetter = createCppStructGetter({ property: propertyBridge, receiver: 'value' })
-    let cppGetterCode: string
-    let cppValue: string
-    if (returnType instanceof SwiftCxxOutPointerType) {
-      cppValue = `__${property.escapedName}`
-      cppGetterCode = `auto ${cppValue} = ${cppGetter};`
-    } else {
-      cppValue = cppGetter
-      cppGetterCode = ''
-    }
-    const cppSetPropertyCode = `
-object.setProperty(runtime, PropNameIDCache::get(runtime, "${property.name}"), JSIConverter<${cppType}>::toJSI(runtime, ${cppValue}));
-`.trim()
-    return [cppGetterCode, cppSetPropertyCode].filter((code) => code.length > 0).join('\n')
+    return `object.setProperty(runtime, PropNameIDCache::get(runtime, "${property.name}"), JSIConverter<${property.getCode('c++', { context: 'type-argument' })}>::toJSI(runtime, ${cppGetter}));`
   })
   const cppPropertyChecks = swiftType.properties.map(
     (p) =>
@@ -190,18 +152,10 @@ export function createSwiftStructCppConverter({ type, cppType }: SwiftStructCppC
     return { native: property, swift: bridge.property, bridge: bridge }
   })
   const nativeStructType = structType.getCode('c++', { context: 'value', fullyQualified: true })
-  const cppGetterInitializers: string[] = []
   const cppInitializerValues = properties.map(({ native, swift, bridge }) => {
     const converter = getSwiftConverter({ cppType: native, swiftType: swift })
     const cppGetter = createCppStructGetter({ property: bridge, receiver: 'value' })
-    let cppValue: string
-    if (bridge.returnType instanceof SwiftCxxOutPointerType) {
-      cppValue = `__${swift.escapedName}`
-      cppGetterInitializers.push(`auto ${cppValue} = ${cppGetter};`)
-    } else {
-      cppValue = cppGetter
-    }
-    return `${converter}::fromSwift(${cppValue})`
+    return `${converter}::fromSwift(${cppGetter})`
   })
   const cppToSwiftConverterCode = createCppStructInitializer({
     type: 'SwiftType',
@@ -213,10 +167,9 @@ export function createSwiftStructCppConverter({ type, cppType }: SwiftStructCppC
       return `${converter}::toSwift(value.${native.escapedName})`
     },
   })
-  const cppReturnCode = `
+  const swiftToCppConverterCode = `
 return ${nativeStructType}(${cppInitializerValues.join(', ')});
 `.trim()
-  const swiftToCppConverterCode = [...cppGetterInitializers, cppReturnCode].join('\n')
   const dependencies = properties.map(({ native, swift }) => swift.getCppConverter(native))
   const name = `${type.name}+${type.moduleName}`
   return createSwiftConverter({

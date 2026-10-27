@@ -22,10 +22,9 @@ namespace margelo::nitro {
   jsi::Value JSIConverter<::NitroTest::JsStyleStruct>::toJSI(jsi::Runtime& runtime, const ::NitroTest::JsStyleStruct& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<double>::toJSI(runtime, value.getValue_cxx()));
-    auto __onChanged = makeCxxValue<Callback<void(double)>>([&](void* __outResult) {
+    object.setProperty(runtime, PropNameIDCache::get(runtime, "onChanged"), JSIConverter<Callback<void(double)>>::toJSI(runtime, makeCxxValue<Callback<void(double)>>([&](void* __outResult) {
       value.getOnChanged_cxx(__outResult);
-    });
-    object.setProperty(runtime, PropNameIDCache::get(runtime, "onChanged"), JSIConverter<Callback<void(double)>>::toJSI(runtime, __onChanged));
+    })));
     return object;
   }
 
