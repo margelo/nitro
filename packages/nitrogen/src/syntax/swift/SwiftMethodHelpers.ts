@@ -63,16 +63,39 @@ export interface SwiftMethodInfo {
   resultType: SwiftResultType
 }
 
+export function getSwiftBridgeParameterType(type: SwiftType): SwiftType {
+  if (type.requiresOpaqueCxxBridge) {
+    return new SwiftCxxBorrowedPointerType(type)
+  }
+  return type
+}
+
+interface SwiftBridgeReturnTypeOptions {
+  type: SwiftType
+  isThrowing: boolean
+}
+
+export function getSwiftBridgeReturnType({ type, isThrowing }: SwiftBridgeReturnTypeOptions): SwiftType {
+  if (type.requiresOpaqueCxxBridge) {
+    return new SwiftCxxOutPointerType(type)
+  }
+  if (isThrowing && type.isReferenceType) {
+    // A throwing class result crosses the boundary as an owned opaque pointer.
+    return new SwiftRetainedPointerType(type)
+  }
+  if (isThrowing && !type.canImportFromCpp) {
+    // Swift cannot import Result<T> while a Swift-native T is incomplete.
+    // Return Result<void> alongside its value buffer; Core constructs Result<T>.
+    return new SwiftOutPointerType(type)
+  }
+  return type
+}
+
 export function prepareSwiftMethod(nativeMethod: Method, isThrowing: boolean, config: NitroConfig = NitroConfig.current): SwiftMethodInfo {
   const returnType = wrapSwiftType(nativeMethod.returnType, config)
   const parameters = nativeMethod.parameters.map((parameter) => {
     const swiftType = wrapSwiftType(parameter.type, config)
-    let exportedType: SwiftType
-    if (swiftType.requiresOpaqueCxxBridge) {
-      exportedType = new SwiftCxxBorrowedPointerType(swiftType)
-    } else {
-      exportedType = swiftType
-    }
+    const exportedType = getSwiftBridgeParameterType(swiftType)
     return {
       native: parameter,
       swift: new Parameter(parameter.name, swiftType),
@@ -80,19 +103,7 @@ export function prepareSwiftMethod(nativeMethod: Method, isThrowing: boolean, co
       exported: { name: parameter.type.escapedName, type: exportedType },
     }
   })
-  let exportedReturnType: SwiftType
-  if (returnType.requiresOpaqueCxxBridge) {
-    exportedReturnType = new SwiftCxxOutPointerType(returnType)
-  } else if (isThrowing && returnType.isReferenceType) {
-    // A throwing class result crosses the boundary as an owned opaque pointer.
-    exportedReturnType = new SwiftRetainedPointerType(returnType)
-  } else if (isThrowing && !returnType.canImportFromCpp) {
-    // Swift cannot import Result<T> while a Swift-native T is incomplete.
-    // Return Result<void> alongside its value buffer; Core constructs Result<T>.
-    exportedReturnType = new SwiftOutPointerType(returnType)
-  } else {
-    exportedReturnType = returnType
-  }
+  const exportedReturnType = getSwiftBridgeReturnType({ type: returnType, isThrowing: isThrowing })
   const resultType = getSwiftResultType(exportedReturnType, config)
   return {
     nativeMethod: nativeMethod,
