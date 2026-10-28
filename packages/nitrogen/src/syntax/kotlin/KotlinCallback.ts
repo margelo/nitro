@@ -121,7 +121,8 @@ class ${name} @DoNotStrip @Keep private constructor(hybridData: HybridData): Cxx
   }
 
   /**
-   * Lets C++ call a Kotlin callback with JNI types, e.g. \`Long\` instead of \`ULong\`.
+   * Lets C++ call a callback implemented in Kotlin with JNI types, e.g. \`Long\` instead of \`ULong\`.
+   * C++ creates it when such a callback crosses JNI.
    */
   @DoNotStrip
   @Keep
@@ -148,34 +149,6 @@ class ${name} @DoNotStrip @Keep private constructor(hybridData: HybridData): Cxx
   @Keep
   @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(${bridgeParams.join(', ')}): Unit
-
-  companion object {
-    /**
-     * Returns the given [callback] as its JNI representation.
-     * A callback from another module keeps its C++ \`Callback<...>\`, and
-     * a callback created in Kotlin is wrapped in a C++ \`Callback<...>\` that calls it.
-     */
-    @JvmStatic
-    fun fromKotlin(callback: ${kotlinCallbackType}): ${name} {
-      return when (callback) {
-        is ${name} -> callback
-        is CxxCallback -> fromCxx_cxx(callback)
-        else -> fromFunction_cxx(Function_cxx(callback))
-      }
-    }
-
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    @JvmName("fromCxx_cxx")
-    private external fun fromCxx_cxx(callback: CxxCallback): ${name}
-
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    @JvmName("fromFunction_cxx")
-    private external fun fromFunction_cxx(function: Function_cxx): ${name}
-  }
 }
   `.trim()
 
@@ -233,6 +206,7 @@ ${createFileMetadataString(`${jniName}.hpp`)}
 
 #include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
+#include <NitroModules/JTypedCallback.hpp>
 #include <NitroModules/JSIConverter+JNICallback.hpp>
 ${declarationIncludes}
 
@@ -252,19 +226,20 @@ namespace ${cxxNamespace} {
      */
     struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
       static constexpr auto kJavaDescriptor = "L${jniFunctionDescriptor};";
+      static jni::local_ref<JFunction_cxx> create(jni::alias_ref<JTypedCallback<JavaPart>> callback);
       ${retainedReturnType} invoke(${retainedParameters.join(', ')}) const;
     };
 
   public:
     static jni::local_ref<JavaPart> create(CallbackType callback);
+    /** Wraps a callback implemented in Kotlin in a C++ \`Callback<...>\`. */
+    static CallbackType fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback);
     static void registerNatives();
 
   private:
     ${jniReturnType} callSync_cxx(${nativeParams.join(', ')});
     ${jniAsyncReturnType} callAsync_cxx(${nativeParams.join(', ')});
     void callAndForget_cxx(${nativeParams.join(', ')});
-    static jni::local_ref<JavaPart> fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback);
-    static jni::local_ref<JavaPart> fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function);
 
   private:
     friend HybridBase;
@@ -281,6 +256,10 @@ ${createFileMetadataString(`${jniName}.cpp`)}
 ${implementationIncludes}
 
 namespace ${cxxNamespace} {
+
+  jni::local_ref<${jniName}::JFunction_cxx> ${jniName}::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    return newInstance(callback);
+  }
 
   ${retainedReturnType} ${jniName}::JFunction_cxx::invoke(${retainedParameters.join(', ')}) const {
     static const auto __method = javaClassStatic()->getMethod<${jniSignature}>("call");
@@ -303,12 +282,9 @@ namespace ${cxxNamespace} {
     callAndForget(${paramsForward.join(', ')});
   }
 
-  jni::local_ref<${jniName}::JavaPart> ${jniName}::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    return create(getCallback(callback));
-  }
-
-  jni::local_ref<${jniName}::JavaPart> ${jniName}::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
-    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  ${jniName}::CallbackType ${jniName}::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    auto function = JFunction_cxx::create(callback);
+    return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
 
   void ${jniName}::registerNatives() {
@@ -316,8 +292,6 @@ namespace ${cxxNamespace} {
       makeNativeMethod("callSync_cxx", ${jniName}::callSync_cxx),
       makeNativeMethod("callAsync_cxx", ${jniName}::callAsync_cxx),
       makeNativeMethod("callAndForget_cxx", ${jniName}::callAndForget_cxx),
-      makeNativeMethod("fromCxx_cxx", ${jniName}::fromCxx_cxx),
-      makeNativeMethod("fromFunction_cxx", ${jniName}::fromFunction_cxx),
     });
   }
 

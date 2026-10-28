@@ -25,13 +25,7 @@ data class SharedCallbackStruct(
   @Keep
   val onChanged: Callback<(value: Double) -> Unit>
 ) {
-  @DoNotStrip
-  @Keep
-  @Suppress("unused", "FunctionName")
-  @JvmName("getOnChanged_cxx")
-  private fun getOnChanged_cxx(): Callback_void_double {
-    return Callback_void_double.fromKotlin(onChanged)
-  }
+
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -56,7 +50,7 @@ data class SharedCallbackStruct(
     @Suppress("unused")
     @JvmStatic
     @JvmName("fromCpp")
-    private fun fromCpp(value: Double, onChanged: Callback_void_double): SharedCallbackStruct {
+    private fun fromCpp(value: Double, onChanged: Callback<(value: Double) -> Unit>): SharedCallbackStruct {
       return SharedCallbackStruct(value, onChanged)
     }
   }

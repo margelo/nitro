@@ -42,7 +42,8 @@ class Callback_bool_bool @DoNotStrip @Keep private constructor(hybridData: Hybri
   }
 
   /**
-   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   * Lets C++ call a callback implemented in Kotlin with JNI types, e.g. `Long` instead of `ULong`.
+   * C++ creates it when such a callback crosses JNI.
    */
   @DoNotStrip
   @Keep
@@ -69,32 +70,4 @@ class Callback_bool_bool @DoNotStrip @Keep private constructor(hybridData: Hybri
   @Keep
   @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(value: Boolean): Unit
-
-  companion object {
-    /**
-     * Returns the given [callback] as its JNI representation.
-     * A callback from another module keeps its C++ `Callback<...>`, and
-     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
-     */
-    @JvmStatic
-    fun fromKotlin(callback: Callback<(value: Boolean) -> Boolean>): Callback_bool_bool {
-      return when (callback) {
-        is Callback_bool_bool -> callback
-        is CxxCallback -> fromCxx_cxx(callback)
-        else -> fromFunction_cxx(Function_cxx(callback))
-      }
-    }
-
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    @JvmName("fromCxx_cxx")
-    private external fun fromCxx_cxx(callback: CxxCallback): Callback_bool_bool
-
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    @JvmName("fromFunction_cxx")
-    private external fun fromFunction_cxx(function: Function_cxx): Callback_bool_bool
-  }
 }
