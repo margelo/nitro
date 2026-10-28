@@ -48,6 +48,7 @@ namespace margelo::nitro::test::views {
     nitro::ReactProp<int64_t> int64Value;
     nitro::ReactProp<ColorScheme> colorScheme;
     nitro::ReactProp<std::function<void()>> someCallback;
+    nitro::ReactProp<std::optional<std::function<void()>>> someOptionalCallback;
     nitro::ReactProp<std::optional<double>> nativeDefaultValue;
     nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridTestViewSpec>& /* ref */)>>> hybridRef;
 
@@ -58,6 +59,7 @@ namespace margelo::nitro::test::views {
              int64Value.hasSameValue(other.int64Value) &&
              colorScheme.hasSameValue(other.colorScheme) &&
              someCallback.hasSameValue(other.someCallback) &&
+             someOptionalCallback.hasSameValue(other.someOptionalCallback) &&
              nativeDefaultValue.hasSameValue(other.nativeDefaultValue) &&
              hybridRef.hasSameValue(other.hybridRef);
     }
@@ -69,6 +71,7 @@ namespace margelo::nitro::test::views {
              int64Value.isProvided() ||
              colorScheme.isProvided() ||
              someCallback.isProvided() ||
+             someOptionalCallback.isProvided() ||
              nativeDefaultValue.isProvided() ||
              hybridRef.isProvided();
     }

@@ -61,6 +61,8 @@ namespace margelo::nitro::test {
       virtual void setColorScheme(ColorScheme colorScheme) = 0;
       virtual std::function<void()> getSomeCallback() = 0;
       virtual void setSomeCallback(const std::function<void()>& someCallback) = 0;
+      virtual std::optional<std::function<void()>> getSomeOptionalCallback() = 0;
+      virtual void setSomeOptionalCallback(const std::optional<std::function<void()>>& someOptionalCallback) = 0;
       virtual std::optional<double> getNativeDefaultValue() = 0;
       virtual void setNativeDefaultValue(std::optional<double> nativeDefaultValue) = 0;
 
@@ -71,6 +73,7 @@ namespace margelo::nitro::test {
       virtual double getIsBlueSetterCallCount() = 0;
       virtual double getNativeDefaultValueSetterCallCount() = 0;
       virtual void someMethod() = 0;
+      virtual bool hasSomeOptionalCallback() = 0;
 
     protected:
       // Hybrid Setup
