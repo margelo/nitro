@@ -185,6 +185,22 @@ namespace {
                                                   rt.instrumentation().collectGarbage("Nitro runtime test");
                                                   return jsi::Value::undefined();
                                                 }));
+      // JSI may destroy a native function's state on any thread, e.g. Hermes' concurrent GC thread.
+      // This takes that state out of the function and destroys it on a new thread right away. On
+      // Android, that thread is not attached to the JVM, like Hermes' GC thread.
+      runtime->global().setProperty(
+          *runtime, "destroyOnBackgroundThread",
+          jsi::Function::createFromHostFunction(*runtime, jsi::PropNameID::forAscii(*runtime, "destroyOnBackgroundThread"), 1,
+                                                [](jsi::Runtime& rt, const jsi::Value&, const jsi::Value* args, size_t count) {
+                                                  if (count != 1 || !args[0].isObject() || !args[0].getObject(rt).isFunction(rt))
+                                                    throw jsi::JSError(rt, "destroyOnBackgroundThread(...) expects a function");
+                                                  jsi::Function function = args[0].getObject(rt).getFunction(rt);
+                                                  if (!function.isHostFunction(rt))
+                                                    throw jsi::JSError(rt, "destroyOnBackgroundThread(...) expects a native function");
+                                                  jsi::HostFunctionType state = std::move(function.getHostFunction(rt));
+                                                  std::thread([state = std::move(state)]() mutable { state = nullptr; }).join();
+                                                  return jsi::Value::undefined();
+                                                }));
       phase = "loading JS test bundle";
       const auto timeout = std::chrono::milliseconds(timeoutMs);
       const auto timeoutMessage = "Timed out after " + std::to_string(timeoutMs) + "ms";
