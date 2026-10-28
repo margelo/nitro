@@ -20,8 +20,8 @@ public struct JsStyleStruct: Sendable {
   }
 
   @_spi(NitroCxx)
-  public static func init_cxx(_ value: Double, _ onChanged: margelo.nitro.test.swift_bridge.JsStyleStruct_onChanged_cxx) -> Self {
-    return Self(value: value, onChanged: onChanged.value)
+  public static func init_cxx(_ value: Double, _ onChanged: margelo.nitro.test.swift_bridge.Callback_void_double) -> Self {
+    return Self(value: value, onChanged: onChanged)
   }
 
   @_spi(NitroCxx)
@@ -30,7 +30,7 @@ public struct JsStyleStruct: Sendable {
   }
 
   @_spi(NitroCxx)
-  public borrowing func getOnChanged_cxx() -> margelo.nitro.test.swift_bridge.JsStyleStruct_onChanged_cxx {
-    return margelo.nitro.test.swift_bridge.JsStyleStruct_onChanged_cxx(self.onChanged.toCpp())
+  public borrowing func getOnChanged_cxx() -> margelo.nitro.test.swift_bridge.Callback_void_double {
+    return self.onChanged.toCpp()
   }
 }
