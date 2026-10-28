@@ -59,7 +59,7 @@ dependencies {
   api project(':hermes')
   api 'com.facebook.fbjni:fbjni:0.8.1'
   api 'com.facebook.yoga:proguard-annotations:1.19.0'
-  api 'androidx.annotation:annotation:1.8.1'
+  api 'androidx.annotation:annotation:1.11.0'
   implementation 'com.facebook.soloader:nativeloader:0.12.1'
   api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
 }
