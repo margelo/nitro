@@ -63,8 +63,8 @@ namespace margelo::nitro::test::external {
 
   public:
     // Properties
-    jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> getNumberCallback();
-    void setNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>& numberCallback);
+    jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>> getNumberCallback();
+    void setNumberCallback(const jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>>& numberCallback);
 
   public:
     // Methods

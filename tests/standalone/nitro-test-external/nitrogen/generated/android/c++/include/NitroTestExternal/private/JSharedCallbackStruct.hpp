@@ -22,9 +22,9 @@ namespace margelo::nitro::test::external {
   struct JSharedCallbackStruct final : public jni::JavaClass<JSharedCallbackStruct> {
     static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/SharedCallbackStruct;";
 
-    static jni::local_ref<JSharedCallbackStruct> create(jdouble value, jni::alias_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> onChanged) {
+    static jni::local_ref<JSharedCallbackStruct> create(jdouble value, jni::alias_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>> onChanged) {
       static const auto clazz = javaClassStatic();
-      static const auto create = clazz->getStaticMethod<JSharedCallbackStruct(jdouble, jni::alias_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>)>("fromCpp");
+      static const auto create = clazz->getStaticMethod<JSharedCallbackStruct(jdouble, jni::alias_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>>)>("fromCpp");
       return create(clazz, value, onChanged);
     }
 
@@ -33,10 +33,9 @@ namespace margelo::nitro::test::external {
       return getFieldValue(field);
     }
 
-    jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> getOnChanged() const {
-      static const auto clazz = javaClassStatic();
-      static const auto method = clazz->getNonvirtualMethod<margelo::nitro::test::external::JCallback_void_double::JavaPart()>("getOnChanged_cxx");
-      return method(this->self(), clazz);
+    jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>> getOnChanged() const {
+      static const auto field = javaClassStatic()->getField<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>>("onChanged");
+      return getFieldValue(field);
     }
   };
 

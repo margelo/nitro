@@ -18,15 +18,14 @@ namespace margelo::nitro::test {
     return static_cast<size_t>(getFieldValue(field));
   }
 
-  jni::local_ref<JVariant_Callback_______Unit__Double> JVariant_Callback_______Unit__Double_impl::First::create(jni::alias_ref<margelo::nitro::test::JCallback_void::JavaPart> value) {
-    static const auto method = JVariant_Callback_______Unit__Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Callback_______Unit__Double>(jni::alias_ref<margelo::nitro::test::JCallback_void::JavaPart>)>("fromCpp_0");
+  jni::local_ref<JVariant_Callback_______Unit__Double> JVariant_Callback_______Unit__Double_impl::First::create(jni::alias_ref<JTypedCallback<margelo::nitro::test::JCallback_void::JavaPart>> value) {
+    static const auto method = JVariant_Callback_______Unit__Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Callback_______Unit__Double>(jni::alias_ref<JTypedCallback<margelo::nitro::test::JCallback_void::JavaPart>>)>("fromCpp_0");
     return method(JVariant_Callback_______Unit__Double::javaClassStatic(), value);
   }
 
   JVariant_Callback_______Unit__Double_impl::First::Value JVariant_Callback_______Unit__Double_impl::First::getValue() const {
-    static const auto clazz = javaClassStatic();
-    static const auto method = clazz->getNonvirtualMethod<margelo::nitro::test::JCallback_void::JavaPart()>("getValue_cxx");
-    return method(self(), clazz);
+    static const auto field = javaClassStatic()->getField<JTypedCallback<margelo::nitro::test::JCallback_void::JavaPart>>("value");
+    return getFieldValue(field);
   }
 
   jni::local_ref<JVariant_Callback_______Unit__Double> JVariant_Callback_______Unit__Double_impl::Second::create(jdouble value) {

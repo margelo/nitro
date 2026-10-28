@@ -72,13 +72,13 @@ namespace margelo::nitro::test::external {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jboolean /* isBlue */)>("setBlue");
     __method(_javaPart, CxxPart::getClass(), isBlue);
   }
-  jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart> JHybridTestViewSpec::getSomeCallback() {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart>()>("getSomeCallback_cxx");
+  jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void::JavaPart>> JHybridTestViewSpec::getSomeCallback() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void::JavaPart>>()>("getSomeCallback");
     auto __result = __method(_javaPart, CxxPart::getClass());
     return __result;
   }
-  void JHybridTestViewSpec::setSomeCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart>& someCallback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<margelo::nitro::test::external::JCallback_void::JavaPart> /* someCallback */)>("setSomeCallback_cxx");
+  void JHybridTestViewSpec::setSomeCallback(const jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void::JavaPart>>& someCallback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void::JavaPart>> /* someCallback */)>("setSomeCallback");
     __method(_javaPart, CxxPart::getClass(), someCallback);
   }
 

@@ -16,6 +16,10 @@
 
 namespace margelo::nitro::test {
 
+  jni::local_ref<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JFunction_cxx> JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    return newInstance(callback);
+  }
+
   JNIRetainedValue<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>>::Type JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JFunction_cxx::invoke(JNIRetainedValue<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>>::Type value) const {
     static const auto __method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>>(jni::alias_ref<jni::JArrayClass<jni::JArrayClass<JOptional<JPerson>>>>)>("call");
     auto result = __method(self(), JNIRetainedValue<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JOptional<margelo::nitro::test::JPerson>>>>>::borrow(value));
@@ -38,12 +42,9 @@ namespace margelo::nitro::test {
     callAndForget(value);
   }
 
-  jni::local_ref<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JavaPart> JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    return create(getCallback(callback));
-  }
-
-  jni::local_ref<JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::JavaPart> JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
-    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::CallbackType JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    auto function = JFunction_cxx::create(callback);
+    return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
 
   void JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::registerNatives() {
@@ -51,8 +52,6 @@ namespace margelo::nitro::test {
       makeNativeMethod("callSync_cxx", JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::callSync_cxx),
       makeNativeMethod("callAsync_cxx", JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::callAsync_cxx),
       makeNativeMethod("callAndForget_cxx", JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::callAndForget_cxx),
-      makeNativeMethod("fromCxx_cxx", JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::fromCxx_cxx),
-      makeNativeMethod("fromFunction_cxx", JCallback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___::fromFunction_cxx),
     });
   }
 
