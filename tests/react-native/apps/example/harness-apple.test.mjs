@@ -57,8 +57,8 @@ for (const [name, stderr] of [
     expect(await getAppInfo(UDID, BUNDLE_ID)).toBeNull()
     expect(await isAppInstalled(UDID, BUNDLE_ID)).toBe(false)
     expect(spawn.mock.calls).toEqual([
-      ['xcrun', ['simctl', 'appinfo', UDID, BUNDLE_ID]],
-      ['xcrun', ['simctl', 'appinfo', UDID, BUNDLE_ID]],
+      ['xcrun', ['simctl', 'appinfo', UDID, BUNDLE_ID], { signal: undefined, killSignal: 'SIGKILL' }],
+      ['xcrun', ['simctl', 'appinfo', UDID, BUNDLE_ID], { signal: undefined, killSignal: 'SIGKILL' }],
     ])
   })
 }
@@ -91,7 +91,11 @@ test('Harness propagates plist conversion errors even when they describe a missi
   const error = subprocessError(3, MISSING_APP)
   spawn.mockResolvedValueOnce({ stdout: 'invalid-plist' }).mockRejectedValueOnce(error)
   await expect(getAppInfo(UDID, BUNDLE_ID)).rejects.toBe(error)
-  expect(spawn.mock.calls[1]).toEqual(['plutil', ['-convert', 'json', '-o', '-', '-'], { stdin: { string: 'invalid-plist' } }])
+  expect(spawn.mock.calls[1]).toEqual([
+    'plutil',
+    ['-convert', 'json', '-o', '-', '-'],
+    { stdin: { string: 'invalid-plist' }, signal: undefined, killSignal: 'SIGKILL' },
+  ])
 })
 
 test('Harness propagates malformed JSON from plist conversion', async () => {
@@ -104,8 +108,8 @@ test('Harness preserves installed app information and reports the app as install
   mockAppInfo(APP_INFO)
   expect(await getAppInfo(UDID, BUNDLE_ID)).toEqual(APP_INFO)
   expect(spawn.mock.calls).toEqual([
-    ['xcrun', ['simctl', 'appinfo', UDID, BUNDLE_ID]],
-    ['plutil', ['-convert', 'json', '-o', '-', '-'], { stdin: { string: 'app-info-plist' } }],
+    ['xcrun', ['simctl', 'appinfo', UDID, BUNDLE_ID], { signal: undefined, killSignal: 'SIGKILL' }],
+    ['plutil', ['-convert', 'json', '-o', '-', '-'], { stdin: { string: 'app-info-plist' }, signal: undefined, killSignal: 'SIGKILL' }],
   ])
   mockAppInfo(APP_INFO)
   expect(await isAppInstalled(UDID, BUNDLE_ID)).toBe(true)

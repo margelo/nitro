@@ -1,25 +1,185 @@
+diff --git a/dist/instance.js b/dist/instance.js
+index a3591428fe6ce8c6bb1edff556f2b8d8582c1721..ea08d6373a51d85f83dcd883c1e07dc5ffc9257a 100644
+--- a/dist/instance.js
++++ b/dist/instance.js
+@@ -28,10 +28,21 @@ export const getAppleSimulatorPlatformInstance = async (config, harnessConfig, i
+     assertAppleDeviceSimulator(config.device);
+     const simctl = instrumented(simctlModule, 'platform.ios.simctl', init.diagnostics ?? noopDiagnostics);
+     const permissionsEnabled = harnessConfig.permissions ?? false;
++    const simulator = `${config.device.name} (${config.device.systemVersion})`;
++    const startup = {
++        signal: init.signal,
++        onStartupProgress: (command) => {
++            if (command === undefined) {
++                init.onStartupProgress?.(undefined);
++                return;
++            }
++            init.onStartupProgress?.(`iOS simulator ${simulator}\nCommand: ${command}`);
++        },
++    };
+     if (harnessConfig.coverage?.native?.ios?.pods?.length) {
+         cleanProfrawDir();
+     }
+-    const udid = await simctl.getSimulatorId(config.device.name, config.device.systemVersion);
++    const udid = await simctl.getSimulatorId(config.device.name, config.device.systemVersion, startup);
+     if (!udid) {
+         throw new DeviceNotFoundError(getDeviceName(config.device));
+     }
+@@ -48,13 +59,13 @@ export const getAppleSimulatorPlatformInstance = async (config, harnessConfig, i
+         })
+         : null;
+     const prepareSimulator = async () => {
+-        const simulatorStatus = await simctl.getSimulatorStatus(udid);
++        const simulatorStatus = await simctl.getSimulatorStatus(udid, startup);
+         iosInstanceLogger.debug('resolved iOS simulator %s with status %s', udid, simulatorStatus);
+         if (!simctl.isBootedSimulatorStatus(simulatorStatus) &&
+             !simctl.isBootingSimulatorStatus(simulatorStatus)) {
+             logger.info('Booting iOS simulator %s...', config.device.name);
+             iosInstanceLogger.debug('booting iOS simulator %s from status %s', udid, simulatorStatus);
+-            await simctl.bootSimulator(udid);
++            await simctl.bootSimulator(udid, startup);
+             startedByHarness = true;
+         }
+         if (simctl.isBootedSimulatorStatus(simulatorStatus)) {
+@@ -65,14 +76,14 @@ export const getAppleSimulatorPlatformInstance = async (config, harnessConfig, i
+         }
+         if (!simctl.isBootedSimulatorStatus(simulatorStatus)) {
+             iosInstanceLogger.debug('waiting for iOS simulator %s to finish booting', udid);
+-            await simctl.waitForBoot(udid, init.signal);
++            await simctl.waitForBoot(udid, startup);
+         }
+-        const isInstalled = await simctl.isAppInstalled(udid, config.bundleId);
++        const isInstalled = await simctl.isAppInstalled(udid, config.bundleId, startup);
+         if (!isInstalled) {
+             const appPath = getHarnessAppPath();
+-            await simctl.installApp(udid, appPath);
++            await simctl.installApp(udid, appPath, startup);
+         }
+-        await simctl.applyHarnessJsLocationOverride(udid, config.bundleId, `localhost:${harnessConfig.metroPort}`);
++        await simctl.applyHarnessJsLocationOverride(udid, config.bundleId, `localhost:${harnessConfig.metroPort}`, startup);
+         harnessJsLocationOverrideApplied = true;
+     };
+     if (xctestAgent) {
+diff --git a/dist/xcrun/simctl.d.ts b/dist/xcrun/simctl.d.ts
+index e5212ce23c947d6acd34a1769ee703229cff6a04..c7f28a496c69e0d9880eadd6b943fceacabe6d3f 100644
+--- a/dist/xcrun/simctl.d.ts
++++ b/dist/xcrun/simctl.d.ts
+@@ -1,5 +1,6 @@
+-import { type AppleAppLaunchOptions, type CrashArtifactWriter } from '@react-native-harness/platforms';
++import { type AppleAppLaunchOptions, type CrashArtifactWriter, type HarnessPlatformInitOptions } from '@react-native-harness/platforms';
+ import { type OwnedProcess } from '@react-native-harness/tools';
++type SimulatorStartupOptions = Pick<HarnessPlatformInitOptions, 'signal' | 'onStartupProgress'>;
+ export type AppleAppInfo = {
+     Bundle: string;
+     CFBundleIdentifier: string;
+@@ -28,8 +29,8 @@ export declare const collectCrashReports: ({ udid, processNames, crashArtifactWr
+     crashArtifactWriter?: CrashArtifactWriter;
+     minOccurredAt?: number;
+ }) => Promise<AppleSimulatorCrashReport[]>;
+-export declare const getAppInfo: (udid: string, bundleId: string) => Promise<AppleAppInfo | null>;
+-export declare const isAppInstalled: (udid: string, bundleId: string) => Promise<boolean>;
++export declare const getAppInfo: (udid: string, bundleId: string, startup?: SimulatorStartupOptions) => Promise<AppleAppInfo | null>;
++export declare const isAppInstalled: (udid: string, bundleId: string, startup?: SimulatorStartupOptions) => Promise<boolean>;
+ export type AppleSimulatorState = 'Booted' | 'Booting' | 'Shutdown' | (string & {});
+ export declare const isBootedSimulatorStatus: (status: AppleSimulatorState) => boolean;
+ export declare const isBootingSimulatorStatus: (status: AppleSimulatorState) => boolean;
+@@ -40,21 +41,21 @@ export type AppleSimulatorInfo = {
+     isAvailable: boolean;
+     runtime: string;
+ };
+-export declare const getSimulators: () => Promise<AppleSimulatorInfo[]>;
+-export declare const getSimulatorStatus: (udid: string) => Promise<AppleSimulatorState>;
++export declare const getSimulators: (startup?: SimulatorStartupOptions) => Promise<AppleSimulatorInfo[]>;
++export declare const getSimulatorStatus: (udid: string, startup?: SimulatorStartupOptions) => Promise<AppleSimulatorState>;
+ export declare const getSimctlChildEnvironment: (options?: AppleAppLaunchOptions) => Record<string, string>;
+ export declare const startApp: (udid: string, bundleId: string, options?: AppleAppLaunchOptions) => Promise<void>;
+ export declare const launchAppProcess: (udid: string, bundleId: string, options?: AppleAppLaunchOptions) => OwnedProcess;
+ export declare const stopApp: (udid: string, bundleId: string) => Promise<void>;
+-export declare const bootSimulator: (udid: string) => Promise<void>;
+-export declare const waitForBoot: (udid: string, signal: AbortSignal) => Promise<void>;
++export declare const bootSimulator: (udid: string, startup?: SimulatorStartupOptions) => Promise<void>;
++export declare const waitForBoot: (udid: string, startup: SimulatorStartupOptions) => Promise<void>;
+ export declare const diagnose: (udid: string, outputDir: string) => Promise<void>;
+ export declare const streamLogs: (udid: string, predicate: string) => OwnedProcess;
+ export declare const shutdownSimulator: (udid: string) => Promise<void>;
+-export declare const installApp: (udid: string, appPath: string) => Promise<void>;
+-export declare const getSimulatorId: (name: string, systemVersion: string) => Promise<string | null>;
++export declare const installApp: (udid: string, appPath: string, startup?: SimulatorStartupOptions) => Promise<void>;
++export declare const getSimulatorId: (name: string, systemVersion: string, startup?: SimulatorStartupOptions) => Promise<string | null>;
+ export declare const isAppRunning: (udid: string, bundleId: string) => Promise<boolean>;
+-export declare const applyHarnessJsLocationOverride: (udid: string, bundleId: string, host: string) => Promise<void>;
++export declare const applyHarnessJsLocationOverride: (udid: string, bundleId: string, host: string, startup?: SimulatorStartupOptions) => Promise<void>;
+ export declare const clearHarnessJsLocationOverride: (udid: string, bundleId: string) => Promise<void>;
+ export declare const screenshot: (udid: string, destination: string) => Promise<string>;
+-//# sourceMappingURL=simctl.d.ts.map
+\ No newline at end of file
++export {};
 diff --git a/dist/xcrun/simctl.js b/dist/xcrun/simctl.js
-index 1c2f32ffb2c72f83c39f32fca389dde394fb0a94..7a191e2b65ad1515e669bb2134fdacdc6395090d 100644
+index 1c2f32ffb2c72f83c39f32fca389dde394fb0a94..973489357a5193d53b9b1fae42acde8e773058cb 100644
 --- a/dist/xcrun/simctl.js
 +++ b/dist/xcrun/simctl.js
-@@ -88,12 +88,24 @@ export const collectCrashReports = async ({ udid, processNames, crashArtifactWri
+@@ -4,9 +4,37 @@ import { homedir } from 'node:os';
+ import { join } from 'node:path';
+ import { iosCrashParser } from '../crash-parser.js';
+ const simctlLogger = logger.child('simctl');
+-const plistToJson = async (plistOutput) => {
+-    const { stdout: jsonOutput } = await spawn('plutil', ['-convert', 'json', '-o', '-', '-'], { stdin: { string: plistOutput } });
+-    return JSON.parse(jsonOutput);
++// TODO: Remove this patch once https://github.com/callstackincubator/react-native-harness/issues/300 is released.
++const runSimulatorCommand = async (args, startup) => {
++    const command = ['xcrun', ...args].join(' ');
++    startup?.onStartupProgress?.(command);
++    const startedAt = Date.now();
++    try {
++        const result = await spawn('xcrun', args, {
++            signal: startup?.signal,
++            killSignal: 'SIGKILL',
++        });
++        const durationMs = Date.now() - startedAt;
++        simctlLogger.debug('completed command in %dms: %s', durationMs, command);
++        return result;
++    }
++    finally {
++        startup?.onStartupProgress?.(undefined);
++    }
++};
++const plistToJson = async (plistOutput, startup) => {
++    startup?.onStartupProgress?.('plutil -convert json -o - -');
++    try {
++        const { stdout: jsonOutput } = await spawn('plutil', ['-convert', 'json', '-o', '-', '-'], {
++            stdin: { string: plistOutput },
++            signal: startup?.signal,
++            killSignal: 'SIGKILL',
++        });
++        return JSON.parse(jsonOutput);
++    }
++    finally {
++        startup?.onStartupProgress?.(undefined);
++    }
+ };
+ const getDiagnosticReportsDir = () => join(homedir(), 'Library', 'Logs', 'DiagnosticReports');
+ export const collectCrashReports = async ({ udid, processNames, crashArtifactWriter, minOccurredAt, }) => {
+@@ -87,14 +115,26 @@ export const collectCrashReports = async ({ udid, processNames, crashArtifactWri
+     simctlLogger.debug('no crash report candidates matched simulator udid');
      return [];
  };
- export const getAppInfo = async (udid, bundleId) => {
+-export const getAppInfo = async (udid, bundleId) => {
 -    const { stdout: plistOutput } = await spawn('xcrun', [
 -        'simctl',
 -        'appinfo',
 -        udid,
 -        bundleId,
 -    ]);
+-    const json = await plistToJson(plistOutput);
++export const getAppInfo = async (udid, bundleId, startup) => {
 +    let plistOutput;
 +    try {
-+        ({ stdout: plistOutput } = await spawn('xcrun', [
++        ({ stdout: plistOutput } = await runSimulatorCommand([
 +            'simctl',
 +            'appinfo',
 +            udid,
 +            bundleId,
-+        ]));
++        ], startup));
 +    }
 +    catch (error) {
 +        // Xcode 27 reports an absent app as an error instead of an empty plist.
@@ -30,16 +190,291 @@ index 1c2f32ffb2c72f83c39f32fca389dde394fb0a94..7a191e2b65ad1515e669bb2134fdacdc
 +        }
 +        throw error;
 +    }
-     const json = await plistToJson(plistOutput);
++    const json = await plistToJson(plistOutput, startup);
      // If there is only one entry, it means the app is not installed
      const hasMoreThanOneEntry = Object.keys(json).length > 1;
+     if (!hasMoreThanOneEntry) {
+@@ -102,19 +142,19 @@ export const getAppInfo = async (udid, bundleId) => {
+     }
+     return json;
+ };
+-export const isAppInstalled = async (udid, bundleId) => {
+-    const appInfo = await getAppInfo(udid, bundleId);
++export const isAppInstalled = async (udid, bundleId, startup) => {
++    const appInfo = await getAppInfo(udid, bundleId, startup);
+     return appInfo !== null;
+ };
+ export const isBootedSimulatorStatus = (status) => status === 'Booted';
+ export const isBootingSimulatorStatus = (status) => status === 'Booting';
+-export const getSimulators = async () => {
+-    const { stdout } = await spawn('xcrun', [
++export const getSimulators = async (startup) => {
++    const { stdout } = await runSimulatorCommand([
+         'simctl',
+         'list',
+         'devices',
+         '--json',
+-    ]);
++    ], startup);
+     const runtimeDevices = JSON.parse(stdout).devices;
+     const simulators = [];
+     Object.entries(runtimeDevices).forEach(([runtime, devices]) => {
+@@ -127,8 +167,8 @@ export const getSimulators = async () => {
+     });
+     return simulators;
+ };
+-export const getSimulatorStatus = async (udid) => {
+-    const simulators = await getSimulators();
++export const getSimulatorStatus = async (udid, startup) => {
++    const simulators = await getSimulators(startup);
+     const simulator = simulators.find((s) => s.udid === udid);
+     if (!simulator) {
+         throw new Error(`Simulator with UDID ${udid} not found`);
+@@ -173,13 +213,11 @@ export const launchAppProcess = (udid, bundleId, options) => {
+ export const stopApp = async (udid, bundleId) => {
+     await spawnAndForget('xcrun', ['simctl', 'terminate', udid, bundleId]);
+ };
+-export const bootSimulator = async (udid) => {
+-    await spawn('xcrun', ['simctl', 'boot', udid]);
++export const bootSimulator = async (udid, startup) => {
++    await runSimulatorCommand(['simctl', 'boot', udid], startup);
+ };
+-export const waitForBoot = async (udid, signal) => {
+-    await spawn('xcrun', ['simctl', 'bootstatus', udid, '-b'], {
+-        signal,
+-    });
++export const waitForBoot = async (udid, startup) => {
++    await runSimulatorCommand(['simctl', 'bootstatus', udid, '-b'], startup);
+ };
+ export const diagnose = async (udid, outputDir) => {
+     await spawn('xcrun', [
+@@ -212,11 +250,11 @@ export const streamLogs = (udid, predicate) => spawnOwnedProcess('xcrun', [
+ export const shutdownSimulator = async (udid) => {
+     await spawnAndForget('xcrun', ['simctl', 'shutdown', udid]);
+ };
+-export const installApp = async (udid, appPath) => {
+-    await spawn('xcrun', ['simctl', 'install', udid, appPath]);
++export const installApp = async (udid, appPath, startup) => {
++    await runSimulatorCommand(['simctl', 'install', udid, appPath], startup);
+ };
+-export const getSimulatorId = async (name, systemVersion) => {
+-    const simulators = await getSimulators();
++export const getSimulatorId = async (name, systemVersion, startup) => {
++    const simulators = await getSimulators(startup);
+     const simulator = simulators.find((s) => s.name === name && s.runtime.endsWith(systemVersion.replaceAll('.', '-')));
+     return simulator?.udid ?? null;
+ };
+@@ -237,9 +275,9 @@ export const isAppRunning = async (udid, bundleId) => {
+ };
+ const HARNESS_JS_LOCATION_BACKUP_KEY = 'react_native_harness_RCT_jsLocation_backup';
+ const HARNESS_MISSING_VALUE = '__RN_HARNESS_MISSING__';
+-const getDefaultsValue = async (udid, bundleId, key) => {
++const getDefaultsValue = async (udid, bundleId, key, startup) => {
+     try {
+-        const { stdout } = await spawn('xcrun', [
++        const { stdout } = await runSimulatorCommand([
+             'simctl',
+             'spawn',
+             udid,
+@@ -247,7 +285,7 @@ const getDefaultsValue = async (udid, bundleId, key) => {
+             'read',
+             bundleId,
+             key,
+-        ]);
++        ], startup);
+         return stdout.trim() || null;
+     }
+     catch (error) {
+@@ -257,8 +295,8 @@ const getDefaultsValue = async (udid, bundleId, key) => {
+         throw error;
+     }
+ };
+-const writeDefaultsValue = async (udid, bundleId, key, value) => {
+-    await spawn('xcrun', [
++const writeDefaultsValue = async (udid, bundleId, key, value, startup) => {
++    await runSimulatorCommand([
+         'simctl',
+         'spawn',
+         udid,
+@@ -267,7 +305,7 @@ const writeDefaultsValue = async (udid, bundleId, key, value) => {
+         bundleId,
+         key,
+         value,
+-    ]);
++    ], startup);
+ };
+ const deleteDefaultsValue = async (udid, bundleId, key) => {
+     try {
+@@ -288,13 +326,13 @@ const deleteDefaultsValue = async (udid, bundleId, key) => {
+         throw error;
+     }
+ };
+-export const applyHarnessJsLocationOverride = async (udid, bundleId, host) => {
+-    const backupValue = await getDefaultsValue(udid, bundleId, HARNESS_JS_LOCATION_BACKUP_KEY);
++export const applyHarnessJsLocationOverride = async (udid, bundleId, host, startup) => {
++    const backupValue = await getDefaultsValue(udid, bundleId, HARNESS_JS_LOCATION_BACKUP_KEY, startup);
+     if (backupValue === null) {
+-        const existingValue = await getDefaultsValue(udid, bundleId, 'RCT_jsLocation');
+-        await writeDefaultsValue(udid, bundleId, HARNESS_JS_LOCATION_BACKUP_KEY, existingValue ?? HARNESS_MISSING_VALUE);
++        const existingValue = await getDefaultsValue(udid, bundleId, 'RCT_jsLocation', startup);
++        await writeDefaultsValue(udid, bundleId, HARNESS_JS_LOCATION_BACKUP_KEY, existingValue ?? HARNESS_MISSING_VALUE, startup);
+     }
+-    await writeDefaultsValue(udid, bundleId, 'RCT_jsLocation', host);
++    await writeDefaultsValue(udid, bundleId, 'RCT_jsLocation', host, startup);
+ };
+ export const clearHarnessJsLocationOverride = async (udid, bundleId) => {
+     const backupValue = await getDefaultsValue(udid, bundleId, HARNESS_JS_LOCATION_BACKUP_KEY);
+diff --git a/src/instance.ts b/src/instance.ts
+index 429e9cf0f770e25bba1207f77a3a2412f4975f5d..3e6148ab9b7fb894e881a658db48d0d154aeea6d 100644
+--- a/src/instance.ts
++++ b/src/instance.ts
+@@ -61,6 +61,17 @@ export const getAppleSimulatorPlatformInstance = async (
+     init.diagnostics ?? noopDiagnostics
+   );
+   const permissionsEnabled = harnessConfig.permissions ?? false;
++  const simulator = `${config.device.name} (${config.device.systemVersion})`;
++  const startup = {
++    signal: init.signal,
++    onStartupProgress: (command: string | undefined) => {
++      if (command === undefined) {
++        init.onStartupProgress?.(undefined);
++        return;
++      }
++      init.onStartupProgress?.(`iOS simulator ${simulator}\nCommand: ${command}`);
++    },
++  };
+ 
+   if (harnessConfig.coverage?.native?.ios?.pods?.length) {
+     cleanProfrawDir();
+@@ -68,7 +79,8 @@ export const getAppleSimulatorPlatformInstance = async (
+ 
+   const udid = await simctl.getSimulatorId(
+     config.device.name,
+-    config.device.systemVersion
++    config.device.systemVersion,
++    startup
+   );
+ 
+   if (!udid) {
+@@ -90,7 +102,7 @@ export const getAppleSimulatorPlatformInstance = async (
+     : null;
+ 
+   const prepareSimulator = async () => {
+-    const simulatorStatus = await simctl.getSimulatorStatus(udid);
++    const simulatorStatus = await simctl.getSimulatorStatus(udid, startup);
+ 
+     iosInstanceLogger.debug(
+       'resolved iOS simulator %s with status %s',
+@@ -108,7 +120,7 @@ export const getAppleSimulatorPlatformInstance = async (
+         udid,
+         simulatorStatus
+       );
+-      await simctl.bootSimulator(udid);
++      await simctl.bootSimulator(udid, startup);
+       startedByHarness = true;
+     }
+ 
+@@ -126,20 +138,21 @@ export const getAppleSimulatorPlatformInstance = async (
+         'waiting for iOS simulator %s to finish booting',
+         udid
+       );
+-      await simctl.waitForBoot(udid, init.signal);
++      await simctl.waitForBoot(udid, startup);
+     }
+ 
+-    const isInstalled = await simctl.isAppInstalled(udid, config.bundleId);
++    const isInstalled = await simctl.isAppInstalled(udid, config.bundleId, startup);
+ 
+     if (!isInstalled) {
+       const appPath = getHarnessAppPath();
+-      await simctl.installApp(udid, appPath);
++      await simctl.installApp(udid, appPath, startup);
+     }
+ 
+     await simctl.applyHarnessJsLocationOverride(
+       udid,
+       config.bundleId,
+-      `localhost:${harnessConfig.metroPort}`
++      `localhost:${harnessConfig.metroPort}`,
++      startup
+     );
+     harnessJsLocationOverrideApplied = true;
+   };
 diff --git a/src/xcrun/simctl.ts b/src/xcrun/simctl.ts
-index 720fd3b0009efb43e5f53b739624cf608884bbb6..dfb4640058a3d6294d6ef7820af6f9fc35f9e4ff 100644
+index 720fd3b0009efb43e5f53b739624cf608884bbb6..ed17fa6a821132407ec51964a248c3e4529f1a31 100644
 --- a/src/xcrun/simctl.ts
 +++ b/src/xcrun/simctl.ts
-@@ -184,12 +184,25 @@ export const getAppInfo = async (
+@@ -1,6 +1,7 @@
+ import {
+   type AppleAppLaunchOptions,
+   type CrashArtifactWriter,
++  type HarnessPlatformInitOptions,
+ } from '@react-native-harness/platforms';
+ import {
+   logger,
+@@ -17,15 +18,51 @@ import { iosCrashParser } from '../crash-parser.js';
+ 
+ const simctlLogger = logger.child('simctl');
+ 
++type SimulatorStartupOptions = Pick<
++  HarnessPlatformInitOptions,
++  'signal' | 'onStartupProgress'
++>;
++
++// TODO: Remove this patch once https://github.com/callstackincubator/react-native-harness/issues/300 is released.
++const runSimulatorCommand = async (
++  args: string[],
++  startup?: SimulatorStartupOptions,
++) => {
++  const command = ['xcrun', ...args].join(' ');
++  startup?.onStartupProgress?.(command);
++  const startedAt = Date.now();
++  try {
++    const result = await spawn('xcrun', args, {
++      signal: startup?.signal,
++      killSignal: 'SIGKILL',
++    });
++    const durationMs = Date.now() - startedAt;
++    simctlLogger.debug('completed command in %dms: %s', durationMs, command);
++    return result;
++  } finally {
++    startup?.onStartupProgress?.(undefined);
++  }
++};
++
+ const plistToJson = async (
+   plistOutput: string,
++  startup?: SimulatorStartupOptions,
+ ): Promise<Record<string, unknown>> => {
+-  const { stdout: jsonOutput } = await spawn(
+-    'plutil',
+-    ['-convert', 'json', '-o', '-', '-'],
+-    { stdin: { string: plistOutput } },
+-  );
+-  return JSON.parse(jsonOutput) as Record<string, unknown>;
++  startup?.onStartupProgress?.('plutil -convert json -o - -');
++  try {
++    const { stdout: jsonOutput } = await spawn(
++      'plutil',
++      ['-convert', 'json', '-o', '-', '-'],
++      {
++        stdin: { string: plistOutput },
++        signal: startup?.signal,
++        killSignal: 'SIGKILL',
++      },
++    );
++    return JSON.parse(jsonOutput) as Record<string, unknown>;
++  } finally {
++    startup?.onStartupProgress?.(undefined);
++  }
+ };
+ 
+ export type AppleAppInfo = {
+@@ -183,15 +220,29 @@ export const collectCrashReports = async ({
+ export const getAppInfo = async (
    udid: string,
    bundleId: string,
++  startup?: SimulatorStartupOptions,
  ): Promise<AppleAppInfo | null> => {
 -  const { stdout: plistOutput } = await spawn('xcrun', [
 -    'simctl',
@@ -49,12 +484,12 @@ index 720fd3b0009efb43e5f53b739624cf608884bbb6..dfb4640058a3d6294d6ef7820af6f9fc
 -  ]);
 +  let plistOutput: string;
 +  try {
-+    ({ stdout: plistOutput } = await spawn('xcrun', [
++    ({ stdout: plistOutput } = await runSimulatorCommand([
 +      'simctl',
 +      'appinfo',
 +      udid,
 +      bundleId,
-+    ]));
++    ], startup));
 +  } catch (error) {
 +    // Xcode 27 reports an absent app as an error instead of an empty plist.
 +    if (
@@ -67,5 +502,169 @@ index 720fd3b0009efb43e5f53b739624cf608884bbb6..dfb4640058a3d6294d6ef7820af6f9fc
 +    throw error;
 +  }
  
-   const json = await plistToJson(plistOutput);
+-  const json = await plistToJson(plistOutput);
++  const json = await plistToJson(plistOutput, startup);
  
+   // If there is only one entry, it means the app is not installed
+   const hasMoreThanOneEntry = Object.keys(json).length > 1;
+@@ -206,8 +257,9 @@ export const getAppInfo = async (
+ export const isAppInstalled = async (
+   udid: string,
+   bundleId: string,
++  startup?: SimulatorStartupOptions,
+ ): Promise<boolean> => {
+-  const appInfo = await getAppInfo(udid, bundleId);
++  const appInfo = await getAppInfo(udid, bundleId, startup);
+   return appInfo !== null;
+ };
+ 
+@@ -232,13 +284,15 @@ export type AppleSimulatorInfo = {
+   runtime: string;
+ };
+ 
+-export const getSimulators = async (): Promise<AppleSimulatorInfo[]> => {
+-  const { stdout } = await spawn('xcrun', [
++export const getSimulators = async (
++  startup?: SimulatorStartupOptions,
++): Promise<AppleSimulatorInfo[]> => {
++  const { stdout } = await runSimulatorCommand([
+     'simctl',
+     'list',
+     'devices',
+     '--json',
+-  ]);
++  ], startup);
+   const runtimeDevices: Record<string, AppleSimulatorInfo[]> =
+     JSON.parse(stdout).devices;
+   const simulators: AppleSimulatorInfo[] = [];
+@@ -257,8 +311,9 @@ export const getSimulators = async (): Promise<AppleSimulatorInfo[]> => {
+ 
+ export const getSimulatorStatus = async (
+   udid: string,
++  startup?: SimulatorStartupOptions,
+ ): Promise<AppleSimulatorState> => {
+-  const simulators = await getSimulators();
++  const simulators = await getSimulators(startup);
+   const simulator = simulators.find((s) => s.udid === udid);
+ 
+   if (!simulator) {
+@@ -336,17 +391,18 @@ export const stopApp = async (
+   await spawnAndForget('xcrun', ['simctl', 'terminate', udid, bundleId]);
+ };
+ 
+-export const bootSimulator = async (udid: string): Promise<void> => {
+-  await spawn('xcrun', ['simctl', 'boot', udid]);
++export const bootSimulator = async (
++  udid: string,
++  startup?: SimulatorStartupOptions,
++): Promise<void> => {
++  await runSimulatorCommand(['simctl', 'boot', udid], startup);
+ };
+ 
+ export const waitForBoot = async (
+   udid: string,
+-  signal: AbortSignal,
++  startup: SimulatorStartupOptions,
+ ): Promise<void> => {
+-  await spawn('xcrun', ['simctl', 'bootstatus', udid, '-b'], {
+-    signal,
+-  });
++  await runSimulatorCommand(['simctl', 'bootstatus', udid, '-b'], startup);
+ };
+ 
+ export const diagnose = async (
+@@ -401,15 +457,17 @@ export const shutdownSimulator = async (udid: string): Promise<void> => {
+ export const installApp = async (
+   udid: string,
+   appPath: string,
++  startup?: SimulatorStartupOptions,
+ ): Promise<void> => {
+-  await spawn('xcrun', ['simctl', 'install', udid, appPath]);
++  await runSimulatorCommand(['simctl', 'install', udid, appPath], startup);
+ };
+ 
+ export const getSimulatorId = async (
+   name: string,
+   systemVersion: string,
++  startup?: SimulatorStartupOptions,
+ ): Promise<string | null> => {
+-  const simulators = await getSimulators();
++  const simulators = await getSimulators(startup);
+   const simulator = simulators.find(
+     (s) =>
+       s.name === name && s.runtime.endsWith(systemVersion.replaceAll('.', '-')),
+@@ -444,9 +502,10 @@ const getDefaultsValue = async (
+   udid: string,
+   bundleId: string,
+   key: string,
++  startup?: SimulatorStartupOptions,
+ ): Promise<string | null> => {
+   try {
+-    const { stdout } = await spawn('xcrun', [
++    const { stdout } = await runSimulatorCommand([
+       'simctl',
+       'spawn',
+       udid,
+@@ -454,7 +513,7 @@ const getDefaultsValue = async (
+       'read',
+       bundleId,
+       key,
+-    ]);
++    ], startup);
+     return stdout.trim() || null;
+   } catch (error) {
+     if (error instanceof SubprocessError && error.exitCode === 1) {
+@@ -470,8 +529,9 @@ const writeDefaultsValue = async (
+   bundleId: string,
+   key: string,
+   value: string,
++  startup?: SimulatorStartupOptions,
+ ): Promise<void> => {
+-  await spawn('xcrun', [
++  await runSimulatorCommand([
+     'simctl',
+     'spawn',
+     udid,
+@@ -480,7 +540,7 @@ const writeDefaultsValue = async (
+     bundleId,
+     key,
+     value,
+-  ]);
++  ], startup);
+ };
+ 
+ const deleteDefaultsValue = async (
+@@ -511,11 +571,13 @@ export const applyHarnessJsLocationOverride = async (
+   udid: string,
+   bundleId: string,
+   host: string,
++  startup?: SimulatorStartupOptions,
+ ): Promise<void> => {
+   const backupValue = await getDefaultsValue(
+     udid,
+     bundleId,
+     HARNESS_JS_LOCATION_BACKUP_KEY,
++    startup,
+   );
+ 
+   if (backupValue === null) {
+@@ -523,16 +585,18 @@ export const applyHarnessJsLocationOverride = async (
+       udid,
+       bundleId,
+       'RCT_jsLocation',
++      startup,
+     );
+     await writeDefaultsValue(
+       udid,
+       bundleId,
+       HARNESS_JS_LOCATION_BACKUP_KEY,
+       existingValue ?? HARNESS_MISSING_VALUE,
++      startup,
+     );
+   }
+ 
+-  await writeDefaultsValue(udid, bundleId, 'RCT_jsLocation', host);
++  await writeDefaultsValue(udid, bundleId, 'RCT_jsLocation', host, startup);
+ };
+ 
+ export const clearHarnessJsLocationOverride = async (

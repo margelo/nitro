@@ -91,7 +91,9 @@
   },
   "patchedDependencies": {
     "@react-native-harness/ui@1.5.0": "patches/@react-native-harness%2Fui@1.5.0.patch",
-    "@react-native-harness/platform-apple@1.5.0": "patches/@react-native-harness%2Fplatform-apple@1.5.0.patch"
+    "@react-native-harness/platform-apple@1.5.0": "patches/@react-native-harness%2Fplatform-apple@1.5.0.patch",
+    "@react-native-harness/platforms@1.5.0": "patches/@react-native-harness%2Fplatforms@1.5.0.patch",
+    "@react-native-harness/jest@1.5.0": "patches/@react-native-harness%2Fjest@1.5.0.patch"
   },
   "prettier": {
     "printWidth": 140,
