@@ -34,8 +34,9 @@ namespace margelo::nitro::test::external {
     }
 
     jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> getOnChanged() const {
-      static const auto method = javaClassStatic()->getMethod<margelo::nitro::test::external::JCallback_void_double::JavaPart()>("getOnChanged_cxx");
-      return method(this->self());
+      static const auto clazz = javaClassStatic();
+      static const auto method = clazz->getNonvirtualMethod<margelo::nitro::test::external::JCallback_void_double::JavaPart()>("getOnChanged_cxx");
+      return method(this->self(), clazz);
     }
   };
 

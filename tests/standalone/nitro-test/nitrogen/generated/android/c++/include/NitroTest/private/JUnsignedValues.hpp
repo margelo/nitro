@@ -44,28 +44,33 @@ namespace margelo::nitro::test {
     }
 
     jni::local_ref<JOptional<JUInt64>> getOptionalUnsigned() const {
-      static const auto method = javaClassStatic()->getMethod<JOptional<JUInt64>()>("getOptionalUnsigned_cxx");
-      return method(this->self());
+      static const auto clazz = javaClassStatic();
+      static const auto method = clazz->getNonvirtualMethod<JOptional<JUInt64>()>("getOptionalUnsigned_cxx");
+      return method(this->self(), clazz);
     }
 
     jni::local_ref<JArrayUInt64> getValues() const {
-      static const auto method = javaClassStatic()->getMethod<JArrayUInt64()>("getValues_cxx");
-      return method(this->self());
+      static const auto clazz = javaClassStatic();
+      static const auto method = clazz->getNonvirtualMethod<JArrayUInt64()>("getValues_cxx");
+      return method(this->self(), clazz);
     }
 
     jni::local_ref<jni::JArrayClass<JArrayUInt64>> getNested() const {
-      static const auto method = javaClassStatic()->getMethod<jni::JArrayClass<JArrayUInt64>()>("getNested_cxx");
-      return method(this->self());
+      static const auto clazz = javaClassStatic();
+      static const auto method = clazz->getNonvirtualMethod<jni::JArrayClass<JArrayUInt64>()>("getNested_cxx");
+      return method(this->self(), clazz);
     }
 
     jni::local_ref<jni::JMap<jni::JString, JOptional<JUInt64>>> getRecord() const {
-      static const auto method = javaClassStatic()->getMethod<jni::JMap<jni::JString, JOptional<JUInt64>>()>("getRecord_cxx");
-      return method(this->self());
+      static const auto clazz = javaClassStatic();
+      static const auto method = clazz->getNonvirtualMethod<jni::JMap<jni::JString, JOptional<JUInt64>>()>("getRecord_cxx");
+      return method(this->self(), clazz);
     }
 
     jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>> getCallbacks() const {
-      static const auto method = javaClassStatic()->getMethod<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>()>("getCallbacks_cxx");
-      return method(this->self());
+      static const auto clazz = javaClassStatic();
+      static const auto method = clazz->getNonvirtualMethod<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>()>("getCallbacks_cxx");
+      return method(this->self(), clazz);
     }
   };
 
