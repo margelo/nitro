@@ -255,6 +255,16 @@ public final class HybridSharedSpecializationsSpec_cxx {
     }
   }
 
+  public final func bounceCallbackStruct(value: SharedCallbackStruct, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.bounceCallbackStruct(value: value)
+      __outResult.assumingMemoryBound(to: SharedCallbackStruct.self).initialize(to: value)
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
   public final func callInline(callback: borrowing margelo.nitro.test.external.swift_bridge.InlineCallback_void) -> bridge.Result_void {
     do {
       try __implementation.callInline(callback: callback)

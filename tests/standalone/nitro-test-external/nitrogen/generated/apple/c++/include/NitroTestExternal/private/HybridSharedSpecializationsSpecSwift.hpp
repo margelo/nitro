@@ -71,6 +71,7 @@ namespace margelo::nitro::test::external {
     Callback<void(double)> wrapNumberCallback(const Callback<void(double)>& callback);
     Promise<void> callVoidPromiseCallback(const Callback<Promise<void>()>& callback);
     Promise<double> callNumberPromiseCallback(const Callback<Promise<double>()>& callback);
+    ::NitroTestExternal::SharedCallbackStruct bounceCallbackStruct(const ::NitroTestExternal::SharedCallbackStruct& value);
     void callInline(const InlineCallback<void()>& callback);
     double callInlineWithNumber(double value, const InlineCallback<double(double)>& callback);
     // Constructor

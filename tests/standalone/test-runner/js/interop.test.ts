@@ -668,6 +668,21 @@ export const cases = {
       await waitFor(() => expect(callback.calls).to.deep.equal([[5]]), CALLBACK_TIMEOUT)
     },
 
+    'callback fields roundtrip through both modules': async (external, local) => {
+      const callback = recordCallback<(value: number) => void>()
+      const returned = (() => {
+        const onChanged = external.wrapNumberCallback(callback)
+        const externalStruct = external.bounceCallbackStruct({ value: 55, onChanged: onChanged })
+        const localStruct = local.bounceWrappedJsStyleStruct({ value: externalStruct, items: [] })
+        return localStruct.value
+      })()
+      gc()
+      expect(returned.value).to.equal(55)
+      returned.onChanged(7)
+      local.jsStyleObjectAsParameters(returned)
+      await waitFor(() => expect(callback.calls).to.deep.equal([[7], [55]]), CALLBACK_TIMEOUT)
+    },
+
     'both modules call inline callbacks': (external, local) => {
       let calls = 0
       external.callInline(() => {

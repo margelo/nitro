@@ -28,6 +28,7 @@ public protocol HybridSharedSpecializationsSpec_protocol: HybridSharedSpecializa
   func wrapNumberCallback(callback: any Callback<(/* value */ Double), Void>) throws -> any Callback<(/* value */ Double), Void>
   func callVoidPromiseCallback(callback: any Callback<(), any Promise<Void>>) throws -> any Promise<Void>
   func callNumberPromiseCallback(callback: any Callback<(), any Promise<Double>>) throws -> any Promise<Double>
+  func bounceCallbackStruct(value: SharedCallbackStruct) throws -> SharedCallbackStruct
   func callInline(callback: borrowing some InlineCallback<(), Void> & ~Copyable & ~Escapable) throws -> Void
   func callInlineWithNumber(value: Double, callback: borrowing some InlineCallback<(/* value */ Double), Double> & ~Copyable & ~Escapable) throws -> Double
 

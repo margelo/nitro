@@ -20,6 +20,7 @@
 #include <NitroModules/JSIConverter+JTypedPromise.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
+#include <NitroTestExternal/private/JSharedCallbackStruct.hpp>
 #include <NitroTestExternal/private/JCallback_void.hpp>
 #include <NitroTestExternal/private/JCallback_void_std__string.hpp>
 #include <NitroTestExternal/private/JCallback_double_double.hpp>
@@ -92,6 +93,7 @@ namespace margelo::nitro::test::external {
     jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart> wrapNumberCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>& callback);
     jni::local_ref<JTypedPromise<void>> callVoidPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_void_::JavaPart>& callback);
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> callNumberPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_double_::JavaPart>& callback);
+    jni::local_ref<JSharedCallbackStruct> bounceCallbackStruct(const jni::local_ref<JSharedCallbackStruct>& value);
     void callInline(const jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart>& callback);
     jdouble callInlineWithNumber(jdouble value, const jni::local_ref<margelo::nitro::test::external::JCallback_double_double::JavaPart>& callback);
 

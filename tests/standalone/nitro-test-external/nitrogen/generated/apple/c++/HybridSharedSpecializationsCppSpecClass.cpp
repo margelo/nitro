@@ -10,6 +10,7 @@
 #include <functional>
 #include <NitroModules/Promise.hpp>
 #include <string>
+#include <NitroTestExternal/SharedCallbackStruct.hpp>
 #include <NitroModules/InlineCallback.hpp>
 #include <utility>
 #include "HybridSharedSpecializationsCpp.hpp"
@@ -43,6 +44,7 @@ namespace margelo::nitro::test::external {
       clazz.registerHybridMethod("wrapNumberCallback", &HybridSharedSpecializationsCppSpec::wrapNumberCallback);
       clazz.registerHybridMethod("callVoidPromiseCallback", &HybridSharedSpecializationsCppSpec::callVoidPromiseCallback);
       clazz.registerHybridMethod("callNumberPromiseCallback", &HybridSharedSpecializationsCppSpec::callNumberPromiseCallback);
+      clazz.registerHybridMethod("bounceCallbackStruct", &HybridSharedSpecializationsCppSpec::bounceCallbackStruct);
       clazz.registerHybridMethod("callInline", &HybridSharedSpecializationsCppSpec::callInline);
       clazz.registerHybridMethod("callInlineWithNumber", &HybridSharedSpecializationsCppSpec::callInlineWithNumber);
       clazz.registerHybridConstructor(&HybridSharedSpecializationsCppSpecBindings::constructor);

@@ -14,6 +14,7 @@
 #include <NitroModules/JSIConverter+JTypedPromise.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
+#include <NitroTestExternal/private/JSharedCallbackStruct.hpp>
 #include <NitroTestExternal/private/JCallback_void.hpp>
 #include <NitroTestExternal/private/JCallback_void_std__string.hpp>
 #include <NitroTestExternal/private/JCallback_double_double.hpp>
@@ -47,6 +48,7 @@ namespace margelo::nitro::test::external {
       clazz.registerHybridMethod("wrapNumberCallback", &JHybridSharedSpecializationsSpec::wrapNumberCallback);
       clazz.registerHybridMethod("callVoidPromiseCallback", &JHybridSharedSpecializationsSpec::callVoidPromiseCallback);
       clazz.registerHybridMethod("callNumberPromiseCallback", &JHybridSharedSpecializationsSpec::callNumberPromiseCallback);
+      clazz.registerHybridMethod("bounceCallbackStruct", &JHybridSharedSpecializationsSpec::bounceCallbackStruct);
       clazz.registerHybridMethod("callInline", &JHybridSharedSpecializationsSpec::callInline);
       clazz.registerHybridMethod("callInlineWithNumber", &JHybridSharedSpecializationsSpec::callInlineWithNumber);
       clazz.registerHybridConstructor(&JHybridSharedSpecializationsSpec::constructor);
@@ -154,6 +156,11 @@ namespace margelo::nitro::test::external {
   jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> JHybridSharedSpecializationsSpec::callNumberPromiseCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_Promise_double_::JavaPart>& callback) {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>(jni::alias_ref<margelo::nitro::test::external::JCallback_Promise_double_::JavaPart> /* callback */)>("callNumberPromiseCallback_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), callback);
+    return __result;
+  }
+  jni::local_ref<JSharedCallbackStruct> JHybridSharedSpecializationsSpec::bounceCallbackStruct(const jni::local_ref<JSharedCallbackStruct>& value) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JSharedCallbackStruct>(jni::alias_ref<JSharedCallbackStruct> /* value */)>("bounceCallbackStruct");
+    auto __result = __method(_javaPart, CxxPart::getClass(), value);
     return __result;
   }
   void JHybridSharedSpecializationsSpec::callInline(const jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart>& callback) {

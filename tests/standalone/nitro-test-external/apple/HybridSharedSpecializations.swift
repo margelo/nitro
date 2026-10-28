@@ -62,6 +62,10 @@ class HybridSharedSpecializations: HybridSharedSpecializationsSpec {
     }
   }
 
+  func bounceCallbackStruct(value: SharedCallbackStruct) throws -> SharedCallbackStruct {
+    return value
+  }
+
   func callVoidPromiseCallback(callback: any Callback<(), any Promise<Void>>) throws -> any Promise<Void> {
     return .async {
       let promise = try await callback()

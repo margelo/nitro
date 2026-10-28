@@ -161,6 +161,16 @@ namespace margelo::nitro::test::external {
     return std::move(__result.value());
   }
 
+  ::NitroTestExternal::SharedCallbackStruct HybridSharedSpecializationsSpecSwift::bounceCallbackStruct(const ::NitroTestExternal::SharedCallbackStruct& value) {
+    auto __result = withSwiftResult<::NitroTestExternal::SharedCallbackStruct>([&](void* __outResult) {
+      return _swiftPart.bounceCallbackStruct(value, __outResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
   void HybridSharedSpecializationsSpecSwift::callInline(const InlineCallback<void()>& callback) {
     auto __result = _swiftPart.callInline(callback);
     if (__result.hasError()) [[unlikely]] {
@@ -201,6 +211,7 @@ namespace margelo::nitro::test::external {
       clazz.registerHybridMethod("wrapNumberCallback", &HybridSharedSpecializationsSpecSwift::wrapNumberCallback);
       clazz.registerHybridMethod("callVoidPromiseCallback", &HybridSharedSpecializationsSpecSwift::callVoidPromiseCallback);
       clazz.registerHybridMethod("callNumberPromiseCallback", &HybridSharedSpecializationsSpecSwift::callNumberPromiseCallback);
+      clazz.registerHybridMethod("bounceCallbackStruct", &HybridSharedSpecializationsSpecSwift::bounceCallbackStruct);
       clazz.registerHybridMethod("callInline", &HybridSharedSpecializationsSpecSwift::callInline);
       clazz.registerHybridMethod("callInlineWithNumber", &HybridSharedSpecializationsSpecSwift::callInlineWithNumber);
       clazz.registerHybridConstructor(&HybridSharedSpecializationsSpecSwift::constructor);
