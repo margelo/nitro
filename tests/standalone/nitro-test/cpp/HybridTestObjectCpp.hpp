@@ -70,6 +70,9 @@ private:
   std::optional<Promise<AnyJSON>> _pendingJSON;
   bool _isolatedBoolean = false;
   std::string _isTextValue;
+  std::vector<ArrayBuffer> _wrappedArrayBuffers;
+  // Wrapped buffers can be deleted after this object, and on any thread.
+  std::shared_ptr<std::atomic<int>> _wrappedArrayBufferDeleteCount = std::make_shared<std::atomic<int>>(0);
 
 private:
   static inline uint64_t calculateFibonacci(int count) noexcept {
@@ -277,6 +280,9 @@ public:
   void setAllValuesTo(const ArrayBuffer& buffer, double value) override;
   Promise<ArrayBuffer> createArrayBufferAsync() override;
   ArrayBuffer createHardwareBuffer(double width, double height, double layers, HardwareBufferFormat format) override;
+  ArrayBuffer wrapArrayBuffer(double size) override;
+  void releaseWrappedArrayBuffers() override;
+  double getWrappedArrayBufferDeleteCount() override;
   std::shared_ptr<HybridTestObjectCppSpec> newTestObject() override;
   Promise<std::shared_ptr<HybridTestObjectCppSpec>> newTestObjectAsync() override;
   HybridBaseSpecCxx createBase() override;

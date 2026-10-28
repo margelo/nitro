@@ -9,6 +9,7 @@
 
 #include "ByteBufferArrayBuffer.hpp"
 #include "HardwareBufferArrayBuffer.hpp"
+#include "JRunnable.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 #include <android/hardware_buffer.h>
 #include <android/hardware_buffer_jni.h>
@@ -41,20 +42,23 @@ public:
 public:
   /**
    * Create a new `JArrayBuffer` that wraps the given `ByteBuffer` from Java.
+   * The optional `onDelete` `Runnable` runs once the last owner released the buffer.
    */
-  static jni::local_ref<JArrayBuffer::jhybriddata> initHybridByteBuffer(jni::alias_ref<jhybridobject>,
-                                                                        jni::alias_ref<jni::JByteBuffer> buffer) {
-    return makeCxxInstance(buffer);
+  static jni::local_ref<JArrayBuffer::jhybriddata>
+  initHybridByteBuffer(jni::alias_ref<jhybridobject>, jni::alias_ref<jni::JByteBuffer> buffer, jni::alias_ref<JRunnable> onDelete) {
+    return makeCxxInstance(buffer, onDelete);
   }
   /**
    * Create a new `JArrayBuffer` that wraps the given `HardwareBuffer` from Java.
+   * The optional `onDelete` `Runnable` runs once the last owner released the buffer.
    */
   static jni::local_ref<JArrayBuffer::jhybriddata>
-  initHybridHardwareBuffer(jni::alias_ref<jhybridobject>, [[maybe_unused]] jni::alias_ref<jni::JObject> boxedHardwareBuffer) {
+  initHybridHardwareBuffer(jni::alias_ref<jhybridobject>, [[maybe_unused]] jni::alias_ref<jni::JObject> boxedHardwareBuffer,
+                           [[maybe_unused]] jni::alias_ref<JRunnable> onDelete) {
 #if __ANDROID_API__ >= 26
     // Cast jobject* to AHardwareBuffer*. It has a retain count of 0 which will be retained in `HardwareBufferArrayBuffer(..)`.
     AHardwareBuffer* hardwareBuffer = AHardwareBuffer_fromHardwareBuffer(jni::Environment::current(), boxedHardwareBuffer.get());
-    return makeCxxInstance(hardwareBuffer);
+    return makeCxxInstance(hardwareBuffer, onDelete);
 #else
     throw std::runtime_error("ArrayBuffer(HardwareBuffer) requires NDK API 26 or above! (minSdk >= 26)");
 #endif
@@ -164,12 +168,12 @@ public:
 
 private:
   explicit JArrayBuffer(const ArrayBuffer& arrayBuffer) : _arrayBuffer(arrayBuffer) {}
-  explicit JArrayBuffer(const jni::alias_ref<jni::JByteBuffer>& byteBuffer)
-      : _arrayBuffer(std::make_shared<ByteBufferArrayBuffer>(byteBuffer)) {}
+  JArrayBuffer(const jni::alias_ref<jni::JByteBuffer>& byteBuffer, const jni::alias_ref<JRunnable>& onDelete)
+      : _arrayBuffer(std::make_shared<ByteBufferArrayBuffer>(byteBuffer, onDelete)) {}
 
 #if __ANDROID_API__ >= 26
-  explicit JArrayBuffer(AHardwareBuffer* /* 0 retain */ hardwareBuffer)
-      : _arrayBuffer(std::make_shared<HardwareBufferArrayBuffer>(hardwareBuffer)) {}
+  JArrayBuffer(AHardwareBuffer* /* 0 retain */ hardwareBuffer, const jni::alias_ref<JRunnable>& onDelete)
+      : _arrayBuffer(std::make_shared<HardwareBufferArrayBuffer>(hardwareBuffer, onDelete)) {}
 #endif
 
 private:

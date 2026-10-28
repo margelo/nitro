@@ -201,9 +201,8 @@ On the native side, an **owning** `ArrayBuffer` can either **wrap-**, or **copy-
     val myData = ByteBuffer.allocateDirect(4096)
 
     // wrap (no copy)
-    val wrappingArrayBuffer = ArrayBuffer.wrap(myData)
-
-
+    val wrappingArrayBuffer = ArrayBuffer.wrap(myData,
+                                               onDelete = { pool.release(myData) })
     // copy
     val copiedArrayBuffer = ArrayBuffer.copy(myData)
     // new blank buffer

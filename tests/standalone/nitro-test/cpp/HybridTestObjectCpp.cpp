@@ -907,6 +907,26 @@ ArrayBuffer HybridTestObjectCpp::createArrayBuffer() {
   return ArrayBuffer::wrap(buffer, size, [=]() { delete[] buffer; });
 }
 
+ArrayBuffer HybridTestObjectCpp::wrapArrayBuffer(double size) {
+  size_t byteSize = static_cast<size_t>(size);
+  uint8_t* data = new uint8_t[byteSize];
+  auto deleteCount = _wrappedArrayBufferDeleteCount;
+  ArrayBuffer buffer = ArrayBuffer::wrap(data, byteSize, [data, deleteCount]() {
+    delete[] data;
+    (*deleteCount)++;
+  });
+  _wrappedArrayBuffers.push_back(buffer);
+  return buffer;
+}
+
+void HybridTestObjectCpp::releaseWrappedArrayBuffers() {
+  _wrappedArrayBuffers.clear();
+}
+
+double HybridTestObjectCpp::getWrappedArrayBufferDeleteCount() {
+  return static_cast<double>(_wrappedArrayBufferDeleteCount->load());
+}
+
 ArrayBuffer HybridTestObjectCpp::createHardwareBuffer(double width, double height, double layers, HardwareBufferFormat format) {
   // C++ doesn't have HardwareBuffers - create a normal ArrayBuffer of the same byte size instead.
   size_t size;
