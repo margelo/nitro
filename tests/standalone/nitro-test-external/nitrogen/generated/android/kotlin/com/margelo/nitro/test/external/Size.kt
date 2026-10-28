@@ -59,6 +59,7 @@ data class Size(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(width: Double, height: Double, unit: SizeUnit, scale: Double): Size {
       return Size(width, height, unit, scale)
     }

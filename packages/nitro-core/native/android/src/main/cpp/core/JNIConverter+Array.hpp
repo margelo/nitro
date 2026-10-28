@@ -1,15 +1,13 @@
 #pragma once
 
 #include "JNIConverter+Primitives.hpp"
-#include <concepts>
 #include <type_traits>
 #include <vector>
 
 namespace margelo::nitro {
 
 template <typename CppElement, typename JavaArray>
-  requires(jni::IsInstantiationOf<jni::JPrimitiveArray, JavaArray>() ||
-           (std::same_as<JavaArray, JArrayUInt64> && std::same_as<CppElement, uint64_t>))
+  requires(jni::IsInstantiationOf<jni::JPrimitiveArray, JavaArray>())
 struct JNIConverter<std::vector<CppElement>, jni::local_ref<JavaArray>> {
   using Primitive = typename JavaArray::T;
 

@@ -56,3 +56,5 @@ into `Object`s, and provides bulk copy methods. This makes all array operations 
 - `Array<Double>` -> [`DoubleArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double-array/)
 - `Array<Boolean>` -> [`BooleanArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean-array/)
 - `Array<Long>` -> [`LongArray`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long-array/)
+
+`UInt64[]` uses `Array<ULong>` in Kotlin, with each element boxed as a `ULong`. It requires no experimental unsigned-array opt-in.

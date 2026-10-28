@@ -49,6 +49,7 @@ class Callback_int64_t_int64_t @DoNotStrip @Keep private constructor(hybridData:
   private class Function_cxx(private val callback: Callback<(value: Long) -> Long>) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(value: Long): Long {
       return this.callback.callSync(value)
     }
@@ -56,14 +57,17 @@ class Callback_int64_t_int64_t @DoNotStrip @Keep private constructor(hybridData:
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(value: Long): Long
 
   @DoNotStrip
   @Keep
+  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(value: Long): Promise<Long>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(value: Long): Unit
 
   companion object {
@@ -84,11 +88,13 @@ class Callback_int64_t_int64_t @DoNotStrip @Keep private constructor(hybridData:
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): Callback_int64_t_int64_t
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): Callback_int64_t_int64_t
   }
 }

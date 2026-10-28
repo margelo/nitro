@@ -67,6 +67,10 @@
 #include <NitroTest/private/TruckPowertrain-Swift.hpp>
 #include <NitroTest/private/PartialPerson-Swift.hpp>
 #include <NitroTest/private/SwiftContainer_swift__Array___NitroTest__Powertrain_-Swift.hpp>
+#include <NitroTest/private/Variant_UInt64_String-Swift.hpp>
+#include <NitroTest/private/Variant__UInt64__String-Swift.hpp>
+#include <NitroTest/private/Record_swift__String_uint64_t-Swift.hpp>
+#include <NitroTest/private/Record_swift__String_swift__Array_uint64_t_-Swift.hpp>
 #include <NitroModules/JSIConverter+SwiftAnyJSON.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroTest/private/Variant_Bool_Double-Swift.hpp>

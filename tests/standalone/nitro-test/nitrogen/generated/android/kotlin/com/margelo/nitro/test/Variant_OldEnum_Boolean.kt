@@ -59,6 +59,7 @@ sealed class Variant_OldEnum_Boolean private constructor(@DoNotStrip private val
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_0")
     private fun fromCpp_0(value: OldEnum): Variant_OldEnum_Boolean = First(value)
     @JvmStatic
     @JvmName("createSecond")
@@ -67,6 +68,7 @@ sealed class Variant_OldEnum_Boolean private constructor(@DoNotStrip private val
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_1")
     private fun fromCpp_1(value: Boolean): Variant_OldEnum_Boolean = Second(value)
   }
 }

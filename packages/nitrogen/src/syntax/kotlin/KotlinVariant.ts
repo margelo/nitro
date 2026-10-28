@@ -30,6 +30,7 @@ data class ${innerName}(@DoNotStrip val value: ${valueType}): ${kotlinName}(${in
 ${classCode} {
   @DoNotStrip
   @Suppress("unused", "FunctionName")
+  @JvmName("getValue_cxx")
   private fun getValue_cxx(): ${bridgeType} {
     return ${bridgeValue}
   }
@@ -91,6 +92,7 @@ fun create(value: ${valueType}): ${kotlinName} = ${innerName}(value)
 
 @JvmStatic
 @DoNotStrip
+@JvmName("fromCpp_${i}")
 private fun fromCpp_${i}(value: ${bridgeType}): ${kotlinName} = ${innerName}(${publicValue})
 `.trim()
   })

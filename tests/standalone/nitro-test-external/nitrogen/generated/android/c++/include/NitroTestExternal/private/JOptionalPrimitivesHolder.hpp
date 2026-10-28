@@ -13,7 +13,7 @@
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
 #include <NitroModules/JNIConverter+Optional.hpp>
 #include <NitroModules/JSIConverter+JOptional.hpp>
-#include <NitroModules/JUInt64.hpp>
+#include <NitroModules/JULong.hpp>
 
 namespace margelo::nitro::test::external {
 
@@ -23,9 +23,9 @@ namespace margelo::nitro::test::external {
   struct JOptionalPrimitivesHolder final : public jni::JavaClass<JOptionalPrimitivesHolder> {
     static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/external/OptionalPrimitivesHolder;";
 
-    static jni::local_ref<JOptionalPrimitivesHolder> create(jni::alias_ref<JOptional<jni::JDouble>> optionalNumber, jni::alias_ref<JOptional<jni::JBoolean>> optionalBoolean, jni::alias_ref<JOptional<JUInt64>> optionalUInt64, jni::alias_ref<JOptional<jni::JLong>> optionalInt64) {
+    static jni::local_ref<JOptionalPrimitivesHolder> create(jni::alias_ref<JOptional<jni::JDouble>> optionalNumber, jni::alias_ref<JOptional<jni::JBoolean>> optionalBoolean, jni::alias_ref<JOptional<JULong>> optionalUInt64, jni::alias_ref<JOptional<jni::JLong>> optionalInt64) {
       static const auto clazz = javaClassStatic();
-      static const auto create = clazz->getStaticMethod<JOptionalPrimitivesHolder(jni::alias_ref<JOptional<jni::JDouble>>, jni::alias_ref<JOptional<jni::JBoolean>>, jni::alias_ref<JOptional<JUInt64>>, jni::alias_ref<JOptional<jni::JLong>>)>("fromCpp");
+      static const auto create = clazz->getStaticMethod<JOptionalPrimitivesHolder(jni::alias_ref<JOptional<jni::JDouble>>, jni::alias_ref<JOptional<jni::JBoolean>>, jni::alias_ref<JOptional<JULong>>, jni::alias_ref<JOptional<jni::JLong>>)>("fromCpp");
       return create(clazz, optionalNumber, optionalBoolean, optionalUInt64, optionalInt64);
     }
 
@@ -39,10 +39,9 @@ namespace margelo::nitro::test::external {
       return getFieldValue(field);
     }
 
-    jni::local_ref<JOptional<JUInt64>> getOptionalUInt64() const {
-      static const auto clazz = javaClassStatic();
-      static const auto method = clazz->getNonvirtualMethod<JOptional<JUInt64>()>("getOptionalUInt64_cxx");
-      return method(this->self(), clazz);
+    jni::local_ref<JOptional<JULong>> getOptionalUInt64() const {
+      static const auto field = javaClassStatic()->getField<JOptional<JULong>>("optionalUInt64");
+      return getFieldValue(field);
     }
 
     jni::local_ref<JOptional<jni::JLong>> getOptionalInt64() const {

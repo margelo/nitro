@@ -129,6 +129,7 @@ data class OptionalEnumWrapper(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(count: Double?, weight: Double?, ttl: Double?, jitter: Double?, retries: Double?, delayMs: Double?, timeoutMs: Double?, ratio: Double?, threshold: Double?, enabled: Boolean?, active: Boolean?, shouldBuffer: Boolean?, shouldRetry: Boolean?, verbose: Boolean?, tier: Powertrain?, region: Powertrain?, stage: Powertrain?, tone: Powertrain?): OptionalEnumWrapper {
       return OptionalEnumWrapper(count, weight, ttl, jitter, retries, delayMs, timeoutMs, ratio, threshold, enabled, active, shouldBuffer, shouldRetry, verbose, tier, region, stage, tone)
     }

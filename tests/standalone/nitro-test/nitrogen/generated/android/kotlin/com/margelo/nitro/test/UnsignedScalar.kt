@@ -44,6 +44,7 @@ data class UnsignedScalar(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(value: Long): UnsignedScalar {
       return UnsignedScalar(value.toULong())
     }

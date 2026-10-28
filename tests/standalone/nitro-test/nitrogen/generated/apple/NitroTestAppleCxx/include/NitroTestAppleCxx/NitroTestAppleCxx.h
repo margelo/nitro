@@ -61,6 +61,14 @@ namespace NitroTest { class TruckPowertrain; }
 namespace NitroTest { class PartialPerson; }
 // Forward declaration of `SwiftContainer_swift__Array___NitroTest__Powertrain_` to properly resolve imports.
 namespace NitroTest { class SwiftContainer_swift__Array___NitroTest__Powertrain_; }
+// Forward declaration of `Variant_UInt64_String_cxx` to properly resolve imports.
+namespace NitroTest { class Variant_UInt64_String_cxx; }
+// Forward declaration of `Variant__UInt64__String_cxx` to properly resolve imports.
+namespace NitroTest { class Variant__UInt64__String_cxx; }
+// Forward declaration of `Record_swift__String_uint64_t` to properly resolve imports.
+namespace NitroTest { class Record_swift__String_uint64_t; }
+// Forward declaration of `Record_swift__String_swift__Array_uint64_t_` to properly resolve imports.
+namespace NitroTest { class Record_swift__String_swift__Array_uint64_t_; }
 namespace NitroModules { class AnyJSON; }
 #include <NitroModules/ArrayBuffer.hpp>
 // Forward declaration of `Variant_Bool_Double_cxx` to properly resolve imports.
@@ -238,6 +246,19 @@ namespace margelo::nitro::test::swift_bridge {
   Promise<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_> callAsync_Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(const Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_& callback, const void* NON_NULL param0);
   void callAndForget_Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(const Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_& callback, const void* NON_NULL param0);
   Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_ create_Callback___NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain____NitroTest__SwiftContainer_swift__Array___NitroTest__Powertrain_(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
+  using Promise_swift__Array_uint64_t_ = Promise<swift::Array<uint64_t>>;
+  Promise_swift__Array_uint64_t_ create_Promise_swift__Array_uint64_t_();
+  void reject_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, std::exception_ptr error);
+  void listenRejected_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, std::function<void(const std::exception_ptr&)> listener);
+  void resolve_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, const void* NON_NULL value);
+  void listen_Promise_swift__Array_uint64_t_(const Promise_swift__Array_uint64_t_& promise, std::function<void(const void* NON_NULL)> listener);
+  using Promise_uint64_t = Promise<uint64_t>;
+  using Promise_swift__Array_swift__Array_uint64_t__ = Promise<swift::Array<swift::Array<uint64_t>>>;
+  Promise_swift__Array_swift__Array_uint64_t__ create_Promise_swift__Array_swift__Array_uint64_t__();
+  void reject_Promise_swift__Array_swift__Array_uint64_t__(const Promise_swift__Array_swift__Array_uint64_t__& promise, std::exception_ptr error);
+  void listenRejected_Promise_swift__Array_swift__Array_uint64_t__(const Promise_swift__Array_swift__Array_uint64_t__& promise, std::function<void(const std::exception_ptr&)> listener);
+  void resolve_Promise_swift__Array_swift__Array_uint64_t__(const Promise_swift__Array_swift__Array_uint64_t__& promise, const void* NON_NULL value);
+  void listen_Promise_swift__Array_swift__Array_uint64_t__(const Promise_swift__Array_swift__Array_uint64_t__& promise, std::function<void(const void* NON_NULL)> listener);
   using Callback_void = Callback<void()>;
   Result<void, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_void(const Callback_void& callback) noexcept;
   Callback_void create_Callback_void(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>()> closure);
@@ -257,7 +278,6 @@ namespace margelo::nitro::test::swift_bridge {
   void listen_Promise___NitroTest__Car(const Promise___NitroTest__Car& promise, std::function<void(const void* NON_NULL)> listener);
   using Promise_ArrayBuffer = Promise<ArrayBuffer>;
   using Promise_bool = Promise<bool>;
-  using Promise_uint64_t = Promise<uint64_t>;
   using Result_uint64_t = Result<uint64_t, margelo::nitro::test::swift_bridge::ResultTag>;
   using Callback_uint64_t_uint64_t = Callback<uint64_t(uint64_t)>;
   Result<uint64_t, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_uint64_t_uint64_t(const Callback_uint64_t_uint64_t& callback, uint64_t param0) noexcept;
@@ -299,6 +319,16 @@ namespace margelo::nitro::test::swift_bridge {
   Promise<::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___> callAsync_Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(const Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___& callback, const void* NON_NULL param0);
   void callAndForget_Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(const Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___& callback, const void* NON_NULL param0);
   Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___ create_Callback___NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person______NitroTest__SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
+  using Callback_swift__Array_uint64_t__swift__Array_uint64_t_ = Callback<swift::Array<uint64_t>(const swift::Array<uint64_t>&)>;
+  Result<void, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(const Callback_swift__Array_uint64_t__swift__Array_uint64_t_& callback, const void* NON_NULL param0, void* NON_NULL __outResult) noexcept;
+  Promise<swift::Array<uint64_t>> callAsync_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(const Callback_swift__Array_uint64_t__swift__Array_uint64_t_& callback, const void* NON_NULL param0);
+  void callAndForget_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(const Callback_swift__Array_uint64_t__swift__Array_uint64_t_& callback, const void* NON_NULL param0);
+  Callback_swift__Array_uint64_t__swift__Array_uint64_t_ create_Callback_swift__Array_uint64_t__swift__Array_uint64_t_(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
+  using Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__ = Callback<swift::Array<swift::Array<uint64_t>>(const swift::Array<swift::Array<uint64_t>>&)>;
+  Result<void, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__(const Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__& callback, const void* NON_NULL param0, void* NON_NULL __outResult) noexcept;
+  Promise<swift::Array<swift::Array<uint64_t>>> callAsync_Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__(const Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__& callback, const void* NON_NULL param0);
+  void callAndForget_Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__(const Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__& callback, const void* NON_NULL param0);
+  Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__ create_Callback_swift__Array_swift__Array_uint64_t___swift__Array_swift__Array_uint64_t__(std::function<Result<void, margelo::nitro::test::swift_bridge::ResultTag>(const void* NON_NULL param0, void* NON_NULL __outResult)> closure);
   // TODO: Replace this borrowing facade with a typealias once our minimum Xcode includes
   // https://github.com/swiftlang/swift/pull/93321, which fixes https://github.com/swiftlang/swift/issues/93318.
   // Exporting the same imported InlineCallback specialization from two Swift headers duplicates its traits.

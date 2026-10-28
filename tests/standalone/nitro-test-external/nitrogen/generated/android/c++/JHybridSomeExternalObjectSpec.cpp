@@ -15,7 +15,7 @@
 #include <NitroTestExternal/private/JOptionalPrimitivesHolder.hpp>
 #include <NitroModules/JNIConverter+Optional.hpp>
 #include <NitroModules/JSIConverter+JOptional.hpp>
-#include <NitroModules/JUInt64.hpp>
+#include <NitroModules/JULong.hpp>
 
 namespace margelo::nitro::test::external {
 
@@ -80,8 +80,8 @@ namespace margelo::nitro::test::external {
     auto __result = __method(_javaPart);
     return __result;
   }
-  jni::local_ref<JOptionalPrimitivesHolder> JHybridSomeExternalObjectSpec::createOptionalPrimitivesHolder(const jni::local_ref<JOptional<jni::JDouble>>& optionalNumber, const jni::local_ref<JOptional<jni::JBoolean>>& optionalBoolean, const jni::local_ref<JOptional<JUInt64>>& optionalUInt64, const jni::local_ref<JOptional<jni::JLong>>& optionalInt64) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JOptionalPrimitivesHolder>(jni::alias_ref<JOptional<jni::JDouble>> /* optionalNumber */, jni::alias_ref<JOptional<jni::JBoolean>> /* optionalBoolean */, jni::alias_ref<JOptional<JUInt64>> /* optionalUInt64 */, jni::alias_ref<JOptional<jni::JLong>> /* optionalInt64 */)>("createOptionalPrimitivesHolder_cxx");
+  jni::local_ref<JOptionalPrimitivesHolder> JHybridSomeExternalObjectSpec::createOptionalPrimitivesHolder(const jni::local_ref<JOptional<jni::JDouble>>& optionalNumber, const jni::local_ref<JOptional<jni::JBoolean>>& optionalBoolean, const jni::local_ref<JOptional<JULong>>& optionalUInt64, const jni::local_ref<JOptional<jni::JLong>>& optionalInt64) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JOptionalPrimitivesHolder>(jni::alias_ref<JOptional<jni::JDouble>> /* optionalNumber */, jni::alias_ref<JOptional<jni::JBoolean>> /* optionalBoolean */, jni::alias_ref<JOptional<JULong>> /* optionalUInt64 */, jni::alias_ref<JOptional<jni::JLong>> /* optionalInt64 */)>("createOptionalPrimitivesHolder_cxx");
     auto __result = __method(_javaPart, CxxPart::getClass(), optionalNumber, optionalBoolean, optionalUInt64, optionalInt64);
     return __result;
   }

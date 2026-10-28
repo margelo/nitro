@@ -44,6 +44,7 @@ data class ExternalObjectStruct(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(someExternal: com.margelo.nitro.test.external.HybridSomeExternalObjectSpec): ExternalObjectStruct {
       return ExternalObjectStruct(someExternal)
     }

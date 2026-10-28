@@ -1,7 +1,7 @@
 #pragma once
 
 #include "JNIConverter.hpp"
-#include "JUInt64.hpp"
+#include "JULong.hpp"
 #include <bit>
 #include <cstdint>
 #include <fbjni/fbjni.h>
@@ -103,15 +103,14 @@ template <>
 struct JNIConverter<uint64_t, jni::local_ref<jni::JLong>> : JNIBoxedPrimitiveConverter<uint64_t, jni::JLong> {};
 
 template <>
-struct JNIConverter<uint64_t, jni::local_ref<JUInt64>> {
-  static jni::local_ref<JUInt64> toJNI(uint64_t value) {
-    auto boxed = jni::JLong::valueOf(JNIConverter<uint64_t, jlong>::toJNI(value));
-    auto raw = boxed.release();
-    auto object = static_cast<JUInt64::javaobject>(raw);
-    return jni::adopt_local(object);
+struct JNIConverter<uint64_t, jni::local_ref<JULong>> {
+  static jni::local_ref<JULong> toJNI(uint64_t value) {
+    return JULong::valueOf(JNIConverter<uint64_t, jlong>::toJNI(value));
   }
-  static uint64_t fromJNI(jni::alias_ref<JUInt64> value) {
-    return JNIBoxedPrimitiveConverter<uint64_t, JUInt64>::fromJNI(value);
+  static uint64_t fromJNI(jni::alias_ref<JULong> value) {
+    static const auto clazz = JULong::javaClassStatic();
+    static const auto method = clazz->getNonvirtualMethod<jlong()>("unbox-impl");
+    return JNIConverter<uint64_t, jlong>::fromJNI(method(value, clazz));
   }
 };
 

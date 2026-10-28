@@ -231,6 +231,22 @@ export declare class TestObjectCpp extends HybridObject {
     callback: (value: (Person | undefined)[][]) => (Person | undefined)[][]
   ): (Person | undefined)[][]
 
+  // Unsigned containers
+  bounceUnsignedArray(array: UInt64[]): UInt64[]
+  bounceNestedUnsignedArray(array: UInt64[][]): UInt64[][]
+  bounceOptionalUnsignedArray(array?: UInt64[]): UInt64[] | undefined
+  bounceUnsignedArrayAsync(array: UInt64[]): Promise<UInt64[]>
+  callUnsignedArrayCallback(array: UInt64[], callback: (array: UInt64[]) => UInt64[]): UInt64[]
+  bounceUnsignedVariant(variant: UInt64 | string): UInt64 | string
+  bounceUnsignedArrayVariant(variant: UInt64[] | string): UInt64[] | string
+  bounceUnsignedMap(map: Record<string, UInt64>): Record<string, UInt64>
+  bounceUnsignedArrayMap(map: Record<string, UInt64[]>): Record<string, UInt64[]>
+  bounceUnsignedAsync(value: UInt64): Promise<UInt64>
+  callUnsignedCallbackAsync(value: UInt64, callback: (value: UInt64) => UInt64): Promise<UInt64>
+  callUnsignedArrayCallbackAsync(array: UInt64[], callback: (array: UInt64[]) => UInt64[]): Promise<UInt64[]>
+  bounceNestedUnsignedArrayAsync(array: UInt64[][]): Promise<UInt64[][]>
+  callNestedUnsignedArrayCallback(array: UInt64[][], callback: (array: UInt64[][]) => UInt64[][]): UInt64[][]
+
   // Arrays (complex)
   bounceHybridObjects(array: Child[]): Child[]
   bounceFunctions(functions: (() => void)[]): (() => void)[]
@@ -514,6 +530,22 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
     value: (Person | undefined)[][],
     callback: (value: (Person | undefined)[][]) => (Person | undefined)[][]
   ): (Person | undefined)[][]
+
+  // Unsigned containers
+  bounceUnsignedArray(array: UInt64[]): UInt64[]
+  bounceNestedUnsignedArray(array: UInt64[][]): UInt64[][]
+  bounceOptionalUnsignedArray(array?: UInt64[]): UInt64[] | undefined
+  bounceUnsignedArrayAsync(array: UInt64[]): Promise<UInt64[]>
+  callUnsignedArrayCallback(array: UInt64[], callback: (array: UInt64[]) => UInt64[]): UInt64[]
+  bounceUnsignedVariant(variant: UInt64 | string): UInt64 | string
+  bounceUnsignedArrayVariant(variant: UInt64[] | string): UInt64[] | string
+  bounceUnsignedMap(map: Record<string, UInt64>): Record<string, UInt64>
+  bounceUnsignedArrayMap(map: Record<string, UInt64[]>): Record<string, UInt64[]>
+  bounceUnsignedAsync(value: UInt64): Promise<UInt64>
+  callUnsignedCallbackAsync(value: UInt64, callback: (value: UInt64) => UInt64): Promise<UInt64>
+  callUnsignedArrayCallbackAsync(array: UInt64[], callback: (array: UInt64[]) => UInt64[]): Promise<UInt64[]>
+  bounceNestedUnsignedArrayAsync(array: UInt64[][]): Promise<UInt64[][]>
+  callNestedUnsignedArrayCallback(array: UInt64[][], callback: (array: UInt64[][]) => UInt64[][]): UInt64[][]
 
   // Arrays (complex)
   bounceHybridObjects(array: Child[]): Child[]

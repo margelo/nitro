@@ -62,6 +62,8 @@ export interface KotlinType extends Type {
   readonly jniValueKind: JniValueKind
   /** Whether the public Kotlin API needs conversion to this representation. */
   readonly needsKotlinConversion: boolean
+  /** Whether this direct Kotlin type mangles JVM method names, even when no value conversion is needed. */
+  readonly requiresKotlinJvmName?: boolean
   /** Whether borrowed JNI values have immutable owners lasting for the process lifetime. */
   readonly hasStaticJNIReference?: boolean
   /** Whether a generated Kotlin backing field already has this JNI representation. */
