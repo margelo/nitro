@@ -13,13 +13,13 @@ namespace margelo::nitro {
 
   ::NitroTest::JsStyleStruct JSIConverter<::NitroTest::JsStyleStruct>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
     auto object = value.asObject(runtime);
-    return ::NitroTest::JsStyleStruct::init_cxx(JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), JSIConverter<Callback<void(double)>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged"))));
+    return ::NitroTest::JsStyleStruct::init_cxx(JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), margelo::nitro::test::swift_bridge::JsStyleStruct_onChanged_cxx(JSIConverter<Callback<void(double)>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged")))));
   }
 
   jsi::Value JSIConverter<::NitroTest::JsStyleStruct>::toJSI(jsi::Runtime& runtime, const ::NitroTest::JsStyleStruct& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<double>::toJSI(runtime, value.getValue_cxx()));
-    object.setProperty(runtime, PropNameIDCache::get(runtime, "onChanged"), JSIConverter<Callback<void(double)>>::toJSI(runtime, value.getOnChanged_cxx()));
+    object.setProperty(runtime, PropNameIDCache::get(runtime, "onChanged"), JSIConverter<Callback<void(double)>>::toJSI(runtime, value.getOnChanged_cxx().value));
     return object;
   }
 

@@ -2,7 +2,7 @@ import type { Type, GetCodeOptions, TypeContext } from '../../types/Type.js'
 import type { CppHelper } from '../../c++/CppHelper.js'
 import type { SourceFile } from '../../SourceFile.js'
 import { StructType } from '../../types/StructType.js'
-import { createSwiftStructBridge, createSwiftStructCppConverter } from '../SwiftStruct.js'
+import { createSwiftStructBridge, createSwiftStructCppConverter, createSwiftStructPropertyHelpers } from '../SwiftStruct.js'
 import { wrapSwiftType } from '../wrapSwiftType.js'
 import { NitroConfig } from '../../../config/NitroConfig.js'
 import type { Language } from '../../../getPlatformSpecs.js'
@@ -102,7 +102,7 @@ export class SwiftStructType extends StructType implements SwiftType {
   }
 
   get requiredCppHelpers(): CppHelper[] {
-    return this.properties.flatMap((p) => p.requiredCppHelpers)
+    return [...this.properties.flatMap((p) => p.requiredCppHelpers), ...createSwiftStructPropertyHelpers(this)]
   }
 
   override getRequiredImports(language: Language, context: 'declaration' | 'implementation' = 'implementation'): SourceImport[] {
