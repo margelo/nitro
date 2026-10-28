@@ -357,6 +357,11 @@ export declare class TestObjectCpp extends HybridObject {
   wrapArrayBuffer(size: number): ArrayBuffer
   releaseWrappedArrayBuffers(): void
   getWrappedArrayBufferDeleteCount(): number
+  // Keeps a view of the buffer's bytes without copying them, but no other reference to the buffer
+  // (Kotlin: `getBuffer(false)`, Swift: `toData(copyIfNeeded: false)`, C++: the `ArrayBuffer` itself).
+  retainArrayBufferView(buffer: ArrayBuffer): void
+  getRetainedArrayBufferViewLastItem(): number
+  releaseArrayBufferView(): void
 
   // Complex variants
   passVariant(either: number | string | number[] | string[] | boolean): number | string
@@ -641,6 +646,11 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
   wrapArrayBuffer(size: number): ArrayBuffer
   releaseWrappedArrayBuffers(): void
   getWrappedArrayBufferDeleteCount(): number
+  // Keeps a view of the buffer's bytes without copying them, but no other reference to the buffer
+  // (Kotlin: `getBuffer(false)`, Swift: `toData(copyIfNeeded: false)`, C++: the `ArrayBuffer` itself).
+  retainArrayBufferView(buffer: ArrayBuffer): void
+  getRetainedArrayBufferViewLastItem(): number
+  releaseArrayBufferView(): void
 
   // Complex variants
   passVariant(either: number | string | number[] | string[] | boolean): number | string

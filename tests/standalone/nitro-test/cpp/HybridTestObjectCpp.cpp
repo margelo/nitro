@@ -927,6 +927,22 @@ double HybridTestObjectCpp::getWrappedArrayBufferDeleteCount() {
   return static_cast<double>(_wrappedArrayBufferDeleteCount->load());
 }
 
+void HybridTestObjectCpp::retainArrayBufferView(const ArrayBuffer& buffer) {
+  // C++ has no separate view type - an owning copy of the handle shares the bytes.
+  _retainedArrayBufferView = buffer.asOwning();
+}
+
+double HybridTestObjectCpp::getRetainedArrayBufferViewLastItem() {
+  if (!_retainedArrayBufferView.has_value() || _retainedArrayBufferView->size() == 0) {
+    throw std::runtime_error("No ArrayBuffer view is retained!");
+  }
+  return _retainedArrayBufferView->data()[_retainedArrayBufferView->size() - 1];
+}
+
+void HybridTestObjectCpp::releaseArrayBufferView() {
+  _retainedArrayBufferView = std::nullopt;
+}
+
 ArrayBuffer HybridTestObjectCpp::createHardwareBuffer(double width, double height, double layers, HardwareBufferFormat format) {
   // C++ doesn't have HardwareBuffers - create a normal ArrayBuffer of the same byte size instead.
   size_t size;

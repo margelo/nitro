@@ -281,6 +281,9 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("wrapArrayBuffer", &JHybridTestObjectSwiftKotlinSpec::wrapArrayBuffer);
       clazz.registerHybridMethod("releaseWrappedArrayBuffers", &JHybridTestObjectSwiftKotlinSpec::releaseWrappedArrayBuffers);
       clazz.registerHybridMethod("getWrappedArrayBufferDeleteCount", &JHybridTestObjectSwiftKotlinSpec::getWrappedArrayBufferDeleteCount);
+      clazz.registerHybridMethod("retainArrayBufferView", &JHybridTestObjectSwiftKotlinSpec::retainArrayBufferView);
+      clazz.registerHybridMethod("getRetainedArrayBufferViewLastItem", &JHybridTestObjectSwiftKotlinSpec::getRetainedArrayBufferViewLastItem);
+      clazz.registerHybridMethod("releaseArrayBufferView", &JHybridTestObjectSwiftKotlinSpec::releaseArrayBufferView);
       clazz.registerHybridMethod("passVariant", &JHybridTestObjectSwiftKotlinSpec::passVariant);
       clazz.registerHybridMethod("getVariantEnum", &JHybridTestObjectSwiftKotlinSpec::getVariantEnum);
       clazz.registerHybridMethod("bounceVariantUnionEnum", &JHybridTestObjectSwiftKotlinSpec::bounceVariantUnionEnum);
@@ -1081,6 +1084,19 @@ namespace margelo::nitro::test {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jdouble()>("getWrappedArrayBufferDeleteCount");
     auto __result = __method(_javaPart, CxxPart::getClass());
     return __result;
+  }
+  void JHybridTestObjectSwiftKotlinSpec::retainArrayBufferView(const jni::local_ref<JArrayBuffer::JavaPart>& buffer) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<JArrayBuffer::JavaPart> /* buffer */)>("retainArrayBufferView");
+    __method(_javaPart, CxxPart::getClass(), buffer);
+  }
+  jdouble JHybridTestObjectSwiftKotlinSpec::getRetainedArrayBufferViewLastItem() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jdouble()>("getRetainedArrayBufferViewLastItem");
+    auto __result = __method(_javaPart, CxxPart::getClass());
+    return __result;
+  }
+  void JHybridTestObjectSwiftKotlinSpec::releaseArrayBufferView() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void()>("releaseArrayBufferView");
+    __method(_javaPart, CxxPart::getClass());
   }
   jni::local_ref<JVariant_Double_String> JHybridTestObjectSwiftKotlinSpec::passVariant(const jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>& either) {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JVariant_Double_String>(jni::alias_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String> /* either */)>("passVariant");

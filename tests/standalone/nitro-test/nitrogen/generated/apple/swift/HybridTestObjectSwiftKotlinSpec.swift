@@ -147,6 +147,9 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridTestObjectSwiftK
   func wrapArrayBuffer(size: Double) throws -> ArrayBuffer
   func releaseWrappedArrayBuffers() throws -> Void
   func getWrappedArrayBufferDeleteCount() throws -> Double
+  func retainArrayBufferView(buffer: ArrayBuffer) throws -> Void
+  func getRetainedArrayBufferViewLastItem() throws -> Double
+  func releaseArrayBufferView() throws -> Void
   func passVariant(either: Variant_Bool__Double___String__Double_String) throws -> Variant_Double_String
   func getVariantEnum(variant: Variant_OldEnum_Bool) throws -> Variant_OldEnum_Bool
   func bounceVariantUnionEnum(variant: Variant_Powertrain_Car) throws -> Variant_Powertrain_Car
