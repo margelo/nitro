@@ -12,6 +12,7 @@ ${createFileMetadataString(name)}
 // Resolve beside this script so custom Nitrogen output directories work too.
 def nitrogenDirectory = buildscript.sourceFile.parentFile
 android.sourceSets.main.java.srcDirs += [new File(nitrogenDirectory, 'kotlin')]
+
 `.trim()
   return {
     language: 'gradle',

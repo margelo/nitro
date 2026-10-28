@@ -31,12 +31,7 @@ data class OptionalPrimitivesHolder(
   @Keep
   val optionalInt64: Long?
 ) {
-  @DoNotStrip
-  @Keep
-  @Suppress("unused", "FunctionName")
-  private fun getOptionalUInt64_cxx(): Long? {
-    return optionalUInt64?.let { it.toLong() }
-  }
+
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -64,8 +59,9 @@ data class OptionalPrimitivesHolder(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(optionalNumber: Double?, optionalBoolean: Boolean?, optionalUInt64: Long?, optionalInt64: Long?): OptionalPrimitivesHolder {
-      return OptionalPrimitivesHolder(optionalNumber, optionalBoolean, optionalUInt64?.let { it.toULong() }, optionalInt64)
+    @JvmName("fromCpp")
+    private fun fromCpp(optionalNumber: Double?, optionalBoolean: Boolean?, optionalUInt64: ULong?, optionalInt64: Long?): OptionalPrimitivesHolder {
+      return OptionalPrimitivesHolder(optionalNumber, optionalBoolean, optionalUInt64, optionalInt64)
     }
   }
 }

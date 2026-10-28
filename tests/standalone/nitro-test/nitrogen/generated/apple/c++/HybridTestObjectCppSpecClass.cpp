@@ -23,10 +23,10 @@
 #include <NitroTest/PartialPerson.hpp>
 #include <NitroTest/Car.hpp>
 #include <NitroModules/Promise.hpp>
+#include <unordered_map>
 #include <NitroTest/HybridChildSpecCxx.hpp>
 #include <NitroModules/AnyJSON.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
-#include <unordered_map>
 #include <NitroTest/MapWrapper.hpp>
 #include <exception>
 #include <NitroModules/InlineCallback.hpp>
@@ -147,6 +147,20 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("callEnumArrayPromiseCallback", &HybridTestObjectCppSpec::callEnumArrayPromiseCallback);
       clazz.registerHybridMethod("awaitEnumArrayPromise", &HybridTestObjectCppSpec::awaitEnumArrayPromise);
       clazz.registerHybridMethod("callNestedStructCallback", &HybridTestObjectCppSpec::callNestedStructCallback);
+      clazz.registerHybridMethod("bounceUnsignedArray", &HybridTestObjectCppSpec::bounceUnsignedArray);
+      clazz.registerHybridMethod("bounceNestedUnsignedArray", &HybridTestObjectCppSpec::bounceNestedUnsignedArray);
+      clazz.registerHybridMethod("bounceOptionalUnsignedArray", &HybridTestObjectCppSpec::bounceOptionalUnsignedArray);
+      clazz.registerHybridMethod("bounceUnsignedArrayAsync", &HybridTestObjectCppSpec::bounceUnsignedArrayAsync);
+      clazz.registerHybridMethod("callUnsignedArrayCallback", &HybridTestObjectCppSpec::callUnsignedArrayCallback);
+      clazz.registerHybridMethod("bounceUnsignedVariant", &HybridTestObjectCppSpec::bounceUnsignedVariant);
+      clazz.registerHybridMethod("bounceUnsignedArrayVariant", &HybridTestObjectCppSpec::bounceUnsignedArrayVariant);
+      clazz.registerHybridMethod("bounceUnsignedMap", &HybridTestObjectCppSpec::bounceUnsignedMap);
+      clazz.registerHybridMethod("bounceUnsignedArrayMap", &HybridTestObjectCppSpec::bounceUnsignedArrayMap);
+      clazz.registerHybridMethod("bounceUnsignedAsync", &HybridTestObjectCppSpec::bounceUnsignedAsync);
+      clazz.registerHybridMethod("callUnsignedCallbackAsync", &HybridTestObjectCppSpec::callUnsignedCallbackAsync);
+      clazz.registerHybridMethod("callUnsignedArrayCallbackAsync", &HybridTestObjectCppSpec::callUnsignedArrayCallbackAsync);
+      clazz.registerHybridMethod("bounceNestedUnsignedArrayAsync", &HybridTestObjectCppSpec::bounceNestedUnsignedArrayAsync);
+      clazz.registerHybridMethod("callNestedUnsignedArrayCallback", &HybridTestObjectCppSpec::callNestedUnsignedArrayCallback);
       clazz.registerHybridMethod("bounceHybridObjects", &HybridTestObjectCppSpec::bounceHybridObjects);
       clazz.registerHybridMethod("bounceFunctions", &HybridTestObjectCppSpec::bounceFunctions);
       clazz.registerHybridMethod("bounceMaps", &HybridTestObjectCppSpec::bounceMaps);

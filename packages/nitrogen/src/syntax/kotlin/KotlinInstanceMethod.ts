@@ -27,7 +27,7 @@ interface KotlinInstanceBridgeOptions {
 
 /**
  * The Kotlin member that C++ calls through JNI.
- * If values need conversion, this is a private `_cxx` bridge;
+ * If values need conversion or JVM names are mangled, this is a private `_cxx` bridge;
  * otherwise JNI calls the public abstract member directly.
  */
 export class KotlinInstanceMethod extends InstanceMethod {
@@ -51,7 +51,7 @@ export class KotlinInstanceMethod extends InstanceMethod {
         break
     }
     let name: string
-    if (callable.needsKotlinConversion) {
+    if (callable.needsKotlinBridge) {
       name = `${jvmName}_cxx`
     } else {
       name = jvmName
@@ -76,7 +76,7 @@ export class KotlinInstanceMethod extends InstanceMethod {
 
   /** Whether JNI calls a private bridge instead of the public member. */
   get needsKotlinBridge(): boolean {
-    return this.callable.needsKotlinConversion
+    return this.callable.needsKotlinBridge
   }
 
   createBridge({ nonvirtual = false }: KotlinInstanceBridgeOptions = {}): KotlinMethodBridge {

@@ -49,6 +49,7 @@ data class PartialPerson(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(name: String?, age: Double?): PartialPerson {
       return PartialPerson(name, age)
     }

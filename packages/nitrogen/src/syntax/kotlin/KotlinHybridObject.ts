@@ -13,7 +13,7 @@ import { createFbjniHybridObject } from './FbjniHybridObject.js'
 import type { KotlinConstructor } from './KotlinConstructor.js'
 import { getKotlinClassMembers } from './KotlinHybridClassBindings.js'
 import { getKotlinPropertyAccessors, KotlinInstanceMethod } from './KotlinInstanceMethod.js'
-import { getKotlinImplementation } from './KotlinMethodHelpers.js'
+import { createKotlinBridgeDefinition, getKotlinImplementation } from './KotlinMethodHelpers.js'
 import type { KotlinStaticMethod } from './KotlinStaticMethod.js'
 import type { KotlinStaticProperty } from './KotlinStaticProperty.js'
 import { wrapKotlinType } from './wrapKotlinType.js'
@@ -270,9 +270,7 @@ private val implementationCompanion: Companion
     imports.push(implementation.kotlinImport)
   }
   for (const group of groups) {
-    const bridges = group.callables
-      .flatMap((callable) => callable.createBridge().kotlinMethods)
-      .map(({ method, body }) => method.getDefinition('kotlin', { body: body }))
+    const bridges = group.callables.flatMap((callable) => callable.createBridge().kotlinMethods).map(createKotlinBridgeDefinition)
     const groupCode = `
 // ${group.comment}
 ${bridges.join('\n\n')}
@@ -289,9 +287,7 @@ function getKotlinMethodCode(method: InstanceMethod): string {
     doNotStrip: !kotlinMethod.needsKotlinBridge,
     pureVirtual: true,
   })
-  const bridges = kotlinMethod
-    .createBridge()
-    .kotlinMethods.map(({ method: bridge, body }) => bridge.getDefinition('kotlin', { body: body }))
+  const bridges = kotlinMethod.createBridge().kotlinMethods.map(createKotlinBridgeDefinition)
   return [declaration.getDeclaration('kotlin'), ...bridges].join('\n\n')
 }
 
@@ -303,9 +299,7 @@ function getKotlinPropertyCode(property: Property): string {
     doNotStrip: isCalledFromJni,
     virtual: true,
   })
-  const bridges = accessors
-    .flatMap((accessor) => accessor.createBridge().kotlinMethods)
-    .map(({ method, body }) => method.getDefinition('kotlin', { body: body }))
+  const bridges = accessors.flatMap((accessor) => accessor.createBridge().kotlinMethods).map(createKotlinBridgeDefinition)
   return [declaration, ...bridges].join('\n\n')
 }
 

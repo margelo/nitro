@@ -10,7 +10,7 @@
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
 #include <NitroModules/JNIConverter+Optional.hpp>
 #include <NitroModules/JSIConverter+JOptional.hpp>
-#include <NitroModules/JUInt64.hpp>
+#include <NitroModules/JULong.hpp>
 #include <NitroModules/PropNameIDCache.hpp>
 #include <NitroModules/JSIHelpers.hpp>
 
@@ -18,14 +18,14 @@ namespace margelo::nitro {
 
   jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder> JSIConverter<jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder>>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
     auto object = value.asObject(runtime);
-    return margelo::nitro::test::external::JOptionalPrimitivesHolder::create(JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"))), JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"))), JSIConverter<jni::local_ref<JOptional<JUInt64>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"))), JSIConverter<jni::local_ref<JOptional<jni::JLong>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64"))));
+    return margelo::nitro::test::external::JOptionalPrimitivesHolder::create(JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"))), JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"))), JSIConverter<jni::local_ref<JOptional<JULong>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"))), JSIConverter<jni::local_ref<JOptional<jni::JLong>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64"))));
   }
 
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"), JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::toJSI(runtime, value->getOptionalNumber()));
     object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"), JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::toJSI(runtime, value->getOptionalBoolean()));
-    object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"), JSIConverter<jni::local_ref<JOptional<JUInt64>>>::toJSI(runtime, value->getOptionalUInt64()));
+    object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"), JSIConverter<jni::local_ref<JOptional<JULong>>>::toJSI(runtime, value->getOptionalUInt64()));
     object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64"), JSIConverter<jni::local_ref<JOptional<jni::JLong>>>::toJSI(runtime, value->getOptionalInt64()));
     return object;
   }
@@ -34,7 +34,7 @@ namespace margelo::nitro {
     if (!value.isObject()) return false;
     auto object = value.getObject(runtime);
     if (!isPlainObject(runtime, object)) return false;
-    return JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"))) && JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"))) && JSIConverter<jni::local_ref<JOptional<JUInt64>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"))) && JSIConverter<jni::local_ref<JOptional<jni::JLong>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64")));
+    return JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"))) && JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"))) && JSIConverter<jni::local_ref<JOptional<JULong>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"))) && JSIConverter<jni::local_ref<JOptional<jni::JLong>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64")));
   }
 
 } // namespace margelo::nitro

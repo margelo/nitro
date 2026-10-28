@@ -31,12 +31,14 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
   // Properties
   abstract var numberCallback: Callback<(value: Double) -> Unit>
 
+  @JvmName("getNumberCallback_cxx")
   @DoNotStrip
   @Keep
   private fun getNumberCallback_cxx(): Callback_void_double {
     return Callback_void_double.fromKotlin(this.numberCallback)
   }
 
+  @JvmName("setNumberCallback_cxx")
   @DoNotStrip
   @Keep
   private fun setNumberCallback_cxx(value: Callback_void_double): Unit {
@@ -66,6 +68,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
   abstract fun callVoid(callback: Callback<() -> Unit>): Unit
 
+  @JvmName("callVoid_cxx")
   @DoNotStrip
   @Keep
   private fun callVoid_cxx(callback: Callback_void): Unit {
@@ -74,6 +77,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
   abstract fun callWithNumber(value: Double, callback: Callback<(value: Double) -> Unit>): Unit
 
+  @JvmName("callWithNumber_cxx")
   @DoNotStrip
   @Keep
   private fun callWithNumber_cxx(value: Double, callback: Callback_void_double): Unit {
@@ -82,6 +86,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
   abstract fun callWithString(value: String, callback: Callback<(value: String) -> Unit>): Unit
 
+  @JvmName("callWithString_cxx")
   @DoNotStrip
   @Keep
   private fun callWithString_cxx(value: String, callback: Callback_void_std__string): Unit {
@@ -90,6 +95,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
   abstract fun mapNumber(value: Double, callback: Callback<(value: Double) -> Double>): Promise<Double>
 
+  @JvmName("mapNumber_cxx")
   @DoNotStrip
   @Keep
   private fun mapNumber_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
@@ -99,6 +105,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
   abstract fun wrapNumberCallback(callback: Callback<(value: Double) -> Unit>): Callback<(value: Double) -> Unit>
 
+  @JvmName("wrapNumberCallback_cxx")
   @DoNotStrip
   @Keep
   private fun wrapNumberCallback_cxx(callback: Callback_void_double): Callback_void_double {
@@ -108,6 +115,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
   abstract fun callVoidPromiseCallback(callback: Callback<() -> Promise<Unit>>): Promise<Unit>
 
+  @JvmName("callVoidPromiseCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callVoidPromiseCallback_cxx(callback: Callback_Promise_void_): Promise<Unit> {
@@ -117,6 +125,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
   abstract fun callNumberPromiseCallback(callback: Callback<() -> Promise<Double>>): Promise<Double>
 
+  @JvmName("callNumberPromiseCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callNumberPromiseCallback_cxx(callback: Callback_Promise_double_): Promise<Double> {
@@ -130,6 +139,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
   abstract fun callInline(callback: Callback<() -> Unit>): Unit
 
+  @JvmName("callInline_cxx")
   @DoNotStrip
   @Keep
   private fun callInline_cxx(callback: Callback_void): Unit {
@@ -138,6 +148,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
 
   abstract fun callInlineWithNumber(value: Double, callback: Callback<(value: Double) -> Double>): Double
 
+  @JvmName("callInlineWithNumber_cxx")
   @DoNotStrip
   @Keep
   private fun callInlineWithNumber_cxx(value: Double, callback: Callback_double_double): Double {
@@ -185,6 +196,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
       get() = HybridSharedSpecializations
 
     // Constructor
+    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

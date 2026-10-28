@@ -83,6 +83,7 @@ abstract class HybridBenchmarkObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callbackSync(callback: Callback<() -> Double>): Double
 
+  @JvmName("callbackSync_cxx")
   @DoNotStrip
   @Keep
   private fun callbackSync_cxx(callback: Callback_double): Double {
@@ -146,6 +147,7 @@ abstract class HybridBenchmarkObjectSwiftKotlinSpec: HybridObject() {
       get() = HybridBenchmarkObjectKotlin
 
     // Constructor
+    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

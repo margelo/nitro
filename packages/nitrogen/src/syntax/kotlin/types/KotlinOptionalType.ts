@@ -29,6 +29,14 @@ export class KotlinOptionalType extends OptionalType implements KotlinType {
     return this.wrappingType.jniValueKind
   }
 
+  get isKotlinFieldCompatible(): boolean {
+    return this.wrappingType.isKotlinFieldCompatible ?? !this.wrappingType.needsKotlinConversion
+  }
+
+  get requiresKotlinJvmName(): boolean {
+    return this.wrappingType.requiresKotlinJvmName ?? false
+  }
+
   getCppConverter(cppType: Type): KotlinCppConverter {
     return new KotlinCxxOptionalType(getTypeAs(cppType, OptionalType), this).getConverter()
   }

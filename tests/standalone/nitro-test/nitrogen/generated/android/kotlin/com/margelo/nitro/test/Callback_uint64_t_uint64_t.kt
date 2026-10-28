@@ -35,8 +35,7 @@ class Callback_uint64_t_uint64_t @DoNotStrip @Keep private constructor(hybridDat
   }
 
   override fun callAsync(value: ULong): Promise<ULong> {
-    val __result = callAsync_cxx(value.toLong())
-    return __result.let { __source -> Promise<ULong>().also { __promise -> __source.then { __result -> __promise.resolve(__result.toULong()) }.catch { __promise.reject(it) } } }
+    return callAsync_cxx(value.toLong())
   }
 
   override fun callAndForget(value: ULong): Unit {
@@ -51,6 +50,7 @@ class Callback_uint64_t_uint64_t @DoNotStrip @Keep private constructor(hybridDat
   private class Function_cxx(private val callback: Callback<(value: ULong) -> ULong>) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(value: Long): Long {
       val __result = this.callback.callSync(value.toULong())
       return __result.toLong()
@@ -59,14 +59,17 @@ class Callback_uint64_t_uint64_t @DoNotStrip @Keep private constructor(hybridDat
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(value: Long): Long
 
   @DoNotStrip
   @Keep
-  private external fun callAsync_cxx(value: Long): Promise<Long>
+  @JvmName("callAsync_cxx")
+  private external fun callAsync_cxx(value: Long): Promise<ULong>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(value: Long): Unit
 
   companion object {
@@ -87,11 +90,13 @@ class Callback_uint64_t_uint64_t @DoNotStrip @Keep private constructor(hybridDat
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): Callback_uint64_t_uint64_t
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): Callback_uint64_t_uint64_t
   }
 }

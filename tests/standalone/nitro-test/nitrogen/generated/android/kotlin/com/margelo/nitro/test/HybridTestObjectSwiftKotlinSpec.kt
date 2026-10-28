@@ -15,7 +15,6 @@ import com.margelo.nitro.core.NullType
 import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.utils.mapToArray
-import com.margelo.nitro.utils.mapToLongArray
 import com.margelo.nitro.core.AnyJSON
 import com.margelo.nitro.core.ArrayBuffer
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
@@ -68,12 +67,14 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract var uint64Value: ULong
 
+  @JvmName("getUint64Value_cxx")
   @DoNotStrip
   @Keep
   private fun getUint64Value_cxx(): Long {
     return this.uint64Value.toLong()
   }
 
+  @JvmName("setUint64Value_cxx")
   @DoNotStrip
   @Keep
   private fun setUint64Value_cxx(value: Long): Unit {
@@ -130,12 +131,14 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract var optionalCallback: Callback<(value: Double) -> Unit>?
 
+  @JvmName("getOptionalCallback_cxx")
   @DoNotStrip
   @Keep
   private fun getOptionalCallback_cxx(): Callback_void_double? {
     return this.optionalCallback?.let { Callback_void_double.fromKotlin(it) }
   }
 
+  @JvmName("setOptionalCallback_cxx")
   @DoNotStrip
   @Keep
   private fun setOptionalCallback_cxx(value: Callback_void_double?): Unit {
@@ -241,6 +244,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun complexEnumCallback(array: Array<Powertrain>, callback: Callback<(array: Array<Powertrain>) -> Unit>): Unit
 
+  @JvmName("complexEnumCallback_cxx")
   @DoNotStrip
   @Keep
   private fun complexEnumCallback_cxx(array: Array<Powertrain>, callback: Callback_void_std__vector_Powertrain_): Unit {
@@ -249,6 +253,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callEnumArrayCallback(array: Array<Powertrain>, callback: Callback<(array: Array<Powertrain>) -> Array<Powertrain>>): Array<Powertrain>
 
+  @JvmName("callEnumArrayCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callEnumArrayCallback_cxx(array: Array<Powertrain>, callback: Callback_std__vector_Powertrain__std__vector_Powertrain_): Array<Powertrain> {
@@ -258,6 +263,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun getEnumArrayCallback(): Callback<(array: Array<Powertrain>) -> Array<Powertrain>>
 
+  @JvmName("getEnumArrayCallback_cxx")
   @DoNotStrip
   @Keep
   private fun getEnumArrayCallback_cxx(): Callback_std__vector_Powertrain__std__vector_Powertrain_ {
@@ -267,6 +273,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callEnumArrayPromiseCallback(callback: Callback<() -> Promise<Array<Powertrain>>>): Promise<Array<Powertrain>>
 
+  @JvmName("callEnumArrayPromiseCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callEnumArrayPromiseCallback_cxx(callback: Callback_Promise_std__vector_Powertrain__): Promise<Array<Powertrain>> {
@@ -280,6 +287,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callNestedStructCallback(value: Array<Array<Person?>>, callback: Callback<(value: Array<Array<Person?>>) -> Array<Array<Person?>>>): Array<Array<Person?>>
 
+  @JvmName("callNestedStructCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callNestedStructCallback_cxx(value: Array<Array<Person?>>, callback: Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___): Array<Array<Person?>> {
@@ -289,10 +297,97 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   @DoNotStrip
   @Keep
+  abstract fun bounceUnsignedArray(array: Array<ULong>): Array<ULong>
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceNestedUnsignedArray(array: Array<Array<ULong>>): Array<Array<ULong>>
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceOptionalUnsignedArray(array: Array<ULong>?): Array<ULong>?
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceUnsignedArrayAsync(array: Array<ULong>): Promise<Array<ULong>>
+
+  abstract fun callUnsignedArrayCallback(array: Array<ULong>, callback: Callback<(array: Array<ULong>) -> Array<ULong>>): Array<ULong>
+
+  @JvmName("callUnsignedArrayCallback_cxx")
+  @DoNotStrip
+  @Keep
+  private fun callUnsignedArrayCallback_cxx(array: Array<ULong>, callback: Callback_std__vector_uint64_t__std__vector_uint64_t_): Array<ULong> {
+    val __result = callUnsignedArrayCallback(array, callback)
+    return __result
+  }
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceUnsignedVariant(variant: Variant_ULong_String): Variant_ULong_String
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceUnsignedArrayVariant(variant: Variant_Array_ULong__String): Variant_Array_ULong__String
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceUnsignedMap(map: Map<String, ULong>): Map<String, ULong>
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceUnsignedArrayMap(map: Map<String, Array<ULong>>): Map<String, Array<ULong>>
+
+  abstract fun bounceUnsignedAsync(value: ULong): Promise<ULong>
+
+  @JvmName("bounceUnsignedAsync_cxx")
+  @DoNotStrip
+  @Keep
+  private fun bounceUnsignedAsync_cxx(value: Long): Promise<ULong> {
+    val __result = bounceUnsignedAsync(value.toULong())
+    return __result
+  }
+
+  abstract fun callUnsignedCallbackAsync(value: ULong, callback: Callback<(value: ULong) -> ULong>): Promise<ULong>
+
+  @JvmName("callUnsignedCallbackAsync_cxx")
+  @DoNotStrip
+  @Keep
+  private fun callUnsignedCallbackAsync_cxx(value: Long, callback: Callback_uint64_t_uint64_t): Promise<ULong> {
+    val __result = callUnsignedCallbackAsync(value.toULong(), callback)
+    return __result
+  }
+
+  abstract fun callUnsignedArrayCallbackAsync(array: Array<ULong>, callback: Callback<(array: Array<ULong>) -> Array<ULong>>): Promise<Array<ULong>>
+
+  @JvmName("callUnsignedArrayCallbackAsync_cxx")
+  @DoNotStrip
+  @Keep
+  private fun callUnsignedArrayCallbackAsync_cxx(array: Array<ULong>, callback: Callback_std__vector_uint64_t__std__vector_uint64_t_): Promise<Array<ULong>> {
+    val __result = callUnsignedArrayCallbackAsync(array, callback)
+    return __result
+  }
+
+  @DoNotStrip
+  @Keep
+  abstract fun bounceNestedUnsignedArrayAsync(array: Array<Array<ULong>>): Promise<Array<Array<ULong>>>
+
+  abstract fun callNestedUnsignedArrayCallback(array: Array<Array<ULong>>, callback: Callback<(array: Array<Array<ULong>>) -> Array<Array<ULong>>>): Array<Array<ULong>>
+
+  @JvmName("callNestedUnsignedArrayCallback_cxx")
+  @DoNotStrip
+  @Keep
+  private fun callNestedUnsignedArrayCallback_cxx(array: Array<Array<ULong>>, callback: Callback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__): Array<Array<ULong>> {
+    val __result = callNestedUnsignedArrayCallback(array, callback)
+    return __result
+  }
+
+  @DoNotStrip
+  @Keep
   abstract fun bounceHybridObjects(array: Array<HybridChildSpec>): Array<HybridChildSpec>
 
   abstract fun bounceFunctions(functions: Array<Callback<() -> Unit>>): Array<Callback<() -> Unit>>
 
+  @JvmName("bounceFunctions_cxx")
   @DoNotStrip
   @Keep
   private fun bounceFunctions_cxx(functions: Array<Callback_void>): Array<Callback_void> {
@@ -454,6 +549,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callCallback(callback: Callback<() -> Unit>): Unit
 
+  @JvmName("callCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callCallback_cxx(callback: Callback_void): Unit {
@@ -462,6 +558,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callInlineCallback(callback: Callback<() -> Unit>): Unit
 
+  @JvmName("callInlineCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callInlineCallback_cxx(callback: Callback_void): Unit {
@@ -470,6 +567,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callInlineCallbackWithValue(value: Double, callback: Callback<(value: Double) -> Double>): Double
 
+  @JvmName("callInlineCallbackWithValue_cxx")
   @DoNotStrip
   @Keep
   private fun callInlineCallbackWithValue_cxx(value: Double, callback: Callback_double_double): Double {
@@ -479,6 +577,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callCallbackThatReturnsPromiseVoid(callback: Callback<() -> Promise<Unit>>): Promise<Unit>
 
+  @JvmName("callCallbackThatReturnsPromiseVoid_cxx")
   @DoNotStrip
   @Keep
   private fun callCallbackThatReturnsPromiseVoid_cxx(callback: Callback_Promise_void_): Promise<Unit> {
@@ -488,6 +587,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callAll(first: Callback<() -> Unit>, second: Callback<() -> Unit>, third: Callback<() -> Unit>): Unit
 
+  @JvmName("callAll_cxx")
   @DoNotStrip
   @Keep
   private fun callAll_cxx(first: Callback_void, second: Callback_void, third: Callback_void): Unit {
@@ -496,6 +596,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callWithOptional(value: Double?, callback: Callback<(maybe: Double?) -> Unit>): Unit
 
+  @JvmName("callWithOptional_cxx")
   @DoNotStrip
   @Keep
   private fun callWithOptional_cxx(value: Double?, callback: Callback_void_std__optional_double_): Unit {
@@ -504,6 +605,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callSumUpNTimes(callback: Callback<() -> Double>, n: Double): Promise<Double>
 
+  @JvmName("callSumUpNTimes_cxx")
   @DoNotStrip
   @Keep
   private fun callSumUpNTimes_cxx(callback: Callback_double, n: Double): Promise<Double> {
@@ -513,6 +615,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callbackAsyncPromise(callback: Callback<() -> Promise<Double>>): Promise<Double>
 
+  @JvmName("callbackAsyncPromise_cxx")
   @DoNotStrip
   @Keep
   private fun callbackAsyncPromise_cxx(callback: Callback_Promise_double_): Promise<Double> {
@@ -522,6 +625,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callbackAsyncPromiseBuffer(callback: Callback<() -> Promise<ArrayBuffer>>): Promise<ArrayBuffer>
 
+  @JvmName("callbackAsyncPromiseBuffer_cxx")
   @DoNotStrip
   @Keep
   private fun callbackAsyncPromiseBuffer_cxx(callback: Callback_Promise_ArrayBuffer_): Promise<ArrayBuffer> {
@@ -531,6 +635,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun getComplexCallback(): Callback<(value: Double) -> Unit>
 
+  @JvmName("getComplexCallback_cxx")
   @DoNotStrip
   @Keep
   private fun getComplexCallback_cxx(): Callback_void_double {
@@ -540,6 +645,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun twoOptionalCallbacks(value: Double, first: Callback<(value: Double) -> Unit>?, second: Callback<(value: String) -> Unit>?): Unit
 
+  @JvmName("twoOptionalCallbacks_cxx")
   @DoNotStrip
   @Keep
   private fun twoOptionalCallbacks_cxx(value: Double, first: Callback_void_double?, second: Callback_void_std__string?): Unit {
@@ -548,6 +654,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun errorCallback(onError: Callback<(error: Throwable) -> Unit>): Unit
 
+  @JvmName("errorCallback_cxx")
   @DoNotStrip
   @Keep
   private fun errorCallback_cxx(onError: Callback_void_std__exception_ptr): Unit {
@@ -556,6 +663,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun createNativeCallback(wrappingJsCallback: Callback<(num: Double) -> Unit>): Callback<(num: Double) -> Unit>
 
+  @JvmName("createNativeCallback_cxx")
   @DoNotStrip
   @Keep
   private fun createNativeCallback_cxx(wrappingJsCallback: Callback_void_double): Callback_void_double {
@@ -565,6 +673,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun getValueFromJSCallbackAndWait(getValue: Callback<() -> Double>): Promise<Double>
 
+  @JvmName("getValueFromJSCallbackAndWait_cxx")
   @DoNotStrip
   @Keep
   private fun getValueFromJSCallbackAndWait_cxx(getValue: Callback_double): Promise<Double> {
@@ -574,6 +683,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun getValueFromJsCallback(callback: Callback<() -> String>, andThenCall: Callback<(valueFromJs: String) -> Unit>): Promise<Unit>
 
+  @JvmName("getValueFromJsCallback_cxx")
   @DoNotStrip
   @Keep
   private fun getValueFromJsCallback_cxx(callback: Callback_std__string, andThenCall: Callback_void_std__string): Promise<Unit> {
@@ -583,6 +693,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callSyncCallback(value: Double, callback: Callback<(value: Double) -> Unit>): Unit
 
+  @JvmName("callSyncCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callSyncCallback_cxx(value: Double, callback: Callback_void_double): Unit {
@@ -591,6 +702,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callAsyncCallback(value: Double, callback: Callback<(value: Double) -> Double>): Promise<Double>
 
+  @JvmName("callAsyncCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callAsyncCallback_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
@@ -600,6 +712,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callAsyncVoidCallback(callback: Callback<() -> Unit>): Promise<Unit>
 
+  @JvmName("callAsyncVoidCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callAsyncVoidCallback_cxx(callback: Callback_void): Promise<Unit> {
@@ -609,6 +722,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callAsyncBooleanCallback(value: Boolean, callback: Callback<(value: Boolean) -> Boolean>): Promise<Boolean>
 
+  @JvmName("callAsyncBooleanCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callAsyncBooleanCallback_cxx(value: Boolean, callback: Callback_bool_bool): Promise<Boolean> {
@@ -618,6 +732,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun awaitAsyncCallback(value: Double, callback: Callback<(value: Double) -> Double>): Promise<Double>
 
+  @JvmName("awaitAsyncCallback_cxx")
   @DoNotStrip
   @Keep
   private fun awaitAsyncCallback_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
@@ -627,6 +742,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callAndForgetCallback(value: Double, callback: Callback<(value: Double) -> Double>): Unit
 
+  @JvmName("callAndForgetCallback_cxx")
   @DoNotStrip
   @Keep
   private fun callAndForgetCallback_cxx(value: Double, callback: Callback_double_double): Unit {
@@ -647,6 +763,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callInlineCallbackThenEscape(value: Double, callback: Callback<(value: Double) -> Double>): Promise<Double>
 
+  @JvmName("callInlineCallbackThenEscape_cxx")
   @DoNotStrip
   @Keep
   private fun callInlineCallbackThenEscape_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
@@ -656,6 +773,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun getSharedNumberCallback(shared: com.margelo.nitro.test.external.HybridSharedSpecializationsSpec): Callback<(value: Double) -> Unit>
 
+  @JvmName("getSharedNumberCallback_cxx")
   @DoNotStrip
   @Keep
   private fun getSharedNumberCallback_cxx(shared: com.margelo.nitro.test.external.HybridSharedSpecializationsSpec): Callback_void_double {
@@ -821,6 +939,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun callbackSync(callback: Callback<() -> Double>): Double
 
+  @JvmName("callbackSync_cxx")
   @DoNotStrip
   @Keep
   private fun callbackSync_cxx(callback: Callback_double): Double {
@@ -830,6 +949,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun getSyncNumberCallback(): Callback<() -> Double>
 
+  @JvmName("getSyncNumberCallback_cxx")
   @DoNotStrip
   @Keep
   private fun getSyncNumberCallback_cxx(): Callback_double {
@@ -839,6 +959,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun bounceSyncInt64Callback(callback: Callback<(value: Long) -> Long>): Callback<(value: Long) -> Long>
 
+  @JvmName("bounceSyncInt64Callback_cxx")
   @DoNotStrip
   @Keep
   private fun bounceSyncInt64Callback_cxx(callback: Callback_int64_t_int64_t): Callback_int64_t_int64_t {
@@ -864,6 +985,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   abstract fun createExternalVariantFromFunc(factory: Callback<() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 
+  @JvmName("createExternalVariantFromFunc_cxx")
   @DoNotStrip
   @Keep
   private fun createExternalVariantFromFunc_cxx(factory: Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
@@ -939,6 +1061,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       get() = HybridTestObjectKotlin
 
     // Constructor
+    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -948,6 +1071,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     }
 
     // Static methods
+    @JvmName("staticAdd_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -956,6 +1080,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return __result
     }
 
+    @JvmName("staticNegate_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -964,6 +1089,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return __result
     }
 
+    @JvmName("staticConcat_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -972,6 +1098,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return __result
     }
 
+    @JvmName("staticBouncePoint_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -980,6 +1107,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return __result
     }
 
+    @JvmName("staticThrow_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -988,6 +1116,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     }
 
     // Static properties
+    @JvmName("getReadonlyNumber_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -996,6 +1125,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return __result
     }
 
+    @JvmName("getSharedNumber_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -1004,6 +1134,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return __result
     }
 
+    @JvmName("setSharedNumber_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

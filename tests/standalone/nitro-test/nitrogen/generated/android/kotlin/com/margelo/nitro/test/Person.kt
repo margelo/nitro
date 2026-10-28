@@ -49,6 +49,7 @@ data class Person(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(name: String, age: Double): Person {
       return Person(name, age)
     }

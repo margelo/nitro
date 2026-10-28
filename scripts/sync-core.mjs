@@ -9,7 +9,7 @@ const directories = [
   { source: 'native/apple', destination: 'apple/core' },
   { source: 'native/android/src', destination: 'android/core' },
 ]
-const sourceExtensions = new Set(['.h', '.hpp', '.c', '.cc', '.cpp', '.m', '.mm', '.swift', '.kt', '.java', '.xml', '.modulemap'])
+const sourceExtensions = new Set(['.h', '.hpp', '.c', '.cc', '.cpp', '.m', '.mm', '.swift', '.kt', '.java', '.xml', '.modulemap', '.pro'])
 
 function sourceFiles(directory, prefix = '') {
   const files = []

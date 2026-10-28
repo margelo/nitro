@@ -50,6 +50,7 @@ class Callback_Promise_ArrayBuffer_ @DoNotStrip @Keep private constructor(hybrid
   private class Function_cxx(private val callback: Callback<() -> Promise<ArrayBuffer>>) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(): Promise<ArrayBuffer> {
       return this.callback.callSync()
     }
@@ -57,14 +58,17 @@ class Callback_Promise_ArrayBuffer_ @DoNotStrip @Keep private constructor(hybrid
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(): Promise<ArrayBuffer>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(): Promise<Promise<ArrayBuffer>>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(): Unit
 
   companion object {
@@ -85,11 +89,13 @@ class Callback_Promise_ArrayBuffer_ @DoNotStrip @Keep private constructor(hybrid
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): Callback_Promise_ArrayBuffer_
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): Callback_Promise_ArrayBuffer_
   }
 }

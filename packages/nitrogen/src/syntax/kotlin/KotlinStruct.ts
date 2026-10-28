@@ -43,6 +43,7 @@ val ${p.escapedName}: ${type}
 @DoNotStrip
 @Keep
 @Suppress("unused", "FunctionName")
+@JvmName("get${name}_cxx")
 private fun get${name}_cxx(): ${type} {
   return ${value}
 }
@@ -95,6 +96,7 @@ data class ${structType.structName}(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(${cxxCreateFunctionParameters}): ${structType.structName} {
       return ${structType.structName}(${cxxCreateFunctionForward})
     }

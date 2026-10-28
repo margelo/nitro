@@ -179,6 +179,27 @@ public:
       const std::vector<std::vector<std::optional<Person>>>& value,
       const Callback<std::vector<std::vector<std::optional<Person>>>(const std::vector<std::vector<std::optional<Person>>>&)>& callback)
       override;
+  std::vector<uint64_t> bounceUnsignedArray(const std::vector<uint64_t>& array) override;
+  std::vector<std::vector<uint64_t>> bounceNestedUnsignedArray(const std::vector<std::vector<uint64_t>>& array) override;
+  std::optional<std::vector<uint64_t>> bounceOptionalUnsignedArray(const std::optional<std::vector<uint64_t>>& array) override;
+  Promise<std::vector<uint64_t>> bounceUnsignedArrayAsync(const std::vector<uint64_t>& array) override;
+  std::vector<uint64_t> callUnsignedArrayCallback(const std::vector<uint64_t>& array,
+                                                  const Callback<std::vector<uint64_t>(const std::vector<uint64_t>&)>& callback) override;
+  std::variant<uint64_t, std::string> bounceUnsignedVariant(const std::variant<uint64_t, std::string>& variant) override;
+  std::variant<std::vector<uint64_t>, std::string>
+  bounceUnsignedArrayVariant(const std::variant<std::vector<uint64_t>, std::string>& variant) override;
+  std::unordered_map<std::string, uint64_t> bounceUnsignedMap(const std::unordered_map<std::string, uint64_t>& map) override;
+  std::unordered_map<std::string, std::vector<uint64_t>>
+  bounceUnsignedArrayMap(const std::unordered_map<std::string, std::vector<uint64_t>>& map) override;
+  Promise<uint64_t> bounceUnsignedAsync(uint64_t value) override;
+  Promise<uint64_t> callUnsignedCallbackAsync(uint64_t value, const Callback<uint64_t(uint64_t)>& callback) override;
+  Promise<std::vector<uint64_t>>
+  callUnsignedArrayCallbackAsync(const std::vector<uint64_t>& array,
+                                 const Callback<std::vector<uint64_t>(const std::vector<uint64_t>&)>& callback) override;
+  Promise<std::vector<std::vector<uint64_t>>> bounceNestedUnsignedArrayAsync(const std::vector<std::vector<uint64_t>>& array) override;
+  std::vector<std::vector<uint64_t>> callNestedUnsignedArrayCallback(
+      const std::vector<std::vector<uint64_t>>& array,
+      const Callback<std::vector<std::vector<uint64_t>>(const std::vector<std::vector<uint64_t>>&)>& callback) override;
 
   std::vector<HybridChildSpecCxx> bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) override;
   std::vector<Callback<void()>> bounceFunctions(const std::vector<Callback<void()>>& functions) override;
