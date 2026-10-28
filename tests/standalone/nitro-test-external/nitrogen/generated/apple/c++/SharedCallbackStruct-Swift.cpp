@@ -8,18 +8,23 @@
 #include <NitroTestExternal/private/SharedCallbackStruct-Swift.hpp>
 #include <NitroTestExternal/private/NitroTestExternal-Swift-Cxx-Umbrella.hpp>
 #include <NitroModules/PropNameIDCache.hpp>
+#include <NitroModules/SwiftResult.hpp>
+#include <memory>
 
 namespace margelo::nitro {
 
   ::NitroTestExternal::SharedCallbackStruct JSIConverter<::NitroTestExternal::SharedCallbackStruct>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
     auto object = value.asObject(runtime);
-    return ::NitroTestExternal::SharedCallbackStruct::init_cxx(JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), JSIConverter<Callback<void(double)>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged"))));
+    auto __onChanged = JSIConverter<Callback<void(double)>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged")));
+    return ::NitroTestExternal::SharedCallbackStruct::init_cxx(JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), std::addressof(__onChanged));
   }
 
   jsi::Value JSIConverter<::NitroTestExternal::SharedCallbackStruct>::toJSI(jsi::Runtime& runtime, const ::NitroTestExternal::SharedCallbackStruct& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<double>::toJSI(runtime, value.getValue_cxx()));
-    object.setProperty(runtime, PropNameIDCache::get(runtime, "onChanged"), JSIConverter<Callback<void(double)>>::toJSI(runtime, value.getOnChanged_cxx()));
+    object.setProperty(runtime, PropNameIDCache::get(runtime, "onChanged"), JSIConverter<Callback<void(double)>>::toJSI(runtime, makeCxxValue<Callback<void(double)>>([&](void* __outResult) {
+      value.getOnChanged_cxx(__outResult);
+    })));
     return object;
   }
 

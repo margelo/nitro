@@ -5,10 +5,14 @@ import { getTypeAs } from '../types/getTypeAs.js'
 import type { Type } from '../types/Type.js'
 import { capitalizeName, indent } from '../../utils.js'
 import { createFileMetadataString } from '../helpers.js'
-import type { SourceFile } from '../SourceFile.js'
+import type { SourceFile, SourceImport } from '../SourceFile.js'
 import type { SwiftStructType } from './types/SwiftStructType.js'
 import { getImportsCode } from '../getImportCode.js'
 import { getProtocolConformanceImports, getSwiftImports } from './getSwiftImports.js'
+import { SWIFT_RESULT_STORAGE } from './SwiftMethodHelpers.js'
+import { SwiftCxxBorrowedPointerType } from './types/SwiftCxxBorrowedPointerType.js'
+import { SwiftCxxOutPointerType } from './types/SwiftCxxOutPointerType.js'
+import { SwiftNamedType } from './types/SwiftNamedType.js'
 
 export function createSwiftStructBridge(swiftType: SwiftStructType): SourceFile[] {
   const structType = swiftType.type
@@ -20,16 +24,43 @@ export function createSwiftStructBridge(swiftType: SwiftStructType): SourceFile[
     .map((p) => `${p.escapedName}: ${p.getCode('swift', { context: 'property' })}`)
     .join(', ')
   const swiftPropertyInitializers = structType.properties.map((p) => `self.${p.escapedName} = ${p.escapedName}`)
-  const swiftBridgeInitializerParameters = swiftType.properties
+  // TODO: Restore direct struct bridge signatures and remove the opaque C++ adapters once our minimum
+  // Xcode includes https://github.com/swiftlang/swift/pull/93321,
+  // which fixes https://github.com/swiftlang/swift/issues/93318.
+  const swiftBridgeProperties = swiftType.properties.map((p) => {
+    if (p.requiresOpaqueCxxBridge) {
+      const pointerType = new SwiftCxxBorrowedPointerType(p)
+      return new SwiftNamedType(p.name, pointerType)
+    }
+    return p
+  })
+  const swiftBridgeInitializerParameters = swiftBridgeProperties
     .map((p) => `_ ${p.escapedName}: ${p.getCode('swift', { context: 'property' })}`)
     .join(', ')
-  const swiftBridgeInitializerArguments = swiftType.properties.map((p) => `${p.escapedName}: ${p.toSwift(p.escapedName)}`).join(', ')
+  const swiftBridgeInitializerArguments = swiftBridgeProperties.map((p) => `${p.escapedName}: ${p.toSwift(p.escapedName)}`).join(', ')
   const swiftBridgeGetters = swiftType.properties.map((p) => {
-    const swiftGetterBody = `return ${p.fromSwift(`self.${p.escapedName}`)}`
+    const swiftGetterValue = p.fromSwift(`self.${p.escapedName}`)
+    let swiftGetterParameters: string
+    let swiftGetterReturnType: string
+    let swiftGetterBody: string
+    if (p.requiresOpaqueCxxBridge) {
+      const returnType = new SwiftCxxOutPointerType(p)
+      swiftGetterParameters = `
+_ ${SWIFT_RESULT_STORAGE}: ${returnType.getCode('swift', { context: 'parameter' })}
+`.trim()
+      swiftGetterReturnType = 'Void'
+      swiftGetterBody = returnType.initialize('swift', SWIFT_RESULT_STORAGE, swiftGetterValue)
+    } else {
+      swiftGetterParameters = ''
+      swiftGetterReturnType = p.getCode('swift', { context: 'return' })
+      swiftGetterBody = `
+return ${indent(swiftGetterValue, '')}
+`.trim()
+    }
     return `
 @_spi(NitroCxx)
-public borrowing func get${capitalizeName(p.escapedName)}_cxx() -> ${p.getCode('swift', { context: 'return' })} {
-  ${swiftGetterBody}
+public borrowing func get${capitalizeName(p.escapedName)}_cxx(${swiftGetterParameters}) -> ${swiftGetterReturnType} {
+  ${indent(swiftGetterBody, '  ')}
 }
 `.trim()
   })
@@ -68,13 +99,20 @@ public struct ${structType.structName}${conformancePrefix}${protocolNames.join('
   }
 
   const cppStructType = swiftType.getCode('c++', { context: 'value' })
-  const cppInitializerArguments = swiftType.properties.map(
-    (p) =>
-      `JSIConverter<${p.getCode('c++', { context: 'type-argument' })}>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "${p.name}")))`
-  )
+  const cppInitializerArguments = swiftType.properties.map((p) => {
+    const cppPropertyType = p.getCode('c++', { context: 'type-argument' })
+    const jsToSwiftPropertyCode = `
+JSIConverter<${cppPropertyType}>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "${p.name}")))
+`.trim()
+    return { property: p, value: jsToSwiftPropertyCode }
+  })
+  const jsToSwiftInitializerCode = createCppStructInitializer({ type: cppStructType, properties: cppInitializerArguments })
   const cppPropertyConversions = swiftType.properties.map((p) => {
-    const swiftGetterName = `get${capitalizeName(p.escapedName)}_cxx`
-    return `object.setProperty(runtime, PropNameIDCache::get(runtime, "${p.name}"), JSIConverter<${p.getCode('c++', { context: 'type-argument' })}>::toJSI(runtime, value.${swiftGetterName}()));`
+    const cppGetter = createCppStructGetter({ property: p, receiver: 'value' })
+    const cppPropertyType = p.getCode('c++', { context: 'type-argument' })
+    return `
+object.setProperty(runtime, PropNameIDCache::get(runtime, "${p.name}"), JSIConverter<${cppPropertyType}>::toJSI(runtime, ${indent(cppGetter, '')}));
+`.trim()
   })
   const cppPropertyChecks = swiftType.properties.map(
     (p) =>
@@ -82,7 +120,7 @@ public struct ${structType.structName}${conformancePrefix}${protocolNames.join('
   )
   const jsToSwiftConverterCode = `
 auto object = value.asObject(runtime);
-return ${cppStructType}::init_cxx(${cppInitializerArguments.join(', ')});
+${indent(jsToSwiftInitializerCode, '')}
 `.trim()
   const swiftToJSConverterCode = `
 jsi::Object object(runtime);
@@ -109,6 +147,7 @@ return ${cppPropertyChecks.join(' && ')};
             space: 'system',
           },
         },
+        ...getStructBridgeCppImports(swiftType),
       ],
       fromJSI: jsToSwiftConverterCode,
       toJSI: swiftToJSConverterCode,
@@ -132,19 +171,22 @@ export function createSwiftStructCppConverter({ type, cppType }: SwiftStructCppC
   const nativeStructType = structType.getCode('c++', { context: 'value', fullyQualified: true })
   const cppInitializerValues = properties.map(({ native, swift }) => {
     const converter = getSwiftConverter({ cppType: native, swiftType: swift })
-    const getterName = `get${capitalizeName(swift.escapedName)}_cxx`
-    return `${converter}::fromSwift(value.${getterName}())`
+    const cppGetter = createCppStructGetter({ property: swift, receiver: 'value' })
+    return `
+${converter}::fromSwift(${indent(cppGetter, '')})
+`.trim()
   })
   const swiftInitializerValues = properties.map(({ native, swift }) => {
     const converter = getSwiftConverter({ cppType: native, swiftType: swift })
-    return `${converter}::toSwift(value.${native.escapedName})`
+    const cppToSwiftPropertyCode = `
+${converter}::toSwift(value.${native.escapedName})
+`.trim()
+    return { property: swift, value: cppToSwiftPropertyCode }
   })
   const swiftToCppConverterCode = `
 return ${nativeStructType}(${cppInitializerValues.join(', ')});
 `.trim()
-  const cppToSwiftConverterCode = `
-return SwiftType::init_cxx(${swiftInitializerValues.join(', ')});
-`.trim()
+  const cppToSwiftConverterCode = createCppStructInitializer({ type: 'SwiftType', properties: swiftInitializerValues })
   const dependencies = properties.map(({ native, swift }) => swift.getCppConverter(native))
   const name = `${type.name}+${type.moduleName}`
   return createSwiftConverter({
@@ -155,5 +197,66 @@ return SwiftType::init_cxx(${swiftInitializerValues.join(', ')});
     fromSwift: swiftToCppConverterCode,
     toSwift: cppToSwiftConverterCode,
     dependencies: dependencies,
+    imports: getStructBridgeCppImports(type),
   })
+}
+
+interface CppStructInitializerOptions {
+  type: string
+  properties: { property: SwiftNamedType; value: string }[]
+}
+
+/** Keeps borrowed C++ values alive until Swift has copied them into the struct. */
+function createCppStructInitializer({ type, properties }: CppStructInitializerOptions): string {
+  const cppInitializers: string[] = []
+  const cppArguments = properties.map(({ property, value }) => {
+    if (property.requiresOpaqueCxxBridge) {
+      const name = `__${property.escapedName}`
+      const cppToSwiftStorageCode = `
+auto ${name} = ${indent(value, '')};
+`.trim()
+      cppInitializers.push(cppToSwiftStorageCode)
+      return `
+std::addressof(${name})
+`.trim()
+    }
+    return value
+  })
+  const cppToSwiftInitializerCode = `
+return ${type}::init_cxx(${cppArguments.join(', ')});
+`.trim()
+  return [...cppInitializers, cppToSwiftInitializerCode].join('\n')
+}
+
+interface CppStructGetterOptions {
+  property: SwiftNamedType
+  receiver: string
+}
+
+function createCppStructGetter({ property, receiver }: CppStructGetterOptions): string {
+  const getterName = capitalizeName(property.escapedName)
+  if (property.requiresOpaqueCxxBridge) {
+    const returnType = new SwiftCxxOutPointerType(property)
+    const cppInitializeCode = `
+${receiver}.get${getterName}_cxx(${SWIFT_RESULT_STORAGE});
+`.trim()
+    return returnType.allocate('c++', {
+      storage: SWIFT_RESULT_STORAGE,
+      body: () => cppInitializeCode,
+    })
+  }
+  return `
+${receiver}.get${getterName}_cxx()
+`.trim()
+}
+
+function getStructBridgeCppImports(type: SwiftStructType): SourceImport<'c++'>[] {
+  const hasOpaqueProperties = type.properties.some((property) => property.requiresOpaqueCxxBridge)
+  if (hasOpaqueProperties) {
+    return [
+      { language: 'c++', declaration: { header: 'NitroModules/SwiftResult.hpp', space: 'system' } },
+      { language: 'c++', declaration: { header: 'memory', space: 'system' } },
+    ]
+  }
+  return []
 }
