@@ -151,7 +151,6 @@ namespace margelo::nitro::test::external { class HybridSomeExternalObjectSpecSwi
 namespace margelo::nitro::test { class HybridSomeExternalObjectChildSpecSwift; }
 // Forward declaration of `HybridTestObjectSwiftKotlinSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test { class HybridTestObjectSwiftKotlinSpecSwift; }
-#include <utility>
 #include <memory>
 // Forward declaration of `HybridSharedSpecializationsSpecSwift` to properly resolve imports.
 namespace margelo::nitro::test::external { class HybridSharedSpecializationsSpecSwift; }
@@ -263,10 +262,6 @@ namespace margelo::nitro::test::swift_bridge {
   using Callback_uint64_t_uint64_t = Callback<uint64_t(uint64_t)>;
   Result<uint64_t, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_uint64_t_uint64_t(const Callback_uint64_t_uint64_t& callback, uint64_t param0) noexcept;
   Callback_uint64_t_uint64_t create_Callback_uint64_t_uint64_t(std::function<Result<uint64_t, margelo::nitro::test::swift_bridge::ResultTag>(uint64_t param0)> closure);
-  struct JsStyleStruct_onChanged_cxx final {
-    Callback<void(double)> value;
-    explicit JsStyleStruct_onChanged_cxx(Callback<void(double)> value) : value(std::move(value)) {}
-  };
   using Result_double = Result<double, margelo::nitro::test::swift_bridge::ResultTag>;
   using Callback_double = Callback<double()>;
   Result<double, margelo::nitro::test::swift_bridge::ResultTag> callSync_Callback_double(const Callback_double& callback) noexcept;
