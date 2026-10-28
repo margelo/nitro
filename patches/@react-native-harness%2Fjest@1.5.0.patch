@@ -1,0 +1,185 @@
+diff --git a/dist/errors.d.ts b/dist/errors.d.ts
+index 328331b646bb20de7d3cd7e7f96784ad4247427b..ac083beea2fdaea00dccb2c13d71f52baf668024 100644
+--- a/dist/errors.d.ts
++++ b/dist/errors.d.ts
+@@ -13,7 +13,10 @@ export declare class InitializationTimeoutError extends HarnessError {
+ }
+ export declare class PlatformReadyTimeoutError extends HarnessError {
+     readonly timeout: number;
+-    constructor(timeout: number);
++    constructor(timeout: number, pendingOperation?: {
++        description: string;
++        durationMs: number;
++    });
+ }
+ export declare class MetroPortRangeExhaustedError extends HarnessError {
+     readonly initialPort: number;
+@@ -41,4 +44,3 @@ export declare class RuntimeDisconnectError extends HarnessError {
+     get phase(): NativeCrashPhase;
+ }
+ export type HarnessRuntimeFailure = NativeCrashError | RuntimeDisconnectError;
+-//# sourceMappingURL=errors.d.ts.map
+\ No newline at end of file
+diff --git a/dist/errors.js b/dist/errors.js
+index 8aa7ee8ef42ac8fe78352c6a68562440e52b70fe..a676f7f5bdda56681c627cbfba5388fa3b0777ea 100644
+--- a/dist/errors.js
++++ b/dist/errors.js
+@@ -22,8 +22,15 @@ export class InitializationTimeoutError extends HarnessError {
+ }
+ export class PlatformReadyTimeoutError extends HarnessError {
+     timeout;
+-    constructor(timeout) {
+-        super(`The platform did not become ready within ${timeout}ms. Increase "platformReadyTimeout" if your device, simulator, or emulator needs more time to start.`);
++    constructor(timeout, pendingOperation) {
++        let message;
++        if (pendingOperation) {
++            message = `Platform initialization timed out after ${timeout}ms.\nPending operation (${pendingOperation.durationMs}ms):\n${pendingOperation.description}`;
++        }
++        else {
++            message = `The platform did not become ready within ${timeout}ms. Increase "platformReadyTimeout" if your device, simulator, or emulator needs more time to start.`;
++        }
++        super(message);
+         this.timeout = timeout;
+         this.name = 'PlatformReadyTimeoutError';
+     }
+diff --git a/dist/harness-session.d.ts b/dist/harness-session.d.ts
+index 02279b88f628c8950ebd5318cd149294f6264c6d..04a3945d26cb114bc346f6aefbb814c68af58614 100644
+--- a/dist/harness-session.d.ts
++++ b/dist/harness-session.d.ts
+@@ -53,7 +53,7 @@ export declare const getSignalExitCodeForRunState: (state: HarnessRunState | nul
+ export declare const withPlatformReadyTimeout: <T>(options: {
+     timeout: number;
+     signal: AbortSignal;
+-    work: (signal: AbortSignal) => Promise<T>;
++    work: (signal: AbortSignal, onStartupProgress: (description: string | undefined) => void) => Promise<T>;
+ }) => Promise<T>;
+ export declare const waitForStartupCrash: ({ crashMonitor, detectNativeCrashes, testFilePath, signal, }: {
+     crashMonitor: CrashMonitor;
+@@ -76,4 +76,3 @@ export declare const createHarnessSession: (globalConfig: JestConfig.GlobalConfi
+     lockManager?: ResourceLockManager;
+ }) => Promise<HarnessSession>;
+ export {};
+-//# sourceMappingURL=harness-session.d.ts.map
+\ No newline at end of file
+diff --git a/dist/harness-session.js b/dist/harness-session.js
+index c4f8bf656e5d03a449844378afcaf735aa040ab9..ef9f0da1ac4f7f7954e3957cb7ecb3d5a12199e8 100644
+--- a/dist/harness-session.js
++++ b/dist/harness-session.js
+@@ -95,10 +95,26 @@ export const getSignalExitCodeForRunState = (state) => {
+ export const withPlatformReadyTimeout = async (options) => {
+     const timeoutSignal = getTimeoutSignal(options.timeout);
+     const abortWait = waitForAbort(timeoutSignal);
++    let pendingOperation;
++    const onStartupProgress = (description) => {
++        if (description === undefined) {
++            pendingOperation = undefined;
++        }
++        else {
++            pendingOperation = { description: description, startedAt: Date.now() };
++        }
++    };
+     try {
+         return await Promise.race([
+-            options.work(options.signal),
++            options.work(options.signal, onStartupProgress),
+             abortWait.promise.catch(() => {
++                if (pendingOperation) {
++                    const durationMs = Date.now() - pendingOperation.startedAt;
++                    throw new PlatformReadyTimeoutError(options.timeout, {
++                        description: pendingOperation.description,
++                        durationMs: durationMs,
++                    });
++                }
+                 throw new PlatformReadyTimeoutError(options.timeout);
+             }),
+         ]);
+@@ -407,9 +423,10 @@ export const createHarnessSession = async (globalConfig, { lockManager = default
+                 diagnostics.measure('platform.init', () => withPlatformReadyTimeout({
+                     timeout: runtimeConfig.platformReadyTimeout,
+                     signal: sessionController.signal,
+-                    work: async (signal) => {
++                    work: async (signal, onStartupProgress) => {
+                         return await import(platform.runner).then((module) => module.default(platform.config, runtimeConfig, {
+                             signal,
++                            onStartupProgress: onStartupProgress,
+                             crashArtifactWriter,
+                             diagnostics,
+                         })).then((instance) => {
+diff --git a/src/errors.ts b/src/errors.ts
+index 44ef0e1a72f551d30c0c9efc2e2e6f5e62e78dee..0a1ce5e8173fa481b6377bb0c496c7984c821c9e 100644
+--- a/src/errors.ts
++++ b/src/errors.ts
+@@ -28,10 +28,17 @@ export class InitializationTimeoutError extends HarnessError {
+ }
+ 
+ export class PlatformReadyTimeoutError extends HarnessError {
+-  constructor(public readonly timeout: number) {
+-    super(
+-      `The platform did not become ready within ${timeout}ms. Increase "platformReadyTimeout" if your device, simulator, or emulator needs more time to start.`
+-    );
++  constructor(
++    public readonly timeout: number,
++    pendingOperation?: { description: string; durationMs: number }
++  ) {
++    let message: string;
++    if (pendingOperation) {
++      message = `Platform initialization timed out after ${timeout}ms.\nPending operation (${pendingOperation.durationMs}ms):\n${pendingOperation.description}`;
++    } else {
++      message = `The platform did not become ready within ${timeout}ms. Increase "platformReadyTimeout" if your device, simulator, or emulator needs more time to start.`;
++    }
++    super(message);
+     this.name = 'PlatformReadyTimeoutError';
+   }
+ }
+diff --git a/src/harness-session.ts b/src/harness-session.ts
+index 528e7dcc39d7a6e34d78b405c64d813f19643186..a2f1ae9aea251fb3181ebba7a532b2eb31bbec2e 100644
+--- a/src/harness-session.ts
++++ b/src/harness-session.ts
+@@ -234,14 +234,32 @@ export const getSignalExitCodeForRunState = (
+ export const withPlatformReadyTimeout = async <T>(options: {
+   timeout: number;
+   signal: AbortSignal;
+-  work: (signal: AbortSignal) => Promise<T>;
++  work: (
++    signal: AbortSignal,
++    onStartupProgress: (description: string | undefined) => void
++  ) => Promise<T>;
+ }): Promise<T> => {
+   const timeoutSignal = getTimeoutSignal(options.timeout);
+   const abortWait = waitForAbort(timeoutSignal);
++  let pendingOperation: { description: string; startedAt: number } | undefined;
++  const onStartupProgress = (description: string | undefined) => {
++    if (description === undefined) {
++      pendingOperation = undefined;
++    } else {
++      pendingOperation = { description: description, startedAt: Date.now() };
++    }
++  };
+   try {
+     return await Promise.race([
+-      options.work(options.signal),
++      options.work(options.signal, onStartupProgress),
+       abortWait.promise.catch(() => {
++        if (pendingOperation) {
++          const durationMs = Date.now() - pendingOperation.startedAt;
++          throw new PlatformReadyTimeoutError(options.timeout, {
++            description: pendingOperation.description,
++            durationMs: durationMs,
++          });
++        }
+         throw new PlatformReadyTimeoutError(options.timeout);
+       }),
+     ]);
+@@ -666,10 +684,11 @@ export const createHarnessSession = async (
+             withPlatformReadyTimeout({
+               timeout: runtimeConfig.platformReadyTimeout,
+               signal: sessionController.signal,
+-              work: async (signal) => {
++              work: async (signal, onStartupProgress) => {
+                 return await import(platform.runner).then((module) =>
+                   module.default(platform.config, runtimeConfig, {
+                     signal,
++                    onStartupProgress: onStartupProgress,
+                     crashArtifactWriter,
+                     diagnostics,
+                   } satisfies HarnessPlatformInitOptions),

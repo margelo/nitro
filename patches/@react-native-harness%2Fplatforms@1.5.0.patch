@@ -1,0 +1,40 @@
+diff --git a/dist/types.d.ts b/dist/types.d.ts
+index f4d8b75ea3c7d09d8d43ce2aff10aaaf7930e002..3b5d4b189ea1313e1ab9cd0059945d7935fcb295 100644
+--- a/dist/types.d.ts
++++ b/dist/types.d.ts
+@@ -93,6 +93,12 @@ export type HarnessPlatformInitOptions = {
+      * or disposal signal: runners must explicitly dispose resources they own.
+      */
+     signal: AbortSignal;
++    /**
++     * Reports the operation currently blocking platform initialization. Harness
++     * includes the description and its elapsed time in startup timeouts. Report
++     * undefined when the operation completes.
++     */
++    onStartupProgress?: (description: string | undefined) => void;
+     crashArtifactWriter?: CrashArtifactWriter;
+     /**
+      * Optional diagnostics tracing handle. Platform runners may use this to
+@@ -186,4 +192,3 @@ export type WebRunTarget = {
+     };
+ };
+ export type RunTarget = AndroidEmulatorRunTarget | AndroidPhysicalRunTarget | AppleSimulatorRunTarget | ApplePhysicalRunTarget | WebRunTarget;
+-//# sourceMappingURL=types.d.ts.map
+\ No newline at end of file
+diff --git a/src/types.ts b/src/types.ts
+index d1908d9c1769cb1745f61094ff7f1f07d788ab75..ec76d1373296958de68698c5e02b13014cff73eb 100644
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -133,6 +133,12 @@ export type HarnessPlatformInitOptions = {
+    * or disposal signal: runners must explicitly dispose resources they own.
+    */
+   signal: AbortSignal;
++  /**
++   * Reports the operation currently blocking platform initialization. Harness
++   * includes the description and its elapsed time in startup timeouts. Report
++   * undefined when the operation completes.
++   */
++  onStartupProgress?: (description: string | undefined) => void;
+   crashArtifactWriter?: CrashArtifactWriter;
+   /**
+    * Optional diagnostics tracing handle. Platform runners may use this to

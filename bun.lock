@@ -215,8 +215,10 @@
     },
   },
   "patchedDependencies": {
+    "@react-native-harness/jest@1.5.0": "patches/@react-native-harness%2Fjest@1.5.0.patch",
     "@react-native-harness/platform-apple@1.5.0": "patches/@react-native-harness%2Fplatform-apple@1.5.0.patch",
     "@react-native-harness/ui@1.5.0": "patches/@react-native-harness%2Fui@1.5.0.patch",
+    "@react-native-harness/platforms@1.5.0": "patches/@react-native-harness%2Fplatforms@1.5.0.patch",
   },
   "packages": {
     "@11ty/gray-matter": ["@11ty/gray-matter@1.0.0", "", { "dependencies": { "js-yaml": "^4.1.0", "kind-of": "^6.0.3", "section-matter": "^1.0.0", "strip-bom-string": "^1.0.0" } }, "sha512-7mJJl+wf1AByoT0PknQiQfOPnVNT4fevGrUBVWO4HXsnYn1aQPyRyrELYrNUFleUBM++KzMKN6QaxHPk0t/6/g=="],
