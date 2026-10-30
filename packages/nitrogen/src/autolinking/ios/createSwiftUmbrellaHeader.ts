@@ -1,15 +1,11 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
-import { getForwardDeclaration } from '../../syntax/c++/getForwardDeclaration.js'
 import { includeHeader } from '../../syntax/c++/includeNitroHeader.js'
 import { getAllKnownTypes } from '../../syntax/createType.js'
-import { getHybridObjectName } from '../../syntax/getHybridObjectName.js'
 import {
   createFileMetadataString,
   isNotDuplicate,
 } from '../../syntax/helpers.js'
 import type { SourceFile } from '../../syntax/SourceFile.js'
-import { getTypeAs } from '../../syntax/types/getTypeAs.js'
-import { HybridObjectType } from '../../syntax/types/HybridObjectType.js'
 
 export function getUmbrellaHeaderName(): string {
   const moduleName = NitroConfig.current.getIosModuleName()
@@ -23,18 +19,7 @@ export function createSwiftUmbrellaHeader(): SourceFile {
   const types = getAllKnownTypes('swift')
 
   const swiftForwardDeclares = types
-    .filter((t) => t.kind === 'hybrid-object')
-    .map((t) => {
-      const hybridObjectType = getTypeAs(t, HybridObjectType)
-      const hybridObjectModuleName =
-        hybridObjectType.sourceConfig.getIosModuleName()
-      const name = getHybridObjectName(hybridObjectType.hybridObjectName)
-      return getForwardDeclaration(
-        'class',
-        name.HybridTSpecCxx,
-        hybridObjectModuleName
-      )
-    })
+    .flatMap((t) => t.getForwardDeclarations?.() ?? [])
     .filter(isNotDuplicate)
 
   const imports = types.flatMap((t) => t.getRequiredImports('c++'))

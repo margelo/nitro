@@ -198,4 +198,10 @@ export class HybridObjectType implements Type {
 
     return imports
   }
+
+  getForwardDeclarations(): string[] {
+    const name = getHybridObjectName(this.hybridObjectName)
+    const moduleName = this.sourceConfig.getIosModuleName()
+    return [getForwardDeclaration('class', name.HybridTSpecCxx, moduleName)]
+  }
 }
