@@ -69,6 +69,17 @@ export interface Type {
    * Get all required extra imports that need to be **imported** for this type to properly work.
    */
   getRequiredImports(language: Language): SourceImport[]
+  /**
+   * Get any C++ forward declarations this type needs beyond those already
+   * carried by {@linkcode getRequiredImports | getRequiredImports()}.
+   *
+   * This is an optional capability: only some types declare any (currently
+   * `HybridObjectType`, to forward-declare its Swift-generated `*Cxx` wrapper
+   * class). Letting the type own this keeps dependency collection polymorphic
+   * instead of callers hardcoding `kind`-checks and reaching into concrete
+   * type classes.
+   */
+  getForwardDeclarations?(): string[]
 }
 
 export interface NamedType extends Type {
