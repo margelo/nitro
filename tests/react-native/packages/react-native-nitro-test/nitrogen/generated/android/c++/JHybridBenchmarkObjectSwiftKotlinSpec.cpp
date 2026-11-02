@@ -164,8 +164,8 @@ namespace margelo::nitro::test {
     auto __result = __method(_javaPart, CxxPart::getClass(), buffer);
     return __result;
   }
-  jdouble JHybridBenchmarkObjectSwiftKotlinSpec::callbackSync(const jni::local_ref<margelo::nitro::test::JCallback_double::JavaPart>& callback) {
-    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jdouble(jni::alias_ref<margelo::nitro::test::JCallback_double::JavaPart> /* callback */)>("callbackSync_cxx");
+  jdouble JHybridBenchmarkObjectSwiftKotlinSpec::callbackSync(const jni::local_ref<JTypedCallback<margelo::nitro::test::JCallback_double::JavaPart>>& callback) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jdouble(jni::alias_ref<JTypedCallback<margelo::nitro::test::JCallback_double::JavaPart>> /* callback */)>("callbackSync");
     auto __result = __method(_javaPart, CxxPart::getClass(), callback);
     return __result;
   }

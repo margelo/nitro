@@ -13,6 +13,10 @@
 
 namespace margelo::nitro::test {
 
+  jni::local_ref<JCallback_void_double::JFunction_cxx> JCallback_void_double::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    return newInstance(callback);
+  }
+
   JNIRetainedValue<void>::Type JCallback_void_double::JFunction_cxx::invoke(JNIRetainedValue<jdouble>::Type value) const {
     static const auto __method = javaClassStatic()->getMethod<void(jdouble)>("call");
     __method(self(), JNIRetainedValue<jdouble>::borrow(value));
@@ -34,12 +38,9 @@ namespace margelo::nitro::test {
     callAndForget(value);
   }
 
-  jni::local_ref<JCallback_void_double::JavaPart> JCallback_void_double::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    return create(getCallback(callback));
-  }
-
-  jni::local_ref<JCallback_void_double::JavaPart> JCallback_void_double::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
-    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  JCallback_void_double::CallbackType JCallback_void_double::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    auto function = JFunction_cxx::create(callback);
+    return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
 
   void JCallback_void_double::registerNatives() {
@@ -47,8 +48,6 @@ namespace margelo::nitro::test {
       makeNativeMethod("callSync_cxx", JCallback_void_double::callSync_cxx),
       makeNativeMethod("callAsync_cxx", JCallback_void_double::callAsync_cxx),
       makeNativeMethod("callAndForget_cxx", JCallback_void_double::callAndForget_cxx),
-      makeNativeMethod("fromCxx_cxx", JCallback_void_double::fromCxx_cxx),
-      makeNativeMethod("fromFunction_cxx", JCallback_void_double::fromFunction_cxx),
     });
   }
 

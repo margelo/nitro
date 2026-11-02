@@ -22,14 +22,7 @@ sealed class CoreTypesVariant private constructor(@DoNotStrip private val index:
   @DoNotStrip
   data class First(@DoNotStrip val value: ArrayBuffer): CoreTypesVariant(0)
   @DoNotStrip
-  data class Second(@DoNotStrip val value: Callback<(value: Double) -> Unit>): CoreTypesVariant(1) {
-    @DoNotStrip
-    @Suppress("unused", "FunctionName")
-    @JvmName("getValue_cxx")
-    private fun getValue_cxx(): Callback_void_double {
-      return Callback_void_double.fromKotlin(value)
-    }
-  }
+  data class Second(@DoNotStrip val value: Callback<(value: Double) -> Unit>): CoreTypesVariant(1)
   @DoNotStrip
   data class Third(@DoNotStrip val value: WrappedJsStruct): CoreTypesVariant(2)
   @DoNotStrip
@@ -109,7 +102,7 @@ sealed class CoreTypesVariant private constructor(@DoNotStrip private val index:
     @JvmStatic
     @DoNotStrip
     @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: Callback_void_double): CoreTypesVariant = Second(value)
+    private fun fromCpp_1(value: Callback<(value: Double) -> Unit>): CoreTypesVariant = Second(value)
     @JvmStatic
     @JvmName("createThird")
     @DoNotStrip

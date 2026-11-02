@@ -13,6 +13,10 @@
 
 namespace margelo::nitro::test {
 
+  jni::local_ref<JCallback_int64_t_int64_t::JFunction_cxx> JCallback_int64_t_int64_t::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    return newInstance(callback);
+  }
+
   JNIRetainedValue<jlong>::Type JCallback_int64_t_int64_t::JFunction_cxx::invoke(JNIRetainedValue<jlong>::Type value) const {
     static const auto __method = javaClassStatic()->getMethod<jlong(jlong)>("call");
     auto result = __method(self(), JNIRetainedValue<jlong>::borrow(value));
@@ -35,12 +39,9 @@ namespace margelo::nitro::test {
     callAndForget(value);
   }
 
-  jni::local_ref<JCallback_int64_t_int64_t::JavaPart> JCallback_int64_t_int64_t::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    return create(getCallback(callback));
-  }
-
-  jni::local_ref<JCallback_int64_t_int64_t::JavaPart> JCallback_int64_t_int64_t::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
-    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  JCallback_int64_t_int64_t::CallbackType JCallback_int64_t_int64_t::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    auto function = JFunction_cxx::create(callback);
+    return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
 
   void JCallback_int64_t_int64_t::registerNatives() {
@@ -48,8 +49,6 @@ namespace margelo::nitro::test {
       makeNativeMethod("callSync_cxx", JCallback_int64_t_int64_t::callSync_cxx),
       makeNativeMethod("callAsync_cxx", JCallback_int64_t_int64_t::callAsync_cxx),
       makeNativeMethod("callAndForget_cxx", JCallback_int64_t_int64_t::callAndForget_cxx),
-      makeNativeMethod("fromCxx_cxx", JCallback_int64_t_int64_t::fromCxx_cxx),
-      makeNativeMethod("fromFunction_cxx", JCallback_int64_t_int64_t::fromFunction_cxx),
     });
   }
 

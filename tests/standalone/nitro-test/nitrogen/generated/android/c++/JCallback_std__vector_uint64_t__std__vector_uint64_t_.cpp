@@ -16,6 +16,10 @@
 
 namespace margelo::nitro::test {
 
+  jni::local_ref<JCallback_std__vector_uint64_t__std__vector_uint64_t_::JFunction_cxx> JCallback_std__vector_uint64_t__std__vector_uint64_t_::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    return newInstance(callback);
+  }
+
   JNIRetainedValue<jni::local_ref<jni::JArrayClass<JULong>>>::Type JCallback_std__vector_uint64_t__std__vector_uint64_t_::JFunction_cxx::invoke(JNIRetainedValue<jni::local_ref<jni::JArrayClass<JULong>>>::Type array) const {
     static const auto __method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JULong>>(jni::alias_ref<jni::JArrayClass<JULong>>)>("call");
     auto result = __method(self(), JNIRetainedValue<jni::local_ref<jni::JArrayClass<JULong>>>::borrow(array));
@@ -38,12 +42,9 @@ namespace margelo::nitro::test {
     callAndForget(array);
   }
 
-  jni::local_ref<JCallback_std__vector_uint64_t__std__vector_uint64_t_::JavaPart> JCallback_std__vector_uint64_t__std__vector_uint64_t_::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    return create(getCallback(callback));
-  }
-
-  jni::local_ref<JCallback_std__vector_uint64_t__std__vector_uint64_t_::JavaPart> JCallback_std__vector_uint64_t__std__vector_uint64_t_::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
-    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  JCallback_std__vector_uint64_t__std__vector_uint64_t_::CallbackType JCallback_std__vector_uint64_t__std__vector_uint64_t_::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    auto function = JFunction_cxx::create(callback);
+    return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
 
   void JCallback_std__vector_uint64_t__std__vector_uint64_t_::registerNatives() {
@@ -51,8 +52,6 @@ namespace margelo::nitro::test {
       makeNativeMethod("callSync_cxx", JCallback_std__vector_uint64_t__std__vector_uint64_t_::callSync_cxx),
       makeNativeMethod("callAsync_cxx", JCallback_std__vector_uint64_t__std__vector_uint64_t_::callAsync_cxx),
       makeNativeMethod("callAndForget_cxx", JCallback_std__vector_uint64_t__std__vector_uint64_t_::callAndForget_cxx),
-      makeNativeMethod("fromCxx_cxx", JCallback_std__vector_uint64_t__std__vector_uint64_t_::fromCxx_cxx),
-      makeNativeMethod("fromFunction_cxx", JCallback_std__vector_uint64_t__std__vector_uint64_t_::fromFunction_cxx),
     });
   }
 

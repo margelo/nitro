@@ -67,7 +67,7 @@ namespace margelo::nitro::test {
     // Methods
     jni::local_ref<JSize> bounceSize(const jni::local_ref<JSize>& size);
     jni::local_ref<JSizeUnit> bounceSizeUnit(const jni::local_ref<JSizeUnit>& unit);
-    jni::local_ref<JTypedPromise<jni::local_ref<JSize>>> mapSize(const jni::local_ref<JSize>& size, const jni::local_ref<margelo::nitro::test::JCallback_Size_Size::JavaPart>& callback);
+    jni::local_ref<JTypedPromise<jni::local_ref<JSize>>> mapSize(const jni::local_ref<JSize>& size, const jni::local_ref<JTypedCallback<margelo::nitro::test::JCallback_Size_Size::JavaPart>>& callback);
 
   public:
     // Constructor and static members

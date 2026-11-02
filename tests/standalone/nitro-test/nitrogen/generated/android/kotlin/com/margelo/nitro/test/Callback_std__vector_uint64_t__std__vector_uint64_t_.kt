@@ -42,7 +42,8 @@ class Callback_std__vector_uint64_t__std__vector_uint64_t_ @DoNotStrip @Keep pri
   }
 
   /**
-   * Lets C++ call a Kotlin callback with JNI types, e.g. `Long` instead of `ULong`.
+   * Lets C++ call a callback implemented in Kotlin with JNI types, e.g. `Long` instead of `ULong`.
+   * C++ creates it when such a callback crosses JNI.
    */
   @DoNotStrip
   @Keep
@@ -69,32 +70,4 @@ class Callback_std__vector_uint64_t__std__vector_uint64_t_ @DoNotStrip @Keep pri
   @Keep
   @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(array: Array<ULong>): Unit
-
-  companion object {
-    /**
-     * Returns the given [callback] as its JNI representation.
-     * A callback from another module keeps its C++ `Callback<...>`, and
-     * a callback created in Kotlin is wrapped in a C++ `Callback<...>` that calls it.
-     */
-    @JvmStatic
-    fun fromKotlin(callback: Callback<(array: Array<ULong>) -> Array<ULong>>): Callback_std__vector_uint64_t__std__vector_uint64_t_ {
-      return when (callback) {
-        is Callback_std__vector_uint64_t__std__vector_uint64_t_ -> callback
-        is CxxCallback -> fromCxx_cxx(callback)
-        else -> fromFunction_cxx(Function_cxx(callback))
-      }
-    }
-
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    @JvmName("fromCxx_cxx")
-    private external fun fromCxx_cxx(callback: CxxCallback): Callback_std__vector_uint64_t__std__vector_uint64_t_
-
-    @JvmStatic
-    @DoNotStrip
-    @Keep
-    @JvmName("fromFunction_cxx")
-    private external fun fromFunction_cxx(function: Function_cxx): Callback_std__vector_uint64_t__std__vector_uint64_t_
-  }
 }

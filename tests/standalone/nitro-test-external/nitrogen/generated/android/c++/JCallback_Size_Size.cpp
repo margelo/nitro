@@ -12,6 +12,10 @@
 
 namespace margelo::nitro::test::external {
 
+  jni::local_ref<JCallback_Size_Size::JFunction_cxx> JCallback_Size_Size::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    return newInstance(callback);
+  }
+
   JNIRetainedValue<jni::local_ref<margelo::nitro::test::external::JSize>>::Type JCallback_Size_Size::JFunction_cxx::invoke(JNIRetainedValue<jni::local_ref<margelo::nitro::test::external::JSize>>::Type size) const {
     static const auto __method = javaClassStatic()->getMethod<jni::local_ref<JSize>(jni::alias_ref<JSize>)>("call");
     auto result = __method(self(), JNIRetainedValue<jni::local_ref<margelo::nitro::test::external::JSize>>::borrow(size));
@@ -34,12 +38,9 @@ namespace margelo::nitro::test::external {
     callAndForget(size);
   }
 
-  jni::local_ref<JCallback_Size_Size::JavaPart> JCallback_Size_Size::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    return create(getCallback(callback));
-  }
-
-  jni::local_ref<JCallback_Size_Size::JavaPart> JCallback_Size_Size::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
-    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  JCallback_Size_Size::CallbackType JCallback_Size_Size::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    auto function = JFunction_cxx::create(callback);
+    return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
 
   void JCallback_Size_Size::registerNatives() {
@@ -47,8 +48,6 @@ namespace margelo::nitro::test::external {
       makeNativeMethod("callSync_cxx", JCallback_Size_Size::callSync_cxx),
       makeNativeMethod("callAsync_cxx", JCallback_Size_Size::callAsync_cxx),
       makeNativeMethod("callAndForget_cxx", JCallback_Size_Size::callAndForget_cxx),
-      makeNativeMethod("fromCxx_cxx", JCallback_Size_Size::fromCxx_cxx),
-      makeNativeMethod("fromFunction_cxx", JCallback_Size_Size::fromFunction_cxx),
     });
   }
 

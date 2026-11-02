@@ -22,14 +22,15 @@ import {
 const MAX_KOTLIN_CALLBACK_PARAMETERS = 22
 
 /**
- * Kotlin APIs use the generic `Callback<(...) -> R>`. JNI uses the generated
- * `<name>` class, which holds the C++ `Callback<...>` and implements `Callback<(...) -> R>`.
+ * Kotlin APIs and JNI use the generic `Callback<(...) -> R>`, which JNI declares as nitro-core's
+ * `Callback` interface. The generated `<name>` class holds a C++ `Callback<...>` and implements it,
+ * and C++ wraps a callback implemented in Kotlin in one.
  */
 export class KotlinCallbackType extends CallbackType implements KotlinType {
   override readonly returnType: KotlinType
   override readonly parameters: KotlinNamedType[]
   readonly jniValueKind = 'object'
-  readonly needsKotlinConversion = true
+  readonly needsKotlinConversion = false
 
   constructor(
     readonly type: CallbackType,
@@ -61,9 +62,6 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
   convert(value: string, { from, in: language }: KotlinConversion): string {
     switch (language) {
       case 'kotlin':
-        if (from === 'kotlin') {
-          return `${this.specializationName}.fromKotlin(${value})`
-        }
         return value
       case 'c++': {
         const converter = getKotlinConverter({ cppType: this.type, kotlinType: this })
@@ -86,10 +84,10 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
       case 'c++': {
         // Kotlin has no borrowed callbacks, so `Inline<...>` uses the same escaped type.
         const jniClass = this.config.getCxxNamespace('c++', this.jniName)
-        return getJniReferenceCode(`${jniClass}::JavaPart`, options)
+        return getJniReferenceCode(`JTypedCallback<${jniClass}::JavaPart>`, options)
       }
       case 'kotlin':
-        return this.specializationName
+        return this.type.getCode(language, options)
       default:
         return super.getCode(language, options)
     }

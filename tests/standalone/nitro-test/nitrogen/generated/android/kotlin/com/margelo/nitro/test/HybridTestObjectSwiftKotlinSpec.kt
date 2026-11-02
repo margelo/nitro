@@ -14,7 +14,6 @@ import dalvik.annotation.optimization.FastNative
 import com.margelo.nitro.core.NullType
 import com.margelo.nitro.core.Callback
 import com.margelo.nitro.core.Promise
-import com.margelo.nitro.utils.mapToArray
 import com.margelo.nitro.core.AnyJSON
 import com.margelo.nitro.core.ArrayBuffer
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
@@ -129,21 +128,11 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @set:Keep
   abstract var optionalEnumPlusOne: TruckPowertrain?
 
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
   abstract var optionalCallback: Callback<(value: Double) -> Unit>?
-
-  @JvmName("getOptionalCallback_cxx")
-  @DoNotStrip
-  @Keep
-  private fun getOptionalCallback_cxx(): Callback_void_double? {
-    return this.optionalCallback?.let { Callback_void_double.fromKotlin(it) }
-  }
-
-  @JvmName("setOptionalCallback_cxx")
-  @DoNotStrip
-  @Keep
-  private fun setOptionalCallback_cxx(value: Callback_void_double?): Unit {
-    this.optionalCallback = value?.let { it }
-  }
 
   @get:DoNotStrip
   @get:Keep
@@ -242,58 +231,29 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @Keep
   abstract fun bounceEnums(array: Array<Powertrain>): Array<Powertrain>
 
+  @DoNotStrip
+  @Keep
   abstract fun complexEnumCallback(array: Array<Powertrain>, callback: Callback<(array: Array<Powertrain>) -> Unit>): Unit
 
-  @JvmName("complexEnumCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun complexEnumCallback_cxx(array: Array<Powertrain>, callback: Callback_void_std__vector_Powertrain_): Unit {
-    complexEnumCallback(array, callback)
-  }
-
   abstract fun callEnumArrayCallback(array: Array<Powertrain>, callback: Callback<(array: Array<Powertrain>) -> Array<Powertrain>>): Array<Powertrain>
 
-  @JvmName("callEnumArrayCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callEnumArrayCallback_cxx(array: Array<Powertrain>, callback: Callback_std__vector_Powertrain__std__vector_Powertrain_): Array<Powertrain> {
-    val __result = callEnumArrayCallback(array, callback)
-    return __result
-  }
-
   abstract fun getEnumArrayCallback(): Callback<(array: Array<Powertrain>) -> Array<Powertrain>>
 
-  @JvmName("getEnumArrayCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun getEnumArrayCallback_cxx(): Callback_std__vector_Powertrain__std__vector_Powertrain_ {
-    val __result = getEnumArrayCallback()
-    return Callback_std__vector_Powertrain__std__vector_Powertrain_.fromKotlin(__result)
-  }
-
   abstract fun callEnumArrayPromiseCallback(callback: Callback<() -> Promise<Array<Powertrain>>>): Promise<Array<Powertrain>>
-
-  @JvmName("callEnumArrayPromiseCallback_cxx")
-  @DoNotStrip
-  @Keep
-  private fun callEnumArrayPromiseCallback_cxx(callback: Callback_Promise_std__vector_Powertrain__): Promise<Array<Powertrain>> {
-    val __result = callEnumArrayPromiseCallback(callback)
-    return __result
-  }
 
   @DoNotStrip
   @Keep
   abstract fun awaitEnumArrayPromise(promise: Promise<Array<Powertrain>>): Promise<Array<Powertrain>>
 
-  abstract fun callNestedStructCallback(value: Array<Array<Person?>>, callback: Callback<(value: Array<Array<Person?>>) -> Array<Array<Person?>>>): Array<Array<Person?>>
-
-  @JvmName("callNestedStructCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callNestedStructCallback_cxx(value: Array<Array<Person?>>, callback: Callback_std__vector_std__vector_std__optional_Person____std__vector_std__vector_std__optional_Person___): Array<Array<Person?>> {
-    val __result = callNestedStructCallback(value, callback)
-    return __result
-  }
+  abstract fun callNestedStructCallback(value: Array<Array<Person?>>, callback: Callback<(value: Array<Array<Person?>>) -> Array<Array<Person?>>>): Array<Array<Person?>>
 
   @DoNotStrip
   @Keep
@@ -311,15 +271,9 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @Keep
   abstract fun bounceUnsignedArrayAsync(array: Array<ULong>): Promise<Array<ULong>>
 
-  abstract fun callUnsignedArrayCallback(array: Array<ULong>, callback: Callback<(array: Array<ULong>) -> Array<ULong>>): Array<ULong>
-
-  @JvmName("callUnsignedArrayCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callUnsignedArrayCallback_cxx(array: Array<ULong>, callback: Callback_std__vector_uint64_t__std__vector_uint64_t_): Array<ULong> {
-    val __result = callUnsignedArrayCallback(array, callback)
-    return __result
-  }
+  abstract fun callUnsignedArrayCallback(array: Array<ULong>, callback: Callback<(array: Array<ULong>) -> Array<ULong>>): Array<ULong>
 
   @DoNotStrip
   @Keep
@@ -352,48 +306,30 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @JvmName("callUnsignedCallbackAsync_cxx")
   @DoNotStrip
   @Keep
-  private fun callUnsignedCallbackAsync_cxx(value: Long, callback: Callback_uint64_t_uint64_t): Promise<ULong> {
+  private fun callUnsignedCallbackAsync_cxx(value: Long, callback: Callback<(value: ULong) -> ULong>): Promise<ULong> {
     val __result = callUnsignedCallbackAsync(value.toULong(), callback)
     return __result
   }
 
-  abstract fun callUnsignedArrayCallbackAsync(array: Array<ULong>, callback: Callback<(array: Array<ULong>) -> Array<ULong>>): Promise<Array<ULong>>
-
-  @JvmName("callUnsignedArrayCallbackAsync_cxx")
   @DoNotStrip
   @Keep
-  private fun callUnsignedArrayCallbackAsync_cxx(array: Array<ULong>, callback: Callback_std__vector_uint64_t__std__vector_uint64_t_): Promise<Array<ULong>> {
-    val __result = callUnsignedArrayCallbackAsync(array, callback)
-    return __result
-  }
+  abstract fun callUnsignedArrayCallbackAsync(array: Array<ULong>, callback: Callback<(array: Array<ULong>) -> Array<ULong>>): Promise<Array<ULong>>
 
   @DoNotStrip
   @Keep
   abstract fun bounceNestedUnsignedArrayAsync(array: Array<Array<ULong>>): Promise<Array<Array<ULong>>>
 
-  abstract fun callNestedUnsignedArrayCallback(array: Array<Array<ULong>>, callback: Callback<(array: Array<Array<ULong>>) -> Array<Array<ULong>>>): Array<Array<ULong>>
-
-  @JvmName("callNestedUnsignedArrayCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callNestedUnsignedArrayCallback_cxx(array: Array<Array<ULong>>, callback: Callback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__): Array<Array<ULong>> {
-    val __result = callNestedUnsignedArrayCallback(array, callback)
-    return __result
-  }
+  abstract fun callNestedUnsignedArrayCallback(array: Array<Array<ULong>>, callback: Callback<(array: Array<Array<ULong>>) -> Array<Array<ULong>>>): Array<Array<ULong>>
 
   @DoNotStrip
   @Keep
   abstract fun bounceHybridObjects(array: Array<HybridChildSpec>): Array<HybridChildSpec>
 
-  abstract fun bounceFunctions(functions: Array<Callback<() -> Unit>>): Array<Callback<() -> Unit>>
-
-  @JvmName("bounceFunctions_cxx")
   @DoNotStrip
   @Keep
-  private fun bounceFunctions_cxx(functions: Array<Callback_void>): Array<Callback_void> {
-    val __result = bounceFunctions(functions.mapToArray<Callback_void, Callback<() -> Unit>> { __item -> __item })
-    return __result.mapToArray<Callback<() -> Unit>, Callback_void> { __item -> Callback_void.fromKotlin(__item) }
-  }
+  abstract fun bounceFunctions(functions: Array<Callback<() -> Unit>>): Array<Callback<() -> Unit>>
 
   @DoNotStrip
   @Keep
@@ -547,207 +483,89 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @Keep
   abstract fun awaitPromise(promise: Promise<Unit>): Promise<Unit>
 
+  @DoNotStrip
+  @Keep
   abstract fun callCallback(callback: Callback<() -> Unit>): Unit
 
-  @JvmName("callCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callCallback_cxx(callback: Callback_void): Unit {
-    callCallback(callback)
-  }
-
   abstract fun callInlineCallback(callback: Callback<() -> Unit>): Unit
 
-  @JvmName("callInlineCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callInlineCallback_cxx(callback: Callback_void): Unit {
-    callInlineCallback(callback)
-  }
-
   abstract fun callInlineCallbackWithValue(value: Double, callback: Callback<(value: Double) -> Double>): Double
 
-  @JvmName("callInlineCallbackWithValue_cxx")
   @DoNotStrip
   @Keep
-  private fun callInlineCallbackWithValue_cxx(value: Double, callback: Callback_double_double): Double {
-    val __result = callInlineCallbackWithValue(value, callback)
-    return __result
-  }
-
   abstract fun callCallbackThatReturnsPromiseVoid(callback: Callback<() -> Promise<Unit>>): Promise<Unit>
 
-  @JvmName("callCallbackThatReturnsPromiseVoid_cxx")
   @DoNotStrip
   @Keep
-  private fun callCallbackThatReturnsPromiseVoid_cxx(callback: Callback_Promise_void_): Promise<Unit> {
-    val __result = callCallbackThatReturnsPromiseVoid(callback)
-    return __result
-  }
-
   abstract fun callAll(first: Callback<() -> Unit>, second: Callback<() -> Unit>, third: Callback<() -> Unit>): Unit
 
-  @JvmName("callAll_cxx")
   @DoNotStrip
   @Keep
-  private fun callAll_cxx(first: Callback_void, second: Callback_void, third: Callback_void): Unit {
-    callAll(first, second, third)
-  }
-
   abstract fun callWithOptional(value: Double?, callback: Callback<(maybe: Double?) -> Unit>): Unit
 
-  @JvmName("callWithOptional_cxx")
   @DoNotStrip
   @Keep
-  private fun callWithOptional_cxx(value: Double?, callback: Callback_void_std__optional_double_): Unit {
-    callWithOptional(value, callback)
-  }
-
   abstract fun callSumUpNTimes(callback: Callback<() -> Double>, n: Double): Promise<Double>
 
-  @JvmName("callSumUpNTimes_cxx")
   @DoNotStrip
   @Keep
-  private fun callSumUpNTimes_cxx(callback: Callback_double, n: Double): Promise<Double> {
-    val __result = callSumUpNTimes(callback, n)
-    return __result
-  }
-
   abstract fun callbackAsyncPromise(callback: Callback<() -> Promise<Double>>): Promise<Double>
 
-  @JvmName("callbackAsyncPromise_cxx")
   @DoNotStrip
   @Keep
-  private fun callbackAsyncPromise_cxx(callback: Callback_Promise_double_): Promise<Double> {
-    val __result = callbackAsyncPromise(callback)
-    return __result
-  }
-
   abstract fun callbackAsyncPromiseBuffer(callback: Callback<() -> Promise<ArrayBuffer>>): Promise<ArrayBuffer>
 
-  @JvmName("callbackAsyncPromiseBuffer_cxx")
   @DoNotStrip
   @Keep
-  private fun callbackAsyncPromiseBuffer_cxx(callback: Callback_Promise_ArrayBuffer_): Promise<ArrayBuffer> {
-    val __result = callbackAsyncPromiseBuffer(callback)
-    return __result
-  }
-
   abstract fun getComplexCallback(): Callback<(value: Double) -> Unit>
 
-  @JvmName("getComplexCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun getComplexCallback_cxx(): Callback_void_double {
-    val __result = getComplexCallback()
-    return Callback_void_double.fromKotlin(__result)
-  }
-
   abstract fun twoOptionalCallbacks(value: Double, first: Callback<(value: Double) -> Unit>?, second: Callback<(value: String) -> Unit>?): Unit
 
-  @JvmName("twoOptionalCallbacks_cxx")
   @DoNotStrip
   @Keep
-  private fun twoOptionalCallbacks_cxx(value: Double, first: Callback_void_double?, second: Callback_void_std__string?): Unit {
-    twoOptionalCallbacks(value, first?.let { it }, second?.let { it })
-  }
-
   abstract fun errorCallback(onError: Callback<(error: Throwable) -> Unit>): Unit
 
-  @JvmName("errorCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun errorCallback_cxx(onError: Callback_void_std__exception_ptr): Unit {
-    errorCallback(onError)
-  }
-
   abstract fun createNativeCallback(wrappingJsCallback: Callback<(num: Double) -> Unit>): Callback<(num: Double) -> Unit>
 
-  @JvmName("createNativeCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun createNativeCallback_cxx(wrappingJsCallback: Callback_void_double): Callback_void_double {
-    val __result = createNativeCallback(wrappingJsCallback)
-    return Callback_void_double.fromKotlin(__result)
-  }
-
   abstract fun getValueFromJSCallbackAndWait(getValue: Callback<() -> Double>): Promise<Double>
 
-  @JvmName("getValueFromJSCallbackAndWait_cxx")
   @DoNotStrip
   @Keep
-  private fun getValueFromJSCallbackAndWait_cxx(getValue: Callback_double): Promise<Double> {
-    val __result = getValueFromJSCallbackAndWait(getValue)
-    return __result
-  }
-
   abstract fun getValueFromJsCallback(callback: Callback<() -> String>, andThenCall: Callback<(valueFromJs: String) -> Unit>): Promise<Unit>
 
-  @JvmName("getValueFromJsCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun getValueFromJsCallback_cxx(callback: Callback_std__string, andThenCall: Callback_void_std__string): Promise<Unit> {
-    val __result = getValueFromJsCallback(callback, andThenCall)
-    return __result
-  }
-
   abstract fun callSyncCallback(value: Double, callback: Callback<(value: Double) -> Unit>): Unit
 
-  @JvmName("callSyncCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callSyncCallback_cxx(value: Double, callback: Callback_void_double): Unit {
-    callSyncCallback(value, callback)
-  }
-
   abstract fun callAsyncCallback(value: Double, callback: Callback<(value: Double) -> Double>): Promise<Double>
 
-  @JvmName("callAsyncCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callAsyncCallback_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
-    val __result = callAsyncCallback(value, callback)
-    return __result
-  }
-
   abstract fun callAsyncVoidCallback(callback: Callback<() -> Unit>): Promise<Unit>
 
-  @JvmName("callAsyncVoidCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callAsyncVoidCallback_cxx(callback: Callback_void): Promise<Unit> {
-    val __result = callAsyncVoidCallback(callback)
-    return __result
-  }
-
   abstract fun callAsyncBooleanCallback(value: Boolean, callback: Callback<(value: Boolean) -> Boolean>): Promise<Boolean>
 
-  @JvmName("callAsyncBooleanCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun callAsyncBooleanCallback_cxx(value: Boolean, callback: Callback_bool_bool): Promise<Boolean> {
-    val __result = callAsyncBooleanCallback(value, callback)
-    return __result
-  }
-
   abstract fun awaitAsyncCallback(value: Double, callback: Callback<(value: Double) -> Double>): Promise<Double>
 
-  @JvmName("awaitAsyncCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun awaitAsyncCallback_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
-    val __result = awaitAsyncCallback(value, callback)
-    return __result
-  }
-
   abstract fun callAndForgetCallback(value: Double, callback: Callback<(value: Double) -> Double>): Unit
-
-  @JvmName("callAndForgetCallback_cxx")
-  @DoNotStrip
-  @Keep
-  private fun callAndForgetCallback_cxx(value: Double, callback: Callback_double_double): Unit {
-    callAndForgetCallback(value, callback)
-  }
 
   @DoNotStrip
   @Keep
@@ -761,25 +579,13 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @Keep
   abstract fun callThrowingNativeCallbackAndForget(message: String): Unit
 
+  @DoNotStrip
+  @Keep
   abstract fun callInlineCallbackThenEscape(value: Double, callback: Callback<(value: Double) -> Double>): Promise<Double>
 
-  @JvmName("callInlineCallbackThenEscape_cxx")
   @DoNotStrip
   @Keep
-  private fun callInlineCallbackThenEscape_cxx(value: Double, callback: Callback_double_double): Promise<Double> {
-    val __result = callInlineCallbackThenEscape(value, callback)
-    return __result
-  }
-
   abstract fun getSharedNumberCallback(shared: com.margelo.nitro.test.external.HybridSharedSpecializationsSpec): Callback<(value: Double) -> Unit>
-
-  @JvmName("getSharedNumberCallback_cxx")
-  @DoNotStrip
-  @Keep
-  private fun getSharedNumberCallback_cxx(shared: com.margelo.nitro.test.external.HybridSharedSpecializationsSpec): Callback_void_double {
-    val __result = getSharedNumberCallback(shared)
-    return Callback_void_double.fromKotlin(__result)
-  }
 
   @DoNotStrip
   @Keep
@@ -937,35 +743,17 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @Keep
   abstract fun castBase(base: HybridBaseSpec): HybridChildSpec
 
+  @DoNotStrip
+  @Keep
   abstract fun callbackSync(callback: Callback<() -> Double>): Double
 
-  @JvmName("callbackSync_cxx")
   @DoNotStrip
   @Keep
-  private fun callbackSync_cxx(callback: Callback_double): Double {
-    val __result = callbackSync(callback)
-    return __result
-  }
-
   abstract fun getSyncNumberCallback(): Callback<() -> Double>
 
-  @JvmName("getSyncNumberCallback_cxx")
   @DoNotStrip
   @Keep
-  private fun getSyncNumberCallback_cxx(): Callback_double {
-    val __result = getSyncNumberCallback()
-    return Callback_double.fromKotlin(__result)
-  }
-
   abstract fun bounceSyncInt64Callback(callback: Callback<(value: Long) -> Long>): Callback<(value: Long) -> Long>
-
-  @JvmName("bounceSyncInt64Callback_cxx")
-  @DoNotStrip
-  @Keep
-  private fun bounceSyncInt64Callback_cxx(callback: Callback_int64_t_int64_t): Callback_int64_t_int64_t {
-    val __result = bounceSyncInt64Callback(callback)
-    return Callback_int64_t_int64_t.fromKotlin(__result)
-  }
 
   @DoNotStrip
   @Keep
@@ -983,15 +771,9 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @Keep
   abstract fun bounceExternalVariant(variant: StringOrExternal): StringOrExternal
 
-  abstract fun createExternalVariantFromFunc(factory: Callback<() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
-
-  @JvmName("createExternalVariantFromFunc_cxx")
   @DoNotStrip
   @Keep
-  private fun createExternalVariantFromFunc_cxx(factory: Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
-    val __result = createExternalVariantFromFunc(factory)
-    return __result
-  }
+  abstract fun createExternalVariantFromFunc(factory: Callback<() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 
   @DoNotStrip
   @Keep

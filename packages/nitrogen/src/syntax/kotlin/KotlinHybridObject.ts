@@ -235,8 +235,8 @@ companion object {
  * The companion object holds the bridges JNI calls to construct the class or call its static methods.
  * They let Kotlin check the implementation at compile time, keep it from being stripped by R8,
  * and expose actual JVM static methods through `@JvmStatic`.
- * TODO: Remove the Kotlin-side conversions (`convert(..., { in: 'kotlin' })`, for `UInt64`
- * and `Callback_*.fromKotlin(...)` for callbacks) once those types cross JNI unchanged.
+ * TODO: Remove the Kotlin-side conversions (`convert(..., { in: 'kotlin' })`, for `UInt64`)
+ * once those types cross JNI unchanged.
  */
 function getKotlinCompanion(spec: HybridObjectSpec<'kotlin'>): KotlinCompanion {
   const name = getHybridObjectName(spec.name)

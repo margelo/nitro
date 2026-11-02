@@ -11,7 +11,6 @@ import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import java.util.Objects
 import com.margelo.nitro.core.Callback
-import com.margelo.nitro.utils.mapToArray
 
 /**
  * Represents the JavaScript object/struct "UnsignedValues".
@@ -38,13 +37,7 @@ data class UnsignedValues(
   @Keep
   val callbacks: Array<Callback<(value: ULong) -> ULong>>
 ) {
-  @DoNotStrip
-  @Keep
-  @Suppress("unused", "FunctionName")
-  @JvmName("getCallbacks_cxx")
-  private fun getCallbacks_cxx(): Array<Callback_uint64_t_uint64_t> {
-    return callbacks.mapToArray<Callback<(value: ULong) -> ULong>, Callback_uint64_t_uint64_t> { __item -> Callback_uint64_t_uint64_t.fromKotlin(__item) }
-  }
+
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -77,8 +70,8 @@ data class UnsignedValues(
     @Suppress("unused")
     @JvmStatic
     @JvmName("fromCpp")
-    private fun fromCpp(unsignedValue: Long, optionalUnsigned: ULong?, values: Array<ULong>, nested: Array<Array<ULong>>, record: Map<String, ULong?>, callbacks: Array<Callback_uint64_t_uint64_t>): UnsignedValues {
-      return UnsignedValues(unsignedValue.toULong(), optionalUnsigned, values, nested, record, callbacks.mapToArray<Callback_uint64_t_uint64_t, Callback<(value: ULong) -> ULong>> { __item -> __item })
+    private fun fromCpp(unsignedValue: Long, optionalUnsigned: ULong?, values: Array<ULong>, nested: Array<Array<ULong>>, record: Map<String, ULong?>, callbacks: Array<Callback<(value: ULong) -> ULong>>): UnsignedValues {
+      return UnsignedValues(unsignedValue.toULong(), optionalUnsigned, values, nested, record, callbacks)
     }
   }
 }

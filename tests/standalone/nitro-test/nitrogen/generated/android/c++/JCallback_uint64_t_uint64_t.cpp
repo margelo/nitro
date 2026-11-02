@@ -14,6 +14,10 @@
 
 namespace margelo::nitro::test {
 
+  jni::local_ref<JCallback_uint64_t_uint64_t::JFunction_cxx> JCallback_uint64_t_uint64_t::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    return newInstance(callback);
+  }
+
   JNIRetainedValue<uint64_t>::Type JCallback_uint64_t_uint64_t::JFunction_cxx::invoke(JNIRetainedValue<uint64_t>::Type value) const {
     static const auto __method = javaClassStatic()->getMethod<jlong(jlong)>("call");
     auto result = __method(self(), JNIConverter<uint64_t, jlong>::toJNI(JNIRetainedValue<uint64_t>::borrow(value)));
@@ -36,12 +40,9 @@ namespace margelo::nitro::test {
     callAndForget(JNIConverter<uint64_t, jlong>::fromJNI(value));
   }
 
-  jni::local_ref<JCallback_uint64_t_uint64_t::JavaPart> JCallback_uint64_t_uint64_t::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    return create(getCallback(callback));
-  }
-
-  jni::local_ref<JCallback_uint64_t_uint64_t::JavaPart> JCallback_uint64_t_uint64_t::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
-    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  JCallback_uint64_t_uint64_t::CallbackType JCallback_uint64_t_uint64_t::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    auto function = JFunction_cxx::create(callback);
+    return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
 
   void JCallback_uint64_t_uint64_t::registerNatives() {
@@ -49,8 +50,6 @@ namespace margelo::nitro::test {
       makeNativeMethod("callSync_cxx", JCallback_uint64_t_uint64_t::callSync_cxx),
       makeNativeMethod("callAsync_cxx", JCallback_uint64_t_uint64_t::callAsync_cxx),
       makeNativeMethod("callAndForget_cxx", JCallback_uint64_t_uint64_t::callAndForget_cxx),
-      makeNativeMethod("fromCxx_cxx", JCallback_uint64_t_uint64_t::fromCxx_cxx),
-      makeNativeMethod("fromFunction_cxx", JCallback_uint64_t_uint64_t::fromFunction_cxx),
     });
   }
 

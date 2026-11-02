@@ -13,6 +13,10 @@
 
 namespace margelo::nitro::test::external {
 
+  jni::local_ref<JCallback_Promise_double_::JFunction_cxx> JCallback_Promise_double_::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    return newInstance(callback);
+  }
+
   JNIRetainedValue<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>>::Type JCallback_Promise_double_::JFunction_cxx::invoke() const {
     static const auto __method = javaClassStatic()->getMethod<jni::local_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>()>("call");
     auto result = __method(self());
@@ -35,12 +39,9 @@ namespace margelo::nitro::test::external {
     callAndForget();
   }
 
-  jni::local_ref<JCallback_Promise_double_::JavaPart> JCallback_Promise_double_::fromCxx_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JCxxCallback::javaobject> callback) {
-    return create(getCallback(callback));
-  }
-
-  jni::local_ref<JCallback_Promise_double_::JavaPart> JCallback_Promise_double_::fromFunction_cxx(jni::alias_ref<jni::JClass>, jni::alias_ref<JFunction_cxx> function) {
-    return create(CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function))));
+  JCallback_Promise_double_::CallbackType JCallback_Promise_double_::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+    auto function = JFunction_cxx::create(callback);
+    return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
 
   void JCallback_Promise_double_::registerNatives() {
@@ -48,8 +49,6 @@ namespace margelo::nitro::test::external {
       makeNativeMethod("callSync_cxx", JCallback_Promise_double_::callSync_cxx),
       makeNativeMethod("callAsync_cxx", JCallback_Promise_double_::callAsync_cxx),
       makeNativeMethod("callAndForget_cxx", JCallback_Promise_double_::callAndForget_cxx),
-      makeNativeMethod("fromCxx_cxx", JCallback_Promise_double_::fromCxx_cxx),
-      makeNativeMethod("fromFunction_cxx", JCallback_Promise_double_::fromFunction_cxx),
     });
   }
 

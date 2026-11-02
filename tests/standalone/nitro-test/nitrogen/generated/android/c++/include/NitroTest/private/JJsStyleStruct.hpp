@@ -22,9 +22,9 @@ namespace margelo::nitro::test {
   struct JJsStyleStruct final : public jni::JavaClass<JJsStyleStruct> {
     static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/JsStyleStruct;";
 
-    static jni::local_ref<JJsStyleStruct> create(jdouble value, jni::alias_ref<margelo::nitro::test::JCallback_void_double::JavaPart> onChanged) {
+    static jni::local_ref<JJsStyleStruct> create(jdouble value, jni::alias_ref<JTypedCallback<margelo::nitro::test::JCallback_void_double::JavaPart>> onChanged) {
       static const auto clazz = javaClassStatic();
-      static const auto create = clazz->getStaticMethod<JJsStyleStruct(jdouble, jni::alias_ref<margelo::nitro::test::JCallback_void_double::JavaPart>)>("fromCpp");
+      static const auto create = clazz->getStaticMethod<JJsStyleStruct(jdouble, jni::alias_ref<JTypedCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>)>("fromCpp");
       return create(clazz, value, onChanged);
     }
 
@@ -33,10 +33,9 @@ namespace margelo::nitro::test {
       return getFieldValue(field);
     }
 
-    jni::local_ref<margelo::nitro::test::JCallback_void_double::JavaPart> getOnChanged() const {
-      static const auto clazz = javaClassStatic();
-      static const auto method = clazz->getNonvirtualMethod<margelo::nitro::test::JCallback_void_double::JavaPart()>("getOnChanged_cxx");
-      return method(this->self(), clazz);
+    jni::local_ref<JTypedCallback<margelo::nitro::test::JCallback_void_double::JavaPart>> getOnChanged() const {
+      static const auto field = javaClassStatic()->getField<JTypedCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>("onChanged");
+      return getFieldValue(field);
     }
   };
 

@@ -65,8 +65,8 @@ namespace margelo::nitro::test::external {
     // Properties
     jboolean getIsBlue();
     void setIsBlue(jboolean isBlue);
-    jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart> getSomeCallback();
-    void setSomeCallback(const jni::local_ref<margelo::nitro::test::external::JCallback_void::JavaPart>& someCallback);
+    jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void::JavaPart>> getSomeCallback();
+    void setSomeCallback(const jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void::JavaPart>>& someCallback);
 
   public:
     // Methods

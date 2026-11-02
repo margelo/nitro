@@ -42,9 +42,9 @@ namespace margelo::nitro::test {
     class First final : public jni::JavaClass<First, JVariant_Callback_______Unit__Double> {
     public:
       static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Variant_Callback_______Unit__Double$First;";
-      using Value = jni::local_ref<margelo::nitro::test::JCallback_void::JavaPart>;
+      using Value = jni::local_ref<JTypedCallback<margelo::nitro::test::JCallback_void::JavaPart>>;
 
-      static jni::local_ref<JVariant_Callback_______Unit__Double> create(jni::alias_ref<margelo::nitro::test::JCallback_void::JavaPart> value);
+      static jni::local_ref<JVariant_Callback_______Unit__Double> create(jni::alias_ref<JTypedCallback<margelo::nitro::test::JCallback_void::JavaPart>> value);
       [[nodiscard]] Value getValue() const;
     };
 

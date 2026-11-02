@@ -35,21 +35,11 @@ abstract class HybridTestViewSpec: HybridView() {
   @set:Keep
   abstract var isBlue: Boolean
 
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
   abstract var someCallback: Callback<() -> Unit>
-
-  @JvmName("getSomeCallback_cxx")
-  @DoNotStrip
-  @Keep
-  private fun getSomeCallback_cxx(): Callback_void {
-    return Callback_void.fromKotlin(this.someCallback)
-  }
-
-  @JvmName("setSomeCallback_cxx")
-  @DoNotStrip
-  @Keep
-  private fun setSomeCallback_cxx(value: Callback_void): Unit {
-    this.someCallback = value
-  }
 
   // Methods
   @DoNotStrip

@@ -17,13 +17,13 @@ namespace margelo::nitro {
 
   jni::local_ref<margelo::nitro::test::external::JSharedCallbackStruct> JSIConverter<jni::local_ref<margelo::nitro::test::external::JSharedCallbackStruct>>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
     auto object = value.asObject(runtime);
-    return margelo::nitro::test::external::JSharedCallbackStruct::create(JSIConverter<jdouble>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), JSIConverter<jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged"))));
+    return margelo::nitro::test::external::JSharedCallbackStruct::create(JSIConverter<jdouble>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), JSIConverter<jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged"))));
   }
 
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::external::JSharedCallbackStruct>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::external::JSharedCallbackStruct> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<jdouble>::toJSI(runtime, value->getValue()));
-    object.setProperty(runtime, PropNameIDCache::get(runtime, "onChanged"), JSIConverter<jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>>::toJSI(runtime, value->getOnChanged()));
+    object.setProperty(runtime, PropNameIDCache::get(runtime, "onChanged"), JSIConverter<jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>>>::toJSI(runtime, value->getOnChanged()));
     return object;
   }
 
@@ -31,7 +31,7 @@ namespace margelo::nitro {
     if (!value.isObject()) return false;
     auto object = value.getObject(runtime);
     if (!isPlainObject(runtime, object)) return false;
-    return JSIConverter<jdouble>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))) && JSIConverter<jni::local_ref<margelo::nitro::test::external::JCallback_void_double::JavaPart>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged")));
+    return JSIConverter<jdouble>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))) && JSIConverter<jni::local_ref<JTypedCallback<margelo::nitro::test::external::JCallback_void_double::JavaPart>>>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged")));
   }
 
 } // namespace margelo::nitro
