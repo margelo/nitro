@@ -79,8 +79,7 @@ abstract class HybridGrandchildSpec: HybridChildSpec() {
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridGrandchildSpec {
-      val __result = HybridGrandchild.constructor()
-      return __result
+      return HybridGrandchild.constructor()
     }
   }
 }

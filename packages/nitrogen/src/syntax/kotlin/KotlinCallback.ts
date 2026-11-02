@@ -15,7 +15,6 @@ export function createKotlinCallback(callbackType: KotlinCallbackType): SourceFi
   const isVoid = publicType.returnType.kind === 'void'
   const asyncType = new KotlinPromiseType(new PromiseType(publicType.returnType), { config: callbackType.config })
 
-  // The public Kotlin API, e.g. `ULong`.
   const kotlinCallbackType = publicType.getCode('kotlin', { context: 'type-argument' })
   const kotlinReturnType = publicType.returnType.getCode('kotlin', { context: 'type-argument' })
   const kotlinAsyncType = asyncType.type.getCode('kotlin', { context: 'return' })
@@ -23,53 +22,51 @@ export function createKotlinCallback(callbackType: KotlinCallbackType): SourceFi
   const kotlinParamTypes = publicType.parameters.map((p) => p.getCode('kotlin', { context: 'type-argument' }))
   const arityType = `Callback.Arity${publicType.parameters.length}<${[...kotlinParamTypes, kotlinReturnType].join(', ')}>`
 
-  // The Kotlin types JNI uses, e.g. `Long` for `ULong`.
-  const bridgeReturnType = callbackType.returnType.getCode('kotlin', { context: 'return' })
-  const bridgeAsyncType = asyncType.getCode('kotlin', { context: 'return' })
-  const bridgeParams = callbackType.parameters.map((p) => `${p.escapedName}: ${p.getCode('kotlin', { context: 'parameter' })}`)
-  const toBridgeArguments = callbackType.parameters.map((p) => p.convert(p.escapedName, { from: 'kotlin', to: 'c++', in: 'kotlin' }))
-  const fromBridgeArguments = callbackType.parameters.map((p) => p.convert(p.escapedName, { from: 'c++', to: 'kotlin', in: 'kotlin' }))
+  const kotlinArguments = callbackType.parameters.map((parameter) => parameter.escapedName)
+  const callAnnotations = ['@DoNotStrip', '@Keep', '@JvmName("call")']
+  const callSyncAnnotations = ['@DoNotStrip', '@Keep', '@JvmName("callSync_cxx")']
+  const callAsyncAnnotations = ['@DoNotStrip', '@Keep', '@JvmName("callAsync_cxx")']
+  const callAndForgetAnnotations = ['@DoNotStrip', '@Keep', '@JvmName("callAndForget_cxx")']
 
-  const callSyncNative = `callSync_cxx(${toBridgeArguments.join(', ')})`
+  const callSyncNative = `callSync_cxx(${kotlinArguments.join(', ')})`
   let callSyncBody: string
   if (isVoid) {
     callSyncBody = callSyncNative
-  } else if (callbackType.returnType.needsKotlinConversion) {
-    const result = callbackType.returnType.convert('__result', { from: 'c++', to: 'kotlin', in: 'kotlin' })
+  } else {
     callSyncBody = `
-val __result = ${callSyncNative}
-return ${result}
+return ${callSyncNative}
 `.trim()
-  } else {
-    callSyncBody = `return ${callSyncNative}`
-  }
-
-  const callAsyncNative = `callAsync_cxx(${toBridgeArguments.join(', ')})`
-  let callAsyncBody: string
-  if (asyncType.needsKotlinConversion) {
-    const result = asyncType.convert('__result', { from: 'c++', to: 'kotlin', in: 'kotlin' })
-    callAsyncBody = `
-val __result = ${callAsyncNative}
-return ${result}
-`.trim()
-  } else {
-    callAsyncBody = `return ${callAsyncNative}`
   }
 
   // A parameter may have the same name as the property, so qualify it with `this`.
-  const callKotlin = `this.callback.callSync(${fromBridgeArguments.join(', ')})`
+  const callKotlin = `this.callback.callSync(${kotlinArguments.join(', ')})`
   let callKotlinBody: string
   if (isVoid) {
     callKotlinBody = callKotlin
-  } else if (callbackType.returnType.needsKotlinConversion) {
-    const result = callbackType.returnType.convert('__result', { from: 'kotlin', to: 'c++', in: 'kotlin' })
-    callKotlinBody = `
-val __result = ${callKotlin}
-return ${result}
-`.trim()
   } else {
-    callKotlinBody = `return ${callKotlin}`
+    callKotlinBody = `
+return ${callKotlin}
+`.trim()
   }
+
+  const callCode = `
+${callAnnotations.join('\n')}
+fun call(${kotlinParams.join(', ')}): ${kotlinReturnType} {
+  ${indent(callKotlinBody, '  ')}
+}
+`.trim()
+  const callSyncDeclaration = `
+${callSyncAnnotations.join('\n')}
+private external fun callSync_cxx(${kotlinParams.join(', ')}): ${kotlinReturnType}
+`.trim()
+  const callAsyncDeclaration = `
+${callAsyncAnnotations.join('\n')}
+private external fun callAsync_cxx(${kotlinParams.join(', ')}): ${kotlinAsyncType}
+`.trim()
+  const callAndForgetDeclaration = `
+${callAndForgetAnnotations.join('\n')}
+private external fun callAndForget_cxx(${kotlinParams.join(', ')}): Unit
+`.trim()
 
   const coreImports: SourceImport[] = [
     { language: 'kotlin', name: 'com.margelo.nitro.core.CxxCallback' },
@@ -113,42 +110,28 @@ class ${name} @DoNotStrip @Keep private constructor(hybridData: HybridData): Cxx
   }
 
   override fun callAsync(${kotlinParams.join(', ')}): ${kotlinAsyncType} {
-    ${indent(callAsyncBody, '    ')}
+    return callAsync_cxx(${kotlinArguments.join(', ')})
   }
 
   override fun callAndForget(${kotlinParams.join(', ')}): Unit {
-    callAndForget_cxx(${toBridgeArguments.join(', ')})
+    callAndForget_cxx(${kotlinArguments.join(', ')})
   }
 
   /**
-   * Lets C++ call a callback implemented in Kotlin with JNI types, e.g. \`Long\` instead of \`ULong\`.
+   * Lets C++ call a callback implemented in Kotlin through a JNI entry point.
    * C++ creates it when such a callback crosses JNI.
    */
   @DoNotStrip
   @Keep
   private class Function_cxx(private val callback: ${kotlinCallbackType}) {
-    @DoNotStrip
-    @Keep
-    @JvmName("call")
-    fun call(${bridgeParams.join(', ')}): ${bridgeReturnType} {
-      ${indent(callKotlinBody, '      ')}
-    }
+    ${indent(callCode, '    ')}
   }
 
-  @DoNotStrip
-  @Keep
-  @JvmName("callSync_cxx")
-  private external fun callSync_cxx(${bridgeParams.join(', ')}): ${bridgeReturnType}
+  ${indent(callSyncDeclaration, '  ')}
 
-  @DoNotStrip
-  @Keep
-  @JvmName("callAsync_cxx")
-  private external fun callAsync_cxx(${bridgeParams.join(', ')}): ${bridgeAsyncType}
+  ${indent(callAsyncDeclaration, '  ')}
 
-  @DoNotStrip
-  @Keep
-  @JvmName("callAndForget_cxx")
-  private external fun callAndForget_cxx(${bridgeParams.join(', ')}): Unit
+  ${indent(callAndForgetDeclaration, '  ')}
 }
   `.trim()
 

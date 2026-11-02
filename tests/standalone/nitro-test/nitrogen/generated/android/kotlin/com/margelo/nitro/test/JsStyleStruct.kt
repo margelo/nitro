@@ -25,8 +25,6 @@ data class JsStyleStruct(
   @Keep
   val onChanged: Callback<(num: Double) -> Unit>
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is JsStyleStruct) return false

@@ -27,7 +27,7 @@ interface KotlinInstanceBridgeOptions {
 
 /**
  * The Kotlin member that C++ calls through JNI.
- * If values need conversion or JVM names are mangled, this is a private `_cxx` bridge;
+ * If JVM names are mangled, this is a private `_cxx` bridge;
  * otherwise JNI calls the public abstract member directly.
  */
 export class KotlinInstanceMethod extends InstanceMethod {
@@ -58,7 +58,7 @@ export class KotlinInstanceMethod extends InstanceMethod {
     }
     let parameters: Parameter[]
     if (accessor?.kind === 'setter') {
-      // Like Kotlin setters, name it `value`, which no conversion uses.
+      // Like Kotlin setters, name the parameter `value`.
       parameters = callable.parameters.map((parameter) => new Parameter('value', parameter.type))
     } else {
       parameters = callable.parameters.map((parameter) => parameter.kotlin)
@@ -116,25 +116,18 @@ export class KotlinInstanceMethod extends InstanceMethod {
     // Kotlin property accessors cannot be called like methods.
     const propertyName = this.accessor.property.name
     switch (this.accessor.kind) {
-      case 'getter': {
-        const kotlinValue = this.returnType.convert(`this.${propertyName}`, {
-          from: 'kotlin',
-          to: 'c++',
-          in: 'kotlin',
-        })
-        return `return ${kotlinValue}`
-      }
+      case 'getter':
+        return `
+return this.${propertyName}
+`.trim()
       case 'setter': {
         const [parameter] = this.callable.parameters
         if (parameter == null) {
           throw new Error('A Kotlin property setter requires a value parameter.')
         }
-        const publicValue = parameter.type.convert('value', {
-          from: 'c++',
-          to: 'kotlin',
-          in: 'kotlin',
-        })
-        return `this.${propertyName} = ${publicValue}`
+        return `
+this.${propertyName} = value
+`.trim()
       }
     }
   }

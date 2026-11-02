@@ -9,7 +9,6 @@ import type { SourceImport } from '../../SourceFile.js'
 
 export class KotlinStringType extends StringType implements KotlinType {
   readonly jniValueKind = 'object'
-  readonly needsKotlinConversion = false
 
   getCppConverter(cppType: Type): KotlinCppConverter {
     return new KotlinCxxStringType(cppType, this).getConverter()
@@ -26,15 +25,18 @@ export class KotlinStringType extends StringType implements KotlinType {
 
   convert(value: string, { from, in: language }: KotlinConversion): string {
     switch (language) {
-      case 'kotlin':
-        return value
-      case 'c++':
+      case 'c++': {
         switch (from) {
           case 'c++':
             return `JNIConverter<std::string, jni::local_ref<jni::JString>>::toJNI(${value})`
           case 'kotlin':
             return `JNIConverter<std::string, jni::local_ref<jni::JString>>::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
+      }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

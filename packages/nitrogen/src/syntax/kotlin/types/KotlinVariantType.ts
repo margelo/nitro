@@ -22,7 +22,6 @@ export class KotlinVariantType extends VariantType implements KotlinType {
   override readonly variants: KotlinType[]
   readonly kotlinCases: KotlinVariantCase[]
   readonly jniValueKind = 'object'
-  readonly needsKotlinConversion = false
 
   constructor(
     readonly type: VariantType,
@@ -53,8 +52,6 @@ export class KotlinVariantType extends VariantType implements KotlinType {
 
   convert(value: string, { from, in: language }: KotlinConversion): string {
     switch (language) {
-      case 'kotlin':
-        return value
       case 'c++': {
         const cppType = this.type.getCode('c++', { context: 'value' })
         const jniType = this.getCode('c++', { context: 'value' })
@@ -64,8 +61,12 @@ export class KotlinVariantType extends VariantType implements KotlinType {
             return `${converter}::toJNI(${value})`
           case 'kotlin':
             return `${converter}::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
       }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

@@ -7,7 +7,6 @@ import type { KotlinCppConverter } from '../KotlinConverter.js'
 import { getJniPrimitiveCode, type JniValueKind, type KotlinConversion, type KotlinType, type KotlinTypeOptions } from './KotlinType.js'
 
 export class KotlinInt64Type extends Int64Type implements KotlinType {
-  readonly needsKotlinConversion = false
   readonly boxed: boolean
 
   constructor({ boxed }: KotlinTypeOptions = {}) {
@@ -33,20 +32,22 @@ export class KotlinInt64Type extends Int64Type implements KotlinType {
     }
   }
 
-  convert(value: string, conversion: KotlinConversion): string {
-    switch (conversion.in) {
-      case 'kotlin':
-        return value
+  convert(value: string, { from, in: language }: KotlinConversion): string {
+    switch (language) {
       case 'c++': {
         const jniType = this.getCode('c++', { context: 'value' })
         const converter = `JNIConverter<int64_t, ${jniType}>`
-        switch (conversion.from) {
+        switch (from) {
           case 'c++':
             return `${converter}::toJNI(${value})`
           case 'kotlin':
             return `${converter}::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
       }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

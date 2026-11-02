@@ -11,9 +11,6 @@ import { getJniReferenceCode, type KotlinConversion, type KotlinType, type Kotli
 export class KotlinPromiseType extends PromiseType implements KotlinType {
   override readonly resultingType: KotlinType
   readonly jniValueKind = 'object'
-  get needsKotlinConversion(): boolean {
-    return this.resultingType.needsKotlinConversion
-  }
 
   constructor(
     readonly type: PromiseType,
@@ -29,28 +26,23 @@ export class KotlinPromiseType extends PromiseType implements KotlinType {
     return new KotlinCxxPromiseType(getTypeAs(cppType, PromiseType), this).getConverter()
   }
 
-  convert(value: string, conversion: KotlinConversion): string {
-    switch (conversion.in) {
-      case 'kotlin': {
-        if (!this.needsKotlinConversion) return value
-        const resultingType = conversion.from === 'c++' ? this.type.resultingType : this.resultingType
-        const resultType = resultingType.getCode('kotlin', {
-          context: 'type-argument',
-        })
-        const result = this.resultingType.convert('__result', conversion)
-        return `${value}.let { __source -> Promise<${resultType}>().also { __promise -> __source.then { __result -> __promise.resolve(${result}) }.catch { __promise.reject(it) } } }`
-      }
+  convert(value: string, { from, in: language }: KotlinConversion): string {
+    switch (language) {
       case 'c++': {
         const cppType = this.type.getCode('c++', { context: 'value' })
         const jniType = this.getCode('c++', { context: 'value' })
         const converter = `JNIConverter<${cppType}, ${jniType}>`
-        switch (conversion.from) {
+        switch (from) {
           case 'c++':
             return `${converter}::toJNI(${value})`
           case 'kotlin':
             return `${converter}::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
       }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

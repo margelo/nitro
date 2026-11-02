@@ -44,8 +44,7 @@ abstract class HybridSomeExternalObjectSpec: HybridObject() {
   @DoNotStrip
   @Keep
   private fun createOptionalPrimitivesHolder_cxx(optionalNumber: Double?, optionalBoolean: Boolean?, optionalUInt64: ULong?, optionalInt64: Long?): OptionalPrimitivesHolder {
-    val __result = createOptionalPrimitivesHolder(optionalNumber, optionalBoolean, optionalUInt64, optionalInt64)
-    return __result
+    return createOptionalPrimitivesHolder(optionalNumber, optionalBoolean, optionalUInt64, optionalInt64)
   }
 
   // Default implementation of `HybridObject.toString()`

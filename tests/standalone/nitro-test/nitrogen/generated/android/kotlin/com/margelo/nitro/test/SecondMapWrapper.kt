@@ -22,8 +22,6 @@ data class SecondMapWrapper(
   @Keep
   val second: Map<String, String>
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is SecondMapWrapper) return false

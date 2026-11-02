@@ -42,7 +42,7 @@ class Callback_std__vector_uint64_t__std__vector_uint64_t_ @DoNotStrip @Keep pri
   }
 
   /**
-   * Lets C++ call a callback implemented in Kotlin with JNI types, e.g. `Long` instead of `ULong`.
+   * Lets C++ call a callback implemented in Kotlin through a JNI entry point.
    * C++ creates it when such a callback crosses JNI.
    */
   @DoNotStrip

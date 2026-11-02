@@ -22,8 +22,6 @@ data class ExternalObjectStruct(
   @Keep
   val someExternal: com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ExternalObjectStruct) return false

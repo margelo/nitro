@@ -22,8 +22,6 @@ data class OptionalCallback(
   @Keep
   val callback: Variant_Callback_______Unit__Double?
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is OptionalCallback) return false

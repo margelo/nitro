@@ -80,8 +80,7 @@ abstract class HybridSomeExternalObjectChildSpec: com.margelo.nitro.test.externa
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridSomeExternalObjectChildSpec {
-      val __result = HybridSomeExternalObjectChild.constructor()
-      return __result
+      return HybridSomeExternalObjectChild.constructor()
     }
   }
 }

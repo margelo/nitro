@@ -10,7 +10,6 @@ import { getJniReferenceCode, type KotlinConversion, type KotlinType } from './K
 /** JSON crosses JNI as its serialized representation. */
 export class KotlinAnyJSONType extends AnyJSONType implements KotlinType {
   readonly jniValueKind = 'object'
-  readonly needsKotlinConversion = false
 
   getCppConverter(cppType: Type): KotlinCppConverter {
     return new KotlinCxxAnyJSONType(cppType, this).getConverter()
@@ -26,17 +25,20 @@ export class KotlinAnyJSONType extends AnyJSONType implements KotlinType {
     }
   }
 
-  convert(value: string, conversion: KotlinConversion): string {
-    switch (conversion.in) {
-      case 'kotlin':
-        return value
-      case 'c++':
-        switch (conversion.from) {
+  convert(value: string, { from, in: language }: KotlinConversion): string {
+    switch (language) {
+      case 'c++': {
+        switch (from) {
           case 'c++':
             return `JNIConverter<AnyJSON, jni::local_ref<JAnyJSON>>::toJNI(${value})`
           case 'kotlin':
             return `JNIConverter<AnyJSON, jni::local_ref<JAnyJSON>>::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
+      }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

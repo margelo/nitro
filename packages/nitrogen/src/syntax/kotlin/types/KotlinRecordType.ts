@@ -32,29 +32,23 @@ export class KotlinRecordType extends RecordType implements KotlinType {
     return new KotlinCxxRecordType(getTypeAs(cppType, RecordType), this).getConverter()
   }
 
-  get needsKotlinConversion(): boolean {
-    return this.keyType.needsKotlinConversion || this.valueType.needsKotlinConversion
-  }
-  convert(value: string, conversion: KotlinConversion): string {
-    switch (conversion.in) {
-      case 'kotlin': {
-        if (!this.needsKotlinConversion) return value
-        const item = this.valueType.convert('__value', conversion)
-        return `
-${value}.mapValues { (_, __value) -> ${item} }
-`.trim()
-      }
+  convert(value: string, { from, in: language }: KotlinConversion): string {
+    switch (language) {
       case 'c++': {
         const cppType = this.type.getCode('c++', { context: 'value' })
         const jniType = this.getCode('c++', { context: 'value' })
         const converter = `JNIConverter<${cppType}, ${jniType}>`
-        switch (conversion.from) {
+        switch (from) {
           case 'c++':
             return `${converter}::toJNI(${value})`
           case 'kotlin':
             return `${converter}::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
       }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

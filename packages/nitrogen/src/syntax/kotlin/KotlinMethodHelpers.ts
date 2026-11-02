@@ -42,7 +42,7 @@ export interface KotlinMethodInfo {
   cppReturnType: Type
   hasNativeReturn: boolean
   parameters: KotlinMethodParameter[]
-  /** Whether JNI needs a private bridge for value conversion or a stable JVM name. */
+  /** Whether JNI needs a private bridge for a stable JVM name. */
   needsKotlinBridge: boolean
 }
 
@@ -63,7 +63,6 @@ export function prepareKotlinMethod(nativeMethod: Method, { directReturn = true 
       type: kotlinType,
     }
   })
-  const needsKotlinConversion = returnType.needsKotlinConversion || parameters.some((parameter) => parameter.type.needsKotlinConversion)
   const requiresKotlinJvmName =
     returnType.requiresKotlinJvmName === true || parameters.some((parameter) => parameter.type.requiresKotlinJvmName === true)
   return {
@@ -72,7 +71,7 @@ export function prepareKotlinMethod(nativeMethod: Method, { directReturn = true 
     cppReturnType: directReturn ? returnType : nativeMethod.returnType,
     hasNativeReturn: !directReturn,
     parameters: parameters,
-    needsKotlinBridge: needsKotlinConversion || requiresKotlinJvmName,
+    needsKotlinBridge: requiresKotlinJvmName,
   }
 }
 
@@ -81,29 +80,17 @@ interface KotlinBridgeBodyOptions {
   getKotlinInvocation: (args: string[]) => string
 }
 
-/** Kotlin bridges convert JNI values to the public API and back. */
+/** Kotlin bridges forward calls through stable JVM entry points. */
 export function createKotlinBridgeBody({ callable, getKotlinInvocation }: KotlinBridgeBodyOptions): string {
-  const kotlinArguments = callable.parameters.map((parameter) =>
-    parameter.type.convert(parameter.native.type.escapedName, {
-      from: 'c++',
-      to: 'kotlin',
-      in: 'kotlin',
-    })
-  )
+  const kotlinArguments = callable.parameters.map((parameter) => parameter.native.type.escapedName)
   const kotlinInvocation = getKotlinInvocation(kotlinArguments)
   if (callable.nativeMethod.returnType.kind === 'void') {
     return `
 ${kotlinInvocation}
 `.trim()
   }
-  const kotlinResult = callable.returnType.convert('__result', {
-    from: 'kotlin',
-    to: 'c++',
-    in: 'kotlin',
-  })
   return `
-val __result = ${kotlinInvocation}
-return ${kotlinResult}
+return ${kotlinInvocation}
 `.trim()
 }
 

@@ -26,30 +26,17 @@ val ${p.escapedName}: ${type}
       return `${p.escapedName}: ${type}`
     })
     .join(', ')
-  const cxxCreateFunctionForward = structType.properties
-    .map((property) => property.convert(property.escapedName, { from: 'c++', to: 'kotlin', in: 'kotlin' }))
-    .join(', ')
+  const cxxCreateFunctionForward = structType.properties.map((property) => property.escapedName).join(', ')
+  const fromCppAnnotations = ['@DoNotStrip', '@Keep', '@Suppress("unused")', '@JvmStatic', '@JvmName("fromCpp")']
+  const fromCppCode = `
+${fromCppAnnotations.join('\n')}
+private fun fromCpp(${cxxCreateFunctionParameters}): ${structType.structName} {
+  return ${structType.structName}(${cxxCreateFunctionForward})
+}
+`.trim()
 
   const kotlinPropertyImports = [...publicType.properties, ...structType.properties].flatMap((type) => type.getRequiredImports('kotlin'))
   const extraImports = getImportsCode(kotlinPropertyImports)
-
-  const jniGetters = structType.properties
-    .filter((property) => !property.isKotlinFieldCompatible)
-    .map((property) => {
-      const name = capitalizeName(property.escapedName)
-      const type = property.getCode('kotlin', { context: 'return' })
-      const value = property.convert(property.escapedName, { from: 'kotlin', to: 'c++', in: 'kotlin' })
-      return `
-@DoNotStrip
-@Keep
-@Suppress("unused", "FunctionName")
-@JvmName("get${name}_cxx")
-private fun get${name}_cxx(): ${type} {
-  return ${value}
-}
-`.trim()
-    })
-    .join('\n\n')
 
   const equalityComparators = structType.properties.map(
     (property) => `Objects.deepEquals(this.${property.escapedName}, other.${property.escapedName})`
@@ -74,8 +61,6 @@ ${extraImports}
 data class ${structType.structName}(
   ${indent(properties, '  ')}
 ) {
-  ${indent(jniGetters, '  ')}
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ${structType.structName}) return false
@@ -92,14 +77,7 @@ data class ${structType.structName}(
     /**
      * Constructor called from C++
      */
-    @DoNotStrip
-    @Keep
-    @Suppress("unused")
-    @JvmStatic
-    @JvmName("fromCpp")
-    private fun fromCpp(${cxxCreateFunctionParameters}): ${structType.structName} {
-      return ${structType.structName}(${cxxCreateFunctionForward})
-    }
+    ${indent(fromCppCode, '    ')}
   }
 }
   `.trim()
@@ -122,18 +100,7 @@ data class ${structType.structName}(
     const returnType = property.getCode('c++', { context: 'return' })
     const signatureType = getJniCode(property, { context: 'property' })
     const name = capitalizeName(property.escapedName)
-    const methodResult = convertJniValue(property, 'method(this->self(), clazz)', 'from-jni')
     const fieldResult = convertJniValue(property, 'getFieldValue(field)', 'from-jni')
-    if (!property.isKotlinFieldCompatible) {
-      // The getter is private and final, so JNI calls it without a virtual lookup.
-      return `
-${returnType} get${name}() const {
-  static const auto clazz = javaClassStatic();
-  static const auto method = clazz->getNonvirtualMethod<${signatureType}()>("get${name}_cxx");
-  return ${methodResult};
-}
-`.trim()
-    }
     return `
 ${returnType} get${name}() const {
   static const auto field = javaClassStatic()->getField<${signatureType}>("${property.escapedName}");
