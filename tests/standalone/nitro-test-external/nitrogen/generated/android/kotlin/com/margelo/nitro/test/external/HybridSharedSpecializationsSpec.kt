@@ -136,7 +136,6 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
       get() = HybridSharedSpecializations
 
     // Constructor
-    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

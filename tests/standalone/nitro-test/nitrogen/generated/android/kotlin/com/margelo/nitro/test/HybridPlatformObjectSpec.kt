@@ -91,7 +91,6 @@ abstract class HybridPlatformObjectSpec: HybridObject() {
       get() = HybridPlatformObject
 
     // Constructor
-    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

@@ -47,7 +47,6 @@ data class SharedCallbackStruct(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    @JvmName("fromCpp")
     private fun fromCpp(value: Double, onChanged: Callback<(value: Double) -> Unit>): SharedCallbackStruct {
       return SharedCallbackStruct(value, onChanged)
     }

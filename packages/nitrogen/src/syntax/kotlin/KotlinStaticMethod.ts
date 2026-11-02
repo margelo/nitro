@@ -58,7 +58,7 @@ export class KotlinStaticMethod extends StaticMethod {
       getKotlinInvocation: (args) => `${this.implementationClassName}.${nativeMethod.name}(${args.join(', ')})`,
     })
     return {
-      kotlinMethods: [{ method: this, body: kotlinBody }],
+      kotlinMethods: [{ method: this, body: kotlinBody, requiresKotlinJvmName: this.callable.needsKotlinBridge }],
       cppMethods: [{ method: cppMethod, body: cppBody }],
     }
   }

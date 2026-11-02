@@ -47,7 +47,6 @@ data class OptionalWrapper(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    @JvmName("fromCpp")
     private fun fromCpp(optionalArrayBuffer: ArrayBuffer?, optionalString: String?): OptionalWrapper {
       return OptionalWrapper(optionalArrayBuffer, optionalString)
     }

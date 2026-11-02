@@ -141,7 +141,6 @@ abstract class HybridBenchmarkObjectSwiftKotlinSpec: HybridObject() {
       get() = HybridBenchmarkObjectKotlin
 
     // Constructor
-    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

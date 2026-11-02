@@ -52,7 +52,6 @@ data class StaticPoint(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    @JvmName("fromCpp")
     private fun fromCpp(x: Double, y: Double, visible: Boolean): StaticPoint {
       return StaticPoint(x, y, visible)
     }

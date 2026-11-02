@@ -50,7 +50,6 @@ class Callback_std__vector_uint64_t__std__vector_uint64_t_ @DoNotStrip @Keep pri
   private class Function_cxx(private val callback: Callback<(array: Array<ULong>) -> Array<ULong>>) {
     @DoNotStrip
     @Keep
-    @JvmName("call")
     fun call(array: Array<ULong>): Array<ULong> {
       return this.callback.callSync(array)
     }
@@ -58,16 +57,13 @@ class Callback_std__vector_uint64_t__std__vector_uint64_t_ @DoNotStrip @Keep pri
 
   @DoNotStrip
   @Keep
-  @JvmName("callSync_cxx")
   private external fun callSync_cxx(array: Array<ULong>): Array<ULong>
 
   @DoNotStrip
   @Keep
-  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(array: Array<ULong>): Promise<Array<ULong>>
 
   @DoNotStrip
   @Keep
-  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(array: Array<ULong>): Unit
 }

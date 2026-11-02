@@ -47,7 +47,6 @@ data class JsStyleStruct(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    @JvmName("fromCpp")
     private fun fromCpp(value: Double, onChanged: Callback<(num: Double) -> Unit>): JsStyleStruct {
       return JsStyleStruct(value, onChanged)
     }

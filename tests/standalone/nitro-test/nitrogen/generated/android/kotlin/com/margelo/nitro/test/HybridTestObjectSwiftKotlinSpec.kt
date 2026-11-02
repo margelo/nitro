@@ -841,7 +841,6 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       get() = HybridTestObjectKotlin
 
     // Constructor
-    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -850,7 +849,6 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     }
 
     // Static methods
-    @JvmName("staticAdd_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -858,7 +856,6 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return HybridTestObjectKotlin.staticAdd(a, b)
     }
 
-    @JvmName("staticNegate_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -866,7 +863,6 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return HybridTestObjectKotlin.staticNegate(value)
     }
 
-    @JvmName("staticConcat_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -874,7 +870,6 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return HybridTestObjectKotlin.staticConcat(a, b)
     }
 
-    @JvmName("staticBouncePoint_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -882,7 +877,6 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return HybridTestObjectKotlin.staticBouncePoint(point)
     }
 
-    @JvmName("staticThrow_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -891,7 +885,6 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     }
 
     // Static properties
-    @JvmName("getReadonlyNumber_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -899,7 +892,6 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return HybridTestObjectKotlin.readonlyNumber
     }
 
-    @JvmName("getSharedNumber_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
@@ -907,7 +899,6 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
       return HybridTestObjectKotlin.sharedNumber
     }
 
-    @JvmName("setSharedNumber_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

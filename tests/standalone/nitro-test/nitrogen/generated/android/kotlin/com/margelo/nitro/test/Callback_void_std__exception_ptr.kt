@@ -50,7 +50,6 @@ class Callback_void_std__exception_ptr @DoNotStrip @Keep private constructor(hyb
   private class Function_cxx(private val callback: Callback<(error: Throwable) -> Unit>) {
     @DoNotStrip
     @Keep
-    @JvmName("call")
     fun call(error: Throwable): Unit {
       this.callback.callSync(error)
     }
@@ -58,16 +57,13 @@ class Callback_void_std__exception_ptr @DoNotStrip @Keep private constructor(hyb
 
   @DoNotStrip
   @Keep
-  @JvmName("callSync_cxx")
   private external fun callSync_cxx(error: Throwable): Unit
 
   @DoNotStrip
   @Keep
-  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(error: Throwable): Promise<Unit>
 
   @DoNotStrip
   @Keep
-  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(error: Throwable): Unit
 }

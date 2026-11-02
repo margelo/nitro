@@ -47,7 +47,6 @@ data class WrappedJsStruct(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    @JvmName("fromCpp")
     private fun fromCpp(value: JsStyleStruct, items: Array<JsStyleStruct>): WrappedJsStruct {
       return WrappedJsStruct(value, items)
     }

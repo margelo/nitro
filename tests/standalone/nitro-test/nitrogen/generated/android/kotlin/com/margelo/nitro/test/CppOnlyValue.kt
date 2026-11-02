@@ -47,7 +47,6 @@ data class CppOnlyValue(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    @JvmName("fromCpp")
     private fun fromCpp(label: String, kind: CppOnlyValueKind): CppOnlyValue {
       return CppOnlyValue(label, kind)
     }

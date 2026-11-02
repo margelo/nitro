@@ -50,7 +50,6 @@ class Callback_bool_bool @DoNotStrip @Keep private constructor(hybridData: Hybri
   private class Function_cxx(private val callback: Callback<(value: Boolean) -> Boolean>) {
     @DoNotStrip
     @Keep
-    @JvmName("call")
     fun call(value: Boolean): Boolean {
       return this.callback.callSync(value)
     }
@@ -58,16 +57,13 @@ class Callback_bool_bool @DoNotStrip @Keep private constructor(hybridData: Hybri
 
   @DoNotStrip
   @Keep
-  @JvmName("callSync_cxx")
   private external fun callSync_cxx(value: Boolean): Boolean
 
   @DoNotStrip
   @Keep
-  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(value: Boolean): Promise<Boolean>
 
   @DoNotStrip
   @Keep
-  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(value: Boolean): Unit
 }
