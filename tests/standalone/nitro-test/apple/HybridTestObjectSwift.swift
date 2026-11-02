@@ -363,6 +363,76 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return try callback.callSync(value)
   }
 
+  func bounceUnsignedArray(array: [UInt64]) throws -> [UInt64] {
+    return array
+  }
+
+  func bounceNestedUnsignedArray(array: [[UInt64]]) throws -> [[UInt64]] {
+    return array
+  }
+
+  func bounceOptionalUnsignedArray(array: [UInt64]?) throws -> [UInt64]? {
+    return array
+  }
+
+  func bounceUnsignedArrayAsync(array: [UInt64]) throws -> any Promise<[UInt64]> {
+    return .async {
+      return array
+    }
+  }
+
+  func callUnsignedArrayCallback(
+    array: [UInt64], callback: any Callback<[UInt64], [UInt64]>
+  ) throws -> [UInt64] {
+    return try callback.callSync(array)
+  }
+
+  func bounceUnsignedVariant(variant: Variant_UInt64_String) throws -> Variant_UInt64_String {
+    return variant
+  }
+
+  func bounceUnsignedArrayVariant(variant: Variant__UInt64__String) throws -> Variant__UInt64__String {
+    return variant
+  }
+
+  func bounceUnsignedMap(map: [String: UInt64]) throws -> [String: UInt64] {
+    return map
+  }
+
+  func bounceUnsignedArrayMap(map: [String: [UInt64]]) throws -> [String: [UInt64]] {
+    return map
+  }
+
+  func bounceUnsignedAsync(value: UInt64) throws -> any Promise<UInt64> {
+    return .async {
+      return value
+    }
+  }
+
+  func callUnsignedCallbackAsync(value: UInt64, callback: any Callback<UInt64, UInt64>) throws
+    -> any Promise<UInt64>
+  {
+    return callback.callAsync(value)
+  }
+
+  func callUnsignedArrayCallbackAsync(
+    array: [UInt64], callback: any Callback<[UInt64], [UInt64]>
+  ) throws -> any Promise<[UInt64]> {
+    return callback.callAsync(array)
+  }
+
+  func bounceNestedUnsignedArrayAsync(array: [[UInt64]]) throws -> any Promise<[[UInt64]]> {
+    return .async {
+      return array
+    }
+  }
+
+  func callNestedUnsignedArrayCallback(
+    array: [[UInt64]], callback: any Callback<[[UInt64]], [[UInt64]]>
+  ) throws -> [[UInt64]] {
+    return try callback.callSync(array)
+  }
+
   func bounceHybridObjects(array: [(any HybridChildSpec)]) throws -> [(any HybridChildSpec)] {
     return array
   }

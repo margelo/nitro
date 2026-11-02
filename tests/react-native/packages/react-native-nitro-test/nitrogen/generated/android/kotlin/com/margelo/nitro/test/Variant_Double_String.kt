@@ -59,6 +59,7 @@ sealed class Variant_Double_String private constructor(@DoNotStrip private val i
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_0")
     private fun fromCpp_0(value: Double): Variant_Double_String = First(value)
     @JvmStatic
     @JvmName("createSecond")
@@ -67,6 +68,7 @@ sealed class Variant_Double_String private constructor(@DoNotStrip private val i
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_1")
     private fun fromCpp_1(value: String): Variant_Double_String = Second(value)
   }
 }

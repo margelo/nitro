@@ -75,6 +75,7 @@ abstract class HybridSomeExternalObjectChildSpec: com.margelo.nitro.test.externa
       get() = HybridSomeExternalObjectChild
 
     // Constructor
+    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

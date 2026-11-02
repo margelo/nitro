@@ -128,6 +128,7 @@ class ${name} @DoNotStrip @Keep private constructor(hybridData: HybridData): Cxx
   private class Function_cxx(private val callback: ${kotlinCallbackType}) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(${bridgeParams.join(', ')}): ${bridgeReturnType} {
       ${indent(callKotlinBody, '      ')}
     }
@@ -135,14 +136,17 @@ class ${name} @DoNotStrip @Keep private constructor(hybridData: HybridData): Cxx
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(${bridgeParams.join(', ')}): ${bridgeReturnType}
 
   @DoNotStrip
   @Keep
+  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(${bridgeParams.join(', ')}): ${bridgeAsyncType}
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(${bridgeParams.join(', ')}): Unit
 
   companion object {
@@ -163,11 +167,13 @@ class ${name} @DoNotStrip @Keep private constructor(hybridData: HybridData): Cxx
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): ${name}
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): ${name}
   }
 }

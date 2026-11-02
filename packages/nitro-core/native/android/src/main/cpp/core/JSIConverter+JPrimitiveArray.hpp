@@ -4,16 +4,14 @@
 #include <NitroModules/JSIArrayHelpers.hpp>
 #include <algorithm>
 #include <array>
-#include <concepts>
-#include <type_traits>
 
 namespace margelo::nitro {
 
 template <typename JavaArray>
-  requires(jni::IsInstantiationOf<jni::JPrimitiveArray, JavaArray>() || std::same_as<JavaArray, JArrayUInt64>)
+  requires(jni::IsInstantiationOf<jni::JPrimitiveArray, JavaArray>())
 struct JSIConverter<jni::local_ref<JavaArray>> {
   using Primitive = typename JavaArray::T;
-  using Element = std::conditional_t<std::same_as<JavaArray, JArrayUInt64>, uint64_t, Primitive>;
+  using Element = Primitive;
 
   static jni::local_ref<JavaArray> fromJSI(jsi::Runtime& runtime, const jsi::Value& value)
     requires JSIDecodable<Element>

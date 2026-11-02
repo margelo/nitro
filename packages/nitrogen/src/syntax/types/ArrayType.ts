@@ -37,8 +37,6 @@ export class ArrayType implements Type {
             return 'BooleanArray'
           case 'int64':
             return 'LongArray'
-          case 'uint64':
-            return 'Array<ULong>'
           default:
             return `Array<${itemCode}>`
         }

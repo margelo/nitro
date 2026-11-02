@@ -49,6 +49,7 @@ class Callback_void_std__optional_double_ @DoNotStrip @Keep private constructor(
   private class Function_cxx(private val callback: Callback<(maybe: Double?) -> Unit>) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(maybe: Double?): Unit {
       this.callback.callSync(maybe)
     }
@@ -56,14 +57,17 @@ class Callback_void_std__optional_double_ @DoNotStrip @Keep private constructor(
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(maybe: Double?): Unit
 
   @DoNotStrip
   @Keep
+  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(maybe: Double?): Promise<Unit>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(maybe: Double?): Unit
 
   companion object {
@@ -84,11 +88,13 @@ class Callback_void_std__optional_double_ @DoNotStrip @Keep private constructor(
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): Callback_void_std__optional_double_
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): Callback_void_std__optional_double_
   }
 }

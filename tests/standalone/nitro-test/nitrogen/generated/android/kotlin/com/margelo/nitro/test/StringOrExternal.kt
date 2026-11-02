@@ -59,6 +59,7 @@ sealed class StringOrExternal private constructor(@DoNotStrip private val index:
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_0")
     private fun fromCpp_0(value: com.margelo.nitro.test.external.HybridSomeExternalObjectSpec): StringOrExternal = First(value)
     @JvmStatic
     @JvmName("createSecond")
@@ -67,6 +68,7 @@ sealed class StringOrExternal private constructor(@DoNotStrip private val index:
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_1")
     private fun fromCpp_1(value: String): StringOrExternal = Second(value)
   }
 }

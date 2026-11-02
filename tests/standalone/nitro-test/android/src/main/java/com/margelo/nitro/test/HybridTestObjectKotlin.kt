@@ -201,6 +201,87 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return callback.callSync(value)
   }
 
+  override fun bounceUnsignedArray(array: Array<ULong>): Array<ULong> {
+    return array
+  }
+
+  override fun bounceNestedUnsignedArray(array: Array<Array<ULong>>): Array<Array<ULong>> {
+    return array
+  }
+
+  override fun bounceOptionalUnsignedArray(array: Array<ULong>?): Array<ULong>? {
+    return array
+  }
+
+  override fun bounceUnsignedArrayAsync(array: Array<ULong>): Promise<Array<ULong>> {
+    return Promise.async {
+      return@async array
+    }
+  }
+
+  override fun callUnsignedArrayCallback(
+    array: Array<ULong>,
+    callback: Callback<(array: Array<ULong>) -> Array<ULong>>,
+  ): Array<ULong> {
+    return callback.callSync(array)
+  }
+
+  override fun bounceUnsignedVariant(variant: Variant_ULong_String): Variant_ULong_String {
+    // Rebuild the case so it goes through the public ULong constructor.
+    return when (variant) {
+      is Variant_ULong_String.First -> Variant_ULong_String.First(variant.value)
+      is Variant_ULong_String.Second -> Variant_ULong_String.Second(variant.value)
+    }
+  }
+
+  override fun bounceUnsignedArrayVariant(variant: Variant_Array_ULong__String): Variant_Array_ULong__String {
+    return variant.match(
+      { array -> Variant_Array_ULong__String.create(array) },
+      { string -> Variant_Array_ULong__String.create(string) },
+    )
+  }
+
+  override fun bounceUnsignedMap(map: Map<String, ULong>): Map<String, ULong> {
+    return map
+  }
+
+  override fun bounceUnsignedArrayMap(map: Map<String, Array<ULong>>): Map<String, Array<ULong>> {
+    return map
+  }
+
+  override fun bounceUnsignedAsync(value: ULong): Promise<ULong> {
+    return Promise.async {
+      return@async value
+    }
+  }
+
+  override fun callUnsignedCallbackAsync(
+    value: ULong,
+    callback: Callback<(value: ULong) -> ULong>,
+  ): Promise<ULong> {
+    return callback.callAsync(value)
+  }
+
+  override fun callUnsignedArrayCallbackAsync(
+    array: Array<ULong>,
+    callback: Callback<(array: Array<ULong>) -> Array<ULong>>,
+  ): Promise<Array<ULong>> {
+    return callback.callAsync(array)
+  }
+
+  override fun bounceNestedUnsignedArrayAsync(array: Array<Array<ULong>>): Promise<Array<Array<ULong>>> {
+    return Promise.async {
+      return@async array
+    }
+  }
+
+  override fun callNestedUnsignedArrayCallback(
+    array: Array<Array<ULong>>,
+    callback: Callback<(array: Array<Array<ULong>>) -> Array<Array<ULong>>>,
+  ): Array<Array<ULong>> {
+    return callback.callSync(array)
+  }
+
   override fun bounceHybridObjects(array: Array<HybridChildSpec>): Array<HybridChildSpec> {
     return array
   }

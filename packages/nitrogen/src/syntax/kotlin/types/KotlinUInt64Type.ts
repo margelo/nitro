@@ -15,13 +15,20 @@ import {
   type KotlinTypeOptions,
 } from './KotlinType.js'
 
-/** JNI carries ULong bits as Long; the boxed facade preserves unsigned JS semantics. */
+/**
+ * JNI carries unboxed ULong bits as Long. Boxed values keep Kotlin's ULong class,
+ * which JNI sees as JULong without a Kotlin-side conversion.
+ */
 export class KotlinUInt64Type extends UInt64Type implements KotlinType {
-  readonly needsKotlinConversion = true
   readonly boxed: boolean
+  readonly isKotlinFieldCompatible = true
 
-  get isKotlinFieldCompatible(): boolean {
+  get needsKotlinConversion(): boolean {
     return !this.boxed
+  }
+
+  get requiresKotlinJvmName(): boolean {
+    return this.boxed
   }
 
   constructor({ boxed }: KotlinTypeOptions = {}) {
@@ -43,14 +50,14 @@ export class KotlinUInt64Type extends UInt64Type implements KotlinType {
         if (!this.boxed) return super.getCode(language, options)
         return this.getJniCode(options)
       case 'kotlin':
-        return 'Long'
+        return this.boxed ? 'ULong' : 'Long'
       case 'swift':
         return super.getCode(language, options)
     }
   }
 
   getJniCode(options: GetKotlinCodeOptions): string {
-    return getJniPrimitiveCode('jlong', options, { boxedType: 'JUInt64', boxed: this.boxed })
+    return getJniPrimitiveCode('jlong', options, { boxedType: 'JULong', boxed: this.boxed })
   }
 
   convertJniValue(value: string, direction: JniValueDirection): string {
@@ -66,6 +73,7 @@ export class KotlinUInt64Type extends UInt64Type implements KotlinType {
   convert(value: string, conversion: KotlinConversion): string {
     switch (conversion.in) {
       case 'kotlin':
+        if (this.boxed) return value
         return conversion.from === 'kotlin' ? `${value}.toLong()` : `${value}.toULong()`
       case 'c++': {
         const converter = getKotlinConverter({ cppType: new UInt64Type(), kotlinType: this })
@@ -84,7 +92,7 @@ export class KotlinUInt64Type extends UInt64Type implements KotlinType {
     switch (language) {
       case 'c++':
         if (this.boxed) {
-          imports.push({ language: language, declaration: { header: 'NitroModules/JUInt64.hpp', space: 'system' } })
+          imports.push({ language: language, declaration: { header: 'NitroModules/JULong.hpp', space: 'system' } })
         }
         imports.push(
           { language: language, declaration: { header: 'NitroModules/JNIConverter+Primitives.hpp', space: 'system' } },

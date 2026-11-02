@@ -49,6 +49,7 @@ class Callback_std__vector_Powertrain__std__vector_Powertrain_ @DoNotStrip @Keep
   private class Function_cxx(private val callback: Callback<(array: Array<Powertrain>) -> Array<Powertrain>>) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(array: Array<Powertrain>): Array<Powertrain> {
       return this.callback.callSync(array)
     }
@@ -56,14 +57,17 @@ class Callback_std__vector_Powertrain__std__vector_Powertrain_ @DoNotStrip @Keep
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(array: Array<Powertrain>): Array<Powertrain>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(array: Array<Powertrain>): Promise<Array<Powertrain>>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(array: Array<Powertrain>): Unit
 
   companion object {
@@ -84,11 +88,13 @@ class Callback_std__vector_Powertrain__std__vector_Powertrain_ @DoNotStrip @Keep
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): Callback_std__vector_Powertrain__std__vector_Powertrain_
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): Callback_std__vector_Powertrain__std__vector_Powertrain_
   }
 }

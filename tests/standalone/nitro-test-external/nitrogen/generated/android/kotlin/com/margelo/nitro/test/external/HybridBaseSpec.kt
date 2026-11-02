@@ -48,6 +48,7 @@ abstract class HybridBaseSpec: HybridObject() {
 
   abstract fun mapSize(size: Size, callback: Callback<(size: Size) -> Size>): Promise<Size>
 
+  @JvmName("mapSize_cxx")
   @DoNotStrip
   @Keep
   private fun mapSize_cxx(size: Size, callback: Callback_Size_Size): Promise<Size> {
@@ -95,6 +96,7 @@ abstract class HybridBaseSpec: HybridObject() {
       get() = HybridBase
 
     // Constructor
+    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

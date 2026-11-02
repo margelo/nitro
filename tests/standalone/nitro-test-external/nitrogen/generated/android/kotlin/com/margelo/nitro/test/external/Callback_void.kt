@@ -49,6 +49,7 @@ class Callback_void @DoNotStrip @Keep private constructor(hybridData: HybridData
   private class Function_cxx(private val callback: Callback<() -> Unit>) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(): Unit {
       this.callback.callSync()
     }
@@ -56,14 +57,17 @@ class Callback_void @DoNotStrip @Keep private constructor(hybridData: HybridData
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(): Unit
 
   @DoNotStrip
   @Keep
+  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(): Promise<Unit>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(): Unit
 
   companion object {
@@ -84,11 +88,13 @@ class Callback_void @DoNotStrip @Keep private constructor(hybridData: HybridData
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): Callback_void
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): Callback_void
   }
 }

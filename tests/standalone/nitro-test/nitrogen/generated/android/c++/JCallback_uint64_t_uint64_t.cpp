@@ -8,7 +8,7 @@
 #include <NitroTest/private/JCallback_uint64_t_uint64_t.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
-#include <NitroModules/JUInt64.hpp>
+#include <NitroModules/JULong.hpp>
 #include <NitroModules/JNIConverter+Promise.hpp>
 #include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
@@ -28,8 +28,8 @@ namespace margelo::nitro::test {
     return JNIConverter<uint64_t, jlong>::toJNI(callSync(JNIConverter<uint64_t, jlong>::fromJNI(value)));
   }
 
-  jni::local_ref<JTypedPromise<jni::local_ref<JUInt64>>> JCallback_uint64_t_uint64_t::callAsync_cxx(jlong value) {
-    return callAsync<JTypedPromise<jni::local_ref<JUInt64>>>(JNIConverter<uint64_t, jlong>::fromJNI(value));
+  jni::local_ref<JTypedPromise<jni::local_ref<JULong>>> JCallback_uint64_t_uint64_t::callAsync_cxx(jlong value) {
+    return callAsync<JTypedPromise<jni::local_ref<JULong>>>(JNIConverter<uint64_t, jlong>::fromJNI(value));
   }
 
   void JCallback_uint64_t_uint64_t::callAndForget_cxx(jlong value) {

@@ -22,6 +22,7 @@ android {
   ndkVersion providers.gradleProperty('nitroTestNdkVersion').get()
 
   defaultConfig {
+    consumerProguardFiles new File(nativeRoot, 'android/src/main/consumer-rules.pro')
     minSdk providers.gradleProperty('nitroTestMinSdk').get().toInteger()
     ndk { abiFilters providers.gradleProperty('nitroTestAbi').get() }
     externalNativeBuild {

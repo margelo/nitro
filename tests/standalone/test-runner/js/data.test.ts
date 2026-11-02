@@ -154,6 +154,93 @@ export const cases = {
       }
     },
   }),
+  ...casesForTestObjects('Unsigned containers', {
+    'bounceUnsignedArray(...) preserves all 64 bits': (testObject) => {
+      expect(testObject.bounceUnsignedArray(UNSIGNED_BOUNDARIES)).to.deep.equal(UNSIGNED_BOUNDARIES)
+      expect(testObject.bounceUnsignedArray([])).to.deep.equal([])
+    },
+
+    'bounceNestedUnsignedArray(...) preserves every level': (testObject) => {
+      const nested = [[], UNSIGNED_BOUNDARIES, [18446744073709551615n]]
+      expect(testObject.bounceNestedUnsignedArray(nested)).to.deep.equal(nested)
+    },
+
+    'bounceOptionalUnsignedArray(...) preserves a missing and a present array': (testObject) => {
+      expect(testObject.bounceOptionalUnsignedArray(undefined)).to.equal(undefined)
+      expect(testObject.bounceOptionalUnsignedArray(UNSIGNED_BOUNDARIES)).to.deep.equal(UNSIGNED_BOUNDARIES)
+    },
+
+    'bounceUnsignedArrayAsync(...) resolves all 64 bits': async (testObject) => {
+      const result = await withTimeout(testObject.bounceUnsignedArrayAsync(UNSIGNED_BOUNDARIES))
+      expect(result).to.deep.equal(UNSIGNED_BOUNDARIES)
+    },
+
+    'callUnsignedArrayCallback(...) passes all 64 bits to JS and back': (testObject) => {
+      const received: bigint[][] = []
+      const result = testObject.callUnsignedArrayCallback(UNSIGNED_BOUNDARIES, (array) => {
+        received.push(array)
+        return [...array].reverse()
+      })
+      expect(received).to.deep.equal([UNSIGNED_BOUNDARIES])
+      expect(result).to.deep.equal([...UNSIGNED_BOUNDARIES].reverse())
+    },
+
+    'bounceUnsignedVariant(...) preserves all 64 bits and strings': (testObject) => {
+      for (const unsigned of UNSIGNED_BOUNDARIES) {
+        expect(testObject.bounceUnsignedVariant(unsigned)).to.equal(unsigned)
+      }
+      expect(testObject.bounceUnsignedVariant('18446744073709551615')).to.equal('18446744073709551615')
+    },
+
+    'bounceUnsignedArrayVariant(...) preserves arrays and strings': (testObject) => {
+      expect(testObject.bounceUnsignedArrayVariant(UNSIGNED_BOUNDARIES)).to.deep.equal(UNSIGNED_BOUNDARIES)
+      expect(testObject.bounceUnsignedArrayVariant([])).to.deep.equal([])
+      expect(testObject.bounceUnsignedArrayVariant('values')).to.equal('values')
+    },
+
+    'bounceUnsignedMap(...) preserves all 64 bits': (testObject) => {
+      const map = { zero: 0n, signedMaximum: 9223372036854775807n, unsignedHalf: 9223372036854775808n, maximum: 18446744073709551615n }
+      expect(testObject.bounceUnsignedMap(map)).to.deep.equal(map)
+      expect(testObject.bounceUnsignedMap({})).to.deep.equal({})
+    },
+
+    'bounceUnsignedArrayMap(...) preserves arrays of all 64 bits': (testObject) => {
+      const map = { empty: [], boundaries: UNSIGNED_BOUNDARIES }
+      expect(testObject.bounceUnsignedArrayMap(map)).to.deep.equal(map)
+    },
+
+    'bounceUnsignedAsync(...) resolves all 64 bits': async (testObject) => {
+      for (const unsigned of UNSIGNED_BOUNDARIES) {
+        expect(await withTimeout(testObject.bounceUnsignedAsync(unsigned))).to.equal(unsigned)
+      }
+    },
+
+    'callUnsignedCallbackAsync(...) resolves the JS result': async (testObject) => {
+      const result = await withTimeout(testObject.callUnsignedCallbackAsync(9223372036854775808n, (value) => value * 2n - 1n))
+      expect(result).to.equal(18446744073709551615n)
+    },
+
+    'bounceNestedUnsignedArrayAsync(...) resolves every level': async (testObject) => {
+      const nested = [[], UNSIGNED_BOUNDARIES, [18446744073709551615n]]
+      expect(await withTimeout(testObject.bounceNestedUnsignedArrayAsync(nested))).to.deep.equal(nested)
+    },
+
+    'callNestedUnsignedArrayCallback(...) passes every level to JS and back': (testObject) => {
+      const nested = [[], UNSIGNED_BOUNDARIES]
+      const received: bigint[][][] = []
+      const result = testObject.callNestedUnsignedArrayCallback(nested, (array) => {
+        received.push(array)
+        return [...array].reverse()
+      })
+      expect(received).to.deep.equal([nested])
+      expect(result).to.deep.equal([...nested].reverse())
+    },
+
+    'callUnsignedArrayCallbackAsync(...) resolves the JS array': async (testObject) => {
+      const result = await withTimeout(testObject.callUnsignedArrayCallbackAsync(UNSIGNED_BOUNDARIES, (array) => [...array].reverse()))
+      expect(result).to.deep.equal([...UNSIGNED_BOUNDARIES].reverse())
+    },
+  }),
   ...casesForTestObjects('Struct roundtrips', {
     'bouncePartialStruct(...) keeps an empty struct': (testObject) => {
       expect(testObject.bouncePartialStruct({ name: undefined, age: undefined })).to.deep.equal({ name: undefined, age: undefined })

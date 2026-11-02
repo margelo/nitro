@@ -16,7 +16,7 @@ export class KotlinArrayType extends ArrayType implements KotlinType {
     readonly type: ArrayType,
     options: KotlinTypeOptions = {}
   ) {
-    const itemType = wrapKotlinType(type.itemType, { config: options.config })
+    const itemType = wrapKotlinType(type.itemType, { boxed: type.itemType.kind === 'uint64', config: options.config })
     super(itemType)
     this.itemType = itemType
   }
@@ -28,25 +28,20 @@ export class KotlinArrayType extends ArrayType implements KotlinType {
   get needsKotlinConversion(): boolean {
     return this.itemType.needsKotlinConversion
   }
+  get isKotlinFieldCompatible(): boolean {
+    return !this.needsKotlinConversion
+  }
   convert(value: string, conversion: KotlinConversion): string {
     switch (conversion.in) {
       case 'kotlin': {
         if (!this.needsKotlinConversion) return value
         const item = this.itemType.convert('__item', conversion)
+        const sourceType = conversion.from === 'c++' ? this.itemType : this.type.itemType
         const resultType = conversion.from === 'c++' ? this.type.itemType : this.itemType
-        const resultCode = resultType.getCode('kotlin', {
-          context: 'type-argument',
-        })
-        let conversionFunction: string
-        if (this.itemType.kind === 'uint64') {
-          conversionFunction = conversion.from === 'kotlin' ? 'mapToLongArray' : `mapToArray<${resultCode}>`
-        } else {
-          const sourceType = conversion.from === 'c++' ? this.itemType : this.type.itemType
-          const sourceCode = sourceType.getCode('kotlin', { context: 'type-argument' })
-          conversionFunction = `mapToArray<${sourceCode}, ${resultCode}>`
-        }
+        const sourceCode = sourceType.getCode('kotlin', { context: 'type-argument' })
+        const resultCode = resultType.getCode('kotlin', { context: 'type-argument' })
         return `
-${value}.${conversionFunction} { __item -> ${item} }
+${value}.mapToArray<${sourceCode}, ${resultCode}> { __item -> ${item} }
 `.trim()
       }
       case 'c++': {
@@ -77,9 +72,6 @@ ${value}.${conversionFunction} { __item -> ${item} }
           case 'int64':
             jniType = 'jni::JArrayLong'
             break
-          case 'uint64':
-            jniType = 'JArrayUInt64'
-            break
           default: {
             const item = this.itemType.getCode(language, { ...options, context: 'type-argument' })
             jniType = `jni::JArrayClass<${item}>`
@@ -95,7 +87,6 @@ ${value}.${conversionFunction} { __item -> ${item} }
           case 'boolean':
             return 'BooleanArray'
           case 'int64':
-          case 'uint64':
             return 'LongArray'
           default: {
             const item = this.itemType.getCode(language, { ...options, context: 'type-argument' })
@@ -116,7 +107,6 @@ ${value}.${conversionFunction} { __item -> ${item} }
           case 'number':
           case 'boolean':
           case 'int64':
-          case 'uint64':
             jsiConverterHeader = 'NitroModules/JSIConverter+JPrimitiveArray.hpp'
             break
           default:
@@ -131,10 +121,7 @@ ${value}.${conversionFunction} { __item -> ${item} }
       }
       case 'kotlin':
         if (this.needsKotlinConversion) {
-          imports.push(
-            { language: language, name: 'com.margelo.nitro.utils.mapToArray' },
-            { language: language, name: 'com.margelo.nitro.utils.mapToLongArray' }
-          )
+          imports.push({ language: language, name: 'com.margelo.nitro.utils.mapToArray' })
         }
         imports.push(...this.type.getRequiredImports(language))
         break

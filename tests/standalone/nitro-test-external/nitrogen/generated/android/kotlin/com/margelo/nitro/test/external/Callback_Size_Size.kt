@@ -49,6 +49,7 @@ class Callback_Size_Size @DoNotStrip @Keep private constructor(hybridData: Hybri
   private class Function_cxx(private val callback: Callback<(size: Size) -> Size>) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(size: Size): Size {
       return this.callback.callSync(size)
     }
@@ -56,14 +57,17 @@ class Callback_Size_Size @DoNotStrip @Keep private constructor(hybridData: Hybri
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(size: Size): Size
 
   @DoNotStrip
   @Keep
+  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(size: Size): Promise<Size>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(size: Size): Unit
 
   companion object {
@@ -84,11 +88,13 @@ class Callback_Size_Size @DoNotStrip @Keep private constructor(hybridData: Hybri
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): Callback_Size_Size
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): Callback_Size_Size
   }
 }

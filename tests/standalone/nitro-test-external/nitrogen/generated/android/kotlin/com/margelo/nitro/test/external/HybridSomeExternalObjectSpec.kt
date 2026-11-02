@@ -29,12 +29,14 @@ abstract class HybridSomeExternalObjectSpec: HybridObject() {
   // Properties
   abstract var numberCallback: Callback<(value: Double) -> Unit>
 
+  @JvmName("getNumberCallback_cxx")
   @DoNotStrip
   @Keep
   private fun getNumberCallback_cxx(): Callback_void_double {
     return Callback_void_double.fromKotlin(this.numberCallback)
   }
 
+  @JvmName("setNumberCallback_cxx")
   @DoNotStrip
   @Keep
   private fun setNumberCallback_cxx(value: Callback_void_double): Unit {
@@ -48,10 +50,11 @@ abstract class HybridSomeExternalObjectSpec: HybridObject() {
 
   abstract fun createOptionalPrimitivesHolder(optionalNumber: Double?, optionalBoolean: Boolean?, optionalUInt64: ULong?, optionalInt64: Long?): OptionalPrimitivesHolder
 
+  @JvmName("createOptionalPrimitivesHolder_cxx")
   @DoNotStrip
   @Keep
-  private fun createOptionalPrimitivesHolder_cxx(optionalNumber: Double?, optionalBoolean: Boolean?, optionalUInt64: Long?, optionalInt64: Long?): OptionalPrimitivesHolder {
-    val __result = createOptionalPrimitivesHolder(optionalNumber, optionalBoolean, optionalUInt64?.let { it.toULong() }, optionalInt64)
+  private fun createOptionalPrimitivesHolder_cxx(optionalNumber: Double?, optionalBoolean: Boolean?, optionalUInt64: ULong?, optionalInt64: Long?): OptionalPrimitivesHolder {
+    val __result = createOptionalPrimitivesHolder(optionalNumber, optionalBoolean, optionalUInt64, optionalInt64)
     return __result
   }
 

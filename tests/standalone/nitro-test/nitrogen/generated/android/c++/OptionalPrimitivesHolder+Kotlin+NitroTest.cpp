@@ -14,16 +14,16 @@
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
 #include <NitroModules/JNIConverter+Optional.hpp>
 #include <NitroModules/JSIConverter+JOptional.hpp>
-#include <NitroModules/JUInt64.hpp>
+#include <NitroModules/JULong.hpp>
 
 namespace margelo::nitro {
 
   jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder> JNIConverter<margelo::nitro::test::OptionalPrimitivesHolder, jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder>>::toJNI(const margelo::nitro::test::OptionalPrimitivesHolder& value) {
-    return margelo::nitro::test::external::JOptionalPrimitivesHolder::create(JNIConverter<std::optional<double>, jni::local_ref<JOptional<jni::JDouble>>>::toJNI(value.optionalNumber), JNIConverter<std::optional<bool>, jni::local_ref<JOptional<jni::JBoolean>>>::toJNI(value.optionalBoolean), JNIConverter<std::optional<uint64_t>, jni::local_ref<JOptional<JUInt64>>>::toJNI(value.optionalUInt64), JNIConverter<std::optional<int64_t>, jni::local_ref<JOptional<jni::JLong>>>::toJNI(value.optionalInt64));
+    return margelo::nitro::test::external::JOptionalPrimitivesHolder::create(JNIConverter<std::optional<double>, jni::local_ref<JOptional<jni::JDouble>>>::toJNI(value.optionalNumber), JNIConverter<std::optional<bool>, jni::local_ref<JOptional<jni::JBoolean>>>::toJNI(value.optionalBoolean), JNIConverter<std::optional<uint64_t>, jni::local_ref<JOptional<JULong>>>::toJNI(value.optionalUInt64), JNIConverter<std::optional<int64_t>, jni::local_ref<JOptional<jni::JLong>>>::toJNI(value.optionalInt64));
   }
 
   margelo::nitro::test::OptionalPrimitivesHolder JNIConverter<margelo::nitro::test::OptionalPrimitivesHolder, jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder>>::fromJNI(jni::alias_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder> value) {
-    return margelo::nitro::test::OptionalPrimitivesHolder(JNIConverter<std::optional<double>, jni::local_ref<JOptional<jni::JDouble>>>::fromJNI(value->getOptionalNumber()), JNIConverter<std::optional<bool>, jni::local_ref<JOptional<jni::JBoolean>>>::fromJNI(value->getOptionalBoolean()), JNIConverter<std::optional<uint64_t>, jni::local_ref<JOptional<JUInt64>>>::fromJNI(value->getOptionalUInt64()), JNIConverter<std::optional<int64_t>, jni::local_ref<JOptional<jni::JLong>>>::fromJNI(value->getOptionalInt64()));
+    return margelo::nitro::test::OptionalPrimitivesHolder(JNIConverter<std::optional<double>, jni::local_ref<JOptional<jni::JDouble>>>::fromJNI(value->getOptionalNumber()), JNIConverter<std::optional<bool>, jni::local_ref<JOptional<jni::JBoolean>>>::fromJNI(value->getOptionalBoolean()), JNIConverter<std::optional<uint64_t>, jni::local_ref<JOptional<JULong>>>::fromJNI(value->getOptionalUInt64()), JNIConverter<std::optional<int64_t>, jni::local_ref<JOptional<jni::JLong>>>::fromJNI(value->getOptionalInt64()));
   }
 
 } // namespace margelo::nitro

@@ -59,6 +59,7 @@ sealed class Variant_Person_Car private constructor(@DoNotStrip private val inde
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_0")
     private fun fromCpp_0(value: Person): Variant_Person_Car = First(value)
     @JvmStatic
     @JvmName("createSecond")
@@ -67,6 +68,7 @@ sealed class Variant_Person_Car private constructor(@DoNotStrip private val inde
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_1")
     private fun fromCpp_1(value: Car): Variant_Person_Car = Second(value)
   }
 }

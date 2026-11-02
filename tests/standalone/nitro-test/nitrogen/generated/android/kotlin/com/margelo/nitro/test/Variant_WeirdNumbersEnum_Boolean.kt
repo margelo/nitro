@@ -59,6 +59,7 @@ sealed class Variant_WeirdNumbersEnum_Boolean private constructor(@DoNotStrip pr
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_0")
     private fun fromCpp_0(value: WeirdNumbersEnum): Variant_WeirdNumbersEnum_Boolean = First(value)
     @JvmStatic
     @JvmName("createSecond")
@@ -67,6 +68,7 @@ sealed class Variant_WeirdNumbersEnum_Boolean private constructor(@DoNotStrip pr
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_1")
     private fun fromCpp_1(value: Boolean): Variant_WeirdNumbersEnum_Boolean = Second(value)
   }
 }

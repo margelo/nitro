@@ -74,6 +74,7 @@ abstract class HybridGrandchildSpec: HybridChildSpec() {
       get() = HybridGrandchild
 
     // Constructor
+    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep

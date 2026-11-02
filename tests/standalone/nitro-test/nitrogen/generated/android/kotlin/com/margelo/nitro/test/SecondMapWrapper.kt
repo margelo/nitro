@@ -44,6 +44,7 @@ data class SecondMapWrapper(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(second: Map<String, String>): SecondMapWrapper {
       return SecondMapWrapper(second)
     }

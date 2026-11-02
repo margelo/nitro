@@ -11,11 +11,10 @@
 #include <NitroModules/JSIConverter.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
-#include <NitroModules/JUInt64.hpp>
+#include <NitroModules/JULong.hpp>
 #include <NitroModules/JNIConverter+Optional.hpp>
 #include <NitroModules/JSIConverter+JOptional.hpp>
 #include <NitroModules/JNIConverter+Array.hpp>
-#include <NitroModules/JSIConverter+JPrimitiveArray.hpp>
 #include <NitroModules/JSIConverter+JArrayClass.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
@@ -32,9 +31,9 @@ namespace margelo::nitro::test {
   struct JUnsignedValues final : public jni::JavaClass<JUnsignedValues> {
     static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/UnsignedValues;";
 
-    static jni::local_ref<JUnsignedValues> create(uint64_t unsignedValue, jni::alias_ref<JOptional<JUInt64>> optionalUnsigned, jni::alias_ref<JArrayUInt64> values, jni::alias_ref<jni::JArrayClass<JArrayUInt64>> nested, jni::alias_ref<jni::JMap<jni::JString, JOptional<JUInt64>>> record, jni::alias_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>> callbacks) {
+    static jni::local_ref<JUnsignedValues> create(uint64_t unsignedValue, jni::alias_ref<JOptional<JULong>> optionalUnsigned, jni::alias_ref<jni::JArrayClass<JULong>> values, jni::alias_ref<jni::JArrayClass<jni::JArrayClass<JULong>>> nested, jni::alias_ref<jni::JMap<jni::JString, JOptional<JULong>>> record, jni::alias_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>> callbacks) {
       static const auto clazz = javaClassStatic();
-      static const auto create = clazz->getStaticMethod<JUnsignedValues(jlong, jni::alias_ref<JOptional<JUInt64>>, jni::alias_ref<JArrayUInt64>, jni::alias_ref<jni::JArrayClass<JArrayUInt64>>, jni::alias_ref<jni::JMap<jni::JString, JOptional<JUInt64>>>, jni::alias_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>)>("fromCpp");
+      static const auto create = clazz->getStaticMethod<JUnsignedValues(jlong, jni::alias_ref<JOptional<JULong>>, jni::alias_ref<jni::JArrayClass<JULong>>, jni::alias_ref<jni::JArrayClass<jni::JArrayClass<JULong>>>, jni::alias_ref<jni::JMap<jni::JString, JOptional<JULong>>>, jni::alias_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>)>("fromCpp");
       return create(clazz, JNIConverter<uint64_t, jlong>::toJNI(unsignedValue), optionalUnsigned, values, nested, record, callbacks);
     }
 
@@ -43,28 +42,24 @@ namespace margelo::nitro::test {
       return JNIConverter<uint64_t, jlong>::fromJNI(getFieldValue(field));
     }
 
-    jni::local_ref<JOptional<JUInt64>> getOptionalUnsigned() const {
-      static const auto clazz = javaClassStatic();
-      static const auto method = clazz->getNonvirtualMethod<JOptional<JUInt64>()>("getOptionalUnsigned_cxx");
-      return method(this->self(), clazz);
+    jni::local_ref<JOptional<JULong>> getOptionalUnsigned() const {
+      static const auto field = javaClassStatic()->getField<JOptional<JULong>>("optionalUnsigned");
+      return getFieldValue(field);
     }
 
-    jni::local_ref<JArrayUInt64> getValues() const {
-      static const auto clazz = javaClassStatic();
-      static const auto method = clazz->getNonvirtualMethod<JArrayUInt64()>("getValues_cxx");
-      return method(this->self(), clazz);
+    jni::local_ref<jni::JArrayClass<JULong>> getValues() const {
+      static const auto field = javaClassStatic()->getField<jni::JArrayClass<JULong>>("values");
+      return getFieldValue(field);
     }
 
-    jni::local_ref<jni::JArrayClass<JArrayUInt64>> getNested() const {
-      static const auto clazz = javaClassStatic();
-      static const auto method = clazz->getNonvirtualMethod<jni::JArrayClass<JArrayUInt64>()>("getNested_cxx");
-      return method(this->self(), clazz);
+    jni::local_ref<jni::JArrayClass<jni::JArrayClass<JULong>>> getNested() const {
+      static const auto field = javaClassStatic()->getField<jni::JArrayClass<jni::JArrayClass<JULong>>>("nested");
+      return getFieldValue(field);
     }
 
-    jni::local_ref<jni::JMap<jni::JString, JOptional<JUInt64>>> getRecord() const {
-      static const auto clazz = javaClassStatic();
-      static const auto method = clazz->getNonvirtualMethod<jni::JMap<jni::JString, JOptional<JUInt64>>()>("getRecord_cxx");
-      return method(this->self(), clazz);
+    jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>> getRecord() const {
+      static const auto field = javaClassStatic()->getField<jni::JMap<jni::JString, JOptional<JULong>>>("record");
+      return getFieldValue(field);
     }
 
     jni::local_ref<jni::JArrayClass<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>> getCallbacks() const {

@@ -59,6 +59,7 @@ sealed class Variant_Boolean_Double private constructor(@DoNotStrip private val 
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_0")
     private fun fromCpp_0(value: Boolean): Variant_Boolean_Double = First(value)
     @JvmStatic
     @JvmName("createSecond")
@@ -67,6 +68,7 @@ sealed class Variant_Boolean_Double private constructor(@DoNotStrip private val 
 
     @JvmStatic
     @DoNotStrip
+    @JvmName("fromCpp_1")
     private fun fromCpp_1(value: Double): Variant_Boolean_Double = Second(value)
   }
 }

@@ -94,6 +94,7 @@ data class Car(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(year: Double, make: String, model: String, power: Double, powertrain: Powertrain, driver: Person?, passengers: Array<Person>, isFast: Boolean?, favouriteTrack: String?, performanceScores: DoubleArray, someVariant: Variant_Double_String?): Car {
       return Car(year, make, model, power, powertrain, driver, passengers, isFast, favouriteTrack, performanceScores, someVariant)
     }

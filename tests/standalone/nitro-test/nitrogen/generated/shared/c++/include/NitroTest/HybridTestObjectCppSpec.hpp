@@ -28,10 +28,10 @@ namespace margelo::nitro::test { class HybridTestObjectCppSpec; }
 #include <NitroTest/PartialPerson.hpp>
 #include <NitroTest/Car.hpp>
 #include <NitroModules/Promise.hpp>
+#include <unordered_map>
 #include <NitroTest/HybridChildSpecCxx.hpp>
 #include <NitroModules/AnyJSON.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
-#include <unordered_map>
 #include <NitroTest/MapWrapper.hpp>
 #include <exception>
 #include <NitroModules/InlineCallback.hpp>
@@ -166,6 +166,20 @@ namespace margelo::nitro::test {
       virtual Promise<std::vector<Powertrain>> callEnumArrayPromiseCallback(const Callback<Promise<std::vector<Powertrain>>()>& callback) = 0;
       virtual Promise<std::vector<Powertrain>> awaitEnumArrayPromise(const Promise<std::vector<Powertrain>>& promise) = 0;
       virtual std::vector<std::vector<std::optional<Person>>> callNestedStructCallback(const std::vector<std::vector<std::optional<Person>>>& value, const Callback<std::vector<std::vector<std::optional<Person>>>(const std::vector<std::vector<std::optional<Person>>>& /* value */)>& callback) = 0;
+      virtual std::vector<uint64_t> bounceUnsignedArray(const std::vector<uint64_t>& array) = 0;
+      virtual std::vector<std::vector<uint64_t>> bounceNestedUnsignedArray(const std::vector<std::vector<uint64_t>>& array) = 0;
+      virtual std::optional<std::vector<uint64_t>> bounceOptionalUnsignedArray(const std::optional<std::vector<uint64_t>>& array) = 0;
+      virtual Promise<std::vector<uint64_t>> bounceUnsignedArrayAsync(const std::vector<uint64_t>& array) = 0;
+      virtual std::vector<uint64_t> callUnsignedArrayCallback(const std::vector<uint64_t>& array, const Callback<std::vector<uint64_t>(const std::vector<uint64_t>& /* array */)>& callback) = 0;
+      virtual std::variant<uint64_t, std::string> bounceUnsignedVariant(const std::variant<uint64_t, std::string>& variant) = 0;
+      virtual std::variant<std::vector<uint64_t>, std::string> bounceUnsignedArrayVariant(const std::variant<std::vector<uint64_t>, std::string>& variant) = 0;
+      virtual std::unordered_map<std::string, uint64_t> bounceUnsignedMap(const std::unordered_map<std::string, uint64_t>& map) = 0;
+      virtual std::unordered_map<std::string, std::vector<uint64_t>> bounceUnsignedArrayMap(const std::unordered_map<std::string, std::vector<uint64_t>>& map) = 0;
+      virtual Promise<uint64_t> bounceUnsignedAsync(uint64_t value) = 0;
+      virtual Promise<uint64_t> callUnsignedCallbackAsync(uint64_t value, const Callback<uint64_t(uint64_t /* value */)>& callback) = 0;
+      virtual Promise<std::vector<uint64_t>> callUnsignedArrayCallbackAsync(const std::vector<uint64_t>& array, const Callback<std::vector<uint64_t>(const std::vector<uint64_t>& /* array */)>& callback) = 0;
+      virtual Promise<std::vector<std::vector<uint64_t>>> bounceNestedUnsignedArrayAsync(const std::vector<std::vector<uint64_t>>& array) = 0;
+      virtual std::vector<std::vector<uint64_t>> callNestedUnsignedArrayCallback(const std::vector<std::vector<uint64_t>>& array, const Callback<std::vector<std::vector<uint64_t>>(const std::vector<std::vector<uint64_t>>& /* array */)>& callback) = 0;
       virtual std::vector<HybridChildSpecCxx> bounceHybridObjects(const std::vector<HybridChildSpecCxx>& array) = 0;
       virtual std::vector<Callback<void()>> bounceFunctions(const std::vector<Callback<void()>>& functions) = 0;
       virtual std::vector<AnyJSON> bounceMaps(const std::vector<AnyJSON>& maps) = 0;

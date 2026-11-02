@@ -23,6 +23,10 @@ export class KotlinNamedType extends NamedWrappingType<KotlinType> implements Ko
     return this.type.isKotlinFieldCompatible ?? !this.type.needsKotlinConversion
   }
 
+  get requiresKotlinJvmName(): boolean {
+    return this.type.requiresKotlinJvmName ?? false
+  }
+
   get needsKotlinConversion(): boolean {
     return this.type.needsKotlinConversion
   }

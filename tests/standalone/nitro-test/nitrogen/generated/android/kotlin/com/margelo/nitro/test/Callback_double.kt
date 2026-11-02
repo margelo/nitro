@@ -49,6 +49,7 @@ class Callback_double @DoNotStrip @Keep private constructor(hybridData: HybridDa
   private class Function_cxx(private val callback: Callback<() -> Double>) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(): Double {
       return this.callback.callSync()
     }
@@ -56,14 +57,17 @@ class Callback_double @DoNotStrip @Keep private constructor(hybridData: HybridDa
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(): Double
 
   @DoNotStrip
   @Keep
+  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(): Promise<Double>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(): Unit
 
   companion object {
@@ -84,11 +88,13 @@ class Callback_double @DoNotStrip @Keep private constructor(hybridData: HybridDa
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): Callback_double
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): Callback_double
   }
 }

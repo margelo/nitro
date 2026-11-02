@@ -44,6 +44,7 @@ data class OptionalCallback(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(callback: Variant_Callback_______Unit__Double?): OptionalCallback {
       return OptionalCallback(callback)
     }

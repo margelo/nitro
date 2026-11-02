@@ -28,6 +28,7 @@ data class JsStyleStruct(
   @DoNotStrip
   @Keep
   @Suppress("unused", "FunctionName")
+  @JvmName("getOnChanged_cxx")
   private fun getOnChanged_cxx(): Callback_void_double {
     return Callback_void_double.fromKotlin(onChanged)
   }
@@ -54,6 +55,7 @@ data class JsStyleStruct(
     @Keep
     @Suppress("unused")
     @JvmStatic
+    @JvmName("fromCpp")
     private fun fromCpp(value: Double, onChanged: Callback_void_double): JsStyleStruct {
       return JsStyleStruct(value, onChanged)
     }

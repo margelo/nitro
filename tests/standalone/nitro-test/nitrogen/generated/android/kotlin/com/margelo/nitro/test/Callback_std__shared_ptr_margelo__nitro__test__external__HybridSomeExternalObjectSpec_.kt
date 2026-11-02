@@ -50,6 +50,7 @@ class Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExterna
   private class Function_cxx(private val callback: Callback<() -> com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>) {
     @DoNotStrip
     @Keep
+    @JvmName("call")
     fun call(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec {
       return this.callback.callSync()
     }
@@ -57,14 +58,17 @@ class Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExterna
 
   @DoNotStrip
   @Keep
+  @JvmName("callSync_cxx")
   private external fun callSync_cxx(): com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 
   @DoNotStrip
   @Keep
+  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(): Promise<com.margelo.nitro.test.external.HybridSomeExternalObjectSpec>
 
   @DoNotStrip
   @Keep
+  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(): Unit
 
   companion object {
@@ -85,11 +89,13 @@ class Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExterna
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromCxx_cxx")
     private external fun fromCxx_cxx(callback: CxxCallback): Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_
 
     @JvmStatic
     @DoNotStrip
     @Keep
+    @JvmName("fromFunction_cxx")
     private external fun fromFunction_cxx(function: Function_cxx): Callback_std__shared_ptr_margelo__nitro__test__external__HybridSomeExternalObjectSpec_
   }
 }

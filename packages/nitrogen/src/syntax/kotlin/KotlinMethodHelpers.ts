@@ -12,6 +12,15 @@ export interface KotlinMethodDefinition {
   body: string
 }
 
+/** Keep JNI entry names stable when Kotlin value classes would otherwise mangle them. */
+export function createKotlinBridgeDefinition({ method, body }: KotlinMethodDefinition): string {
+  const definition = method.getDefinition('kotlin', { body: body })
+  return `
+@JvmName("${method.name}")
+${definition}
+`.trim()
+}
+
 export interface KotlinMethodBridge {
   /** Private Kotlin functions that JNI calls instead of the public members. */
   kotlinMethods: KotlinMethodDefinition[]
@@ -33,8 +42,8 @@ export interface KotlinMethodInfo {
   cppReturnType: Type
   hasNativeReturn: boolean
   parameters: KotlinMethodParameter[]
-  /** Whether any value needs conversion between the public Kotlin API and JNI. */
-  needsKotlinConversion: boolean
+  /** Whether JNI needs a private bridge for value conversion or a stable JVM name. */
+  needsKotlinBridge: boolean
 }
 
 interface PrepareKotlinMethodOptions {
@@ -55,13 +64,15 @@ export function prepareKotlinMethod(nativeMethod: Method, { directReturn = true 
     }
   })
   const needsKotlinConversion = returnType.needsKotlinConversion || parameters.some((parameter) => parameter.type.needsKotlinConversion)
+  const requiresKotlinJvmName =
+    returnType.requiresKotlinJvmName === true || parameters.some((parameter) => parameter.type.requiresKotlinJvmName === true)
   return {
     nativeMethod: nativeMethod,
     returnType: returnType,
     cppReturnType: directReturn ? returnType : nativeMethod.returnType,
     hasNativeReturn: !directReturn,
     parameters: parameters,
-    needsKotlinConversion: needsKotlinConversion,
+    needsKotlinBridge: needsKotlinConversion || requiresKotlinJvmName,
   }
 }
 
