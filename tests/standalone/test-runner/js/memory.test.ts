@@ -35,8 +35,43 @@ function getHermesExternalMemorySize(): number {
   return hermesInternal.getInstrumentedStats().js_externalBytes
 }
 
+/**
+ * Creates a pending JS Promise that keeps the native `then(onResolved, onRejected)` listeners Nitro
+ * adds to it, instead of handing them to the JS engine, so a test can destroy their native state.
+ */
+function createListenedPromise(): { promise: Promise<number>; listeners: ((value: unknown) => void)[] } {
+  const listeners: ((value: unknown) => void)[] = []
+  const promise = new Promise<number>(() => {})
+  Object.defineProperty(promise, 'then', {
+    value: (onResolved: (value: unknown) => void, onRejected: (value: unknown) => void) => {
+      listeners.push(onResolved, onRejected)
+    },
+  })
+  return { promise, listeners }
+}
+
 export const cases = {
   ...casesForTestObjects('Memory', {
+    'awaitAndGetPromise(...) listeners can be destroyed on another thread while pending': async (testObject) => {
+      const { promise, listeners } = createListenedPromise()
+      // Destroying the listeners rejects the native Promise if nothing else holds it.
+      testObject.awaitAndGetPromise(promise).catch(() => {})
+      expect(listeners).to.have.length(2)
+
+      for (const listener of listeners) destroyOnBackgroundThread(listener)
+      await yieldToEventLoop()
+    },
+
+    'awaitAndGetPromise(...) listeners can be destroyed on another thread after resolving': async (testObject) => {
+      const { promise, listeners } = createListenedPromise()
+      const result = testObject.awaitAndGetPromise(promise)
+      expect(listeners).to.have.length(2)
+
+      listeners[0]?.(42)
+      expect(await result).to.equal(42)
+      for (const listener of listeners) destroyOnBackgroundThread(listener)
+    },
+
     'createNativeCallback(...) callbacks still work after gc()': async (testObject) => {
       const onCalled = recordCallback<(num: number) => void>()
       const callbacks: ((num: number) => void)[] = []
