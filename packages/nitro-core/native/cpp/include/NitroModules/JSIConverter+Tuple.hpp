@@ -34,7 +34,7 @@ struct JSIConverter<std::tuple<Types...>> final {
   static inline jsi::Value toJSI(jsi::Runtime& runtime, const std::tuple<Types...>& tuple)
     requires(JSIEncodable<const Types&> && ...)
   {
-    jsi::Array array(runtime, 0);
+    jsi::Array array(runtime, sizeof...(Types));
     copyTupleItemsToArray(runtime, array, tuple, std::index_sequence_for<Types...>{});
     return array;
   }
@@ -71,9 +71,10 @@ private:
   template <std::size_t... Is>
   static inline void copyTupleItemsToArray(jsi::Runtime& runtime, jsi::Array& array, const std::tuple<Types...>& tuple,
                                            std::index_sequence<Is...>) {
-    // Append all items with a single push(...), which is much faster than setValueAtIndex(...) on a pre-sized array.
-    array.push(runtime,
-               {JSIConverter<std::remove_cvref_t<std::tuple_element_t<Is, std::tuple<Types...>>>>::toJSI(runtime, std::get<Is>(tuple))...});
+    (array.setValueAtIndex(
+         runtime, Is,
+         JSIConverter<std::remove_cvref_t<std::tuple_element_t<Is, std::tuple<Types...>>>>::toJSI(runtime, std::get<Is>(tuple))),
+     ...);
   }
 
   template <typename T>
