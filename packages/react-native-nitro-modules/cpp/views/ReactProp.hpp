@@ -10,10 +10,8 @@
 #include "NitroDefines.hpp"
 #include "PropNameIDCache.hpp"
 #include "RawPropsCompat.hpp"
+#include "ReactNativeCore.hpp"
 #include <jsi/jsi.h>
-
-#include <react/renderer/core/RawProps.h>
-#include <react/renderer/core/RawValue.h>
 
 #include <memory>
 #include <utility>

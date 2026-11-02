@@ -5,10 +5,10 @@
 #pragma once
 
 #include "RawPropsCompat.hpp"
+#include "ReactNativeCore.hpp"
 
 #include <concepts>
 #include <memory>
-#include <react/renderer/core/ConcreteComponentDescriptor.h>
 #include <utility>
 
 namespace margelo::nitro {
