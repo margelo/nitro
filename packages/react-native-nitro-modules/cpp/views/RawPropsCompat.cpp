@@ -14,10 +14,7 @@
 #define RN_SERIALIZABLE_STATE
 #endif
 
-#include <cxxreact/ReactNativeVersion.h>
-#include <react/renderer/core/Props.h>
-#include <react/renderer/core/RawProps.h>
-#include <react/renderer/core/RawPropsParser.h>
+#include "ReactNativeCore.hpp"
 
 #if defined(ANDROID) && REACT_NATIVE_VERSION_MAJOR == 0 && REACT_NATIVE_VERSION_MINOR >= 84 && REACT_NATIVE_VERSION_MINOR < 87
 #include <react/featureflags/ReactNativeFeatureFlags.h>

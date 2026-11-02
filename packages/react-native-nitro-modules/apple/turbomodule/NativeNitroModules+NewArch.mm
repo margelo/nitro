@@ -13,7 +13,6 @@
 #import "InstallNitro.hpp"
 #import "NitroLogger.hpp"
 
-#import <ReactCommon/CallInvoker.h>
 #import <ReactCommon/RCTTurboModuleWithJSIBindings.h>
 
 using namespace facebook;
