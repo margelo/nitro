@@ -888,11 +888,10 @@ export const cases = {
       expect(testObject.bounceSimpleMap(map)).to.deep.equal(map)
     },
 
-    // TODO: Fix in Nitro - values of non-ASCII keys are read as undefined (`PropNameIDCache` uses `PropNameID::forAscii`, also used by `JSIConverter<unordered_map>::toJSI` for the returned keys), throws "Value is undefined, expected a number"
-    // it('bounceSimpleMap(...) keeps unicode keys', () => {
-    //   const map = { '🔥': 1, 'ключ': 2, '日本語': 3 }
-    //   expect(testObject.bounceSimpleMap(map)).toStrictEqual(map)
-    // })
+    'bounceSimpleMap(...) keeps unicode keys': (testObject) => {
+      const map = { '🔥': 1, 'ключ': 2, '日本語': 3 }
+      expect(testObject.bounceSimpleMap(map)).to.deep.equal(map)
+    },
 
     'bounceMap(...) keeps booleans and numbers apart': (testObject) => {
       const map = { zero: 0, one: 1, no: false, yes: true }
