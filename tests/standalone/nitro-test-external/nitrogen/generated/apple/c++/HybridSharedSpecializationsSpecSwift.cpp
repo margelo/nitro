@@ -162,8 +162,8 @@ namespace margelo::nitro::test::external {
   }
 
   ::NitroTestExternal::SharedCallbackStruct HybridSharedSpecializationsSpecSwift::bounceCallbackStruct(const ::NitroTestExternal::SharedCallbackStruct& value) {
-    auto __result = withSwiftResult<::NitroTestExternal::SharedCallbackStruct>([&](void* __outResult) {
-      return _swiftPart.bounceCallbackStruct(value, __outResult);
+    auto __result = receiveSwiftResult<::NitroTestExternal::SharedCallbackStruct>([&](const void* __onResult) {
+      return _swiftPart.bounceCallbackStruct(value, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());

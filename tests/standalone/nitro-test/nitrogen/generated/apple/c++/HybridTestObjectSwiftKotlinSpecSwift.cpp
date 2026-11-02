@@ -216,8 +216,8 @@ namespace margelo::nitro::test {
   }
 
   swift::String HybridTestObjectSwiftKotlinSpecSwift::addStrings(const swift::String& a, const swift::String& b) {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return _swiftPart.addStrings(a, b, __outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.addStrings(a, b, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -241,8 +241,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<swift::String> HybridTestObjectSwiftKotlinSpecSwift::bounceStrings(const swift::Array<swift::String>& array) {
-    auto __result = withSwiftResult<swift::Array<swift::String>>([&](void* __outResult) {
-      return _swiftPart.bounceStrings(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<swift::String>>([&](const void* __onResult) {
+      return _swiftPart.bounceStrings(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -251,8 +251,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<double> HybridTestObjectSwiftKotlinSpecSwift::bounceNumbers(const swift::Array<double>& array) {
-    auto __result = withSwiftResult<swift::Array<double>>([&](void* __outResult) {
-      return _swiftPart.bounceNumbers(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<double>>([&](const void* __onResult) {
+      return _swiftPart.bounceNumbers(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -261,8 +261,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<::NitroTest::Person> HybridTestObjectSwiftKotlinSpecSwift::bounceStructs(const swift::Array<::NitroTest::Person>& array) {
-    auto __result = withSwiftResult<swift::Array<::NitroTest::Person>>([&](void* __outResult) {
-      return _swiftPart.bounceStructs(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<::NitroTest::Person>>([&](const void* __onResult) {
+      return _swiftPart.bounceStructs(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -271,8 +271,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<swift::Array<::NitroTest::Person>> HybridTestObjectSwiftKotlinSpecSwift::bounceNestedArray(const swift::Array<swift::Array<::NitroTest::Person>>& array) {
-    auto __result = withSwiftResult<swift::Array<swift::Array<::NitroTest::Person>>>([&](void* __outResult) {
-      return _swiftPart.bounceNestedArray(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<swift::Array<::NitroTest::Person>>>([&](const void* __onResult) {
+      return _swiftPart.bounceNestedArray(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -281,8 +281,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::PartialPerson HybridTestObjectSwiftKotlinSpecSwift::bouncePartialStruct(const ::NitroTest::PartialPerson& person) {
-    auto __result = withSwiftResult<::NitroTest::PartialPerson>([&](void* __outResult) {
-      return _swiftPart.bouncePartialStruct(person, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::PartialPerson>([&](const void* __onResult) {
+      return _swiftPart.bouncePartialStruct(person, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -291,8 +291,8 @@ namespace margelo::nitro::test {
   }
 
   swift::String HybridTestObjectSwiftKotlinSpecSwift::sumUpAllPassengers(const swift::Array<::NitroTest::Car>& cars) {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return _swiftPart.sumUpAllPassengers(cars, __outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.sumUpAllPassengers(cars, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -301,8 +301,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<::NitroTest::Powertrain> HybridTestObjectSwiftKotlinSpecSwift::bounceEnums(const swift::Array<::NitroTest::Powertrain>& array) {
-    auto __result = withSwiftResult<swift::Array<::NitroTest::Powertrain>>([&](void* __outResult) {
-      return _swiftPart.bounceEnums(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<::NitroTest::Powertrain>>([&](const void* __onResult) {
+      return _swiftPart.bounceEnums(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -321,8 +321,8 @@ namespace margelo::nitro::test {
 
   swift::Array<::NitroTest::Powertrain> HybridTestObjectSwiftKotlinSpecSwift::callEnumArrayCallback(const swift::Array<::NitroTest::Powertrain>& array, const Callback<::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_(const ::NitroTest::SwiftContainer_swift__Array___NitroTest__Powertrain_&)>& callback) {
     auto __result = ([&](const void* callback) {
-      return withSwiftResult<swift::Array<::NitroTest::Powertrain>>([&](void* __outResult) {
-        return _swiftPart.callEnumArrayCallback(array, callback, __outResult);
+      return receiveSwiftResult<swift::Array<::NitroTest::Powertrain>>([&](const void* __onResult) {
+        return _swiftPart.callEnumArrayCallback(array, callback, __onResult);
       });
     })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
@@ -367,8 +367,8 @@ namespace margelo::nitro::test {
 
   swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>> HybridTestObjectSwiftKotlinSpecSwift::callNestedStructCallback(const swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>>& value, const Callback<::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___(const ::NitroTest::SwiftContainer_swift__Array_swift__Array_swift__Optional___NitroTest__Person___&)>& callback) {
     auto __result = ([&](const void* callback) {
-      return withSwiftResult<swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>>>([&](void* __outResult) {
-        return _swiftPart.callNestedStructCallback(value, callback, __outResult);
+      return receiveSwiftResult<swift::Array<swift::Array<swift::Optional<::NitroTest::Person>>>>([&](const void* __onResult) {
+        return _swiftPart.callNestedStructCallback(value, callback, __onResult);
       });
     })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
@@ -378,8 +378,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<uint64_t> HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedArray(const swift::Array<uint64_t>& array) {
-    auto __result = withSwiftResult<swift::Array<uint64_t>>([&](void* __outResult) {
-      return _swiftPart.bounceUnsignedArray(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<uint64_t>>([&](const void* __onResult) {
+      return _swiftPart.bounceUnsignedArray(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -388,8 +388,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<swift::Array<uint64_t>> HybridTestObjectSwiftKotlinSpecSwift::bounceNestedUnsignedArray(const swift::Array<swift::Array<uint64_t>>& array) {
-    auto __result = withSwiftResult<swift::Array<swift::Array<uint64_t>>>([&](void* __outResult) {
-      return _swiftPart.bounceNestedUnsignedArray(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<swift::Array<uint64_t>>>([&](const void* __onResult) {
+      return _swiftPart.bounceNestedUnsignedArray(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -398,8 +398,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Optional<swift::Array<uint64_t>> HybridTestObjectSwiftKotlinSpecSwift::bounceOptionalUnsignedArray(const swift::Optional<swift::Array<uint64_t>>& array) {
-    auto __result = withSwiftResult<swift::Optional<swift::Array<uint64_t>>>([&](void* __outResult) {
-      return _swiftPart.bounceOptionalUnsignedArray(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Optional<swift::Array<uint64_t>>>([&](const void* __onResult) {
+      return _swiftPart.bounceOptionalUnsignedArray(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -419,8 +419,8 @@ namespace margelo::nitro::test {
 
   swift::Array<uint64_t> HybridTestObjectSwiftKotlinSpecSwift::callUnsignedArrayCallback(const swift::Array<uint64_t>& array, const Callback<swift::Array<uint64_t>(const swift::Array<uint64_t>&)>& callback) {
     auto __result = ([&](const void* callback) {
-      return withSwiftResult<swift::Array<uint64_t>>([&](void* __outResult) {
-        return _swiftPart.callUnsignedArrayCallback(array, callback, __outResult);
+      return receiveSwiftResult<swift::Array<uint64_t>>([&](const void* __onResult) {
+        return _swiftPart.callUnsignedArrayCallback(array, callback, __onResult);
       });
     })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
@@ -430,8 +430,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant_UInt64_String_cxx HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedVariant(const ::NitroTest::Variant_UInt64_String_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::Variant_UInt64_String_cxx>([&](void* __outResult) {
-      return _swiftPart.bounceUnsignedVariant(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant_UInt64_String_cxx>([&](const void* __onResult) {
+      return _swiftPart.bounceUnsignedVariant(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -440,8 +440,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant__UInt64__String_cxx HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedArrayVariant(const ::NitroTest::Variant__UInt64__String_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::Variant__UInt64__String_cxx>([&](void* __outResult) {
-      return _swiftPart.bounceUnsignedArrayVariant(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant__UInt64__String_cxx>([&](const void* __onResult) {
+      return _swiftPart.bounceUnsignedArrayVariant(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -450,8 +450,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Record_swift__String_uint64_t HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedMap(const ::NitroTest::Record_swift__String_uint64_t& map) {
-    auto __result = withSwiftResult<::NitroTest::Record_swift__String_uint64_t>([&](void* __outResult) {
-      return _swiftPart.bounceUnsignedMap(map, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Record_swift__String_uint64_t>([&](const void* __onResult) {
+      return _swiftPart.bounceUnsignedMap(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -460,8 +460,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Record_swift__String_swift__Array_uint64_t_ HybridTestObjectSwiftKotlinSpecSwift::bounceUnsignedArrayMap(const ::NitroTest::Record_swift__String_swift__Array_uint64_t_& map) {
-    auto __result = withSwiftResult<::NitroTest::Record_swift__String_swift__Array_uint64_t_>([&](void* __outResult) {
-      return _swiftPart.bounceUnsignedArrayMap(map, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Record_swift__String_swift__Array_uint64_t_>([&](const void* __onResult) {
+      return _swiftPart.bounceUnsignedArrayMap(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -515,8 +515,8 @@ namespace margelo::nitro::test {
 
   swift::Array<swift::Array<uint64_t>> HybridTestObjectSwiftKotlinSpecSwift::callNestedUnsignedArrayCallback(const swift::Array<swift::Array<uint64_t>>& array, const Callback<swift::Array<swift::Array<uint64_t>>(const swift::Array<swift::Array<uint64_t>>&)>& callback) {
     auto __result = ([&](const void* callback) {
-      return withSwiftResult<swift::Array<swift::Array<uint64_t>>>([&](void* __outResult) {
-        return _swiftPart.callNestedUnsignedArrayCallback(array, callback, __outResult);
+      return receiveSwiftResult<swift::Array<swift::Array<uint64_t>>>([&](const void* __onResult) {
+        return _swiftPart.callNestedUnsignedArrayCallback(array, callback, __onResult);
       });
     })(std::addressof(callback));
     if (__result.hasError()) [[unlikely]] {
@@ -526,8 +526,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<::NitroTest::HybridChildSpec_cxx> HybridTestObjectSwiftKotlinSpecSwift::bounceHybridObjects(const swift::Array<::NitroTest::HybridChildSpec_cxx>& array) {
-    auto __result = withSwiftResult<swift::Array<::NitroTest::HybridChildSpec_cxx>>([&](void* __outResult) {
-      return _swiftPart.bounceHybridObjects(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<::NitroTest::HybridChildSpec_cxx>>([&](const void* __onResult) {
+      return _swiftPart.bounceHybridObjects(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -536,8 +536,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<Callback<void()>> HybridTestObjectSwiftKotlinSpecSwift::bounceFunctions(const swift::Array<Callback<void()>>& functions) {
-    auto __result = withSwiftResult<swift::Array<Callback<void()>>>([&](void* __outResult) {
-      return _swiftPart.bounceFunctions(functions, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<Callback<void()>>>([&](const void* __onResult) {
+      return _swiftPart.bounceFunctions(functions, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -546,8 +546,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<NitroModules::AnyJSON> HybridTestObjectSwiftKotlinSpecSwift::bounceMaps(const swift::Array<NitroModules::AnyJSON>& maps) {
-    auto __result = withSwiftResult<swift::Array<NitroModules::AnyJSON>>([&](void* __outResult) {
-      return _swiftPart.bounceMaps(maps, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<NitroModules::AnyJSON>>([&](const void* __onResult) {
+      return _swiftPart.bounceMaps(maps, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -556,8 +556,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<Promise<double>> HybridTestObjectSwiftKotlinSpecSwift::bouncePromises(const swift::Array<Promise<double>>& promises) {
-    auto __result = withSwiftResult<swift::Array<Promise<double>>>([&](void* __outResult) {
-      return _swiftPart.bouncePromises(promises, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<Promise<double>>>([&](const void* __onResult) {
+      return _swiftPart.bouncePromises(promises, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -566,8 +566,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<ArrayBuffer> HybridTestObjectSwiftKotlinSpecSwift::bounceArrayBuffers(const swift::Array<ArrayBuffer>& arrayBuffers) {
-    auto __result = withSwiftResult<swift::Array<ArrayBuffer>>([&](void* __outResult) {
-      return _swiftPart.bounceArrayBuffers(arrayBuffers, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<ArrayBuffer>>([&](const void* __onResult) {
+      return _swiftPart.bounceArrayBuffers(arrayBuffers, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -576,8 +576,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<swift::Optional<swift::String>> HybridTestObjectSwiftKotlinSpecSwift::bounceOptionals(const swift::Array<swift::Optional<swift::String>>& strings, const swift::Array<swift::Optional<ArrayBuffer>>& arrayBuffers) {
-    auto __result = withSwiftResult<swift::Array<swift::Optional<swift::String>>>([&](void* __outResult) {
-      return _swiftPart.bounceOptionals(strings, arrayBuffers, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<swift::Optional<swift::String>>>([&](const void* __onResult) {
+      return _swiftPart.bounceOptionals(strings, arrayBuffers, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -586,8 +586,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<::NitroTest::Variant_NullType_String_cxx> HybridTestObjectSwiftKotlinSpecSwift::bounceNulls(const swift::Array<::NitroTest::Variant_NullType_String_cxx>& strings) {
-    auto __result = withSwiftResult<swift::Array<::NitroTest::Variant_NullType_String_cxx>>([&](void* __outResult) {
-      return _swiftPart.bounceNulls(strings, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<::NitroTest::Variant_NullType_String_cxx>>([&](const void* __onResult) {
+      return _swiftPart.bounceNulls(strings, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -596,8 +596,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<swift::Optional<::NitroTest::Variant_NullType_String_cxx>> HybridTestObjectSwiftKotlinSpecSwift::bounceOptionalNulls(const swift::Array<swift::Optional<::NitroTest::Variant_NullType_String_cxx>>& strings) {
-    auto __result = withSwiftResult<swift::Array<swift::Optional<::NitroTest::Variant_NullType_String_cxx>>>([&](void* __outResult) {
-      return _swiftPart.bounceOptionalNulls(strings, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<swift::Optional<::NitroTest::Variant_NullType_String_cxx>>>([&](const void* __onResult) {
+      return _swiftPart.bounceOptionalNulls(strings, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -606,8 +606,8 @@ namespace margelo::nitro::test {
   }
 
   NitroModules::AnyJSON HybridTestObjectSwiftKotlinSpecSwift::createMap() {
-    auto __result = withSwiftResult<NitroModules::AnyJSON>([&](void* __outResult) {
-      return _swiftPart.createMap(__outResult);
+    auto __result = receiveSwiftResult<NitroModules::AnyJSON>([&](const void* __onResult) {
+      return _swiftPart.createMap(__onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -616,8 +616,8 @@ namespace margelo::nitro::test {
   }
 
   NitroModules::AnyJSON HybridTestObjectSwiftKotlinSpecSwift::mapRoundtrip(const NitroModules::AnyJSON& map) {
-    auto __result = withSwiftResult<NitroModules::AnyJSON>([&](void* __outResult) {
-      return _swiftPart.mapRoundtrip(map, __outResult);
+    auto __result = receiveSwiftResult<NitroModules::AnyJSON>([&](const void* __onResult) {
+      return _swiftPart.mapRoundtrip(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -626,8 +626,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<swift::String> HybridTestObjectSwiftKotlinSpecSwift::getMapKeys(const NitroModules::AnyJSON& map) {
-    auto __result = withSwiftResult<swift::Array<swift::String>>([&](void* __outResult) {
-      return _swiftPart.getMapKeys(map, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<swift::String>>([&](const void* __onResult) {
+      return _swiftPart.getMapKeys(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -636,8 +636,8 @@ namespace margelo::nitro::test {
   }
 
   NitroModules::AnyJSON HybridTestObjectSwiftKotlinSpecSwift::mergeMaps(const NitroModules::AnyJSON& a, const NitroModules::AnyJSON& b) {
-    auto __result = withSwiftResult<NitroModules::AnyJSON>([&](void* __outResult) {
-      return _swiftPart.mergeMaps(a, b, __outResult);
+    auto __result = receiveSwiftResult<NitroModules::AnyJSON>([&](const void* __onResult) {
+      return _swiftPart.mergeMaps(a, b, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -646,8 +646,8 @@ namespace margelo::nitro::test {
   }
 
   NitroModules::AnyJSON HybridTestObjectSwiftKotlinSpecSwift::copyAnyMap(const NitroModules::AnyJSON& map) {
-    auto __result = withSwiftResult<NitroModules::AnyJSON>([&](void* __outResult) {
-      return _swiftPart.copyAnyMap(map, __outResult);
+    auto __result = receiveSwiftResult<NitroModules::AnyJSON>([&](const void* __onResult) {
+      return _swiftPart.copyAnyMap(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -656,8 +656,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Record_swift__String___NitroTest__Variant_Bool_Double_cxx HybridTestObjectSwiftKotlinSpecSwift::bounceMap(const ::NitroTest::Record_swift__String___NitroTest__Variant_Bool_Double_cxx& map) {
-    auto __result = withSwiftResult<::NitroTest::Record_swift__String___NitroTest__Variant_Bool_Double_cxx>([&](void* __outResult) {
-      return _swiftPart.bounceMap(map, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Record_swift__String___NitroTest__Variant_Bool_Double_cxx>([&](const void* __onResult) {
+      return _swiftPart.bounceMap(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -666,8 +666,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Record_swift__String_double HybridTestObjectSwiftKotlinSpecSwift::bounceSimpleMap(const ::NitroTest::Record_swift__String_double& map) {
-    auto __result = withSwiftResult<::NitroTest::Record_swift__String_double>([&](void* __outResult) {
-      return _swiftPart.bounceSimpleMap(map, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Record_swift__String_double>([&](const void* __onResult) {
+      return _swiftPart.bounceSimpleMap(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -676,8 +676,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Record_swift__String_swift__Optional_swift__String_ HybridTestObjectSwiftKotlinSpecSwift::bounceOptionalMap(const ::NitroTest::Record_swift__String_swift__Optional_swift__String_& map) {
-    auto __result = withSwiftResult<::NitroTest::Record_swift__String_swift__Optional_swift__String_>([&](void* __outResult) {
-      return _swiftPart.bounceOptionalMap(map, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Record_swift__String_swift__Optional_swift__String_>([&](const void* __onResult) {
+      return _swiftPart.bounceOptionalMap(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -686,8 +686,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Record_swift__String___NitroTest__Variant_NullType_String_cxx HybridTestObjectSwiftKotlinSpecSwift::bounceNullMap(const ::NitroTest::Record_swift__String___NitroTest__Variant_NullType_String_cxx& map) {
-    auto __result = withSwiftResult<::NitroTest::Record_swift__String___NitroTest__Variant_NullType_String_cxx>([&](void* __outResult) {
-      return _swiftPart.bounceNullMap(map, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Record_swift__String___NitroTest__Variant_NullType_String_cxx>([&](const void* __onResult) {
+      return _swiftPart.bounceNullMap(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -696,8 +696,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Record_swift__String_swift__Optional___NitroTest__Variant_NullType_String_cxx_ HybridTestObjectSwiftKotlinSpecSwift::bounceOptionalNullMap(const ::NitroTest::Record_swift__String_swift__Optional___NitroTest__Variant_NullType_String_cxx_& map) {
-    auto __result = withSwiftResult<::NitroTest::Record_swift__String_swift__Optional___NitroTest__Variant_NullType_String_cxx_>([&](void* __outResult) {
-      return _swiftPart.bounceOptionalNullMap(map, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Record_swift__String_swift__Optional___NitroTest__Variant_NullType_String_cxx_>([&](const void* __onResult) {
+      return _swiftPart.bounceOptionalNullMap(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -706,8 +706,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Record_swift__String_swift__String HybridTestObjectSwiftKotlinSpecSwift::extractMap(const ::NitroTest::MapWrapper& mapWrapper) {
-    auto __result = withSwiftResult<::NitroTest::Record_swift__String_swift__String>([&](void* __outResult) {
-      return _swiftPart.extractMap(mapWrapper, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Record_swift__String_swift__String>([&](const void* __onResult) {
+      return _swiftPart.extractMap(mapWrapper, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -741,8 +741,8 @@ namespace margelo::nitro::test {
   }
 
   swift::String HybridTestObjectSwiftKotlinSpecSwift::tryOptionalParams(double num, bool boo, const swift::Optional<swift::String>& str) {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return _swiftPart.tryOptionalParams(num, boo, str, __outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.tryOptionalParams(num, boo, str, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -751,8 +751,8 @@ namespace margelo::nitro::test {
   }
 
   swift::String HybridTestObjectSwiftKotlinSpecSwift::tryMiddleParam(double num, const swift::Optional<bool>& boo, const swift::String& str) {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return _swiftPart.tryMiddleParam(num, boo, str, __outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.tryMiddleParam(num, boo, str, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -761,8 +761,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Optional<::NitroTest::Powertrain> HybridTestObjectSwiftKotlinSpecSwift::tryOptionalEnum(const swift::Optional<::NitroTest::Powertrain>& value) {
-    auto __result = withSwiftResult<swift::Optional<::NitroTest::Powertrain>>([&](void* __outResult) {
-      return _swiftPart.tryOptionalEnum(value, __outResult);
+    auto __result = receiveSwiftResult<swift::Optional<::NitroTest::Powertrain>>([&](const void* __onResult) {
+      return _swiftPart.tryOptionalEnum(value, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1191,8 +1191,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Car HybridTestObjectSwiftKotlinSpecSwift::getCar() {
-    auto __result = withSwiftResult<::NitroTest::Car>([&](void* __outResult) {
-      return _swiftPart.getCar(__outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Car>([&](const void* __onResult) {
+      return _swiftPart.getCar(__onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1217,8 +1217,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Optional<::NitroTest::Person> HybridTestObjectSwiftKotlinSpecSwift::getDriver(const ::NitroTest::Car& car) {
-    auto __result = withSwiftResult<swift::Optional<::NitroTest::Person>>([&](void* __outResult) {
-      return _swiftPart.getDriver(car, __outResult);
+    auto __result = receiveSwiftResult<swift::Optional<::NitroTest::Person>>([&](const void* __onResult) {
+      return _swiftPart.getDriver(car, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1227,8 +1227,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Car HybridTestObjectSwiftKotlinSpecSwift::bounceCar(const ::NitroTest::Car& car) {
-    auto __result = withSwiftResult<::NitroTest::Car>([&](void* __outResult) {
-      return _swiftPart.bounceCar(car, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Car>([&](const void* __onResult) {
+      return _swiftPart.bounceCar(car, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1244,8 +1244,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::UnsignedScalar HybridTestObjectSwiftKotlinSpecSwift::roundtripUnsignedScalar(const ::NitroTest::UnsignedScalar& value) {
-    auto __result = withSwiftResult<::NitroTest::UnsignedScalar>([&](void* __outResult) {
-      return _swiftPart.roundtripUnsignedScalar(value, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::UnsignedScalar>([&](const void* __onResult) {
+      return _swiftPart.roundtripUnsignedScalar(value, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1254,8 +1254,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::UnsignedValues HybridTestObjectSwiftKotlinSpecSwift::roundtripUnsignedValues(const ::NitroTest::UnsignedValues& value) {
-    auto __result = withSwiftResult<::NitroTest::UnsignedValues>([&](void* __outResult) {
-      return _swiftPart.roundtripUnsignedValues(value, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::UnsignedValues>([&](const void* __onResult) {
+      return _swiftPart.roundtripUnsignedValues(value, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1264,8 +1264,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::WrappedJsStruct HybridTestObjectSwiftKotlinSpecSwift::bounceWrappedJsStyleStruct(const ::NitroTest::WrappedJsStruct& value) {
-    auto __result = withSwiftResult<::NitroTest::WrappedJsStruct>([&](void* __outResult) {
-      return _swiftPart.bounceWrappedJsStyleStruct(value, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::WrappedJsStruct>([&](const void* __onResult) {
+      return _swiftPart.bounceWrappedJsStyleStruct(value, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1274,8 +1274,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::OptionalWrapper HybridTestObjectSwiftKotlinSpecSwift::bounceOptionalWrapper(const ::NitroTest::OptionalWrapper& wrapper) {
-    auto __result = withSwiftResult<::NitroTest::OptionalWrapper>([&](void* __outResult) {
-      return _swiftPart.bounceOptionalWrapper(wrapper, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::OptionalWrapper>([&](const void* __onResult) {
+      return _swiftPart.bounceOptionalWrapper(wrapper, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1284,8 +1284,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::OptionalCallback HybridTestObjectSwiftKotlinSpecSwift::bounceOptionalCallback(const ::NitroTest::OptionalCallback& value) {
-    auto __result = withSwiftResult<::NitroTest::OptionalCallback>([&](void* __outResult) {
-      return _swiftPart.bounceOptionalCallback(value, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::OptionalCallback>([&](const void* __onResult) {
+      return _swiftPart.bounceOptionalCallback(value, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1294,8 +1294,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Optional<::NitroTest::OptionalEnumWrapper> HybridTestObjectSwiftKotlinSpecSwift::bounceOptionalEnumStruct(const swift::Optional<::NitroTest::OptionalEnumWrapper>& value) {
-    auto __result = withSwiftResult<swift::Optional<::NitroTest::OptionalEnumWrapper>>([&](void* __outResult) {
-      return _swiftPart.bounceOptionalEnumStruct(value, __outResult);
+    auto __result = receiveSwiftResult<swift::Optional<::NitroTest::OptionalEnumWrapper>>([&](const void* __onResult) {
+      return _swiftPart.bounceOptionalEnumStruct(value, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1369,8 +1369,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant_Double_String_cxx HybridTestObjectSwiftKotlinSpecSwift::passVariant(const ::NitroTest::Variant_Bool__Double___String__Double_String_cxx& either) {
-    auto __result = withSwiftResult<::NitroTest::Variant_Double_String_cxx>([&](void* __outResult) {
-      return _swiftPart.passVariant(either, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant_Double_String_cxx>([&](const void* __onResult) {
+      return _swiftPart.passVariant(either, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1379,8 +1379,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant_OldEnum_Bool_cxx HybridTestObjectSwiftKotlinSpecSwift::getVariantEnum(const ::NitroTest::Variant_OldEnum_Bool_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::Variant_OldEnum_Bool_cxx>([&](void* __outResult) {
-      return _swiftPart.getVariantEnum(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant_OldEnum_Bool_cxx>([&](const void* __onResult) {
+      return _swiftPart.getVariantEnum(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1389,8 +1389,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant_Powertrain_Car_cxx HybridTestObjectSwiftKotlinSpecSwift::bounceVariantUnionEnum(const ::NitroTest::Variant_Powertrain_Car_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::Variant_Powertrain_Car_cxx>([&](void* __outResult) {
-      return _swiftPart.bounceVariantUnionEnum(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant_Powertrain_Car_cxx>([&](const void* __onResult) {
+      return _swiftPart.bounceVariantUnionEnum(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1399,8 +1399,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant_WeirdNumbersEnum_Bool_cxx HybridTestObjectSwiftKotlinSpecSwift::getVariantWeirdNumbersEnum(const ::NitroTest::Variant_WeirdNumbersEnum_Bool_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::Variant_WeirdNumbersEnum_Bool_cxx>([&](void* __outResult) {
-      return _swiftPart.getVariantWeirdNumbersEnum(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant_WeirdNumbersEnum_Bool_cxx>([&](const void* __onResult) {
+      return _swiftPart.getVariantWeirdNumbersEnum(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1409,8 +1409,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant_Person_Car_cxx HybridTestObjectSwiftKotlinSpecSwift::getVariantObjects(const ::NitroTest::Variant_Person_Car_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::Variant_Person_Car_cxx>([&](void* __outResult) {
-      return _swiftPart.getVariantObjects(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant_Person_Car_cxx>([&](const void* __onResult) {
+      return _swiftPart.getVariantObjects(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1419,8 +1419,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::NamedVariant_cxx HybridTestObjectSwiftKotlinSpecSwift::passNamedVariant(const ::NitroTest::NamedVariant_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::NamedVariant_cxx>([&](void* __outResult) {
-      return _swiftPart.passNamedVariant(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::NamedVariant_cxx>([&](const void* __onResult) {
+      return _swiftPart.passNamedVariant(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1429,8 +1429,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant__any_HybridBaseSpec__OptionalWrapper_cxx HybridTestObjectSwiftKotlinSpecSwift::passAllEmptyObjectVariant(const ::NitroTest::Variant__any_HybridBaseSpec__OptionalWrapper_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::Variant__any_HybridBaseSpec__OptionalWrapper_cxx>([&](void* __outResult) {
-      return _swiftPart.passAllEmptyObjectVariant(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant__any_HybridBaseSpec__OptionalWrapper_cxx>([&](const void* __onResult) {
+      return _swiftPart.passAllEmptyObjectVariant(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1439,8 +1439,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::CoreTypesVariant_cxx HybridTestObjectSwiftKotlinSpecSwift::bounceComplexVariant(const ::NitroTest::CoreTypesVariant_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::CoreTypesVariant_cxx>([&](void* __outResult) {
-      return _swiftPart.bounceComplexVariant(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::CoreTypesVariant_cxx>([&](const void* __onResult) {
+      return _swiftPart.bounceComplexVariant(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1585,8 +1585,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::ExternalObjectStruct HybridTestObjectSwiftKotlinSpecSwift::bounceExternalStruct(const ::NitroTest::ExternalObjectStruct& externalStruct) {
-    auto __result = withSwiftResult<::NitroTest::ExternalObjectStruct>([&](void* __outResult) {
-      return _swiftPart.bounceExternalStruct(externalStruct, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::ExternalObjectStruct>([&](const void* __onResult) {
+      return _swiftPart.bounceExternalStruct(externalStruct, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1595,8 +1595,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::StringOrExternal_cxx HybridTestObjectSwiftKotlinSpecSwift::bounceExternalVariant(const ::NitroTest::StringOrExternal_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::StringOrExternal_cxx>([&](void* __outResult) {
-      return _swiftPart.bounceExternalVariant(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::StringOrExternal_cxx>([&](const void* __onResult) {
+      return _swiftPart.bounceExternalVariant(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1615,8 +1615,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::CppOnlyValue HybridTestObjectSwiftKotlinSpecSwift::bounceCppOnlyValue(const ::NitroTest::CppOnlyValue& value) {
-    auto __result = withSwiftResult<::NitroTest::CppOnlyValue>([&](void* __outResult) {
-      return _swiftPart.bounceCppOnlyValue(value, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::CppOnlyValue>([&](const void* __onResult) {
+      return _swiftPart.bounceCppOnlyValue(value, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1643,8 +1643,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx HybridTestObjectSwiftKotlinSpecSwift::getVariantHybrid(const ::NitroTest::Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx& variant) {
-    auto __result = withSwiftResult<::NitroTest::Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx>([&](void* __outResult) {
-      return _swiftPart.getVariantHybrid(variant, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx>([&](const void* __onResult) {
+      return _swiftPart.getVariantHybrid(variant, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1681,8 +1681,8 @@ namespace margelo::nitro::test {
   }
 
   swift::String HybridTestObjectSwiftKotlinSpecSwift::staticConcat(const swift::String& a, const swift::String& b) {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::staticConcat(a, b, __outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::staticConcat(a, b, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -1691,8 +1691,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::StaticPoint HybridTestObjectSwiftKotlinSpecSwift::staticBouncePoint(const ::NitroTest::StaticPoint& point) {
-    auto __result = withSwiftResult<::NitroTest::StaticPoint>([&](void* __outResult) {
-      return ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::staticBouncePoint(point, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::StaticPoint>([&](const void* __onResult) {
+      return ::NitroTest::HybridTestObjectSwiftKotlinSpec_cxx::staticBouncePoint(point, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());

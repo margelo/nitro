@@ -7,6 +7,7 @@
 public import NitroModules
 internal import CxxStdlib
 internal import NitroTestAppleCxx
+internal import NitroModulesAppleCxx
 
 /**
  * A class implementation that bridges HybridBenchmarkObjectSwiftKotlinSpec over to C++.
@@ -161,60 +162,72 @@ public final class HybridBenchmarkObjectSwiftKotlinSpec_cxx {
     }
   }
 
-  public final func addStrings(a: String, b: String, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func addStrings(a: String, b: String, __onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.addStrings(a: a, b: b)
-      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func bounceNumbers(array: [Double], __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func bounceNumbers(array: [Double], __onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.bounceNumbers(array: array)
-      __outResult.assumingMemoryBound(to: [Double].self).initialize(to: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func bounceCar(car: Car, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func bounceCar(car: Car, __onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.bounceCar(car: car)
-      __outResult.assumingMemoryBound(to: Car.self).initialize(to: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func bounceSimpleMap(map: Record_swift__String_double, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func bounceSimpleMap(map: Record_swift__String_double, __onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.bounceSimpleMap(map: map.dictionary)
-      __outResult.assumingMemoryBound(to: Record_swift__String_double.self).initialize(to: Record_swift__String_double(value))
+      withUnsafePointer(to: Record_swift__String_double(value)) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func tryOptionalParams(num: Double, boo: Bool, str: String?, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func tryOptionalParams(num: Double, boo: Bool, str: String?, __onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.tryOptionalParams(num: num, boo: boo, str: str)
-      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
     }
   }
 
-  public final func passVariant(either: Variant_Bool__Double___String__Double_String_cxx, __outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func passVariant(either: Variant_Bool__Double___String__Double_String_cxx, __onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.passVariant(either: either.value)
-      __outResult.assumingMemoryBound(to: Variant_Double_String_cxx.self).initialize(to: Variant_Double_String_cxx(value))
+      withUnsafePointer(to: Variant_Double_String_cxx(value)) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())

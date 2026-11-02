@@ -33,8 +33,8 @@ namespace margelo::nitro::test::external {
   // Methods
 
   swift::String HybridSomeExternalObjectSpecSwift::getValue() {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return _swiftPart.getValue(__outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.getValue(__onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -43,8 +43,8 @@ namespace margelo::nitro::test::external {
   }
 
   ::NitroTestExternal::OptionalPrimitivesHolder HybridSomeExternalObjectSpecSwift::createOptionalPrimitivesHolder(const swift::Optional<double>& optionalNumber, const swift::Optional<bool>& optionalBoolean, const swift::Optional<uint64_t>& optionalUInt64, const swift::Optional<int64_t>& optionalInt64) {
-    auto __result = withSwiftResult<::NitroTestExternal::OptionalPrimitivesHolder>([&](void* __outResult) {
-      return _swiftPart.createOptionalPrimitivesHolder(optionalNumber, optionalBoolean, optionalUInt64, optionalInt64, __outResult);
+    auto __result = receiveSwiftResult<::NitroTestExternal::OptionalPrimitivesHolder>([&](const void* __onResult) {
+      return _swiftPart.createOptionalPrimitivesHolder(optionalNumber, optionalBoolean, optionalUInt64, optionalInt64, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());

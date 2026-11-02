@@ -48,8 +48,8 @@ namespace margelo::nitro::test {
   }
 
   swift::String HybridBenchmarkObjectSwiftKotlinSpecSwift::addStrings(const swift::String& a, const swift::String& b) {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return _swiftPart.addStrings(a, b, __outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.addStrings(a, b, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -58,8 +58,8 @@ namespace margelo::nitro::test {
   }
 
   swift::Array<double> HybridBenchmarkObjectSwiftKotlinSpecSwift::bounceNumbers(const swift::Array<double>& array) {
-    auto __result = withSwiftResult<swift::Array<double>>([&](void* __outResult) {
-      return _swiftPart.bounceNumbers(array, __outResult);
+    auto __result = receiveSwiftResult<swift::Array<double>>([&](const void* __onResult) {
+      return _swiftPart.bounceNumbers(array, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -68,8 +68,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Car HybridBenchmarkObjectSwiftKotlinSpecSwift::bounceCar(const ::NitroTest::Car& car) {
-    auto __result = withSwiftResult<::NitroTest::Car>([&](void* __outResult) {
-      return _swiftPart.bounceCar(car, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Car>([&](const void* __onResult) {
+      return _swiftPart.bounceCar(car, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -78,8 +78,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Record_swift__String_double HybridBenchmarkObjectSwiftKotlinSpecSwift::bounceSimpleMap(const ::NitroTest::Record_swift__String_double& map) {
-    auto __result = withSwiftResult<::NitroTest::Record_swift__String_double>([&](void* __outResult) {
-      return _swiftPart.bounceSimpleMap(map, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Record_swift__String_double>([&](const void* __onResult) {
+      return _swiftPart.bounceSimpleMap(map, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -88,8 +88,8 @@ namespace margelo::nitro::test {
   }
 
   swift::String HybridBenchmarkObjectSwiftKotlinSpecSwift::tryOptionalParams(double num, bool boo, const swift::Optional<swift::String>& str) {
-    auto __result = withSwiftResult<swift::String>([&](void* __outResult) {
-      return _swiftPart.tryOptionalParams(num, boo, str, __outResult);
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.tryOptionalParams(num, boo, str, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());
@@ -98,8 +98,8 @@ namespace margelo::nitro::test {
   }
 
   ::NitroTest::Variant_Double_String_cxx HybridBenchmarkObjectSwiftKotlinSpecSwift::passVariant(const ::NitroTest::Variant_Bool__Double___String__Double_String_cxx& either) {
-    auto __result = withSwiftResult<::NitroTest::Variant_Double_String_cxx>([&](void* __outResult) {
-      return _swiftPart.passVariant(either, __outResult);
+    auto __result = receiveSwiftResult<::NitroTest::Variant_Double_String_cxx>([&](const void* __onResult) {
+      return _swiftPart.passVariant(either, __onResult);
     });
     if (__result.hasError()) [[unlikely]] {
       std::rethrow_exception(__result.error());

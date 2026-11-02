@@ -7,6 +7,7 @@
 internal import NitroModules
 internal import CxxStdlib
 internal import NitroTestExternalAppleCxx
+internal import NitroModulesAppleCxx
 
 /**
  * A class implementation that bridges HybridTestViewSpec over to C++.
@@ -156,10 +157,12 @@ public final class HybridTestViewSpec_cxx {
     }
   }
 
-  public final func getModuleName(__outResult: UnsafeMutableRawPointer) -> bridge.Result_void {
+  public final func getModuleName(__onResult: UnsafeRawPointer) -> bridge.Result_void {
     do {
       let value = try __implementation.getModuleName()
-      __outResult.assumingMemoryBound(to: String.self).initialize(to: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
       return bridge.Result_void.withValue()
     } catch {
       return bridge.Result_void.withError(error.toCpp())
