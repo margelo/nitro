@@ -848,7 +848,7 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
   override fun getBufferLastItem(buffer: ArrayBuffer): Double {
     val byteBuffer = buffer.getBuffer(false)
     val lastItem = byteBuffer[buffer.size - 1]
-    return lastItem.toDouble()
+    return lastItem.toUByte().toDouble()
   }
 
   override fun setAllValuesTo(

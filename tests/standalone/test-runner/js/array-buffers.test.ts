@@ -675,12 +675,6 @@ export const cases = {
 }
 
 export const skips = {
-  'ArrayBuffer edge cases / TestObjectSwiftKotlin / getBufferLastItem(...) reads 128 as an unsigned byte': {
-    android: 'Existing main exclusion: !isKotlinSignedByte',
-  },
-  'ArrayBuffer edge cases / TestObjectSwiftKotlin / getBufferLastItem(...) reads 255 as an unsigned byte': {
-    android: 'Existing main exclusion: !isKotlinSignedByte',
-  },
   'ArrayBuffer edge cases / TestObjectCpp / getBufferLastItem(Uint8Array) throws a TypedArray hint': {
     release: 'Existing main exclusion: IS_DEBUG',
   },

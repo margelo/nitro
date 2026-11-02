@@ -93,9 +93,10 @@ The bundler discovers exported values using TypeScript's module information, wit
 unexported or in separate helper files. Each test gets a file-qualified name, such as `async.fibonacci` for a function in `async.test.ts`.
 New files and cases require no Swift/Kotlin edits.
 
-Each `.test.ts` file is one suite and one Swift Testing or JUnit parameter. Its cases run sequentially in one Hermes runtime. A failure
-stops that suite; other suites continue. Missing, invalid, or empty case lists fail discovery. The native error/timeout contract tests
-remain handwritten. Jest and Vitest are not needed to run the JS cases.
+Each `.test.ts` file is one suite and one Swift Testing or JUnit parameter. Its cases run sequentially in one Hermes runtime. After a case
+fails, the remaining cases continue in a fresh runtime, and the suite reports all failures. Bundle setup failures stop the suite. Missing,
+invalid, or empty case lists fail discovery. The native error/timeout contract tests remain handwritten. Jest and Vitest are not needed to
+run the JS cases.
 
 Larger suites can export a `cases` object whose keys are literal test names. `casesForTestObjects` binds each case to a fresh C++ or
 Swift/Kotlin fixture; `namedCases` prefixes cases that do not use that pair of fixtures:
@@ -114,9 +115,9 @@ export const cases = casesForTestObjects('Numbers', {
 The bundler reads literal keys through TypeScript, without evaluating the module or creating native objects in Bun. It rejects case maps
 with open string index signatures, empty suites, invalid callbacks, and exclusions for unknown tests.
 
-Suites with exclusions export a literal `skips` object with `as const`. Each key matches a case key, and each value maps `apple`, `android`,
-or `release` to the exclusion reason. JUnit reports these as assumptions; Swift Testing puts them in a separate disabled parameterized test.
-They are never counted as successful behavior checks. New regressions should fail normally.
+Debug runs reject platform exclusions so every discovered case runs. Tests for debug-only diagnostics export a literal `skips` object with
+`as const`, mapping each case key to a `release` exclusion reason. Release runners report these as JUnit assumptions or a disabled Swift
+Testing test. They are never counted as successful behavior checks. New regressions should fail normally.
 
 ## Native coverage gaps
 
@@ -136,12 +137,12 @@ but cannot prove these ownership and scheduling details.
 ## Execution and failures
 
 Each test file creates a fresh Hermes runtime, installs Nitro, loads the bundle, and calls `runNitroTest(name)` for each enabled case. The
-runtime is destroyed after the file finishes or its first failure. The eleven shared test files therefore use eleven runtimes per successful
-run; handwritten native runner contracts use separate runtimes. The runner eagerly compiles the bundle once and caches its bytecode by
-source contents. Each runtime evaluates that bytecode with fresh globals and native objects. Compilation happens before the JS deadlines;
-Hermes' watchdog cannot interrupt the native compiler.
+runtime is destroyed after the file finishes or a case fails. After a failure, a new runtime loads the bundle and runs the remaining cases;
+previous cases are not repeated. A successful run uses one runtime per shared test file; handwritten native runner contracts use separate
+runtimes. The runner eagerly compiles the bundle once and caches its bytecode by source contents. Each runtime evaluates that bytecode with
+fresh globals and native objects. Compilation happens before the JS deadlines; Hermes' watchdog cannot interrupt the native compiler.
 
-The native thread owns the runtime and pumps its dispatcher. On iOS, an operation queue runs at most two suites at once while Swift awaits
+The native thread owns the runtime and pumps its dispatcher. On iOS, an operation queue runs at most four suites at once while Swift awaits
 continuations. This leaves Swift's cooperative executor free to run `Promise.async` tasks that the JavaScript case awaits. The iOS runner
 restricts the cooperative pool to one worker so the concurrent native Promise test checks this behavior. Native work runs on background
 threads; its callbacks are queued back to the runtime's owning thread. When the microtask queue is empty, the dispatcher sleeps until a
@@ -154,13 +155,14 @@ completions and a long Promise chain with per-iteration captured bindings. This 
 Asynchronous helpers yield via the C++ fixture's native `wait` method. The host exposes `gc()` for lifetime tests and `__nitroTestPlatform`
 for platform-dependent assertions.
 
-Fulfillment passes. An assertion, JS exception, rejection, native exception, or timeout becomes a Swift error or JUnit assertion failure
-containing the case name and JS stack. The helper returns a message across the native boundary rather than exposing JSI values or throwing
-C++ exceptions into Swift. Bundle setup and each case get a 10-second timeout. Setup cannot consume the case's budget.
-`withTestTimeout(150_000, test)` gives the four 55,000-object allocation/disposal cases 150 seconds to complete. Other tests retain the
-default, which a `Memory budgets` case checks, and the override never extends bundle setup. Native runner contracts pass shorter explicit
-limits to check timeouts. Hermes interrupts synchronous JS loops and endless microtask chains in either phase; timeout errors identify the
-phase. Late native callbacks cannot re-enter the runtime after it closes.
+Fulfillment passes. Assertions, JS exceptions, rejections, native exceptions, and timeouts are collected into one Swift error or JUnit
+assertion failure containing each failed case's name and JS stack. A bundle setup failure stops the remaining cases because they cannot run
+without the bundle. The helper returns a message across the native boundary rather than exposing JSI values or throwing C++ exceptions into
+Swift. Bundle setup and each case get a 10-second timeout. Setup cannot consume the case's budget. `withTestTimeout(150_000, test)` gives
+the four 55,000-object allocation/disposal cases 150 seconds to complete. Other tests retain the default, which a `Memory budgets` case
+checks, and the override never extends bundle setup. Native runner contracts pass shorter explicit limits to check timeouts. Hermes
+interrupts synchronous JS loops and endless microtask chains in either phase; timeout errors identify the phase. Late native callbacks
+cannot re-enter the runtime after it closes.
 
 Chai includes expected/actual values in assertion messages with truncation disabled. There is no custom property-diff reporter or source-map
 symbolicator yet. The unminified bundle and its source map are available as build artifacts; reported stack locations refer to the bundle,
