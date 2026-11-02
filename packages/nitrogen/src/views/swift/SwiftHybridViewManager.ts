@@ -68,14 +68,12 @@ ${imports}
 #import <React/RCTComponentViewFactory.h>
 #import <React/UIView+ComponentViewProtocol.h>
 #import <NitroModules/NitroDefines.hpp>
+#import <NitroModules/ReactNativeCore.hpp>
 #import <UIKit/UIKit.h>
 
 
-#if __has_include(<cxxreact/ReactNativeVersion.h>)
-#include <cxxreact/ReactNativeVersion.h>
 #if REACT_NATIVE_VERSION_MINOR >= 82
 #define ENABLE_RCT_COMPONENT_VIEW_INVALIDATE
-#endif
 #endif
 
 using namespace margelo;

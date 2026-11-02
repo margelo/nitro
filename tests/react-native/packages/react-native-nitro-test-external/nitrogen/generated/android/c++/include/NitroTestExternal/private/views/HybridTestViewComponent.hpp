@@ -7,13 +7,16 @@
 
 #pragma once
 
+#include <NitroModules/ReactNativeCore.hpp>
 #include <NitroModules/ReactProp.hpp>
 #include <NitroModules/ViewComponentDescriptor.hpp>
 #include <NitroModules/ViewPropsHolderState.hpp>
+#if __has_include(<React/View.h>)
+#include <React/View.h>
+#else
 #include <react/renderer/components/view/ConcreteViewShadowNode.h>
 #include <react/renderer/components/view/ViewProps.h>
-#include <react/renderer/core/PropsParserContext.h>
-#include <react/renderer/core/RawProps.h>
+#endif
 
 #include <string>
 

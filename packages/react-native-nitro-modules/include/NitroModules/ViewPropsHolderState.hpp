@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include <NitroModules/ReactNativeCore.hpp>
+
 #include <memory>
-#include <react/renderer/core/ConcreteComponentDescriptor.h>
 #include <utility>
 
 namespace margelo::nitro {

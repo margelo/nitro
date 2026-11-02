@@ -10,7 +10,6 @@
 #import <NitroModules/InstallNitro.hpp>
 #import <NitroModulesReactNative/detail/CallInvokerDispatcher.hpp>
 
-#import <ReactCommon/CallInvoker.h>
 #import <ReactCommon/RCTTurboModuleWithJSIBindings.h>
 
 using namespace facebook;
