@@ -30,16 +30,15 @@ import com.margelo.nitro.core.callSync
 )
 class Callback_uint64_t_uint64_t @DoNotStrip @Keep private constructor(hybridData: HybridData): CxxCallback(hybridData), Callback.Arity1<ULong, ULong> {
   override fun callSync(value: ULong): ULong {
-    val __result = callSync_cxx(value.toLong())
-    return __result.toULong()
+    return callSync_cxx(value)
   }
 
   override fun callAsync(value: ULong): Promise<ULong> {
-    return callAsync_cxx(value.toLong())
+    return callAsync_cxx(value)
   }
 
   override fun callAndForget(value: ULong): Unit {
-    callAndForget_cxx(value.toLong())
+    callAndForget_cxx(value)
   }
 
   /**
@@ -52,24 +51,23 @@ class Callback_uint64_t_uint64_t @DoNotStrip @Keep private constructor(hybridDat
     @DoNotStrip
     @Keep
     @JvmName("call")
-    fun call(value: Long): Long {
-      val __result = this.callback.callSync(value.toULong())
-      return __result.toLong()
+    fun call(value: ULong): ULong {
+      return this.callback.callSync(value)
     }
   }
 
   @DoNotStrip
   @Keep
   @JvmName("callSync_cxx")
-  private external fun callSync_cxx(value: Long): Long
+  private external fun callSync_cxx(value: ULong): ULong
 
   @DoNotStrip
   @Keep
   @JvmName("callAsync_cxx")
-  private external fun callAsync_cxx(value: Long): Promise<ULong>
+  private external fun callAsync_cxx(value: ULong): Promise<ULong>
 
   @DoNotStrip
   @Keep
   @JvmName("callAndForget_cxx")
-  private external fun callAndForget_cxx(value: Long): Unit
+  private external fun callAndForget_cxx(value: ULong): Unit
 }

@@ -70,8 +70,8 @@ data class UnsignedValues(
     @Suppress("unused")
     @JvmStatic
     @JvmName("fromCpp")
-    private fun fromCpp(unsignedValue: Long, optionalUnsigned: ULong?, values: Array<ULong>, nested: Array<Array<ULong>>, record: Map<String, ULong?>, callbacks: Array<Callback<(value: ULong) -> ULong>>): UnsignedValues {
-      return UnsignedValues(unsignedValue.toULong(), optionalUnsigned, values, nested, record, callbacks)
+    private fun fromCpp(unsignedValue: ULong, optionalUnsigned: ULong?, values: Array<ULong>, nested: Array<Array<ULong>>, record: Map<String, ULong?>, callbacks: Array<Callback<(value: ULong) -> ULong>>): UnsignedValues {
+      return UnsignedValues(unsignedValue, optionalUnsigned, values, nested, record, callbacks)
     }
   }
 }
