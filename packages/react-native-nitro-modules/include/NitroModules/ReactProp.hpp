@@ -8,10 +8,8 @@
 #include <NitroModules/JSICache.hpp>
 #include <NitroModules/JSIConverter.hpp>
 #include <NitroModules/NitroDefines.hpp>
+#include <NitroModules/ReactNativeCore.hpp>
 #include <jsi/jsi.h>
-
-#include <react/renderer/core/RawProps.h>
-#include <react/renderer/core/RawValue.h>
 
 #include <memory>
 #include <optional>

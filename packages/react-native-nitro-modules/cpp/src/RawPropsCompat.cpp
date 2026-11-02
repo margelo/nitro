@@ -14,8 +14,7 @@
 #define RN_SERIALIZABLE_STATE
 #endif
 
-#include <react/renderer/core/Props.h>
-#include <react/renderer/core/RawProps.h>
+#include <NitroModules/ReactNativeCore.hpp>
 
 namespace margelo::nitro::RawPropsCompat {
 
