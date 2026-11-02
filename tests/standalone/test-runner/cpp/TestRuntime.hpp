@@ -8,7 +8,8 @@
 namespace margelo::nitro::testing {
 
 // Runs a file's cases in order in one fresh Hermes runtime on the calling thread.
-// The first failure stops the suite and includes the case name and JS stack.
+// After a case fails, continues the remaining cases in a new runtime. Returns all
+// failures with their case names and JS stacks. A setup failure stops the suite.
 // No C++ exception crosses the Swift/JNI boundary. Bundle compilation is cached
 // outside the JS deadlines. Setup and each case receive timeoutMs;
 // getNitroTestTimeoutMs(name) can override execution only. onTestStarted runs

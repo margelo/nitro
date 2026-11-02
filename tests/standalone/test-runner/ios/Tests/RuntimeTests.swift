@@ -96,6 +96,12 @@ struct RuntimeTests {
         #endif
         return reason != nil
       })
+    #if DEBUG
+      guard excluded.isEmpty else {
+        throw JavaScriptFailure(
+          description: "Debug runtime tests must not have platform exclusions: \(excluded.sorted())")
+      }
+    #endif
     let enabled = suites.keys.sorted().compactMap { name -> JavaScriptSuite? in
       guard let cases = suites[name] else { return nil }
       let enabledCases = cases.filter { !excluded.contains($0) }
@@ -118,14 +124,16 @@ struct RuntimeTests {
     }
   }
 
-  // Exclusions remain visible without creating runtimes for skipped cases.
-  @Test(
-    "Platform/build exclusions",
-    .disabled("See runtime-test-skips.json for the platform/build exclusion reasons"),
-    arguments: try RuntimeTests.manifest.get().excluded)
-  func excludedJavaScript(_ name: String) {
-    Issue.record("Excluded case \(name) must not run")
-  }
+  #if !DEBUG
+    // Exclusions remain visible without creating runtimes for skipped cases.
+    @Test(
+      "Platform/build exclusions",
+      .disabled("See runtime-test-skips.json for the platform/build exclusion reasons"),
+      arguments: try RuntimeTests.manifest.get().excluded)
+    func excludedJavaScript(_ name: String) {
+      Issue.record("Excluded case \(name) must not run")
+    }
+  #endif
 
   // These handwritten cases test the runner, not HybridObject behavior. They
   // deliberately fail or hang in JS and check that Swift receives the failure.

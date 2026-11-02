@@ -101,6 +101,9 @@ class HybridObjectTest(
               !BuildConfig.DEBUG && rules?.has("release") == true -> rules.getString("release")
               else -> null
             }
+          require(!BuildConfig.DEBUG || reason == null) {
+            "Debug test $name must not be excluded: $reason"
+          }
           if (reason == null) {
             enabledNames.add(name)
           } else {

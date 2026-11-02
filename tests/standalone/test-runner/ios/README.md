@@ -62,14 +62,16 @@ calls these scripts in separate steps so compilation and test durations are visi
 the tests through the workspace package commands. For a sanitizer run, build and run with the same `--sanitizer` value as shown above.
 
 `RuntimeTests.swift` reads the generated `runtime-tests.json` manifest and runs each `.test.ts` file as a Swift Testing parameter. New
-exported tests in `js/**/*.test.ts` need no Swift changes. Suites can be rerun individually in Xcode. A failed case stops its suite and
-reports its file-qualified name and JS stack. Missing, invalid, empty or duplicate manifest entries fail discovery.
+exported tests in `js/**/*.test.ts` need no Swift changes. Suites can be rerun individually in Xcode. After a case fails, the remaining
+cases continue in a fresh runtime. The suite reports all failed case names and JS stacks. Bundle setup failures stop the suite. Missing,
+invalid, empty or duplicate manifest entries fail discovery.
 
 The Swift tests await an operation queue limited to four concurrent suites. Each file creates one fresh Hermes runtime and executes its
-cases in order, with JavaScript and callbacks on its owning worker. The runtime is destroyed after the file finishes or fails. This keeps
-Swift's cooperative executor available for `Promise.async` completions. The queue uses user-interactive QoS, matching React Native's JS
-thread, so Swift tasks started by `Promise.async` inherit that priority. The shared Xcode scheme and command-line runner set
-`LIBDISPATCH_COOPERATIVE_POOL_STRICT=1` in the test process so the concurrent native Promise case runs with one cooperative worker.
+cases in order, with JavaScript and callbacks on its owning worker. The runtime is destroyed after the file finishes or a case fails, before
+the remaining cases start in a new runtime. This keeps Swift's cooperative executor available for `Promise.async` completions. The queue
+uses user-interactive QoS, matching React Native's JS thread, so Swift tasks started by `Promise.async` inherit that priority. The shared
+Xcode scheme and command-line runner set `LIBDISPATCH_COOPERATIVE_POOL_STRICT=1` in the test process so the concurrent native Promise case
+runs with one cooperative worker.
 
 The static-property cases belong to `objects.test.ts`, so their writes to shared native storage run sequentially. They restore the original
 values before returning.

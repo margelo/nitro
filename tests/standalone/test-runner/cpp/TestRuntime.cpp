@@ -15,6 +15,8 @@
 #include <limits>
 #include <mutex>
 #include <queue>
+#include <span>
+#include <string_view>
 #include <thread>
 
 namespace margelo::nitro::testing {
@@ -145,8 +147,13 @@ namespace {
     return static_cast<uint32_t>(timeout.getNumber());
   }
 
-  std::string execute(const std::string& bundle, const std::vector<std::string>& names, uint32_t timeoutMs,
-                      const std::function<void()>& onTestStarted) {
+  struct ExecutionResult {
+    std::string error;
+    size_t attempted;
+  };
+
+  ExecutionResult execute(const std::string& bundle, std::span<const std::string> names, uint32_t timeoutMs,
+                          const std::function<void()>& onTestStarted) {
     auto dispatcher = std::make_shared<TestDispatcher>();
     auto config = ::hermes::vm::RuntimeConfig::Builder()
                       .withMicrotaskQueue(true)
@@ -164,7 +171,8 @@ namespace {
       }
     } cleanup{dispatcher, *runtime};
     const char* phase = "preparing JS test bundle";
-    std::string currentName = names.front();
+    std::string_view currentName = names.front();
+    size_t attempted = 0;
     // JSError owns JSI values. Convert it before destroying their runtime.
     try {
       // The watchdog interrupts JS execution, not the native compiler. Compile
@@ -213,8 +221,10 @@ namespace {
       if (Clock::now() >= bundleDeadline)
         throw std::runtime_error(timeoutMessage);
 
+      auto run = runtime->global().getPropertyAsFunction(*runtime, "runNitroTest");
       for (const auto& name : names) {
         currentName = name;
+        ++attempted;
         phase = "running JS test";
         struct Result {
           bool done = false;
@@ -242,7 +252,6 @@ namespace {
                                                     }
                                                     return jsi::Value::undefined();
                                                   });
-        auto run = runtime->global().getPropertyAsFunction(*runtime, "runNitroTest");
         runtime->watchTimeLimit(timeoutMs);
         const auto testTimeoutMs = getTestTimeout(*runtime, name, timeoutMs);
         runtime->unwatchTimeLimit();
@@ -264,7 +273,7 @@ namespace {
         if (Clock::now() >= deadline)
           throw std::runtime_error(testTimeoutMessage);
         if (!result->error.empty())
-          return name + ": " + result->error;
+          return {name + ": " + result->error, attempted};
 
         phase = "settling work queued by the JS test";
         while (true) {
@@ -276,13 +285,43 @@ namespace {
         }
         runtime->unwatchTimeLimit();
       }
-      return "";
+      return {"", attempted};
     } catch (const std::exception& error) {
       std::string message = error.what();
-      return currentName + ": While " + phase + ": " + (message.empty() ? "Native exception without a message" : message);
+      return {std::string(currentName) + ": While " + phase + ": " + (message.empty() ? "Native exception without a message" : message),
+              attempted};
     } catch (...) {
-      return currentName + ": While " + phase + ": unknown native exception";
+      return {std::string(currentName) + ": While " + phase + ": unknown native exception", attempted};
     }
+  }
+
+  void appendFailure(std::string& failures, const std::string& failure) {
+    if (!failures.empty())
+      failures += "\n\n";
+    failures += failure;
+  }
+
+  std::string executeAll(const std::string& bundle, std::span<const std::string> remaining, uint32_t timeoutMs,
+                         const std::function<void()>& onTestStarted) {
+    std::string failures;
+    try {
+      while (!remaining.empty()) {
+        const auto result = execute(bundle, remaining, timeoutMs, onTestStarted);
+        if (result.error.empty())
+          break;
+        appendFailure(failures, result.error);
+        // A setup failure prevents every remaining case from running. A case
+        // failure closes its runtime before the suffix starts with fresh state.
+        if (result.attempted == 0)
+          break;
+        remaining = remaining.subspan(result.attempted);
+      }
+    } catch (const std::exception& error) {
+      appendFailure(failures, remaining.front() + ": " + error.what());
+    } catch (...) {
+      appendFailure(failures, remaining.front() + ": unknown native exception");
+    }
+    return failures;
   }
 } // namespace
 
@@ -292,13 +331,13 @@ std::string runSuite(const std::string& bundle, const std::vector<std::string>& 
     return "Cannot run an empty JavaScript test suite";
   try {
 #ifdef __ANDROID__
-    // The host owns JNI attachment for the whole runtime lifetime, including
-    // dispatcher callbacks, microtasks and teardown.
+    // The host owns JNI attachment for every runtime attempt, including
+    // dispatcher callbacks, microtasks and teardown after failed cases.
     std::string error;
-    facebook::jni::ThreadScope::WithClassLoader([&] { error = execute(bundle, names, timeoutMs, onTestStarted); });
+    facebook::jni::ThreadScope::WithClassLoader([&] { error = executeAll(bundle, names, timeoutMs, onTestStarted); });
     return error;
 #else
-    return execute(bundle, names, timeoutMs, onTestStarted);
+    return executeAll(bundle, names, timeoutMs, onTestStarted);
 #endif
   } catch (const std::exception& error) {
     return names.front() + ": " + error.what();
