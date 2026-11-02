@@ -17,6 +17,7 @@ import com.facebook.proguard.annotations.DoNotStrip
 
 /**
  * A callback to either a JS function or a Kotlin function, for example `Callback<(value: Double) -> Unit>`.
+ * The function type is invariant, so callbacks cannot be implicitly widened to another signature.
  *
  * Unlike a Kotlin lambda, a [Callback] lets its caller choose how to call it:
  * - `callSync(...)` calls it and returns its result. A JS callback must be called on its JS thread.
@@ -31,7 +32,7 @@ import com.facebook.proguard.annotations.DoNotStrip
  */
 @Keep
 @DoNotStrip
-sealed interface Callback<out F : Function<*>> {
+sealed interface Callback<F : Function<*>> {
   // Each number of parameters, up to 22, has an interface with the three calls.
   // Generated classes override all three calls for JS and C++ callbacks.
   // A Kotlin function only implements `callSync`, so the other calls run it immediately.
