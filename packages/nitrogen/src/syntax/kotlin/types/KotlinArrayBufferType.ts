@@ -8,7 +8,6 @@ import { getJniReferenceCode, type KotlinConversion, type KotlinType } from './K
 
 export class KotlinArrayBufferType extends ArrayBufferType implements KotlinType {
   readonly jniValueKind = 'object'
-  readonly needsKotlinConversion = false
 
   getCppConverter(cppType: Type): KotlinCppConverter {
     return new KotlinCxxArrayBufferType(cppType, this).getConverter()
@@ -26,15 +25,18 @@ export class KotlinArrayBufferType extends ArrayBufferType implements KotlinType
 
   convert(value: string, { from, in: language }: KotlinConversion): string {
     switch (language) {
-      case 'kotlin':
-        return value
-      case 'c++':
+      case 'c++': {
         switch (from) {
           case 'c++':
             return `JNIConverter<ArrayBuffer, jni::local_ref<JArrayBuffer::JavaPart>>::toJNI(${value})`
           case 'kotlin':
             return `JNIConverter<ArrayBuffer, jni::local_ref<JArrayBuffer::JavaPart>>::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
+      }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

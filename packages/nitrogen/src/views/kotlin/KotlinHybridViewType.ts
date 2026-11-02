@@ -13,7 +13,6 @@ export class KotlinHybridViewType implements KotlinType {
   readonly type: KotlinHybridObjectType
   readonly stateUpdaterName: string
   readonly jniValueKind = 'object'
-  readonly needsKotlinConversion = false
 
   constructor(spec: HybridObjectSpec<'kotlin'>) {
     this.type = new KotlinHybridObjectType(new HybridObjectType(spec))

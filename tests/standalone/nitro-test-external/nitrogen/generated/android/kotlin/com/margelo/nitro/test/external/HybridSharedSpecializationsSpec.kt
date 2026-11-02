@@ -141,8 +141,7 @@ abstract class HybridSharedSpecializationsSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridSharedSpecializationsSpec {
-      val __result = HybridSharedSpecializations.constructor()
-      return __result
+      return HybridSharedSpecializations.constructor()
     }
   }
 }

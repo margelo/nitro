@@ -22,8 +22,6 @@ data class UnsignedScalar(
   @Keep
   val value: ULong
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is UnsignedScalar) return false

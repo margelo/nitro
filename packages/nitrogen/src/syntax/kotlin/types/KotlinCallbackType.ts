@@ -30,7 +30,6 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
   override readonly returnType: KotlinType
   override readonly parameters: KotlinNamedType[]
   readonly jniValueKind = 'object'
-  readonly needsKotlinConversion = false
 
   constructor(
     readonly type: CallbackType,
@@ -61,8 +60,6 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
 
   convert(value: string, { from, in: language }: KotlinConversion): string {
     switch (language) {
-      case 'kotlin':
-        return value
       case 'c++': {
         const converter = getKotlinConverter({ cppType: this.type, kotlinType: this })
         switch (from) {
@@ -70,8 +67,12 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
             return `${converter}::toJNI(${value})`
           case 'kotlin':
             return `${converter}::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
       }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

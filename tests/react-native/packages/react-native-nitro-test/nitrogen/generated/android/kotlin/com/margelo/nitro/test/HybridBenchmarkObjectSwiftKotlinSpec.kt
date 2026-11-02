@@ -146,8 +146,7 @@ abstract class HybridBenchmarkObjectSwiftKotlinSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridBenchmarkObjectSwiftKotlinSpec {
-      val __result = HybridBenchmarkObjectKotlin.constructor()
-      return __result
+      return HybridBenchmarkObjectKotlin.constructor()
     }
   }
 }

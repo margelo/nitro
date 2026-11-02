@@ -42,7 +42,7 @@ class Callback_void_std__optional_double_ @DoNotStrip @Keep private constructor(
   }
 
   /**
-   * Lets C++ call a callback implemented in Kotlin with JNI types, e.g. `Long` instead of `ULong`.
+   * Lets C++ call a callback implemented in Kotlin through a JNI entry point.
    * C++ creates it when such a callback crosses JNI.
    */
   @DoNotStrip

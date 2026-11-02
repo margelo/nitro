@@ -25,8 +25,6 @@ data class PartialPerson(
   @Keep
   val age: Double?
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is PartialPerson) return false

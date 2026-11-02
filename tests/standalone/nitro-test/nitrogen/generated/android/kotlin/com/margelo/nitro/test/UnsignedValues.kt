@@ -37,8 +37,6 @@ data class UnsignedValues(
   @Keep
   val callbacks: Array<Callback<(value: ULong) -> ULong>>
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is UnsignedValues) return false

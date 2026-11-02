@@ -297,8 +297,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @DoNotStrip
   @Keep
   private fun bounceUnsignedAsync_cxx(value: ULong): Promise<ULong> {
-    val __result = bounceUnsignedAsync(value)
-    return __result
+    return bounceUnsignedAsync(value)
   }
 
   abstract fun callUnsignedCallbackAsync(value: ULong, callback: Callback<(value: ULong) -> ULong>): Promise<ULong>
@@ -307,8 +306,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @DoNotStrip
   @Keep
   private fun callUnsignedCallbackAsync_cxx(value: ULong, callback: Callback<(value: ULong) -> ULong>): Promise<ULong> {
-    val __result = callUnsignedCallbackAsync(value, callback)
-    return __result
+    return callUnsignedCallbackAsync(value, callback)
   }
 
   @DoNotStrip
@@ -848,8 +846,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridTestObjectSwiftKotlinSpec {
-      val __result = HybridTestObjectKotlin.constructor()
-      return __result
+      return HybridTestObjectKotlin.constructor()
     }
 
     // Static methods
@@ -858,8 +855,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun staticAdd_cxx(a: Double, b: Double): Double {
-      val __result = HybridTestObjectKotlin.staticAdd(a, b)
-      return __result
+      return HybridTestObjectKotlin.staticAdd(a, b)
     }
 
     @JvmName("staticNegate_cxx")
@@ -867,8 +863,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun staticNegate_cxx(value: Boolean): Boolean {
-      val __result = HybridTestObjectKotlin.staticNegate(value)
-      return __result
+      return HybridTestObjectKotlin.staticNegate(value)
     }
 
     @JvmName("staticConcat_cxx")
@@ -876,8 +871,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun staticConcat_cxx(a: String, b: String): String {
-      val __result = HybridTestObjectKotlin.staticConcat(a, b)
-      return __result
+      return HybridTestObjectKotlin.staticConcat(a, b)
     }
 
     @JvmName("staticBouncePoint_cxx")
@@ -885,8 +879,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun staticBouncePoint_cxx(point: StaticPoint): StaticPoint {
-      val __result = HybridTestObjectKotlin.staticBouncePoint(point)
-      return __result
+      return HybridTestObjectKotlin.staticBouncePoint(point)
     }
 
     @JvmName("staticThrow_cxx")
@@ -903,8 +896,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun getReadonlyNumber_cxx(): Double {
-      val __result = HybridTestObjectKotlin.readonlyNumber
-      return __result
+      return HybridTestObjectKotlin.readonlyNumber
     }
 
     @JvmName("getSharedNumber_cxx")
@@ -912,8 +904,7 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun getSharedNumber_cxx(): Double {
-      val __result = HybridTestObjectKotlin.sharedNumber
-      return __result
+      return HybridTestObjectKotlin.sharedNumber
     }
 
     @JvmName("setSharedNumber_cxx")

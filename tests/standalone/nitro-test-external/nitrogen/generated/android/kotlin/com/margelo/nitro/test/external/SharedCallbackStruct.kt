@@ -25,8 +25,6 @@ data class SharedCallbackStruct(
   @Keep
   val onChanged: Callback<(value: Double) -> Unit>
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is SharedCallbackStruct) return false

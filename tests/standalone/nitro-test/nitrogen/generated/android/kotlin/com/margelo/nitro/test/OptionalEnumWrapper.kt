@@ -73,8 +73,6 @@ data class OptionalEnumWrapper(
   @Keep
   val tone: Powertrain?
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is OptionalEnumWrapper) return false

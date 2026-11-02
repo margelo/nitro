@@ -14,27 +14,12 @@ export function createKotlinVariant(variant: KotlinVariantType): SourceFile[] {
   const kotlinName = variant.name
   const namespace = `${jniName}_impl`
 
-  const innerClasses = variant.kotlinCases.map(({ label, publicType, type }, index) => {
+  const innerClasses = variant.kotlinCases.map(({ label, publicType }, index) => {
     const innerName = capitalizeName(label)
     const valueType = publicType.getCode('kotlin', { context: 'property' })
-    const classCode = `
+    return `
 @DoNotStrip
 data class ${innerName}(@DoNotStrip val value: ${valueType}): ${kotlinName}(${index})
-`.trim()
-    const isFieldCompatible = type.isKotlinFieldCompatible ?? !type.needsKotlinConversion
-    if (isFieldCompatible) return classCode
-    // JNI reads values that Kotlin represents differently, e.g. `Long` for `ULong`, through an accessor.
-    const bridgeType = type.getCode('kotlin', { context: 'return' })
-    const bridgeValue = type.convert('value', { from: 'kotlin', to: 'c++', in: 'kotlin' })
-    return `
-${classCode} {
-  @DoNotStrip
-  @Suppress("unused", "FunctionName")
-  @JvmName("getValue_cxx")
-  private fun getValue_cxx(): ${bridgeType} {
-    return ${bridgeValue}
-  }
-}
 `.trim()
   })
 
@@ -74,15 +59,9 @@ is ${innerName} -> (value) as? T
     `.trim()
   })
 
-  const createFunctions = variant.kotlinCases.map(({ label, publicType, type }, i) => {
+  const createFunctions = variant.kotlinCases.map(({ label, publicType }, index) => {
     const innerName = capitalizeName(label)
     const valueType = publicType.getCode('kotlin', { context: 'parameter' })
-    const bridgeType = type.getCode('kotlin', { context: 'parameter' })
-    const publicValue = type.convert('value', {
-      from: 'c++',
-      to: 'kotlin',
-      in: 'kotlin',
-    })
     // Cases such as two callbacks can erase to the same JVM type, so give each a JVM name.
     return `
 @JvmStatic
@@ -92,8 +71,8 @@ fun create(value: ${valueType}): ${kotlinName} = ${innerName}(value)
 
 @JvmStatic
 @DoNotStrip
-@JvmName("fromCpp_${i}")
-private fun fromCpp_${i}(value: ${bridgeType}): ${kotlinName} = ${innerName}(${publicValue})
+@JvmName("fromCpp_${index}")
+private fun fromCpp_${index}(value: ${valueType}): ${kotlinName} = ${innerName}(value)
 `.trim()
   })
 
@@ -151,23 +130,7 @@ sealed class ${kotlinName} private constructor(@DoNotStrip private val index: In
     const valueType = type.getCode('c++', { context: 'return' })
     const parameterType = type.getCode('c++', { context: 'parameter' })
     const createValue = convertJniValue(type, 'value', 'to-jni')
-    const isFieldCompatible = type.isKotlinFieldCompatible ?? !type.needsKotlinConversion
-    let getValueBody: string
-    if (isFieldCompatible) {
-      const extractedValue = convertJniValue(type, 'getFieldValue(field)', 'from-jni')
-      getValueBody = `
-static const auto field = javaClassStatic()->getField<${jniField}>("value");
-return ${extractedValue};
-`.trim()
-    } else {
-      // The accessor is private and final, so JNI calls it without a virtual lookup.
-      const extractedValue = convertJniValue(type, 'method(self(), clazz)', 'from-jni')
-      getValueBody = `
-static const auto clazz = javaClassStatic();
-static const auto method = clazz->getNonvirtualMethod<${jniField}()>("getValue_cxx");
-return ${extractedValue};
-`.trim()
-    }
+    const extractedValue = convertJniValue(type, 'getFieldValue(field)', 'from-jni')
     const declaration = `
 class ${innerName} final : public jni::JavaClass<${innerName}, ${jniName}> {
 public:
@@ -185,7 +148,8 @@ jni::local_ref<${jniName}> ${namespace}::${innerName}::create(${parameterType} v
 }
 
 ${namespace}::${innerName}::Value ${namespace}::${innerName}::getValue() const {
-  ${indent(getValueBody, '  ')}
+  static const auto field = javaClassStatic()->getField<${jniField}>("value");
+  return ${extractedValue};
 }
 `.trim()
     return { name: innerName, declaration: declaration, implementation: implementation }

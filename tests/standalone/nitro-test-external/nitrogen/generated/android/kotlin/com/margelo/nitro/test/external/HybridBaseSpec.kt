@@ -95,8 +95,7 @@ abstract class HybridBaseSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridBaseSpec {
-      val __result = HybridBase.constructor()
-      return __result
+      return HybridBase.constructor()
     }
   }
 }

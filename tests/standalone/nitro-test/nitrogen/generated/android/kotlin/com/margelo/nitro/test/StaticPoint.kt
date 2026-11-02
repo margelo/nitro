@@ -28,8 +28,6 @@ data class StaticPoint(
   @Keep
   val visible: Boolean
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is StaticPoint) return false

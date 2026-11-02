@@ -21,8 +21,6 @@ import {
  */
 export class KotlinUInt64Type extends UInt64Type implements KotlinType {
   readonly boxed: boolean
-  readonly isKotlinFieldCompatible = true
-  readonly needsKotlinConversion = false
   readonly requiresKotlinJvmName = true
 
   constructor({ boxed }: KotlinTypeOptions = {}) {
@@ -64,19 +62,21 @@ export class KotlinUInt64Type extends UInt64Type implements KotlinType {
     }
   }
 
-  convert(value: string, conversion: KotlinConversion): string {
-    switch (conversion.in) {
-      case 'kotlin':
-        return value
+  convert(value: string, { from, in: language }: KotlinConversion): string {
+    switch (language) {
       case 'c++': {
         const converter = getKotlinConverter({ cppType: new UInt64Type(), kotlinType: this })
-        switch (conversion.from) {
+        switch (from) {
           case 'c++':
             return `${converter}::toJNI(${value})`
           case 'kotlin':
             return `${converter}::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
       }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

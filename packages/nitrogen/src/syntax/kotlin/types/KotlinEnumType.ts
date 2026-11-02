@@ -10,7 +10,6 @@ import { getJniReferenceCode, type KotlinConversion, type KotlinType } from './K
 
 export class KotlinEnumType extends EnumType implements KotlinType {
   readonly jniValueKind = 'object'
-  readonly needsKotlinConversion = false
   readonly hasStaticJNIReference = true
 
   constructor(
@@ -42,15 +41,18 @@ export class KotlinEnumType extends EnumType implements KotlinType {
 
   convert(value: string, { from, in: language }: KotlinConversion): string {
     switch (language) {
-      case 'kotlin':
-        return value
-      case 'c++':
+      case 'c++': {
         switch (from) {
           case 'c++':
             return `${getKotlinConverter({ cppType: this.type, kotlinType: this })}::toJNI(${value})`
           case 'kotlin':
             return `${getKotlinConverter({ cppType: this.type, kotlinType: this })}::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
+      }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

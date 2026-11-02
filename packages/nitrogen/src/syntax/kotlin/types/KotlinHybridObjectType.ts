@@ -9,7 +9,6 @@ import { getJniReferenceCode, type JNINativeRegistration, type KotlinConversion,
 
 export class KotlinHybridObjectType extends HybridObjectType implements KotlinType {
   readonly jniValueKind = 'object'
-  readonly needsKotlinConversion = false
 
   constructor(readonly type: HybridObjectType) {
     super(type.hybridObjectName, type.platforms, type.baseTypes, type.sourceConfig)
@@ -63,8 +62,6 @@ export class KotlinHybridObjectType extends HybridObjectType implements KotlinTy
 
   convert(value: string, { from, in: language }: KotlinConversion): string {
     switch (language) {
-      case 'kotlin':
-        return value
       case 'c++': {
         const nativeType = `std::shared_ptr<${this.jniName}>`
         const jniType = this.getCode('c++', { context: 'value' })
@@ -74,8 +71,12 @@ export class KotlinHybridObjectType extends HybridObjectType implements KotlinTy
             return `${converter}::toJNI(${value})`
           case 'kotlin':
             return `${converter}::fromJNI(${value})`
+          default:
+            throw new Error(`Unsupported Kotlin conversion source: ${from}`)
         }
       }
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
     }
   }
 

@@ -31,8 +31,6 @@ data class OptionalPrimitivesHolder(
   @Keep
   val optionalInt64: Long?
 ) {
-
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is OptionalPrimitivesHolder) return false

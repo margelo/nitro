@@ -4,13 +4,17 @@ import type { KotlinConversion, KotlinType } from './KotlinType.js'
 
 export class KotlinVoidType extends VoidType implements KotlinType {
   readonly jniValueKind = 'primitive'
-  readonly needsKotlinConversion = false
 
   getCppConverter(): KotlinCppConverter {
     return { files: [], imports: [] }
   }
 
-  convert(value: string, _conversion: KotlinConversion): string {
-    return value
+  convert(value: string, { in: language }: KotlinConversion): string {
+    switch (language) {
+      case 'c++':
+        return value
+      default:
+        throw new Error(`Unsupported Kotlin conversion language: ${language}`)
+    }
   }
 }

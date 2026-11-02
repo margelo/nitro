@@ -21,14 +21,10 @@ export interface KotlinTypeOptions {
   boxed?: boolean
 }
 
-/** A conversion of a value across JNI, written in either language. */
+/** A C++ conversion between a native value and its JNI representation. */
 export type KotlinConversion = ({ from: 'c++'; to: 'kotlin' } | { from: 'kotlin'; to: 'c++' }) & {
-  /**
-   * The language the conversion is written in. In C++, it converts between the
-   * C++ value and its fbjni representation. In Kotlin, it converts between the
-   * public Kotlin value and the Kotlin type JNI uses.
-   */
-  in: 'c++' | 'kotlin'
+  /** Conversion code is emitted in C++; Kotlin values cross JNI unchanged. */
+  in: 'c++'
 }
 
 /**
@@ -46,8 +42,7 @@ export interface GetKotlinCodeOptions extends GetCodeOptions {
 /**
  * A Kotlin representation that crosses JNI.
  *
- * `getCode('kotlin')` renders the Kotlin type JNI calls use, which can differ from
- * the public Kotlin type of the original `Type` (e.g. `Long` for `ULong`).
+ * `getCode('kotlin')` renders the public Kotlin type, which also crosses JNI unchanged.
  * `getCode('c++', { context })` renders its fbjni type: `jni::alias_ref<T>` for
  * `parameter`, `jni::local_ref<T>` for `return`, `value` and `parameter-type`, and the class `T`
  * for `type-argument` and `property` (template arguments and
@@ -60,14 +55,10 @@ export interface GetKotlinCodeOptions extends GetCodeOptions {
 export interface KotlinType extends Type {
   getCode(language: Language, options: GetKotlinCodeOptions): string
   readonly jniValueKind: JniValueKind
-  /** Whether the public Kotlin API needs conversion to this representation. */
-  readonly needsKotlinConversion: boolean
-  /** Whether this direct Kotlin type mangles JVM method names, even when no value conversion is needed. */
+  /** Whether this direct Kotlin type mangles JVM method names. */
   readonly requiresKotlinJvmName?: boolean
   /** Whether borrowed JNI values have immutable owners lasting for the process lifetime. */
   readonly hasStaticJNIReference?: boolean
-  /** Whether a generated Kotlin backing field already has this JNI representation. */
-  readonly isKotlinFieldCompatible?: boolean
   /** Overrides a native value's printer only when its JVM signature differs. */
   getJniCode?(options: GetKotlinCodeOptions): string
   /** Adapts a native scalar at the JNI boundary when its JVM ABI differs. */

@@ -96,8 +96,7 @@ abstract class HybridPlatformObjectSpec: HybridObject() {
     @DoNotStrip
     @Keep
     private fun constructor_cxx(): HybridPlatformObjectSpec {
-      val __result = HybridPlatformObject.constructor()
-      return __result
+      return HybridPlatformObject.constructor()
     }
   }
 }
