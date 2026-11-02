@@ -16,17 +16,21 @@ jsi::Array createJSIArray(jsi::Runtime& runtime, size_t size, Convert convert) {
     return result;
   }
   constexpr size_t inlineCapacity = 8;
-  std::array<jsi::Value, inlineCapacity> inlineValues;
-  std::vector<jsi::Value> heapValues;
-  if (size > inlineCapacity) {
-    heapValues.resize(size);
+  if (size <= inlineCapacity) {
+    std::array<jsi::Value, inlineCapacity> values;
+    for (size_t i = 0; i < size; ++i) {
+      values[i] = convert(i);
+    }
+    // A const pointer selects the buffer overload instead of the variadic push overload.
+    result.push(runtime, static_cast<const jsi::Value*>(values.data()), size);
+    return result;
   }
-  jsi::Value* values = size <= inlineCapacity ? inlineValues.data() : heapValues.data();
+  std::vector<jsi::Value> values;
+  values.reserve(size);
   for (size_t i = 0; i < size; ++i) {
-    values[i] = convert(i);
+    values.emplace_back(convert(i));
   }
-  // A const pointer selects the buffer overload instead of the variadic push overload.
-  result.push(runtime, static_cast<const jsi::Value*>(values), size);
+  result.push(runtime, static_cast<const jsi::Value*>(values.data()), size);
   return result;
 }
 
