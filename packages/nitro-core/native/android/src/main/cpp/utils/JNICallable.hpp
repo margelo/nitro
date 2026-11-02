@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "JNIGlobalRef.hpp"
 #include <NitroModules/NitroDefines.hpp>
 #include <fbjni/fbjni.h>
 #include <memory>
@@ -22,14 +23,15 @@ class JNICallable;
 /**
  * A wrapper for any jni::JavaClass that implements `R invoke(Args...)` to
  * make it callable (e.g. conformable to `std::function<R(Args...)>`)
- * Calls and final reference release require an attached thread.
+ * Calls require an attached thread. The last copy can be destroyed on any thread,
+ * e.g. by Hermes' GC thread when it destroys a JS function that holds this callable.
  */
 template <typename JFunc, typename R, typename... Args>
 class JNICallable<JFunc, R(Args...)> final {
 public:
   using Signature = R(Args...);
 
-  explicit JNICallable(jni::global_ref<JFunc>&& func) : _func(std::make_shared<jni::global_ref<JFunc>>(std::move(func))) {}
+  explicit JNICallable(jni::global_ref<JFunc>&& func) : _func(makeSharedGlobalRef(std::move(func))) {}
 
 public:
   inline R operator()(Args... args) const {
@@ -39,7 +41,7 @@ public:
   }
 
 private:
-  std::shared_ptr<jni::global_ref<JFunc>> _func;
+  SharedGlobalRef<JFunc> _func;
 };
 
 } // namespace margelo::nitro

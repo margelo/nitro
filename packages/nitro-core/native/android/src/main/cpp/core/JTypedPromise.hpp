@@ -1,5 +1,6 @@
 #pragma once
 
+#include "JNIGlobalRef.hpp"
 #include "JPromise.hpp"
 
 namespace margelo::nitro {
@@ -24,7 +25,8 @@ namespace detail {
   template <typename T>
   struct JNIPromiseResult<jni::local_ref<T>> {
     using JavaClass = T;
-    using Stored = jni::global_ref<T>;
+    // A Promise's state can be destroyed on any thread, e.g. by Hermes' GC thread.
+    using Stored = SharedGlobalRef<T>;
   };
 
   template <>

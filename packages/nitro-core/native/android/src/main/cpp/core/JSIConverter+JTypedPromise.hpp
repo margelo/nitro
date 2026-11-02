@@ -16,15 +16,18 @@ struct JSIConverter<jni::local_ref<JTypedPromise<JNIResult>>> final {
   static jni::local_ref<JavaPromise> fromJSI(jsi::Runtime& runtime, const jsi::Value& value)
     requires(std::is_void_v<Result> || JSIDecodable<Result>)
   {
+    // The JS Promise's native listeners own these, and the JS engine may destroy them on any thread.
     auto nativePromise = JSIConverter<Promise<Result>>::fromJSI(runtime, value);
     auto javaPromise = JavaPromise::create();
-    auto owner = jni::make_global(javaPromise);
+    auto owner = makeSharedGlobalRef(jni::make_global(javaPromise));
     if constexpr (std::is_void_v<Result>) {
-      nativePromise.addOnResolvedListener([owner] { owner->cthis()->resolve(JUnit::instance()); });
+      nativePromise.addOnResolvedListener([owner] { (*owner)->cthis()->resolve(JUnit::instance()); });
     } else {
-      nativePromise.addOnResolvedListener([owner](const Result& result) { owner->cthis()->resolve(result); });
+      nativePromise.addOnResolvedListener([owner](const Result& result) { (*owner)->cthis()->resolve(*result); });
     }
-    nativePromise.addOnRejectedListener([owner](const std::exception_ptr& error) { owner->cthis()->reject(error); });
+    // Destroying the pending native Promise, e.g. on the JS engine's GC thread, rejects it.
+    nativePromise.addOnRejectedListener(
+        [owner](const std::exception_ptr& error) { runAttached([&] { (*owner)->cthis()->reject(error); }); });
     return javaPromise;
   }
 
@@ -40,8 +43,7 @@ struct JSIConverter<jni::local_ref<JTypedPromise<JNIResult>>> final {
         using JavaResult = typename detail::JNIPromiseResult<JNIResult>::JavaClass;
         auto object = jni::alias_ref<jni::JObject>(result);
         auto typedResult = jni::static_ref_cast<JavaResult>(object);
-        auto owner = jni::make_global(typedResult);
-        nativePromise.resolve(std::move(owner));
+        nativePromise.resolve(makeSharedGlobalRef<JavaResult>(jni::make_global(typedResult)));
       }
     });
     state.addOnRejectedListener([nativePromise](const std::exception_ptr& error) { nativePromise.reject(std::exception_ptr(error)); });
