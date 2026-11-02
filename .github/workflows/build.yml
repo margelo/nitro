@@ -10,14 +10,18 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build.yml'
+      - '.github/workflows/performance.yml'
+      - '.github/workflows/performance-report.yml'
       - 'packages/nitro-core/**'
       - 'packages/nitrogen/**'
       - 'packages/react-native-nitro-modules/**'
+      - 'tests/react-native/apps/**'
       - 'config/**'
       - 'scripts/core-package.mjs'
       - 'scripts/sync-core.mjs'
       - 'scripts/set-version.mjs'
       - 'scripts/releases/**'
+      - 'scripts/performance/**'
       - '**/package.json'
       - 'bun.lock'
       - 'bunfig.toml'
