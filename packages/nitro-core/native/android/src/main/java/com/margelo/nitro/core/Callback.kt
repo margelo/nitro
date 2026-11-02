@@ -294,6 +294,6 @@ internal inline fun callNativeAndForget(call: () -> Unit) {
   try {
     call()
   } catch (error: Throwable) {
-    GlobalErrorHandler.reportNativeCallbackError(error)
+    GlobalErrorHandler.reportError(ErrorSource.NATIVE_CALLBACK, error)
   }
 }

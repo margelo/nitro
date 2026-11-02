@@ -4,17 +4,30 @@ import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 
 /**
- * Reports Kotlin errors that cannot be delivered to a caller to Nitro's C++ `GlobalErrorHandler`.
+ * Receives errors that cannot be delivered to a caller, for example because nobody awaits the call that threw.
+ *
+ * Errors reported here are currently logged in debug builds.
  */
 @Suppress("KotlinJniMissingFunction")
 @Keep
 @DoNotStrip
-internal object GlobalErrorHandler {
+object GlobalErrorHandler {
   /**
-   * Reports an [error] thrown by a native callback that was called without waiting for its result.
+   * Reports the given [error] that happened in the given [source].
    */
+  @JvmStatic
+  fun reportError(
+    source: ErrorSource,
+    error: Throwable,
+  ) {
+    reportError(source.nativeValue, error)
+  }
+
   @JvmStatic
   @Keep
   @DoNotStrip
-  external fun reportNativeCallbackError(error: Throwable)
+  private external fun reportError(
+    source: Int,
+    error: Throwable,
+  )
 }

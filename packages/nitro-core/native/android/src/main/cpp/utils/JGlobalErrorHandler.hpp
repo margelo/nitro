@@ -15,7 +15,7 @@ struct JGlobalErrorHandler final : public jni::JavaClass<JGlobalErrorHandler> {
   static void registerNatives();
 
 private:
-  static void reportNativeCallbackError(jni::alias_ref<jni::JClass>, jni::alias_ref<jni::JThrowable> error);
+  static void reportError(jni::alias_ref<jni::JClass>, jint source, jni::alias_ref<jni::JThrowable> error);
 };
 
 } // namespace margelo::nitro
