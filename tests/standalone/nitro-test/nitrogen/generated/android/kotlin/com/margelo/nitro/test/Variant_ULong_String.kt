@@ -60,7 +60,7 @@ sealed class Variant_ULong_String private constructor(@DoNotStrip private val in
     @JvmStatic
     @DoNotStrip
     @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: Long): Variant_ULong_String = First(value.toULong())
+    private fun fromCpp_0(value: ULong): Variant_ULong_String = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip

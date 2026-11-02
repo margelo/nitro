@@ -69,15 +69,15 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @JvmName("getUint64Value_cxx")
   @DoNotStrip
   @Keep
-  private fun getUint64Value_cxx(): Long {
-    return this.uint64Value.toLong()
+  private fun getUint64Value_cxx(): ULong {
+    return this.uint64Value
   }
 
   @JvmName("setUint64Value_cxx")
   @DoNotStrip
   @Keep
-  private fun setUint64Value_cxx(value: Long): Unit {
-    this.uint64Value = value.toULong()
+  private fun setUint64Value_cxx(value: ULong): Unit {
+    this.uint64Value = value
   }
 
   @get:DoNotStrip
@@ -296,8 +296,8 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @JvmName("bounceUnsignedAsync_cxx")
   @DoNotStrip
   @Keep
-  private fun bounceUnsignedAsync_cxx(value: Long): Promise<ULong> {
-    val __result = bounceUnsignedAsync(value.toULong())
+  private fun bounceUnsignedAsync_cxx(value: ULong): Promise<ULong> {
+    val __result = bounceUnsignedAsync(value)
     return __result
   }
 
@@ -306,8 +306,8 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @JvmName("callUnsignedCallbackAsync_cxx")
   @DoNotStrip
   @Keep
-  private fun callUnsignedCallbackAsync_cxx(value: Long, callback: Callback<(value: ULong) -> ULong>): Promise<ULong> {
-    val __result = callUnsignedCallbackAsync(value.toULong(), callback)
+  private fun callUnsignedCallbackAsync_cxx(value: ULong, callback: Callback<(value: ULong) -> ULong>): Promise<ULong> {
+    val __result = callUnsignedCallbackAsync(value, callback)
     return __result
   }
 

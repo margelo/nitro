@@ -16,20 +16,14 @@ import {
 } from './KotlinType.js'
 
 /**
- * JNI carries unboxed ULong bits as Long. Boxed values keep Kotlin's ULong class,
- * which JNI sees as JULong without a Kotlin-side conversion.
+ * Kotlin keeps ULong throughout. JNI sees its primitive bits as jlong and its
+ * boxed values as JULong.
  */
 export class KotlinUInt64Type extends UInt64Type implements KotlinType {
   readonly boxed: boolean
   readonly isKotlinFieldCompatible = true
-
-  get needsKotlinConversion(): boolean {
-    return !this.boxed
-  }
-
-  get requiresKotlinJvmName(): boolean {
-    return this.boxed
-  }
+  readonly needsKotlinConversion = false
+  readonly requiresKotlinJvmName = true
 
   constructor({ boxed }: KotlinTypeOptions = {}) {
     super()
@@ -50,7 +44,7 @@ export class KotlinUInt64Type extends UInt64Type implements KotlinType {
         if (!this.boxed) return super.getCode(language, options)
         return this.getJniCode(options)
       case 'kotlin':
-        return this.boxed ? 'ULong' : 'Long'
+        return 'ULong'
       case 'swift':
         return super.getCode(language, options)
     }
@@ -73,8 +67,7 @@ export class KotlinUInt64Type extends UInt64Type implements KotlinType {
   convert(value: string, conversion: KotlinConversion): string {
     switch (conversion.in) {
       case 'kotlin':
-        if (this.boxed) return value
-        return conversion.from === 'kotlin' ? `${value}.toLong()` : `${value}.toULong()`
+        return value
       case 'c++': {
         const converter = getKotlinConverter({ cppType: new UInt64Type(), kotlinType: this })
         switch (conversion.from) {
