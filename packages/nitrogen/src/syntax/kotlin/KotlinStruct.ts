@@ -50,8 +50,10 @@ private fun get${name}_cxx(): ${type} {
     })
     .join('\n\n')
 
-  const equalityComparators = structType.properties.map((p) => `Objects.deepEquals(this.${p.escapedName}, other.${p.escapedName})`)
-  const propertiesList = structType.properties.map((p) => p.escapedName).join(',\n')
+  const equalityComparators = structType.properties.map(
+    (property) => `Objects.deepEquals(this.${property.escapedName}, other.${property.escapedName})`
+  )
+  const propertiesList = structType.properties.map((property) => property.escapedName).join(',\n')
 
   const code = `
 ${createFileMetadataString(`${structType.structName}.kt`)}
@@ -118,12 +120,14 @@ data class ${structType.structName}(
     const returnType = property.getCode('c++', { context: 'return' })
     const signatureType = getJniCode(property, { context: 'property' })
     const name = capitalizeName(property.escapedName)
-    const methodResult = convertJniValue(property, 'method(this->self())', 'from-jni')
+    const methodResult = convertJniValue(property, 'method(this->self(), clazz)', 'from-jni')
     const fieldResult = convertJniValue(property, 'getFieldValue(field)', 'from-jni')
     if (!property.isKotlinFieldCompatible) {
+      // The getter is private and final, so JNI calls it without a virtual lookup.
       return `
 ${returnType} get${name}() const {
-  static const auto method = javaClassStatic()->getMethod<${signatureType}()>("get${name}_cxx");
+  static const auto clazz = javaClassStatic();
+  static const auto method = clazz->getNonvirtualMethod<${signatureType}()>("get${name}_cxx");
   return ${methodResult};
 }
 `.trim()
