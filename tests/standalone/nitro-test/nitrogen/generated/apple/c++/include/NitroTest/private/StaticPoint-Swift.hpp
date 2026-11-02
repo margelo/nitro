@@ -10,6 +10,7 @@
 #include <NitroModules/JSIConverter.hpp>
 // Forward declaration of `StaticPoint` to properly resolve imports.
 namespace NitroTest { class StaticPoint; }
+#include <array>
 
 namespace margelo::nitro {
 
@@ -18,6 +19,10 @@ namespace margelo::nitro {
     static ::NitroTest::StaticPoint fromJSI(jsi::Runtime& runtime, const jsi::Value& value);
     static jsi::Value toJSI(jsi::Runtime& runtime, const ::NitroTest::StaticPoint& value);
     static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+
+    using Prepared = std::array<jsi::Value, 3>;
+    static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+    static ::NitroTest::StaticPoint fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
   };
 
 } // namespace margelo::nitro

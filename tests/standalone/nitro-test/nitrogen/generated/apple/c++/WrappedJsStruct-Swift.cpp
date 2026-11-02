@@ -16,6 +16,21 @@ namespace margelo::nitro {
     return ::NitroTest::WrappedJsStruct::init_cxx(JSIConverter<::NitroTest::JsStyleStruct>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), JSIConverter<swift::Array<::NitroTest::JsStyleStruct>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "items"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::WrappedJsStruct>::Prepared> JSIConverter<::NitroTest::WrappedJsStruct>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "value"));
+    if (!JSIConverter<::NitroTest::JsStyleStruct>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "items"));
+    if (!JSIConverter<swift::Array<::NitroTest::JsStyleStruct>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  ::NitroTest::WrappedJsStruct JSIConverter<::NitroTest::WrappedJsStruct>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::WrappedJsStruct::init_cxx(JSIConverter<::NitroTest::JsStyleStruct>::fromJSI(runtime, fields[0]), JSIConverter<swift::Array<::NitroTest::JsStyleStruct>>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::WrappedJsStruct>::toJSI(jsi::Runtime& runtime, const ::NitroTest::WrappedJsStruct& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<::NitroTest::JsStyleStruct>::toJSI(runtime, value.getValue_cxx()));

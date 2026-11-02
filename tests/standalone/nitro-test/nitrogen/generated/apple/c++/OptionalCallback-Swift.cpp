@@ -16,6 +16,19 @@ namespace margelo::nitro {
     return ::NitroTest::OptionalCallback::init_cxx(JSIConverter<swift::Optional<::NitroTest::Variant_any_Callback_____Void__Double_cxx>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callback"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::OptionalCallback>::Prepared> JSIConverter<::NitroTest::OptionalCallback>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "callback"));
+    if (!JSIConverter<swift::Optional<::NitroTest::Variant_any_Callback_____Void__Double_cxx>>::canConvert(runtime, field_0)) return std::nullopt;
+    return Prepared{std::move(field_0)};
+  }
+
+  ::NitroTest::OptionalCallback JSIConverter<::NitroTest::OptionalCallback>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::OptionalCallback::init_cxx(JSIConverter<swift::Optional<::NitroTest::Variant_any_Callback_____Void__Double_cxx>>::fromJSI(runtime, fields[0]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::OptionalCallback>::toJSI(jsi::Runtime& runtime, const ::NitroTest::OptionalCallback& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "callback"), JSIConverter<swift::Optional<::NitroTest::Variant_any_Callback_____Void__Double_cxx>>::toJSI(runtime, value.getCallback_cxx()));

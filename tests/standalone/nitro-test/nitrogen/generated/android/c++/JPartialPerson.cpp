@@ -22,6 +22,21 @@ namespace margelo::nitro {
     return margelo::nitro::test::JPartialPerson::create(JSIConverter<jni::local_ref<JOptional<jni::JString>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "name"))), JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "age"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JPartialPerson>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JPartialPerson>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "name"));
+    if (!JSIConverter<jni::local_ref<JOptional<jni::JString>>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "age"));
+    if (!JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JPartialPerson> JSIConverter<jni::local_ref<margelo::nitro::test::JPartialPerson>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JPartialPerson::create(JSIConverter<jni::local_ref<JOptional<jni::JString>>>::fromJSI(runtime, fields[0]), JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JPartialPerson>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JPartialPerson> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "name"), JSIConverter<jni::local_ref<JOptional<jni::JString>>>::toJSI(runtime, value->getName()));

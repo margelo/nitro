@@ -10,6 +10,7 @@
 #include <NitroModules/JSIConverter.hpp>
 // Forward declaration of `ExternalObjectStruct` to properly resolve imports.
 namespace NitroTest { class ExternalObjectStruct; }
+#include <array>
 
 namespace margelo::nitro {
 
@@ -18,6 +19,10 @@ namespace margelo::nitro {
     static ::NitroTest::ExternalObjectStruct fromJSI(jsi::Runtime& runtime, const jsi::Value& value);
     static jsi::Value toJSI(jsi::Runtime& runtime, const ::NitroTest::ExternalObjectStruct& value);
     static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+
+    using Prepared = std::array<jsi::Value, 1>;
+    static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+    static ::NitroTest::ExternalObjectStruct fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
   };
 
 } // namespace margelo::nitro

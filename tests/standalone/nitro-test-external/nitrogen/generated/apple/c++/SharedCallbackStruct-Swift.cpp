@@ -19,6 +19,22 @@ namespace margelo::nitro {
     return ::NitroTestExternal::SharedCallbackStruct::init_cxx(JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), std::addressof(__onChanged));
   }
 
+  std::optional<JSIConverter<::NitroTestExternal::SharedCallbackStruct>::Prepared> JSIConverter<::NitroTestExternal::SharedCallbackStruct>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "value"));
+    if (!JSIConverter<double>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged"));
+    if (!JSIConverter<Callback<void(double)>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  ::NitroTestExternal::SharedCallbackStruct JSIConverter<::NitroTestExternal::SharedCallbackStruct>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    auto __onChanged = JSIConverter<Callback<void(double)>>::fromJSI(runtime, fields[1]);
+    return ::NitroTestExternal::SharedCallbackStruct::init_cxx(JSIConverter<double>::fromJSI(runtime, fields[0]), std::addressof(__onChanged));
+  }
+
   jsi::Value JSIConverter<::NitroTestExternal::SharedCallbackStruct>::toJSI(jsi::Runtime& runtime, const ::NitroTestExternal::SharedCallbackStruct& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<double>::toJSI(runtime, value.getValue_cxx()));

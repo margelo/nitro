@@ -28,6 +28,39 @@ namespace margelo::nitro {
     return margelo::nitro::test::JCar::create(JSIConverter<jdouble>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "year"))), JSIConverter<jni::local_ref<jni::JString>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "make"))), JSIConverter<jni::local_ref<jni::JString>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "model"))), JSIConverter<jdouble>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "power"))), JSIConverter<jni::local_ref<margelo::nitro::test::JPowertrain>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "powertrain"))), JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JPerson>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "driver"))), JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPerson>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "passengers"))), JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "isFast"))), JSIConverter<jni::local_ref<JOptional<jni::JString>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "favouriteTrack"))), JSIConverter<jni::local_ref<jni::JArrayDouble>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "performanceScores"))), JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Double_String>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "someVariant"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JCar>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JCar>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "year"));
+    if (!JSIConverter<jdouble>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "make"));
+    if (!JSIConverter<jni::local_ref<jni::JString>>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "model"));
+    if (!JSIConverter<jni::local_ref<jni::JString>>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "power"));
+    if (!JSIConverter<jdouble>::canConvert(runtime, field_3)) return std::nullopt;
+    auto field_4 = object.getProperty(runtime, PropNameIDCache::get(runtime, "powertrain"));
+    if (!JSIConverter<jni::local_ref<margelo::nitro::test::JPowertrain>>::canConvert(runtime, field_4)) return std::nullopt;
+    auto field_5 = object.getProperty(runtime, PropNameIDCache::get(runtime, "driver"));
+    if (!JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JPerson>>>::canConvert(runtime, field_5)) return std::nullopt;
+    auto field_6 = object.getProperty(runtime, PropNameIDCache::get(runtime, "passengers"));
+    if (!JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPerson>>>::canConvert(runtime, field_6)) return std::nullopt;
+    auto field_7 = object.getProperty(runtime, PropNameIDCache::get(runtime, "isFast"));
+    if (!JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::canConvert(runtime, field_7)) return std::nullopt;
+    auto field_8 = object.getProperty(runtime, PropNameIDCache::get(runtime, "favouriteTrack"));
+    if (!JSIConverter<jni::local_ref<JOptional<jni::JString>>>::canConvert(runtime, field_8)) return std::nullopt;
+    auto field_9 = object.getProperty(runtime, PropNameIDCache::get(runtime, "performanceScores"));
+    if (!JSIConverter<jni::local_ref<jni::JArrayDouble>>::canConvert(runtime, field_9)) return std::nullopt;
+    auto field_10 = object.getProperty(runtime, PropNameIDCache::get(runtime, "someVariant"));
+    if (!JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Double_String>>>::canConvert(runtime, field_10)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3), std::move(field_4), std::move(field_5), std::move(field_6), std::move(field_7), std::move(field_8), std::move(field_9), std::move(field_10)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JCar> JSIConverter<jni::local_ref<margelo::nitro::test::JCar>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JCar::create(JSIConverter<jdouble>::fromJSI(runtime, fields[0]), JSIConverter<jni::local_ref<jni::JString>>::fromJSI(runtime, fields[1]), JSIConverter<jni::local_ref<jni::JString>>::fromJSI(runtime, fields[2]), JSIConverter<jdouble>::fromJSI(runtime, fields[3]), JSIConverter<jni::local_ref<margelo::nitro::test::JPowertrain>>::fromJSI(runtime, fields[4]), JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JPerson>>>::fromJSI(runtime, fields[5]), JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JPerson>>>::fromJSI(runtime, fields[6]), JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::fromJSI(runtime, fields[7]), JSIConverter<jni::local_ref<JOptional<jni::JString>>>::fromJSI(runtime, fields[8]), JSIConverter<jni::local_ref<jni::JArrayDouble>>::fromJSI(runtime, fields[9]), JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Double_String>>>::fromJSI(runtime, fields[10]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JCar>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JCar> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "year"), JSIConverter<jdouble>::toJSI(runtime, value->getYear()));

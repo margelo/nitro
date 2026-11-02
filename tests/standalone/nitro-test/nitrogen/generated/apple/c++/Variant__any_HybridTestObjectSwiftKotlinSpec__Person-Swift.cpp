@@ -17,8 +17,8 @@ namespace margelo::nitro {
         ::NitroTest::Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx::initializeFirst(payload, result);
       });
     }
-    if (JSIConverter<::NitroTest::Person>::canConvert(runtime, value)) {
-      auto payload = JSIConverter<::NitroTest::Person>::fromJSI(runtime, value);
+    if (auto prepared = JSIConverter<::NitroTest::Person>::prepareFromJSI(runtime, value)) {
+      auto payload = JSIConverter<::NitroTest::Person>::fromPreparedJSI(runtime, std::move(*prepared));
       return NitroModules::makeSwiftValue<::NitroTest::Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx>([&](void* result) {
         ::NitroTest::Variant__any_HybridTestObjectSwiftKotlinSpec__Person_cxx::initializeSecond(payload, result);
       });

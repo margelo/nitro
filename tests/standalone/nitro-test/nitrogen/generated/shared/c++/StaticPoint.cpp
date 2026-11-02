@@ -20,6 +20,27 @@ namespace margelo::nitro {
     );
   }
 
+  std::optional<JSIConverter<margelo::nitro::test::StaticPoint>::Prepared> JSIConverter<margelo::nitro::test::StaticPoint>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "x"));
+    if (!JSIConverter<double>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "y"));
+    if (!JSIConverter<double>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "visible"));
+    if (!JSIConverter<bool>::canConvert(runtime, field_2)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2)};
+  }
+
+  margelo::nitro::test::StaticPoint JSIConverter<margelo::nitro::test::StaticPoint>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::StaticPoint(
+      JSIConverter<double>::fromJSI(runtime, fields[0]),
+      JSIConverter<double>::fromJSI(runtime, fields[1]),
+      JSIConverter<bool>::fromJSI(runtime, fields[2])
+    );
+  }
+
   jsi::Value JSIConverter<margelo::nitro::test::StaticPoint>::toJSI(jsi::Runtime& runtime, const margelo::nitro::test::StaticPoint& arg) {
     jsi::Object obj(runtime);
     obj.setProperty(runtime, PropNameIDCache::get(runtime, "x"), JSIConverter<double>::toJSI(runtime, arg.x));

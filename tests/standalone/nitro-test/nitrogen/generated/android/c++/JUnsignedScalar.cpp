@@ -18,6 +18,19 @@ namespace margelo::nitro {
     return margelo::nitro::test::JUnsignedScalar::create(JSIConverter<uint64_t>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedScalar>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedScalar>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "value"));
+    if (!JSIConverter<uint64_t>::canConvert(runtime, field_0)) return std::nullopt;
+    return Prepared{std::move(field_0)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JUnsignedScalar> JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedScalar>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JUnsignedScalar::create(JSIConverter<uint64_t>::fromJSI(runtime, fields[0]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedScalar>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JUnsignedScalar> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<uint64_t>::toJSI(runtime, value->getValue()));

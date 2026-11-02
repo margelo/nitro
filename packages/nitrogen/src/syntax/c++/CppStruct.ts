@@ -6,6 +6,7 @@ import { NitroConfig } from '../../config/NitroConfig.js'
 import type { Platform } from '../../getPlatformSpecs.js'
 import type { GetCallbackCodeOptions } from '../types/CallbackType.js'
 import { getImportsCode } from '../getImportCode.js'
+import { createJSIStructPreparation } from '../createJSIStructPreparation.js'
 
 interface CppStructOptions {
   typename: string
@@ -64,6 +65,14 @@ export function createCppStruct({
         `if (!JSIConverter<${p.getCode('c++', codeOptions)}>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "${p.name}")))) return false;`
     )
     .join('\n')
+  const preparationProperties = properties.map((property) => ({
+    name: property.name,
+    converter: `JSIConverter<${property.getCode('c++', codeOptions)}>`,
+  }))
+  const preparation = createJSIStructPreparation({ properties: preparationProperties })
+  const cppFromPreparedParams = properties
+    .map((property, index) => `JSIConverter<${property.getCode('c++', codeOptions)}>::fromJSI(runtime, fields[${index}])`)
+    .join(',\n')
 
   // Only equatable types have an operator== overload
   let equatableFunc: string
@@ -78,6 +87,7 @@ export function createCppStruct({
   // Get C++ includes for each extra-file we need to include
   const includedTypes = properties.flatMap((r) => r.getRequiredImports('c++'))
   const declarationImports: SourceImport[] = [
+    { language: 'c++', declaration: { header: 'array', space: 'system' } },
     {
       language: 'c++',
       declaration: {
@@ -158,6 +168,10 @@ namespace margelo::nitro {
     static ${fullyQualifiedTypename} fromJSI(jsi::Runtime& runtime, const jsi::Value& arg);
     static jsi::Value toJSI(jsi::Runtime& runtime, const ${fullyQualifiedTypename}& arg);
     static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+
+    using Prepared = ${preparation.preparedType};
+    static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+    static ${fullyQualifiedTypename} fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
   };
 
 } // namespace margelo::nitro
@@ -173,6 +187,16 @@ namespace margelo::nitro {
     jsi::Object obj = arg.asObject(runtime);
     return ${fullyQualifiedTypename}(
       ${indent(cppFromJsiParams, '      ')}
+    );
+  }
+
+  std::optional<JSIConverter<${fullyQualifiedTypename}>::Prepared> JSIConverter<${fullyQualifiedTypename}>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    ${indent(preparation.prepareFromJSI, '    ')}
+  }
+
+  ${fullyQualifiedTypename} JSIConverter<${fullyQualifiedTypename}>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ${fullyQualifiedTypename}(
+      ${indent(cppFromPreparedParams, '      ')}
     );
   }
 

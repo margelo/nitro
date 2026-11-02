@@ -13,6 +13,11 @@ interface SwiftJSIConverterImplementation {
   fromJSI: string
   toJSI: string
   canConvert: string
+  preparation?: {
+    preparedType: string
+    prepareFromJSI: string
+    fromPreparedJSI: string
+  }
   imports?: SourceImport[]
 }
 
@@ -24,6 +29,7 @@ export function createSwiftJSIConverter({
   fromJSI,
   toJSI,
   canConvert,
+  preparation,
   imports = [],
 }: SwiftJSIConverterImplementation): SourceFile[] {
   const converterName = `${name}-Swift`
@@ -38,6 +44,37 @@ export function createSwiftJSIConverter({
       declaration: { forwardDeclaration: forwardDeclaration },
     },
   ]
+  const declarationCode = `
+static ${cppSwiftType} fromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+static jsi::Value toJSI(jsi::Runtime& runtime, const ${cppSwiftType}& value);
+static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+`.trim()
+  const fromJSIImplementationCode = `
+${cppSwiftType} JSIConverter<${cppSwiftType}>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+  ${indent(fromJSI, '  ')}
+}
+`.trim()
+  const declarations = [declarationCode]
+  const fromJSIImplementations = [fromJSIImplementationCode]
+  if (preparation != null) {
+    declarationImports.push({ language: 'c++', declaration: { header: 'array', space: 'system' } })
+    const preparationDeclarationCode = `
+using Prepared = ${preparation.preparedType};
+static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+static ${cppSwiftType} fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
+`.trim()
+    declarations.push(preparationDeclarationCode)
+    const preparationImplementationCode = `
+std::optional<JSIConverter<${cppSwiftType}>::Prepared> JSIConverter<${cppSwiftType}>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+  ${indent(preparation.prepareFromJSI, '  ')}
+}
+
+${cppSwiftType} JSIConverter<${cppSwiftType}>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+  ${indent(preparation.fromPreparedJSI, '  ')}
+}
+`.trim()
+    fromJSIImplementations.push(preparationImplementationCode)
+  }
   const declarationIncludes = getImportsCode(declarationImports, 'declaration')
   const implementationImports: SourceImport[] = [
     {
@@ -62,9 +99,7 @@ namespace margelo::nitro {
 
   template <>
   struct JSIConverter<${cppSwiftType}> {
-    static ${cppSwiftType} fromJSI(jsi::Runtime& runtime, const jsi::Value& value);
-    static jsi::Value toJSI(jsi::Runtime& runtime, const ${cppSwiftType}& value);
-    static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+    ${indent(declarations.join('\n\n'), '    ')}
   };
 
 } // namespace margelo::nitro
@@ -76,9 +111,7 @@ ${implementationIncludes}
 
 namespace margelo::nitro {
 
-  ${cppSwiftType} JSIConverter<${cppSwiftType}>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
-    ${indent(fromJSI, '    ')}
-  }
+  ${indent(fromJSIImplementations.join('\n\n'), '  ')}
 
   jsi::Value JSIConverter<${cppSwiftType}>::toJSI(jsi::Runtime& runtime, const ${cppSwiftType}& value) {
     ${indent(toJSI, '    ')}

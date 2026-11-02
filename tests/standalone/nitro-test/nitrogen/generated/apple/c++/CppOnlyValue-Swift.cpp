@@ -16,6 +16,21 @@ namespace margelo::nitro {
     return ::NitroTest::CppOnlyValue::init_cxx(JSIConverter<swift::String>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "label"))), JSIConverter<::NitroTest::CppOnlyValueKind>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "kind"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::CppOnlyValue>::Prepared> JSIConverter<::NitroTest::CppOnlyValue>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "label"));
+    if (!JSIConverter<swift::String>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "kind"));
+    if (!JSIConverter<::NitroTest::CppOnlyValueKind>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  ::NitroTest::CppOnlyValue JSIConverter<::NitroTest::CppOnlyValue>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::CppOnlyValue::init_cxx(JSIConverter<swift::String>::fromJSI(runtime, fields[0]), JSIConverter<::NitroTest::CppOnlyValueKind>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::CppOnlyValue>::toJSI(jsi::Runtime& runtime, const ::NitroTest::CppOnlyValue& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "label"), JSIConverter<swift::String>::toJSI(runtime, value.getLabel_cxx()));

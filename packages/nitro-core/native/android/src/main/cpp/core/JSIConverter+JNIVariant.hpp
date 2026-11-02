@@ -36,8 +36,15 @@ private:
                                JavaVariant::diagnosticName + "!");
     } else {
       using Value = typename Case<Index>::Value;
-      if (JSIConverter<Value>::canConvert(runtime, value)) {
-        return Case<Index>::create(JSIConverter<Value>::fromJSI(runtime, value));
+      if constexpr (JSIPreparable<Value>) {
+        auto prepared = JSIConverter<Value>::prepareFromJSI(runtime, value);
+        if (prepared) {
+          return Case<Index>::create(JSIConverter<Value>::fromPreparedJSI(runtime, std::move(*prepared)));
+        }
+      } else {
+        if (JSIConverter<Value>::canConvert(runtime, value)) {
+          return Case<Index>::create(JSIConverter<Value>::fromJSI(runtime, value));
+        }
       }
       return decode<Index + 1>(runtime, value);
     }

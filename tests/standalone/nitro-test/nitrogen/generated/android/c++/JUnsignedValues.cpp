@@ -29,6 +29,29 @@ namespace margelo::nitro {
     return margelo::nitro::test::JUnsignedValues::create(JSIConverter<uint64_t>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"))), JSIConverter<jni::local_ref<JOptional<JULong>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"))), JSIConverter<jni::local_ref<jni::JArrayClass<JULong>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "values"))), JSIConverter<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JULong>>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "nested"))), JSIConverter<jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "record"))), JSIConverter<jni::local_ref<jni::JArrayClass<JCallback<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callbacks"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedValues>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedValues>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"));
+    if (!JSIConverter<uint64_t>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"));
+    if (!JSIConverter<jni::local_ref<JOptional<JULong>>>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "values"));
+    if (!JSIConverter<jni::local_ref<jni::JArrayClass<JULong>>>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "nested"));
+    if (!JSIConverter<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JULong>>>>::canConvert(runtime, field_3)) return std::nullopt;
+    auto field_4 = object.getProperty(runtime, PropNameIDCache::get(runtime, "record"));
+    if (!JSIConverter<jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>>>::canConvert(runtime, field_4)) return std::nullopt;
+    auto field_5 = object.getProperty(runtime, PropNameIDCache::get(runtime, "callbacks"));
+    if (!JSIConverter<jni::local_ref<jni::JArrayClass<JCallback<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>>>::canConvert(runtime, field_5)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3), std::move(field_4), std::move(field_5)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JUnsignedValues> JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedValues>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JUnsignedValues::create(JSIConverter<uint64_t>::fromJSI(runtime, fields[0]), JSIConverter<jni::local_ref<JOptional<JULong>>>::fromJSI(runtime, fields[1]), JSIConverter<jni::local_ref<jni::JArrayClass<JULong>>>::fromJSI(runtime, fields[2]), JSIConverter<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JULong>>>>::fromJSI(runtime, fields[3]), JSIConverter<jni::local_ref<jni::JMap<jni::JString, JOptional<JULong>>>>::fromJSI(runtime, fields[4]), JSIConverter<jni::local_ref<jni::JArrayClass<JCallback<margelo::nitro::test::JCallback_uint64_t_uint64_t::JavaPart>>>>::fromJSI(runtime, fields[5]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JUnsignedValues>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JUnsignedValues> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"), JSIConverter<uint64_t>::toJSI(runtime, value->getUnsignedValue()));

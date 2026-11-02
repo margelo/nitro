@@ -16,6 +16,23 @@ namespace margelo::nitro {
     return ::NitroTest::StaticPoint::init_cxx(JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "x"))), JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "y"))), JSIConverter<bool>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "visible"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::StaticPoint>::Prepared> JSIConverter<::NitroTest::StaticPoint>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "x"));
+    if (!JSIConverter<double>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "y"));
+    if (!JSIConverter<double>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "visible"));
+    if (!JSIConverter<bool>::canConvert(runtime, field_2)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2)};
+  }
+
+  ::NitroTest::StaticPoint JSIConverter<::NitroTest::StaticPoint>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::StaticPoint::init_cxx(JSIConverter<double>::fromJSI(runtime, fields[0]), JSIConverter<double>::fromJSI(runtime, fields[1]), JSIConverter<bool>::fromJSI(runtime, fields[2]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::StaticPoint>::toJSI(jsi::Runtime& runtime, const ::NitroTest::StaticPoint& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "x"), JSIConverter<double>::toJSI(runtime, value.getX_cxx()));

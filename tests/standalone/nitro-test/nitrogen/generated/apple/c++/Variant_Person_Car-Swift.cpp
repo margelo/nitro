@@ -11,14 +11,14 @@
 namespace margelo::nitro {
 
   ::NitroTest::Variant_Person_Car_cxx JSIConverter<::NitroTest::Variant_Person_Car_cxx>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
-    if (JSIConverter<::NitroTest::Person>::canConvert(runtime, value)) {
-      auto payload = JSIConverter<::NitroTest::Person>::fromJSI(runtime, value);
+    if (auto prepared = JSIConverter<::NitroTest::Person>::prepareFromJSI(runtime, value)) {
+      auto payload = JSIConverter<::NitroTest::Person>::fromPreparedJSI(runtime, std::move(*prepared));
       return NitroModules::makeSwiftValue<::NitroTest::Variant_Person_Car_cxx>([&](void* result) {
         ::NitroTest::Variant_Person_Car_cxx::initializeFirst(payload, result);
       });
     }
-    if (JSIConverter<::NitroTest::Car>::canConvert(runtime, value)) {
-      auto payload = JSIConverter<::NitroTest::Car>::fromJSI(runtime, value);
+    if (auto prepared = JSIConverter<::NitroTest::Car>::prepareFromJSI(runtime, value)) {
+      auto payload = JSIConverter<::NitroTest::Car>::fromPreparedJSI(runtime, std::move(*prepared));
       return NitroModules::makeSwiftValue<::NitroTest::Variant_Person_Car_cxx>([&](void* result) {
         ::NitroTest::Variant_Person_Car_cxx::initializeSecond(payload, result);
       });

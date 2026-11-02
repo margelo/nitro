@@ -21,6 +21,25 @@ namespace margelo::nitro {
     return margelo::nitro::test::external::JOptionalPrimitivesHolder::create(JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"))), JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"))), JSIConverter<jni::local_ref<JOptional<JULong>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"))), JSIConverter<jni::local_ref<JOptional<jni::JLong>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"));
+    if (!JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"));
+    if (!JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"));
+    if (!JSIConverter<jni::local_ref<JOptional<JULong>>>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64"));
+    if (!JSIConverter<jni::local_ref<JOptional<jni::JLong>>>::canConvert(runtime, field_3)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3)};
+  }
+
+  jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder> JSIConverter<jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::external::JOptionalPrimitivesHolder::create(JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::fromJSI(runtime, fields[0]), JSIConverter<jni::local_ref<JOptional<jni::JBoolean>>>::fromJSI(runtime, fields[1]), JSIConverter<jni::local_ref<JOptional<JULong>>>::fromJSI(runtime, fields[2]), JSIConverter<jni::local_ref<JOptional<jni::JLong>>>::fromJSI(runtime, fields[3]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"), JSIConverter<jni::local_ref<JOptional<jni::JDouble>>>::toJSI(runtime, value->getOptionalNumber()));

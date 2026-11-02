@@ -59,6 +59,10 @@ export class SwiftStructType extends StructType implements SwiftType {
   get isReferenceType(): boolean {
     return false
   }
+  get supportsPreparedJSIDecoding(): boolean {
+    // External modules may ship converters generated before field preparation was supported.
+    return !this.config.isExternalConfig
+  }
   readonly requiresSwiftGenericContext = true
   get containsSwiftGenerics(): boolean {
     return false

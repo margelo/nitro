@@ -19,6 +19,21 @@ namespace margelo::nitro {
     return margelo::nitro::test::JWrappedJsStruct::create(JSIConverter<jni::local_ref<margelo::nitro::test::JJsStyleStruct>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JJsStyleStruct>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "items"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JWrappedJsStruct>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JWrappedJsStruct>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "value"));
+    if (!JSIConverter<jni::local_ref<margelo::nitro::test::JJsStyleStruct>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "items"));
+    if (!JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JJsStyleStruct>>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JWrappedJsStruct> JSIConverter<jni::local_ref<margelo::nitro::test::JWrappedJsStruct>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JWrappedJsStruct::create(JSIConverter<jni::local_ref<margelo::nitro::test::JJsStyleStruct>>::fromJSI(runtime, fields[0]), JSIConverter<jni::local_ref<jni::JArrayClass<margelo::nitro::test::JJsStyleStruct>>>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JWrappedJsStruct>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JWrappedJsStruct> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<jni::local_ref<margelo::nitro::test::JJsStyleStruct>>::toJSI(runtime, value->getValue()));

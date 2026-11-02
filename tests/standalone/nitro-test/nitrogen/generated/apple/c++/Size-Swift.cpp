@@ -16,6 +16,23 @@ namespace margelo::nitro {
     return ::NitroTest::Size::init_cxx(JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "width"))), JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "height"))), JSIConverter<::NitroTest::SizeUnit>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "unit"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::Size>::Prepared> JSIConverter<::NitroTest::Size>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "width"));
+    if (!JSIConverter<double>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "height"));
+    if (!JSIConverter<double>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "unit"));
+    if (!JSIConverter<::NitroTest::SizeUnit>::canConvert(runtime, field_2)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2)};
+  }
+
+  ::NitroTest::Size JSIConverter<::NitroTest::Size>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::Size::init_cxx(JSIConverter<double>::fromJSI(runtime, fields[0]), JSIConverter<double>::fromJSI(runtime, fields[1]), JSIConverter<::NitroTest::SizeUnit>::fromJSI(runtime, fields[2]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::Size>::toJSI(jsi::Runtime& runtime, const ::NitroTest::Size& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "width"), JSIConverter<double>::toJSI(runtime, value.getWidth_cxx()));

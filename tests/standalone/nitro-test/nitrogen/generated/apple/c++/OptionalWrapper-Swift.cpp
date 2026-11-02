@@ -16,6 +16,21 @@ namespace margelo::nitro {
     return ::NitroTest::OptionalWrapper::init_cxx(JSIConverter<swift::Optional<ArrayBuffer>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalArrayBuffer"))), JSIConverter<swift::Optional<swift::String>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalString"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::OptionalWrapper>::Prepared> JSIConverter<::NitroTest::OptionalWrapper>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalArrayBuffer"));
+    if (!JSIConverter<swift::Optional<ArrayBuffer>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalString"));
+    if (!JSIConverter<swift::Optional<swift::String>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  ::NitroTest::OptionalWrapper JSIConverter<::NitroTest::OptionalWrapper>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::OptionalWrapper::init_cxx(JSIConverter<swift::Optional<ArrayBuffer>>::fromJSI(runtime, fields[0]), JSIConverter<swift::Optional<swift::String>>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::OptionalWrapper>::toJSI(jsi::Runtime& runtime, const ::NitroTest::OptionalWrapper& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalArrayBuffer"), JSIConverter<swift::Optional<ArrayBuffer>>::toJSI(runtime, value.getOptionalArrayBuffer_cxx()));

@@ -22,6 +22,24 @@ namespace margelo::nitro {
     );
   }
 
+  std::optional<JSIConverter<margelo::nitro::test::OptionalWrapper>::Prepared> JSIConverter<margelo::nitro::test::OptionalWrapper>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalArrayBuffer"));
+    if (!JSIConverter<std::optional<ArrayBuffer>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalString"));
+    if (!JSIConverter<std::optional<std::string>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  margelo::nitro::test::OptionalWrapper JSIConverter<margelo::nitro::test::OptionalWrapper>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::OptionalWrapper(
+      JSIConverter<std::optional<ArrayBuffer>>::fromJSI(runtime, fields[0]),
+      JSIConverter<std::optional<std::string>>::fromJSI(runtime, fields[1])
+    );
+  }
+
   jsi::Value JSIConverter<margelo::nitro::test::OptionalWrapper>::toJSI(jsi::Runtime& runtime, const margelo::nitro::test::OptionalWrapper& arg) {
     jsi::Object obj(runtime);
     obj.setProperty(runtime, PropNameIDCache::get(runtime, "optionalArrayBuffer"), JSIConverter<std::optional<ArrayBuffer>>::toJSI(runtime, arg.optionalArrayBuffer));

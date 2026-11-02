@@ -4,6 +4,7 @@ import type { SourceFile } from '../SourceFile.js'
 import type { KotlinStructType } from './types/KotlinStructType.js'
 import { getImportsCode } from '../getImportCode.js'
 import { convertJniValue, getJniCode } from './types/KotlinType.js'
+import { createJSIStructPreparation } from '../createJSIStructPreparation.js'
 
 export function createKotlinStruct(structType: KotlinStructType): SourceFile[] {
   const publicType = structType.type
@@ -130,6 +131,9 @@ ${returnType} get${name}() const {
     ({ property, converter }) =>
       `${converter}::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "${property.name}")))`
   )
+  const preparationProperties = propertyConverters.map(({ property, converter }) => ({ name: property.name, converter: converter }))
+  const preparation = createJSIStructPreparation({ properties: preparationProperties })
+  const fromPreparedArguments = propertyConverters.map(({ converter }, index) => `${converter}::fromJSI(runtime, fields[${index}])`)
   const jsiDeclaration = `
 namespace margelo::nitro {
 
@@ -141,6 +145,10 @@ namespace margelo::nitro {
     static ${nativeType} fromJSI(jsi::Runtime& runtime, const jsi::Value& value);
     static jsi::Value toJSI(jsi::Runtime& runtime, jni::alias_ref<${jniClass}> value);
     static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+
+    using Prepared = ${preparation.preparedType};
+    static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+    static ${nativeType} fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
   };
 
 } // namespace margelo::nitro
@@ -151,6 +159,14 @@ namespace margelo::nitro {
   ${nativeType} JSIConverter<${nativeType}>::fromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
     auto object = value.asObject(runtime);
     return ${jniClass}::create(${fromJSIArguments.join(', ')});
+  }
+
+  std::optional<JSIConverter<${nativeType}>::Prepared> JSIConverter<${nativeType}>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    ${indent(preparation.prepareFromJSI, '    ')}
+  }
+
+  ${nativeType} JSIConverter<${nativeType}>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ${jniClass}::create(${fromPreparedArguments.join(', ')});
   }
 
   jsi::Value JSIConverter<${nativeType}>::toJSI(jsi::Runtime& runtime, jni::alias_ref<${jniClass}> value) {
@@ -174,6 +190,7 @@ ${createFileMetadataString(`${structType.jniName}.hpp`)}
 #pragma once
 
 #include <fbjni/fbjni.h>
+#include <array>
 #include <NitroModules/JSIConverter.hpp>
 ${declarationIncludes}
 

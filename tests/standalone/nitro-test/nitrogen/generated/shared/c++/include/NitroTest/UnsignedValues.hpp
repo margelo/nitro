@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <array>
 #include <NitroModules/JSIConverter.hpp>
 #include <NitroModules/NitroDefines.hpp>
 #include <optional>
@@ -48,6 +49,10 @@ namespace margelo::nitro {
     static margelo::nitro::test::UnsignedValues fromJSI(jsi::Runtime& runtime, const jsi::Value& arg);
     static jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::test::UnsignedValues& arg);
     static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+
+    using Prepared = std::array<jsi::Value, 6>;
+    static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+    static margelo::nitro::test::UnsignedValues fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
   };
 
 } // namespace margelo::nitro

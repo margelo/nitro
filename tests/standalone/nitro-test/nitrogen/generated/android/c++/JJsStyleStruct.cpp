@@ -20,6 +20,21 @@ namespace margelo::nitro {
     return margelo::nitro::test::JJsStyleStruct::create(JSIConverter<jdouble>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "value"))), JSIConverter<jni::local_ref<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JJsStyleStruct>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JJsStyleStruct>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "value"));
+    if (!JSIConverter<jdouble>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "onChanged"));
+    if (!JSIConverter<jni::local_ref<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JJsStyleStruct> JSIConverter<jni::local_ref<margelo::nitro::test::JJsStyleStruct>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JJsStyleStruct::create(JSIConverter<jdouble>::fromJSI(runtime, fields[0]), JSIConverter<jni::local_ref<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JJsStyleStruct>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JJsStyleStruct> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<jdouble>::toJSI(runtime, value->getValue()));

@@ -21,6 +21,21 @@ namespace margelo::nitro {
     return margelo::nitro::test::JMapWrapper::create(JSIConverter<jni::local_ref<jni::JMap<jni::JString, jni::JString>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "map"))), JSIConverter<jni::local_ref<margelo::nitro::test::JSecondMapWrapper>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "secondMap"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JMapWrapper>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JMapWrapper>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "map"));
+    if (!JSIConverter<jni::local_ref<jni::JMap<jni::JString, jni::JString>>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "secondMap"));
+    if (!JSIConverter<jni::local_ref<margelo::nitro::test::JSecondMapWrapper>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JMapWrapper> JSIConverter<jni::local_ref<margelo::nitro::test::JMapWrapper>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JMapWrapper::create(JSIConverter<jni::local_ref<jni::JMap<jni::JString, jni::JString>>>::fromJSI(runtime, fields[0]), JSIConverter<jni::local_ref<margelo::nitro::test::JSecondMapWrapper>>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JMapWrapper>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JMapWrapper> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "map"), JSIConverter<jni::local_ref<jni::JMap<jni::JString, jni::JString>>>::toJSI(runtime, value->getMap()));
