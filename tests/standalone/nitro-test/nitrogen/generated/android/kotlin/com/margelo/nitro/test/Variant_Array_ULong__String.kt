@@ -56,19 +56,9 @@ sealed class Variant_Array_ULong__String private constructor(@DoNotStrip private
     @JvmName("createFirst")
     @DoNotStrip
     fun create(value: Array<ULong>): Variant_Array_ULong__String = First(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: Array<ULong>): Variant_Array_ULong__String = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip
     fun create(value: String): Variant_Array_ULong__String = Second(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: String): Variant_Array_ULong__String = Second(value)
   }
 }

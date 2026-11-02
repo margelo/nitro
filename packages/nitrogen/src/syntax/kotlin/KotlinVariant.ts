@@ -59,7 +59,7 @@ is ${innerName} -> (value) as? T
     `.trim()
   })
 
-  const createFunctions = variant.kotlinCases.map(({ label, publicType }, index) => {
+  const createFunctions = variant.kotlinCases.map(({ label, publicType }) => {
     const innerName = capitalizeName(label)
     const valueType = publicType.getCode('kotlin', { context: 'parameter' })
     // Cases such as two callbacks can erase to the same JVM type, so give each a JVM name.
@@ -68,11 +68,6 @@ is ${innerName} -> (value) as? T
 @JvmName("create${innerName}")
 @DoNotStrip
 fun create(value: ${valueType}): ${kotlinName} = ${innerName}(value)
-
-@JvmStatic
-@DoNotStrip
-@JvmName("fromCpp_${index}")
-private fun fromCpp_${index}(value: ${valueType}): ${kotlinName} = ${innerName}(value)
 `.trim()
   })
 
@@ -122,7 +117,7 @@ sealed class ${kotlinName} private constructor(@DoNotStrip private val index: In
 
   const cxxNamespace = config.getCxxNamespace('c++')
   const jniClassDescriptor = config.getAndroidPackage('c++/jni', kotlinName)
-  const cppCases = variant.kotlinCases.map(({ label, type }, index) => {
+  const cppCases = variant.kotlinCases.map(({ label, type }) => {
     const innerName = capitalizeName(label)
     const descriptor = config.getAndroidPackage('c++/jni', `${kotlinName}$${innerName}`)
     const jniParameter = getJniCode(type, { context: 'parameter' })
@@ -143,7 +138,7 @@ public:
 `.trim()
     const implementation = `
 jni::local_ref<${jniName}> ${namespace}::${innerName}::create(${parameterType} value) {
-  static const auto method = ${jniName}::javaClassStatic()->getStaticMethod<jni::local_ref<${jniName}>(${jniParameter})>("fromCpp_${index}");
+  static const auto method = ${jniName}::javaClassStatic()->getStaticMethod<jni::local_ref<${jniName}>(${jniParameter})>("create${innerName}");
   return method(${jniName}::javaClassStatic(), ${createValue});
 }
 

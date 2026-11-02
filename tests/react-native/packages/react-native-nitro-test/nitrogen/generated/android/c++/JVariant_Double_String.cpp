@@ -19,7 +19,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Double_String> JVariant_Double_String_impl::First::create(jdouble value) {
-    static const auto method = JVariant_Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Double_String>(jdouble)>("fromCpp_0");
+    static const auto method = JVariant_Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Double_String>(jdouble)>("createFirst");
     return method(JVariant_Double_String::javaClassStatic(), value);
   }
 
@@ -29,7 +29,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Double_String> JVariant_Double_String_impl::Second::create(jni::alias_ref<jni::JString> value) {
-    static const auto method = JVariant_Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Double_String>(jni::alias_ref<jni::JString>)>("fromCpp_1");
+    static const auto method = JVariant_Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Double_String>(jni::alias_ref<jni::JString>)>("createSecond");
     return method(JVariant_Double_String::javaClassStatic(), value);
   }
 

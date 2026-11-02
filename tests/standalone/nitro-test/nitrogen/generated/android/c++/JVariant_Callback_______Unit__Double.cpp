@@ -19,7 +19,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Callback_______Unit__Double> JVariant_Callback_______Unit__Double_impl::First::create(jni::alias_ref<JCallback<margelo::nitro::test::JCallback_void::JavaPart>> value) {
-    static const auto method = JVariant_Callback_______Unit__Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Callback_______Unit__Double>(jni::alias_ref<JCallback<margelo::nitro::test::JCallback_void::JavaPart>>)>("fromCpp_0");
+    static const auto method = JVariant_Callback_______Unit__Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Callback_______Unit__Double>(jni::alias_ref<JCallback<margelo::nitro::test::JCallback_void::JavaPart>>)>("createFirst");
     return method(JVariant_Callback_______Unit__Double::javaClassStatic(), value);
   }
 
@@ -29,7 +29,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Callback_______Unit__Double> JVariant_Callback_______Unit__Double_impl::Second::create(jdouble value) {
-    static const auto method = JVariant_Callback_______Unit__Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Callback_______Unit__Double>(jdouble)>("fromCpp_1");
+    static const auto method = JVariant_Callback_______Unit__Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Callback_______Unit__Double>(jdouble)>("createSecond");
     return method(JVariant_Callback_______Unit__Double::javaClassStatic(), value);
   }
 

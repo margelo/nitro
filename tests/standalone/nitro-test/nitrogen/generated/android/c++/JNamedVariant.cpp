@@ -18,7 +18,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JNamedVariant> JNamedVariant_impl::First::create(jni::alias_ref<jni::JString> value) {
-    static const auto method = JNamedVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JNamedVariant>(jni::alias_ref<jni::JString>)>("fromCpp_0");
+    static const auto method = JNamedVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JNamedVariant>(jni::alias_ref<jni::JString>)>("createFirst");
     return method(JNamedVariant::javaClassStatic(), value);
   }
 
@@ -28,7 +28,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JNamedVariant> JNamedVariant_impl::Second::create(jni::alias_ref<JCar> value) {
-    static const auto method = JNamedVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JNamedVariant>(jni::alias_ref<JCar>)>("fromCpp_1");
+    static const auto method = JNamedVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JNamedVariant>(jni::alias_ref<JCar>)>("createSecond");
     return method(JNamedVariant::javaClassStatic(), value);
   }
 

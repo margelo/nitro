@@ -56,19 +56,9 @@ sealed class StringOrExternal private constructor(@DoNotStrip private val index:
     @JvmName("createFirst")
     @DoNotStrip
     fun create(value: com.margelo.nitro.test.external.HybridSomeExternalObjectSpec): StringOrExternal = First(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: com.margelo.nitro.test.external.HybridSomeExternalObjectSpec): StringOrExternal = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip
     fun create(value: String): StringOrExternal = Second(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: String): StringOrExternal = Second(value)
   }
 }

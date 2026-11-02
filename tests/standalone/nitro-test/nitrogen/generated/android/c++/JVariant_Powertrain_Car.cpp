@@ -17,7 +17,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Powertrain_Car> JVariant_Powertrain_Car_impl::First::create(jni::alias_ref<JPowertrain> value) {
-    static const auto method = JVariant_Powertrain_Car::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Powertrain_Car>(jni::alias_ref<JPowertrain>)>("fromCpp_0");
+    static const auto method = JVariant_Powertrain_Car::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Powertrain_Car>(jni::alias_ref<JPowertrain>)>("createFirst");
     return method(JVariant_Powertrain_Car::javaClassStatic(), value);
   }
 
@@ -27,7 +27,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Powertrain_Car> JVariant_Powertrain_Car_impl::Second::create(jni::alias_ref<JCar> value) {
-    static const auto method = JVariant_Powertrain_Car::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Powertrain_Car>(jni::alias_ref<JCar>)>("fromCpp_1");
+    static const auto method = JVariant_Powertrain_Car::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Powertrain_Car>(jni::alias_ref<JCar>)>("createSecond");
     return method(JVariant_Powertrain_Car::javaClassStatic(), value);
   }
 

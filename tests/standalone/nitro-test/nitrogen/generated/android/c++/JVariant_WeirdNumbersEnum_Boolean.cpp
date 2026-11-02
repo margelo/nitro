@@ -18,7 +18,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_WeirdNumbersEnum_Boolean> JVariant_WeirdNumbersEnum_Boolean_impl::First::create(jni::alias_ref<JWeirdNumbersEnum> value) {
-    static const auto method = JVariant_WeirdNumbersEnum_Boolean::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_WeirdNumbersEnum_Boolean>(jni::alias_ref<JWeirdNumbersEnum>)>("fromCpp_0");
+    static const auto method = JVariant_WeirdNumbersEnum_Boolean::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_WeirdNumbersEnum_Boolean>(jni::alias_ref<JWeirdNumbersEnum>)>("createFirst");
     return method(JVariant_WeirdNumbersEnum_Boolean::javaClassStatic(), value);
   }
 
@@ -28,7 +28,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_WeirdNumbersEnum_Boolean> JVariant_WeirdNumbersEnum_Boolean_impl::Second::create(jboolean value) {
-    static const auto method = JVariant_WeirdNumbersEnum_Boolean::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_WeirdNumbersEnum_Boolean>(jboolean)>("fromCpp_1");
+    static const auto method = JVariant_WeirdNumbersEnum_Boolean::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_WeirdNumbersEnum_Boolean>(jboolean)>("createSecond");
     return method(JVariant_WeirdNumbersEnum_Boolean::javaClassStatic(), value);
   }
 

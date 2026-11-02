@@ -86,46 +86,21 @@ sealed class Variant_Boolean_DoubleArray_Array_String__Double_String private con
     @JvmName("createFirst")
     @DoNotStrip
     fun create(value: Boolean): Variant_Boolean_DoubleArray_Array_String__Double_String = First(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: Boolean): Variant_Boolean_DoubleArray_Array_String__Double_String = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip
     fun create(value: DoubleArray): Variant_Boolean_DoubleArray_Array_String__Double_String = Second(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: DoubleArray): Variant_Boolean_DoubleArray_Array_String__Double_String = Second(value)
     @JvmStatic
     @JvmName("createThird")
     @DoNotStrip
     fun create(value: Array<String>): Variant_Boolean_DoubleArray_Array_String__Double_String = Third(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_2")
-    private fun fromCpp_2(value: Array<String>): Variant_Boolean_DoubleArray_Array_String__Double_String = Third(value)
     @JvmStatic
     @JvmName("createFourth")
     @DoNotStrip
     fun create(value: Double): Variant_Boolean_DoubleArray_Array_String__Double_String = Fourth(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_3")
-    private fun fromCpp_3(value: Double): Variant_Boolean_DoubleArray_Array_String__Double_String = Fourth(value)
     @JvmStatic
     @JvmName("createFifth")
     @DoNotStrip
     fun create(value: String): Variant_Boolean_DoubleArray_Array_String__Double_String = Fifth(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_4")
-    private fun fromCpp_4(value: String): Variant_Boolean_DoubleArray_Array_String__Double_String = Fifth(value)
   }
 }

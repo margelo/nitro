@@ -19,7 +19,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_ULong_String> JVariant_ULong_String_impl::First::create(uint64_t value) {
-    static const auto method = JVariant_ULong_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_ULong_String>(jlong)>("fromCpp_0");
+    static const auto method = JVariant_ULong_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_ULong_String>(jlong)>("createFirst");
     return method(JVariant_ULong_String::javaClassStatic(), JNIConverter<uint64_t, jlong>::toJNI(value));
   }
 
@@ -29,7 +29,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_ULong_String> JVariant_ULong_String_impl::Second::create(jni::alias_ref<jni::JString> value) {
-    static const auto method = JVariant_ULong_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_ULong_String>(jni::alias_ref<jni::JString>)>("fromCpp_1");
+    static const auto method = JVariant_ULong_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_ULong_String>(jni::alias_ref<jni::JString>)>("createSecond");
     return method(JVariant_ULong_String::javaClassStatic(), value);
   }
 

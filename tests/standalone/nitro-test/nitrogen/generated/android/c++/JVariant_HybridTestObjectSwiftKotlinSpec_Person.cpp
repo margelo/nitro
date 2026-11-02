@@ -19,7 +19,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_HybridTestObjectSwiftKotlinSpec_Person> JVariant_HybridTestObjectSwiftKotlinSpec_Person_impl::First::create(jni::alias_ref<JHybridTestObjectSwiftKotlinSpecJavaPart> value) {
-    static const auto method = JVariant_HybridTestObjectSwiftKotlinSpec_Person::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_HybridTestObjectSwiftKotlinSpec_Person>(jni::alias_ref<JHybridTestObjectSwiftKotlinSpecJavaPart>)>("fromCpp_0");
+    static const auto method = JVariant_HybridTestObjectSwiftKotlinSpec_Person::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_HybridTestObjectSwiftKotlinSpec_Person>(jni::alias_ref<JHybridTestObjectSwiftKotlinSpecJavaPart>)>("createFirst");
     return method(JVariant_HybridTestObjectSwiftKotlinSpec_Person::javaClassStatic(), value);
   }
 
@@ -29,7 +29,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_HybridTestObjectSwiftKotlinSpec_Person> JVariant_HybridTestObjectSwiftKotlinSpec_Person_impl::Second::create(jni::alias_ref<JPerson> value) {
-    static const auto method = JVariant_HybridTestObjectSwiftKotlinSpec_Person::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_HybridTestObjectSwiftKotlinSpec_Person>(jni::alias_ref<JPerson>)>("fromCpp_1");
+    static const auto method = JVariant_HybridTestObjectSwiftKotlinSpec_Person::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_HybridTestObjectSwiftKotlinSpec_Person>(jni::alias_ref<JPerson>)>("createSecond");
     return method(JVariant_HybridTestObjectSwiftKotlinSpec_Person::javaClassStatic(), value);
   }
 

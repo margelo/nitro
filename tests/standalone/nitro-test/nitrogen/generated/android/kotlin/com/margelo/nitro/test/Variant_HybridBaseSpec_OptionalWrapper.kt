@@ -56,19 +56,9 @@ sealed class Variant_HybridBaseSpec_OptionalWrapper private constructor(@DoNotSt
     @JvmName("createFirst")
     @DoNotStrip
     fun create(value: HybridBaseSpec): Variant_HybridBaseSpec_OptionalWrapper = First(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: HybridBaseSpec): Variant_HybridBaseSpec_OptionalWrapper = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip
     fun create(value: OptionalWrapper): Variant_HybridBaseSpec_OptionalWrapper = Second(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: OptionalWrapper): Variant_HybridBaseSpec_OptionalWrapper = Second(value)
   }
 }

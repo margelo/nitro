@@ -56,19 +56,9 @@ sealed class Variant_Callback_______Unit__Double private constructor(@DoNotStrip
     @JvmName("createFirst")
     @DoNotStrip
     fun create(value: Callback<() -> Unit>): Variant_Callback_______Unit__Double = First(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: Callback<() -> Unit>): Variant_Callback_______Unit__Double = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Double): Variant_Callback_______Unit__Double = Second(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: Double): Variant_Callback_______Unit__Double = Second(value)
   }
 }

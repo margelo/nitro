@@ -19,7 +19,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_HybridBaseSpec_OptionalWrapper> JVariant_HybridBaseSpec_OptionalWrapper_impl::First::create(jni::alias_ref<JHybridBaseSpecJavaPart> value) {
-    static const auto method = JVariant_HybridBaseSpec_OptionalWrapper::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_HybridBaseSpec_OptionalWrapper>(jni::alias_ref<JHybridBaseSpecJavaPart>)>("fromCpp_0");
+    static const auto method = JVariant_HybridBaseSpec_OptionalWrapper::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_HybridBaseSpec_OptionalWrapper>(jni::alias_ref<JHybridBaseSpecJavaPart>)>("createFirst");
     return method(JVariant_HybridBaseSpec_OptionalWrapper::javaClassStatic(), value);
   }
 
@@ -29,7 +29,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_HybridBaseSpec_OptionalWrapper> JVariant_HybridBaseSpec_OptionalWrapper_impl::Second::create(jni::alias_ref<JOptionalWrapper> value) {
-    static const auto method = JVariant_HybridBaseSpec_OptionalWrapper::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_HybridBaseSpec_OptionalWrapper>(jni::alias_ref<JOptionalWrapper>)>("fromCpp_1");
+    static const auto method = JVariant_HybridBaseSpec_OptionalWrapper::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_HybridBaseSpec_OptionalWrapper>(jni::alias_ref<JOptionalWrapper>)>("createSecond");
     return method(JVariant_HybridBaseSpec_OptionalWrapper::javaClassStatic(), value);
   }
 

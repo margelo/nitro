@@ -29,7 +29,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JCoreTypesVariant> JCoreTypesVariant_impl::First::create(jni::alias_ref<JArrayBuffer::JavaPart> value) {
-    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JArrayBuffer::JavaPart>)>("fromCpp_0");
+    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JArrayBuffer::JavaPart>)>("createFirst");
     return method(JCoreTypesVariant::javaClassStatic(), value);
   }
 
@@ -39,7 +39,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JCoreTypesVariant> JCoreTypesVariant_impl::Second::create(jni::alias_ref<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>> value) {
-    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>)>("fromCpp_1");
+    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>)>("createSecond");
     return method(JCoreTypesVariant::javaClassStatic(), value);
   }
 
@@ -49,7 +49,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JCoreTypesVariant> JCoreTypesVariant_impl::Third::create(jni::alias_ref<JWrappedJsStruct> value) {
-    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JWrappedJsStruct>)>("fromCpp_2");
+    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JWrappedJsStruct>)>("createThird");
     return method(JCoreTypesVariant::javaClassStatic(), value);
   }
 
@@ -59,7 +59,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JCoreTypesVariant> JCoreTypesVariant_impl::Fourth::create(jni::alias_ref<JTypedPromise<jni::local_ref<jni::JDouble>>> value) {
-    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>)>("fromCpp_3");
+    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JTypedPromise<jni::local_ref<jni::JDouble>>>)>("createFourth");
     return method(JCoreTypesVariant::javaClassStatic(), value);
   }
 
@@ -69,7 +69,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JCoreTypesVariant> JCoreTypesVariant_impl::Fifth::create(jni::alias_ref<JAnyJSON> value) {
-    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JAnyJSON>)>("fromCpp_4");
+    static const auto method = JCoreTypesVariant::javaClassStatic()->getStaticMethod<jni::local_ref<JCoreTypesVariant>(jni::alias_ref<JAnyJSON>)>("createFifth");
     return method(JCoreTypesVariant::javaClassStatic(), value);
   }
 

@@ -20,7 +20,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JStringOrExternal> JStringOrExternal_impl::First::create(jni::alias_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart> value) {
-    static const auto method = JStringOrExternal::javaClassStatic()->getStaticMethod<jni::local_ref<JStringOrExternal>(jni::alias_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>)>("fromCpp_0");
+    static const auto method = JStringOrExternal::javaClassStatic()->getStaticMethod<jni::local_ref<JStringOrExternal>(jni::alias_ref<margelo::nitro::test::external::JHybridSomeExternalObjectSpecJavaPart>)>("createFirst");
     return method(JStringOrExternal::javaClassStatic(), value);
   }
 
@@ -30,7 +30,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JStringOrExternal> JStringOrExternal_impl::Second::create(jni::alias_ref<jni::JString> value) {
-    static const auto method = JStringOrExternal::javaClassStatic()->getStaticMethod<jni::local_ref<JStringOrExternal>(jni::alias_ref<jni::JString>)>("fromCpp_1");
+    static const auto method = JStringOrExternal::javaClassStatic()->getStaticMethod<jni::local_ref<JStringOrExternal>(jni::alias_ref<jni::JString>)>("createSecond");
     return method(JStringOrExternal::javaClassStatic(), value);
   }
 
