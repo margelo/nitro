@@ -204,10 +204,10 @@ ${createFileMetadataString(`${jniName}.hpp`)}
 
 #pragma once
 
+#include <NitroModules/JCallback.hpp>
 #include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
-#include <NitroModules/JTypedCallback.hpp>
-#include <NitroModules/JSIConverter+JNICallback.hpp>
+#include <NitroModules/JSIConverter+JCallback.hpp>
 ${declarationIncludes}
 
 namespace ${cxxNamespace} {
@@ -226,14 +226,14 @@ namespace ${cxxNamespace} {
      */
     struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
       static constexpr auto kJavaDescriptor = "L${jniFunctionDescriptor};";
-      static jni::local_ref<JFunction_cxx> create(jni::alias_ref<JTypedCallback<JavaPart>> callback);
+      static jni::local_ref<JFunction_cxx> create(jni::alias_ref<JCallback<JavaPart>> callback);
       ${retainedReturnType} invoke(${retainedParameters.join(', ')}) const;
     };
 
   public:
     static jni::local_ref<JavaPart> create(CallbackType callback);
     /** Wraps a callback implemented in Kotlin in a C++ \`Callback<...>\`. */
-    static CallbackType fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback);
+    static CallbackType fromKotlin(jni::alias_ref<JCallback<JavaPart>> callback);
     static void registerNatives();
 
   private:
@@ -257,7 +257,7 @@ ${implementationIncludes}
 
 namespace ${cxxNamespace} {
 
-  jni::local_ref<${jniName}::JFunction_cxx> ${jniName}::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+  jni::local_ref<${jniName}::JFunction_cxx> ${jniName}::JFunction_cxx::create(jni::alias_ref<JCallback<JavaPart>> callback) {
     return newInstance(callback);
   }
 
@@ -282,7 +282,7 @@ namespace ${cxxNamespace} {
     callAndForget(${paramsForward.join(', ')});
   }
 
-  ${jniName}::CallbackType ${jniName}::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+  ${jniName}::CallbackType ${jniName}::fromKotlin(jni::alias_ref<JCallback<JavaPart>> callback) {
     auto function = JFunction_cxx::create(callback);
     return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }

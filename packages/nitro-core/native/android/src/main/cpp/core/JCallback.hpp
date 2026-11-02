@@ -13,15 +13,15 @@ namespace jni = facebook::jni;
  * class generated for its signature retained at compile time. That class holds a C++ `Callback<...>`.
  */
 template <typename JavaCallback>
-struct JTypedCallback : jni::JavaClass<JTypedCallback<JavaCallback>> {
+struct JCallback : jni::JavaClass<JCallback<JavaCallback>> {
   static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/core/Callback;";
 
   /** Holds the C++ callback in a new instance of the generated callback class. */
   template <typename CallbackType>
-  static jni::local_ref<JTypedCallback> create(CallbackType&& callback) {
+  static jni::local_ref<JCallback> create(CallbackType&& callback) {
     using CxxPart = typename JavaCallback::HybridType;
     jobject object = CxxPart::create(std::forward<CallbackType>(callback)).release();
-    return jni::adopt_local(static_cast<typename JTypedCallback::javaobject>(object));
+    return jni::adopt_local(static_cast<typename JCallback::javaobject>(object));
   }
 
   /**

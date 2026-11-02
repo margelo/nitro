@@ -13,7 +13,7 @@
 
 namespace margelo::nitro::test {
 
-  jni::local_ref<JCallback_std__string::JFunction_cxx> JCallback_std__string::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+  jni::local_ref<JCallback_std__string::JFunction_cxx> JCallback_std__string::JFunction_cxx::create(jni::alias_ref<JCallback<JavaPart>> callback) {
     return newInstance(callback);
   }
 
@@ -39,7 +39,7 @@ namespace margelo::nitro::test {
     callAndForget();
   }
 
-  JCallback_std__string::CallbackType JCallback_std__string::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+  JCallback_std__string::CallbackType JCallback_std__string::fromKotlin(jni::alias_ref<JCallback<JavaPart>> callback) {
     auto function = JFunction_cxx::create(callback);
     return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }

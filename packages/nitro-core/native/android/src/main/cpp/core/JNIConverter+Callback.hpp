@@ -1,7 +1,7 @@
 #pragma once
 
+#include "JCallback.hpp"
 #include "JNICallback.hpp"
-#include "JTypedCallback.hpp"
 
 namespace margelo::nitro {
 
@@ -130,9 +130,9 @@ struct JNICallbackConverter<InlineCallback<CppResult(CppArgs...)>, Callback<Java
 
 /** Converts a C++ callback to and from a Kotlin `Callback<...>`. */
 template <typename CppResult, typename... CppArgs, typename JavaCallback>
-struct JNIConverter<Callback<CppResult(CppArgs...)>, jni::local_ref<JTypedCallback<JavaCallback>>> {
+struct JNIConverter<Callback<CppResult(CppArgs...)>, jni::local_ref<JCallback<JavaCallback>>> {
   using Cpp = Callback<CppResult(CppArgs...)>;
-  using KotlinCallback = JTypedCallback<JavaCallback>;
+  using KotlinCallback = JCallback<JavaCallback>;
   using NativeCallback = typename JavaCallback::HybridType::CallbackType;
 
   static jni::local_ref<KotlinCallback> toJNI(const Cpp& value) {
@@ -146,9 +146,9 @@ struct JNIConverter<Callback<CppResult(CppArgs...)>, jni::local_ref<JTypedCallba
 
 /** Kotlin cannot borrow a callback, so an `InlineCallback` escapes into a Kotlin `Callback<...>`. */
 template <typename CppResult, typename... CppArgs, typename JavaCallback>
-struct JNIConverter<InlineCallback<CppResult(CppArgs...)>, jni::local_ref<JTypedCallback<JavaCallback>>> {
+struct JNIConverter<InlineCallback<CppResult(CppArgs...)>, jni::local_ref<JCallback<JavaCallback>>> {
   using Cpp = InlineCallback<CppResult(CppArgs...)>;
-  using KotlinCallback = JTypedCallback<JavaCallback>;
+  using KotlinCallback = JCallback<JavaCallback>;
   using NativeCallback = typename JavaCallback::HybridType::CallbackType;
 
   static jni::local_ref<KotlinCallback> toJNI(const Cpp& value) {

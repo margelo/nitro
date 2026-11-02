@@ -7,10 +7,10 @@
 
 #pragma once
 
+#include <NitroModules/JCallback.hpp>
 #include <NitroModules/JNICallable.hpp>
 #include <NitroModules/JNICallback.hpp>
-#include <NitroModules/JTypedCallback.hpp>
-#include <NitroModules/JSIConverter+JNICallback.hpp>
+#include <NitroModules/JSIConverter+JCallback.hpp>
 #include <NitroModules/JNIConverter+Promise.hpp>
 #include <NitroModules/JSIConverter+JTypedPromise.hpp>
 
@@ -30,14 +30,14 @@ namespace margelo::nitro::test {
      */
     struct JFunction_cxx : jni::JavaClass<JFunction_cxx> {
       static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/Callback_void$Function_cxx;";
-      static jni::local_ref<JFunction_cxx> create(jni::alias_ref<JTypedCallback<JavaPart>> callback);
+      static jni::local_ref<JFunction_cxx> create(jni::alias_ref<JCallback<JavaPart>> callback);
       JNIRetainedValue<void>::Type invoke() const;
     };
 
   public:
     static jni::local_ref<JavaPart> create(CallbackType callback);
     /** Wraps a callback implemented in Kotlin in a C++ `Callback<...>`. */
-    static CallbackType fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback);
+    static CallbackType fromKotlin(jni::alias_ref<JCallback<JavaPart>> callback);
     static void registerNatives();
 
   private:

@@ -14,7 +14,7 @@
 
 namespace margelo::nitro::test {
 
-  jni::local_ref<JCallback_Promise_std__vector_Powertrain__::JFunction_cxx> JCallback_Promise_std__vector_Powertrain__::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+  jni::local_ref<JCallback_Promise_std__vector_Powertrain__::JFunction_cxx> JCallback_Promise_std__vector_Powertrain__::JFunction_cxx::create(jni::alias_ref<JCallback<JavaPart>> callback) {
     return newInstance(callback);
   }
 
@@ -40,7 +40,7 @@ namespace margelo::nitro::test {
     callAndForget();
   }
 
-  JCallback_Promise_std__vector_Powertrain__::CallbackType JCallback_Promise_std__vector_Powertrain__::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+  JCallback_Promise_std__vector_Powertrain__::CallbackType JCallback_Promise_std__vector_Powertrain__::fromKotlin(jni::alias_ref<JCallback<JavaPart>> callback) {
     auto function = JFunction_cxx::create(callback);
     return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }

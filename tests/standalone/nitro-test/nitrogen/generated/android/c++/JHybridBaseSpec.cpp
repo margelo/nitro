@@ -80,8 +80,8 @@ namespace margelo::nitro::test {
     auto __result = __method(_javaPart, unit);
     return __result;
   }
-  jni::local_ref<JTypedPromise<jni::local_ref<JSize>>> JHybridBaseSpec::mapSize(const jni::local_ref<JSize>& size, const jni::local_ref<JTypedCallback<margelo::nitro::test::JCallback_Size_Size::JavaPart>>& callback) {
-    static const auto __method = CxxPart::getClass()->getMethod<jni::local_ref<JTypedPromise<jni::local_ref<JSize>>>(jni::alias_ref<JSize> /* size */, jni::alias_ref<JTypedCallback<margelo::nitro::test::JCallback_Size_Size::JavaPart>> /* callback */)>("mapSize");
+  jni::local_ref<JTypedPromise<jni::local_ref<JSize>>> JHybridBaseSpec::mapSize(const jni::local_ref<JSize>& size, const jni::local_ref<JCallback<margelo::nitro::test::JCallback_Size_Size::JavaPart>>& callback) {
+    static const auto __method = CxxPart::getClass()->getMethod<jni::local_ref<JTypedPromise<jni::local_ref<JSize>>>(jni::alias_ref<JSize> /* size */, jni::alias_ref<JCallback<margelo::nitro::test::JCallback_Size_Size::JavaPart>> /* callback */)>("mapSize");
     auto __result = __method(_javaPart, size, callback);
     return __result;
   }
