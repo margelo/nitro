@@ -40,6 +40,7 @@ on:
       - 'packages/react-native-nitro-modules/**'
       - 'tests/react-native/**'
       - 'patches/@react-native-harness%2Fplatform-apple@*.patch'
+      - 'patches/@react-native-harness%2Fui@*.patch'
       - 'scripts/sync-core.mjs'
       - 'scripts/core-package.mjs'
       - 'scripts/set-version.mjs'
@@ -160,7 +161,7 @@ jobs:
         run: brew install watchman
 
       - name: Run Harness E2E tests
-        uses: callstackincubator/react-native-harness@v1.5.0
+        uses: callstackincubator/react-native-harness@v1.6.0
         with:
           runner: ios
           projectRoot: tests/react-native/apps/example

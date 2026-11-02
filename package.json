@@ -90,8 +90,8 @@
     "node": "^22.13.0 || ^24.3.0 || >=26.0.0"
   },
   "patchedDependencies": {
-    "@react-native-harness/ui@1.5.0": "patches/@react-native-harness%2Fui@1.5.0.patch",
-    "@react-native-harness/platform-apple@1.5.0": "patches/@react-native-harness%2Fplatform-apple@1.5.0.patch"
+    "@react-native-harness/ui@1.6.0": "patches/@react-native-harness%2Fui@1.6.0.patch",
+    "@react-native-harness/platform-apple@1.6.0": "patches/@react-native-harness%2Fplatform-apple@1.6.0.patch"
   },
   "prettier": {
     "printWidth": 140,

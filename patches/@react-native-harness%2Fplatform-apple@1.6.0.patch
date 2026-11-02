@@ -1,8 +1,8 @@
 diff --git a/dist/xcrun/simctl.js b/dist/xcrun/simctl.js
-index 1c2f32ffb2c72f83c39f32fca389dde394fb0a94..7a191e2b65ad1515e669bb2134fdacdc6395090d 100644
+index 1c2f32ffb..08c93440e 100644
 --- a/dist/xcrun/simctl.js
 +++ b/dist/xcrun/simctl.js
-@@ -88,12 +88,24 @@ export const collectCrashReports = async ({ udid, processNames, crashArtifactWri
+@@ -88,12 +88,27 @@ export const collectCrashReports = async ({ udid, processNames, crashArtifactWri
      return [];
  };
  export const getAppInfo = async (udid, bundleId) => {
@@ -22,6 +22,9 @@ index 1c2f32ffb2c72f83c39f32fca389dde394fb0a94..7a191e2b65ad1515e669bb2134fdacdc
 +        ]));
 +    }
 +    catch (error) {
++        // TODO: Remove this workaround after upgrading Harness to a release containing
++        // https://github.com/callstackincubator/react-native-harness/pull/224.
++        // Issue: https://github.com/callstackincubator/react-native-harness/issues/223.
 +        // Xcode 27 reports an absent app as an error instead of an empty plist.
 +        if (error instanceof SubprocessError &&
 +            error.exitCode === 3 &&
@@ -34,10 +37,10 @@ index 1c2f32ffb2c72f83c39f32fca389dde394fb0a94..7a191e2b65ad1515e669bb2134fdacdc
      // If there is only one entry, it means the app is not installed
      const hasMoreThanOneEntry = Object.keys(json).length > 1;
 diff --git a/src/xcrun/simctl.ts b/src/xcrun/simctl.ts
-index 720fd3b0009efb43e5f53b739624cf608884bbb6..dfb4640058a3d6294d6ef7820af6f9fc35f9e4ff 100644
+index 720fd3b00..5fa8157c0 100644
 --- a/src/xcrun/simctl.ts
 +++ b/src/xcrun/simctl.ts
-@@ -184,12 +184,25 @@ export const getAppInfo = async (
+@@ -184,12 +184,28 @@ export const getAppInfo = async (
    udid: string,
    bundleId: string,
  ): Promise<AppleAppInfo | null> => {
@@ -56,6 +59,9 @@ index 720fd3b0009efb43e5f53b739624cf608884bbb6..dfb4640058a3d6294d6ef7820af6f9fc
 +      bundleId,
 +    ]));
 +  } catch (error) {
++    // TODO: Remove this workaround after upgrading Harness to a release containing
++    // https://github.com/callstackincubator/react-native-harness/pull/224.
++    // Issue: https://github.com/callstackincubator/react-native-harness/issues/223.
 +    // Xcode 27 reports an absent app as an error instead of an empty plist.
 +    if (
 +      error instanceof SubprocessError &&
