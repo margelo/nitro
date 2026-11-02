@@ -89,46 +89,21 @@ sealed class CoreTypesVariant private constructor(@DoNotStrip private val index:
     @JvmName("createFirst")
     @DoNotStrip
     fun create(value: ArrayBuffer): CoreTypesVariant = First(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: ArrayBuffer): CoreTypesVariant = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Callback<(value: Double) -> Unit>): CoreTypesVariant = Second(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: Callback<(value: Double) -> Unit>): CoreTypesVariant = Second(value)
     @JvmStatic
     @JvmName("createThird")
     @DoNotStrip
     fun create(value: WrappedJsStruct): CoreTypesVariant = Third(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_2")
-    private fun fromCpp_2(value: WrappedJsStruct): CoreTypesVariant = Third(value)
     @JvmStatic
     @JvmName("createFourth")
     @DoNotStrip
     fun create(value: Promise<Double>): CoreTypesVariant = Fourth(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_3")
-    private fun fromCpp_3(value: Promise<Double>): CoreTypesVariant = Fourth(value)
     @JvmStatic
     @JvmName("createFifth")
     @DoNotStrip
     fun create(value: AnyJSON): CoreTypesVariant = Fifth(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_4")
-    private fun fromCpp_4(value: AnyJSON): CoreTypesVariant = Fifth(value)
   }
 }

@@ -17,7 +17,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Boolean_Double> JVariant_Boolean_Double_impl::First::create(jboolean value) {
-    static const auto method = JVariant_Boolean_Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_Double>(jboolean)>("fromCpp_0");
+    static const auto method = JVariant_Boolean_Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_Double>(jboolean)>("createFirst");
     return method(JVariant_Boolean_Double::javaClassStatic(), value);
   }
 
@@ -27,7 +27,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Boolean_Double> JVariant_Boolean_Double_impl::Second::create(jdouble value) {
-    static const auto method = JVariant_Boolean_Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_Double>(jdouble)>("fromCpp_1");
+    static const auto method = JVariant_Boolean_Double::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_Double>(jdouble)>("createSecond");
     return method(JVariant_Boolean_Double::javaClassStatic(), value);
   }
 

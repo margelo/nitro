@@ -56,19 +56,9 @@ sealed class NamedVariant private constructor(@DoNotStrip private val index: Int
     @JvmName("createFirst")
     @DoNotStrip
     fun create(value: String): NamedVariant = First(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: String): NamedVariant = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Car): NamedVariant = Second(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: Car): NamedVariant = Second(value)
   }
 }

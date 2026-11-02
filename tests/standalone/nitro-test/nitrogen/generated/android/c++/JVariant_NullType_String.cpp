@@ -20,7 +20,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_NullType_String> JVariant_NullType_String_impl::First::create(jni::alias_ref<JNull> value) {
-    static const auto method = JVariant_NullType_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_NullType_String>(jni::alias_ref<JNull>)>("fromCpp_0");
+    static const auto method = JVariant_NullType_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_NullType_String>(jni::alias_ref<JNull>)>("createFirst");
     return method(JVariant_NullType_String::javaClassStatic(), value);
   }
 
@@ -30,7 +30,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_NullType_String> JVariant_NullType_String_impl::Second::create(jni::alias_ref<jni::JString> value) {
-    static const auto method = JVariant_NullType_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_NullType_String>(jni::alias_ref<jni::JString>)>("fromCpp_1");
+    static const auto method = JVariant_NullType_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_NullType_String>(jni::alias_ref<jni::JString>)>("createSecond");
     return method(JVariant_NullType_String::javaClassStatic(), value);
   }
 

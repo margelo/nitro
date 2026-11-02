@@ -56,19 +56,9 @@ sealed class Variant_Person_Car private constructor(@DoNotStrip private val inde
     @JvmName("createFirst")
     @DoNotStrip
     fun create(value: Person): Variant_Person_Car = First(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: Person): Variant_Person_Car = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Car): Variant_Person_Car = Second(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: Car): Variant_Person_Car = Second(value)
   }
 }

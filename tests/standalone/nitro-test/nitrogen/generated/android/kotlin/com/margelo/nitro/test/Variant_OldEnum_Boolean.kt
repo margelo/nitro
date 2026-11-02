@@ -56,19 +56,9 @@ sealed class Variant_OldEnum_Boolean private constructor(@DoNotStrip private val
     @JvmName("createFirst")
     @DoNotStrip
     fun create(value: OldEnum): Variant_OldEnum_Boolean = First(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_0")
-    private fun fromCpp_0(value: OldEnum): Variant_OldEnum_Boolean = First(value)
     @JvmStatic
     @JvmName("createSecond")
     @DoNotStrip
     fun create(value: Boolean): Variant_OldEnum_Boolean = Second(value)
-
-    @JvmStatic
-    @DoNotStrip
-    @JvmName("fromCpp_1")
-    private fun fromCpp_1(value: Boolean): Variant_OldEnum_Boolean = Second(value)
   }
 }

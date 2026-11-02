@@ -22,7 +22,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Array_ULong__String> JVariant_Array_ULong__String_impl::First::create(jni::alias_ref<jni::JArrayClass<JULong>> value) {
-    static const auto method = JVariant_Array_ULong__String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Array_ULong__String>(jni::alias_ref<jni::JArrayClass<JULong>>)>("fromCpp_0");
+    static const auto method = JVariant_Array_ULong__String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Array_ULong__String>(jni::alias_ref<jni::JArrayClass<JULong>>)>("createFirst");
     return method(JVariant_Array_ULong__String::javaClassStatic(), value);
   }
 
@@ -32,7 +32,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Array_ULong__String> JVariant_Array_ULong__String_impl::Second::create(jni::alias_ref<jni::JString> value) {
-    static const auto method = JVariant_Array_ULong__String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Array_ULong__String>(jni::alias_ref<jni::JString>)>("fromCpp_1");
+    static const auto method = JVariant_Array_ULong__String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Array_ULong__String>(jni::alias_ref<jni::JString>)>("createSecond");
     return method(JVariant_Array_ULong__String::javaClassStatic(), value);
   }
 

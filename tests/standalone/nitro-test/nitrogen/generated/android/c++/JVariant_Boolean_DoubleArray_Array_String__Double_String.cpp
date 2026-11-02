@@ -22,7 +22,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String> JVariant_Boolean_DoubleArray_Array_String__Double_String_impl::First::create(jboolean value) {
-    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jboolean)>("fromCpp_0");
+    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jboolean)>("createFirst");
     return method(JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic(), value);
   }
 
@@ -32,7 +32,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String> JVariant_Boolean_DoubleArray_Array_String__Double_String_impl::Second::create(jni::alias_ref<jni::JArrayDouble> value) {
-    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jni::alias_ref<jni::JArrayDouble>)>("fromCpp_1");
+    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jni::alias_ref<jni::JArrayDouble>)>("createSecond");
     return method(JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic(), value);
   }
 
@@ -42,7 +42,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String> JVariant_Boolean_DoubleArray_Array_String__Double_String_impl::Third::create(jni::alias_ref<jni::JArrayClass<jni::JString>> value) {
-    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jni::alias_ref<jni::JArrayClass<jni::JString>>)>("fromCpp_2");
+    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jni::alias_ref<jni::JArrayClass<jni::JString>>)>("createThird");
     return method(JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic(), value);
   }
 
@@ -52,7 +52,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String> JVariant_Boolean_DoubleArray_Array_String__Double_String_impl::Fourth::create(jdouble value) {
-    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jdouble)>("fromCpp_3");
+    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jdouble)>("createFourth");
     return method(JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic(), value);
   }
 
@@ -62,7 +62,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String> JVariant_Boolean_DoubleArray_Array_String__Double_String_impl::Fifth::create(jni::alias_ref<jni::JString> value) {
-    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jni::alias_ref<jni::JString>)>("fromCpp_4");
+    static const auto method = JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_Boolean_DoubleArray_Array_String__Double_String>(jni::alias_ref<jni::JString>)>("createFifth");
     return method(JVariant_Boolean_DoubleArray_Array_String__Double_String::javaClassStatic(), value);
   }
 

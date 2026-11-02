@@ -18,7 +18,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_OldEnum_Boolean> JVariant_OldEnum_Boolean_impl::First::create(jni::alias_ref<JOldEnum> value) {
-    static const auto method = JVariant_OldEnum_Boolean::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_OldEnum_Boolean>(jni::alias_ref<JOldEnum>)>("fromCpp_0");
+    static const auto method = JVariant_OldEnum_Boolean::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_OldEnum_Boolean>(jni::alias_ref<JOldEnum>)>("createFirst");
     return method(JVariant_OldEnum_Boolean::javaClassStatic(), value);
   }
 
@@ -28,7 +28,7 @@ namespace margelo::nitro::test {
   }
 
   jni::local_ref<JVariant_OldEnum_Boolean> JVariant_OldEnum_Boolean_impl::Second::create(jboolean value) {
-    static const auto method = JVariant_OldEnum_Boolean::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_OldEnum_Boolean>(jboolean)>("fromCpp_1");
+    static const auto method = JVariant_OldEnum_Boolean::javaClassStatic()->getStaticMethod<jni::local_ref<JVariant_OldEnum_Boolean>(jboolean)>("createSecond");
     return method(JVariant_OldEnum_Boolean::javaClassStatic(), value);
   }
 
