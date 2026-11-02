@@ -98,7 +98,7 @@ export class KotlinInstanceMethod extends InstanceMethod {
     })
     const kotlinMethods: KotlinMethodDefinition[] = []
     if (this.needsKotlinBridge) {
-      kotlinMethods.push({ method: this, body: this.getKotlinBridgeBody() })
+      kotlinMethods.push({ method: this, body: this.getKotlinBridgeBody(), requiresKotlinJvmName: true })
     }
     return {
       kotlinMethods: kotlinMethods,

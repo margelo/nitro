@@ -23,10 +23,20 @@ export function createKotlinCallback(callbackType: KotlinCallbackType): SourceFi
   const arityType = `Callback.Arity${publicType.parameters.length}<${[...kotlinParamTypes, kotlinReturnType].join(', ')}>`
 
   const kotlinArguments = callbackType.parameters.map((parameter) => parameter.escapedName)
-  const callAnnotations = ['@DoNotStrip', '@Keep', '@JvmName("call")']
-  const callSyncAnnotations = ['@DoNotStrip', '@Keep', '@JvmName("callSync_cxx")']
-  const callAsyncAnnotations = ['@DoNotStrip', '@Keep', '@JvmName("callAsync_cxx")']
-  const callAndForgetAnnotations = ['@DoNotStrip', '@Keep', '@JvmName("callAndForget_cxx")']
+  const parametersRequireJvmName = callbackType.parameters.some((parameter) => parameter.requiresKotlinJvmName === true)
+  const syncRequiresJvmName = parametersRequireJvmName || callbackType.returnType.requiresKotlinJvmName === true
+  const callAnnotations = ['@DoNotStrip', '@Keep']
+  const callSyncAnnotations = ['@DoNotStrip', '@Keep']
+  const callAsyncAnnotations = ['@DoNotStrip', '@Keep']
+  const callAndForgetAnnotations = ['@DoNotStrip', '@Keep']
+  if (syncRequiresJvmName) {
+    callAnnotations.push('@JvmName("call")')
+    callSyncAnnotations.push('@JvmName("callSync_cxx")')
+  }
+  if (parametersRequireJvmName) {
+    callAsyncAnnotations.push('@JvmName("callAsync_cxx")')
+    callAndForgetAnnotations.push('@JvmName("callAndForget_cxx")')
+  }
 
   const callSyncNative = `callSync_cxx(${kotlinArguments.join(', ')})`
   let callSyncBody: string

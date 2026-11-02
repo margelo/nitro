@@ -67,7 +67,7 @@ export class KotlinConstructor extends Constructor {
       getKotlinInvocation: (args) => `${this.implementationClassName}.${nativeFactory.name}(${args.join(', ')})`,
     })
     return {
-      kotlinMethods: [{ method: kotlinFactory, body: kotlinBody }],
+      kotlinMethods: [{ method: kotlinFactory, body: kotlinBody, requiresKotlinJvmName: this.callable.needsKotlinBridge }],
       cppMethods: [{ method: cppFactory, body: cppBody }],
     }
   }

@@ -50,7 +50,6 @@ class Callback_Promise_std__vector_Powertrain__ @DoNotStrip @Keep private constr
   private class Function_cxx(private val callback: Callback<() -> Promise<Array<Powertrain>>>) {
     @DoNotStrip
     @Keep
-    @JvmName("call")
     fun call(): Promise<Array<Powertrain>> {
       return this.callback.callSync()
     }
@@ -58,16 +57,13 @@ class Callback_Promise_std__vector_Powertrain__ @DoNotStrip @Keep private constr
 
   @DoNotStrip
   @Keep
-  @JvmName("callSync_cxx")
   private external fun callSync_cxx(): Promise<Array<Powertrain>>
 
   @DoNotStrip
   @Keep
-  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(): Promise<Promise<Array<Powertrain>>>
 
   @DoNotStrip
   @Keep
-  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(): Unit
 }

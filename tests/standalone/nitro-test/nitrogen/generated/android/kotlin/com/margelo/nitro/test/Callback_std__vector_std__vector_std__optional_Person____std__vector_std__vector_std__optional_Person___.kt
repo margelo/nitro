@@ -50,7 +50,6 @@ class Callback_std__vector_std__vector_std__optional_Person____std__vector_std__
   private class Function_cxx(private val callback: Callback<(value: Array<Array<Person?>>) -> Array<Array<Person?>>>) {
     @DoNotStrip
     @Keep
-    @JvmName("call")
     fun call(value: Array<Array<Person?>>): Array<Array<Person?>> {
       return this.callback.callSync(value)
     }
@@ -58,16 +57,13 @@ class Callback_std__vector_std__vector_std__optional_Person____std__vector_std__
 
   @DoNotStrip
   @Keep
-  @JvmName("callSync_cxx")
   private external fun callSync_cxx(value: Array<Array<Person?>>): Array<Array<Person?>>
 
   @DoNotStrip
   @Keep
-  @JvmName("callAsync_cxx")
   private external fun callAsync_cxx(value: Array<Array<Person?>>): Promise<Array<Array<Person?>>>
 
   @DoNotStrip
   @Keep
-  @JvmName("callAndForget_cxx")
   private external fun callAndForget_cxx(value: Array<Array<Person?>>): Unit
 }

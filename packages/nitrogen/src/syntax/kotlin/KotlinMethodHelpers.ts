@@ -10,11 +10,13 @@ import type { Type } from '../types/Type.js'
 export interface KotlinMethodDefinition {
   method: Method
   body: string
+  requiresKotlinJvmName?: boolean
 }
 
 /** Keep JNI entry names stable when Kotlin value classes would otherwise mangle them. */
-export function createKotlinBridgeDefinition({ method, body }: KotlinMethodDefinition): string {
+export function createKotlinBridgeDefinition({ method, body, requiresKotlinJvmName }: KotlinMethodDefinition): string {
   const definition = method.getDefinition('kotlin', { body: body })
+  if (requiresKotlinJvmName !== true) return definition
   return `
 @JvmName("${method.name}")
 ${definition}

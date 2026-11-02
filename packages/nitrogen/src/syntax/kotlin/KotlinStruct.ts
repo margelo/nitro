@@ -27,7 +27,11 @@ val ${p.escapedName}: ${type}
     })
     .join(', ')
   const cxxCreateFunctionForward = structType.properties.map((property) => property.escapedName).join(', ')
-  const fromCppAnnotations = ['@DoNotStrip', '@Keep', '@Suppress("unused")', '@JvmStatic', '@JvmName("fromCpp")']
+  const requiresJvmName = structType.properties.some((property) => property.requiresKotlinJvmName)
+  const fromCppAnnotations = ['@DoNotStrip', '@Keep', '@Suppress("unused")', '@JvmStatic']
+  if (requiresJvmName) {
+    fromCppAnnotations.push('@JvmName("fromCpp")')
+  }
   const fromCppCode = `
 ${fromCppAnnotations.join('\n')}
 private fun fromCpp(${cxxCreateFunctionParameters}): ${structType.structName} {

@@ -102,7 +102,7 @@ export class KotlinStaticProperty extends StaticProperty {
       getKotlinInvocation: getKotlinInvocation,
     })
     return {
-      kotlinMethods: [{ method: kotlinMethod, body: kotlinBody }],
+      kotlinMethods: [{ method: kotlinMethod, body: kotlinBody, requiresKotlinJvmName: callable.needsKotlinBridge }],
       cppMethods: [{ method: cppMethod, body: cppBody }],
     }
   }

@@ -90,7 +90,6 @@ abstract class HybridBaseSpec: HybridObject() {
       get() = HybridBase
 
     // Constructor
-    @JvmName("constructor_cxx")
     @JvmStatic
     @DoNotStrip
     @Keep
