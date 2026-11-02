@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <NitroModules/NitroDefines.hpp>
 #include <exception>
 
 namespace margelo::nitro {
@@ -18,28 +19,28 @@ enum class ErrorSource {
   /**
    * A JS callback that was called asynchronously, without a caller waiting for its result.
    */
-  JSCallback,
+  JSCallback SWIFT_NAME(jsCallback),
   /**
    * A native callback that was called without a caller waiting for its result.
    */
-  NativeCallback,
+  NativeCallback SWIFT_NAME(nativeCallback),
   /**
    * A JS microtask, e.g. a Promise continuation, that ran after a native call into JS.
    */
-  Microtask,
+  Microtask SWIFT_NAME(microtask),
   /**
    * A `setTimeout` or `setInterval` callback.
    */
-  Timer,
+  Timer SWIFT_NAME(timer),
   /**
    * A `requestAnimationFrame` callback.
    */
-  AnimationFrame,
+  AnimationFrame SWIFT_NAME(animationFrame),
   /**
    * A callback for a UI event, e.g. a key press or a finished view controller presentation.
    */
-  UICallback,
-};
+  UICallback SWIFT_NAME(uiCallback),
+} CLOSED_ENUM;
 
 /**
  * Receives errors that cannot be delivered to JS, for example because nobody

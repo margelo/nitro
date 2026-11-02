@@ -17,6 +17,6 @@ public enum GlobalErrorHandler {
   /// }
   /// ```
   public static func reportError(source: ErrorSource, error: Error) {
-    margelo.nitro.GlobalErrorHandler.reportError(source.cppValue, error.toCpp())
+    margelo.nitro.GlobalErrorHandler.reportError(source, error.toCpp())
   }
 }
