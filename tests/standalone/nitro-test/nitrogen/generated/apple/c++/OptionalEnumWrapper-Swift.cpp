@@ -16,6 +16,53 @@ namespace margelo::nitro {
     return ::NitroTest::OptionalEnumWrapper::init_cxx(JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "count"))), JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "weight"))), JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "ttl"))), JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "jitter"))), JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "retries"))), JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "delayMs"))), JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "timeoutMs"))), JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "ratio"))), JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "threshold"))), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "enabled"))), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "active"))), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "shouldBuffer"))), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "shouldRetry"))), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "verbose"))), JSIConverter<swift::Optional<::NitroTest::Powertrain>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "tier"))), JSIConverter<swift::Optional<::NitroTest::Powertrain>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "region"))), JSIConverter<swift::Optional<::NitroTest::Powertrain>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "stage"))), JSIConverter<swift::Optional<::NitroTest::Powertrain>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "tone"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::OptionalEnumWrapper>::Prepared> JSIConverter<::NitroTest::OptionalEnumWrapper>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "count"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "weight"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "ttl"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "jitter"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_3)) return std::nullopt;
+    auto field_4 = object.getProperty(runtime, PropNameIDCache::get(runtime, "retries"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_4)) return std::nullopt;
+    auto field_5 = object.getProperty(runtime, PropNameIDCache::get(runtime, "delayMs"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_5)) return std::nullopt;
+    auto field_6 = object.getProperty(runtime, PropNameIDCache::get(runtime, "timeoutMs"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_6)) return std::nullopt;
+    auto field_7 = object.getProperty(runtime, PropNameIDCache::get(runtime, "ratio"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_7)) return std::nullopt;
+    auto field_8 = object.getProperty(runtime, PropNameIDCache::get(runtime, "threshold"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_8)) return std::nullopt;
+    auto field_9 = object.getProperty(runtime, PropNameIDCache::get(runtime, "enabled"));
+    if (!JSIConverter<swift::Optional<bool>>::canConvert(runtime, field_9)) return std::nullopt;
+    auto field_10 = object.getProperty(runtime, PropNameIDCache::get(runtime, "active"));
+    if (!JSIConverter<swift::Optional<bool>>::canConvert(runtime, field_10)) return std::nullopt;
+    auto field_11 = object.getProperty(runtime, PropNameIDCache::get(runtime, "shouldBuffer"));
+    if (!JSIConverter<swift::Optional<bool>>::canConvert(runtime, field_11)) return std::nullopt;
+    auto field_12 = object.getProperty(runtime, PropNameIDCache::get(runtime, "shouldRetry"));
+    if (!JSIConverter<swift::Optional<bool>>::canConvert(runtime, field_12)) return std::nullopt;
+    auto field_13 = object.getProperty(runtime, PropNameIDCache::get(runtime, "verbose"));
+    if (!JSIConverter<swift::Optional<bool>>::canConvert(runtime, field_13)) return std::nullopt;
+    auto field_14 = object.getProperty(runtime, PropNameIDCache::get(runtime, "tier"));
+    if (!JSIConverter<swift::Optional<::NitroTest::Powertrain>>::canConvert(runtime, field_14)) return std::nullopt;
+    auto field_15 = object.getProperty(runtime, PropNameIDCache::get(runtime, "region"));
+    if (!JSIConverter<swift::Optional<::NitroTest::Powertrain>>::canConvert(runtime, field_15)) return std::nullopt;
+    auto field_16 = object.getProperty(runtime, PropNameIDCache::get(runtime, "stage"));
+    if (!JSIConverter<swift::Optional<::NitroTest::Powertrain>>::canConvert(runtime, field_16)) return std::nullopt;
+    auto field_17 = object.getProperty(runtime, PropNameIDCache::get(runtime, "tone"));
+    if (!JSIConverter<swift::Optional<::NitroTest::Powertrain>>::canConvert(runtime, field_17)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3), std::move(field_4), std::move(field_5), std::move(field_6), std::move(field_7), std::move(field_8), std::move(field_9), std::move(field_10), std::move(field_11), std::move(field_12), std::move(field_13), std::move(field_14), std::move(field_15), std::move(field_16), std::move(field_17)};
+  }
+
+  ::NitroTest::OptionalEnumWrapper JSIConverter<::NitroTest::OptionalEnumWrapper>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::OptionalEnumWrapper::init_cxx(JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[0]), JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[1]), JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[2]), JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[3]), JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[4]), JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[5]), JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[6]), JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[7]), JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[8]), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, fields[9]), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, fields[10]), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, fields[11]), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, fields[12]), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, fields[13]), JSIConverter<swift::Optional<::NitroTest::Powertrain>>::fromJSI(runtime, fields[14]), JSIConverter<swift::Optional<::NitroTest::Powertrain>>::fromJSI(runtime, fields[15]), JSIConverter<swift::Optional<::NitroTest::Powertrain>>::fromJSI(runtime, fields[16]), JSIConverter<swift::Optional<::NitroTest::Powertrain>>::fromJSI(runtime, fields[17]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::OptionalEnumWrapper>::toJSI(jsi::Runtime& runtime, const ::NitroTest::OptionalEnumWrapper& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "count"), JSIConverter<swift::Optional<double>>::toJSI(runtime, value.getCount_cxx()));

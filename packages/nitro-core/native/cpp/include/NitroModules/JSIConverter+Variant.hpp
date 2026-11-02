@@ -44,8 +44,15 @@ struct JSIConverter<std::variant<Types...>> final {
 private:
   template <typename First, typename... Rest>
   static inline std::variant<Types...> fromJSIRecursive(jsi::Runtime& runtime, const jsi::Value& value) {
-    if (JSIConverter<First>::canConvert(runtime, value)) {
-      return JSIConverter<First>::fromJSI(runtime, value);
+    if constexpr (JSIPreparable<First>) {
+      auto prepared = JSIConverter<First>::prepareFromJSI(runtime, value);
+      if (prepared) {
+        return JSIConverter<First>::fromPreparedJSI(runtime, std::move(*prepared));
+      }
+    } else {
+      if (JSIConverter<First>::canConvert(runtime, value)) {
+        return JSIConverter<First>::fromJSI(runtime, value);
+      }
     }
     if constexpr (sizeof...(Rest) == 0) {
       std::string string = value.toString(runtime).utf8(runtime);

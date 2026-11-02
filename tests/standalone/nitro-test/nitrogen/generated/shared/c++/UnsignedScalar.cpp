@@ -18,6 +18,21 @@ namespace margelo::nitro {
     );
   }
 
+  std::optional<JSIConverter<margelo::nitro::test::UnsignedScalar>::Prepared> JSIConverter<margelo::nitro::test::UnsignedScalar>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "value"));
+    if (!JSIConverter<uint64_t>::canConvert(runtime, field_0)) return std::nullopt;
+    return Prepared{std::move(field_0)};
+  }
+
+  margelo::nitro::test::UnsignedScalar JSIConverter<margelo::nitro::test::UnsignedScalar>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::UnsignedScalar(
+      JSIConverter<uint64_t>::fromJSI(runtime, fields[0])
+    );
+  }
+
   jsi::Value JSIConverter<margelo::nitro::test::UnsignedScalar>::toJSI(jsi::Runtime& runtime, const margelo::nitro::test::UnsignedScalar& arg) {
     jsi::Object obj(runtime);
     obj.setProperty(runtime, PropNameIDCache::get(runtime, "value"), JSIConverter<uint64_t>::toJSI(runtime, arg.value));

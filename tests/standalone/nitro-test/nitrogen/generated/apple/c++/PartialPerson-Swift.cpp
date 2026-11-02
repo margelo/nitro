@@ -16,6 +16,21 @@ namespace margelo::nitro {
     return ::NitroTest::PartialPerson::init_cxx(JSIConverter<swift::Optional<swift::String>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "name"))), JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "age"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::PartialPerson>::Prepared> JSIConverter<::NitroTest::PartialPerson>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "name"));
+    if (!JSIConverter<swift::Optional<swift::String>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "age"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  ::NitroTest::PartialPerson JSIConverter<::NitroTest::PartialPerson>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::PartialPerson::init_cxx(JSIConverter<swift::Optional<swift::String>>::fromJSI(runtime, fields[0]), JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::PartialPerson>::toJSI(jsi::Runtime& runtime, const ::NitroTest::PartialPerson& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "name"), JSIConverter<swift::Optional<swift::String>>::toJSI(runtime, value.getName_cxx()));

@@ -23,6 +23,19 @@ namespace margelo::nitro {
     return margelo::nitro::test::JOptionalCallback::create(JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Callback_______Unit__Double>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callback"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalCallback>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalCallback>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "callback"));
+    if (!JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Callback_______Unit__Double>>>::canConvert(runtime, field_0)) return std::nullopt;
+    return Prepared{std::move(field_0)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JOptionalCallback> JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalCallback>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JOptionalCallback::create(JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Callback_______Unit__Double>>>::fromJSI(runtime, fields[0]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalCallback>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JOptionalCallback> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "callback"), JSIConverter<jni::local_ref<JOptional<margelo::nitro::test::JVariant_Callback_______Unit__Double>>>::toJSI(runtime, value->getCallback()));

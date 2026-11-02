@@ -16,6 +16,29 @@ namespace margelo::nitro {
     return ::NitroTest::UnsignedValues::init_cxx(JSIConverter<uint64_t>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"))), JSIConverter<swift::Optional<uint64_t>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"))), JSIConverter<swift::Array<uint64_t>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "values"))), JSIConverter<swift::Array<swift::Array<uint64_t>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "nested"))), JSIConverter<::NitroTest::Record_swift__String_swift__Optional_uint64_t_>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "record"))), JSIConverter<swift::Array<Callback<uint64_t(uint64_t)>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "callbacks"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::UnsignedValues>::Prepared> JSIConverter<::NitroTest::UnsignedValues>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"));
+    if (!JSIConverter<uint64_t>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"));
+    if (!JSIConverter<swift::Optional<uint64_t>>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "values"));
+    if (!JSIConverter<swift::Array<uint64_t>>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "nested"));
+    if (!JSIConverter<swift::Array<swift::Array<uint64_t>>>::canConvert(runtime, field_3)) return std::nullopt;
+    auto field_4 = object.getProperty(runtime, PropNameIDCache::get(runtime, "record"));
+    if (!JSIConverter<::NitroTest::Record_swift__String_swift__Optional_uint64_t_>::canConvert(runtime, field_4)) return std::nullopt;
+    auto field_5 = object.getProperty(runtime, PropNameIDCache::get(runtime, "callbacks"));
+    if (!JSIConverter<swift::Array<Callback<uint64_t(uint64_t)>>>::canConvert(runtime, field_5)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3), std::move(field_4), std::move(field_5)};
+  }
+
+  ::NitroTest::UnsignedValues JSIConverter<::NitroTest::UnsignedValues>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::UnsignedValues::init_cxx(JSIConverter<uint64_t>::fromJSI(runtime, fields[0]), JSIConverter<swift::Optional<uint64_t>>::fromJSI(runtime, fields[1]), JSIConverter<swift::Array<uint64_t>>::fromJSI(runtime, fields[2]), JSIConverter<swift::Array<swift::Array<uint64_t>>>::fromJSI(runtime, fields[3]), JSIConverter<::NitroTest::Record_swift__String_swift__Optional_uint64_t_>::fromJSI(runtime, fields[4]), JSIConverter<swift::Array<Callback<uint64_t(uint64_t)>>>::fromJSI(runtime, fields[5]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::UnsignedValues>::toJSI(jsi::Runtime& runtime, const ::NitroTest::UnsignedValues& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"), JSIConverter<uint64_t>::toJSI(runtime, value.getUnsignedValue_cxx()));

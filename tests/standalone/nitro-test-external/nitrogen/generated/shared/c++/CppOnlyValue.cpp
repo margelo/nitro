@@ -21,6 +21,24 @@ namespace margelo::nitro {
     );
   }
 
+  std::optional<JSIConverter<margelo::nitro::test::external::CppOnlyValue>::Prepared> JSIConverter<margelo::nitro::test::external::CppOnlyValue>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "label"));
+    if (!JSIConverter<std::string>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "kind"));
+    if (!JSIConverter<margelo::nitro::test::external::CppOnlyValueKind>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  margelo::nitro::test::external::CppOnlyValue JSIConverter<margelo::nitro::test::external::CppOnlyValue>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::external::CppOnlyValue(
+      JSIConverter<std::string>::fromJSI(runtime, fields[0]),
+      JSIConverter<margelo::nitro::test::external::CppOnlyValueKind>::fromJSI(runtime, fields[1])
+    );
+  }
+
   jsi::Value JSIConverter<margelo::nitro::test::external::CppOnlyValue>::toJSI(jsi::Runtime& runtime, const margelo::nitro::test::external::CppOnlyValue& arg) {
     jsi::Object obj(runtime);
     obj.setProperty(runtime, PropNameIDCache::get(runtime, "label"), JSIConverter<std::string>::toJSI(runtime, arg.label));

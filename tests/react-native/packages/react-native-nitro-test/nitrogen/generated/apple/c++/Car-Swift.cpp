@@ -16,6 +16,39 @@ namespace margelo::nitro {
     return ::NitroTest::Car::init_cxx(JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "year"))), JSIConverter<swift::String>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "make"))), JSIConverter<swift::String>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "model"))), JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "power"))), JSIConverter<::NitroTest::Powertrain>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "powertrain"))), JSIConverter<swift::Optional<::NitroTest::Person>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "driver"))), JSIConverter<swift::Array<::NitroTest::Person>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "passengers"))), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "isFast"))), JSIConverter<swift::Optional<swift::String>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "favouriteTrack"))), JSIConverter<swift::Array<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "performanceScores"))), JSIConverter<swift::Optional<::NitroTest::Variant_Double_String_cxx>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "someVariant"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::Car>::Prepared> JSIConverter<::NitroTest::Car>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "year"));
+    if (!JSIConverter<double>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "make"));
+    if (!JSIConverter<swift::String>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "model"));
+    if (!JSIConverter<swift::String>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "power"));
+    if (!JSIConverter<double>::canConvert(runtime, field_3)) return std::nullopt;
+    auto field_4 = object.getProperty(runtime, PropNameIDCache::get(runtime, "powertrain"));
+    if (!JSIConverter<::NitroTest::Powertrain>::canConvert(runtime, field_4)) return std::nullopt;
+    auto field_5 = object.getProperty(runtime, PropNameIDCache::get(runtime, "driver"));
+    if (!JSIConverter<swift::Optional<::NitroTest::Person>>::canConvert(runtime, field_5)) return std::nullopt;
+    auto field_6 = object.getProperty(runtime, PropNameIDCache::get(runtime, "passengers"));
+    if (!JSIConverter<swift::Array<::NitroTest::Person>>::canConvert(runtime, field_6)) return std::nullopt;
+    auto field_7 = object.getProperty(runtime, PropNameIDCache::get(runtime, "isFast"));
+    if (!JSIConverter<swift::Optional<bool>>::canConvert(runtime, field_7)) return std::nullopt;
+    auto field_8 = object.getProperty(runtime, PropNameIDCache::get(runtime, "favouriteTrack"));
+    if (!JSIConverter<swift::Optional<swift::String>>::canConvert(runtime, field_8)) return std::nullopt;
+    auto field_9 = object.getProperty(runtime, PropNameIDCache::get(runtime, "performanceScores"));
+    if (!JSIConverter<swift::Array<double>>::canConvert(runtime, field_9)) return std::nullopt;
+    auto field_10 = object.getProperty(runtime, PropNameIDCache::get(runtime, "someVariant"));
+    if (!JSIConverter<swift::Optional<::NitroTest::Variant_Double_String_cxx>>::canConvert(runtime, field_10)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3), std::move(field_4), std::move(field_5), std::move(field_6), std::move(field_7), std::move(field_8), std::move(field_9), std::move(field_10)};
+  }
+
+  ::NitroTest::Car JSIConverter<::NitroTest::Car>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::Car::init_cxx(JSIConverter<double>::fromJSI(runtime, fields[0]), JSIConverter<swift::String>::fromJSI(runtime, fields[1]), JSIConverter<swift::String>::fromJSI(runtime, fields[2]), JSIConverter<double>::fromJSI(runtime, fields[3]), JSIConverter<::NitroTest::Powertrain>::fromJSI(runtime, fields[4]), JSIConverter<swift::Optional<::NitroTest::Person>>::fromJSI(runtime, fields[5]), JSIConverter<swift::Array<::NitroTest::Person>>::fromJSI(runtime, fields[6]), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, fields[7]), JSIConverter<swift::Optional<swift::String>>::fromJSI(runtime, fields[8]), JSIConverter<swift::Array<double>>::fromJSI(runtime, fields[9]), JSIConverter<swift::Optional<::NitroTest::Variant_Double_String_cxx>>::fromJSI(runtime, fields[10]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::Car>::toJSI(jsi::Runtime& runtime, const ::NitroTest::Car& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "year"), JSIConverter<double>::toJSI(runtime, value.getYear_cxx()));

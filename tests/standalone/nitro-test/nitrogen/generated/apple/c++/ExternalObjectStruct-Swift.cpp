@@ -16,6 +16,19 @@ namespace margelo::nitro {
     return ::NitroTest::ExternalObjectStruct::init_cxx(JSIConverter<::NitroTestExternal::HybridSomeExternalObjectSpec_cxx>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "someExternal"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::ExternalObjectStruct>::Prepared> JSIConverter<::NitroTest::ExternalObjectStruct>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "someExternal"));
+    if (!JSIConverter<::NitroTestExternal::HybridSomeExternalObjectSpec_cxx>::canConvert(runtime, field_0)) return std::nullopt;
+    return Prepared{std::move(field_0)};
+  }
+
+  ::NitroTest::ExternalObjectStruct JSIConverter<::NitroTest::ExternalObjectStruct>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::ExternalObjectStruct::init_cxx(JSIConverter<::NitroTestExternal::HybridSomeExternalObjectSpec_cxx>::fromJSI(runtime, fields[0]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::ExternalObjectStruct>::toJSI(jsi::Runtime& runtime, const ::NitroTest::ExternalObjectStruct& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "someExternal"), JSIConverter<::NitroTestExternal::HybridSomeExternalObjectSpec_cxx>::toJSI(runtime, value.getSomeExternal_cxx()));

@@ -25,6 +25,10 @@ export class SwiftNamedType extends NamedWrappingType<SwiftType> implements Swif
     return this.type.getProtocolConformances()
   }
 
+  get supportsPreparedJSIDecoding(): boolean {
+    return this.type.supportsPreparedJSIDecoding ?? false
+  }
+
   get isReferenceType(): boolean {
     return this.type.isReferenceType
   }

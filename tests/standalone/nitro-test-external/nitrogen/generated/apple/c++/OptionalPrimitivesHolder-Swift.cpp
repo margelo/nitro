@@ -16,6 +16,25 @@ namespace margelo::nitro {
     return ::NitroTestExternal::OptionalPrimitivesHolder::init_cxx(JSIConverter<swift::Optional<double>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"))), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"))), JSIConverter<swift::Optional<uint64_t>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"))), JSIConverter<swift::Optional<int64_t>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64"))));
   }
 
+  std::optional<JSIConverter<::NitroTestExternal::OptionalPrimitivesHolder>::Prepared> JSIConverter<::NitroTestExternal::OptionalPrimitivesHolder>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"));
+    if (!JSIConverter<swift::Optional<double>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalBoolean"));
+    if (!JSIConverter<swift::Optional<bool>>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUInt64"));
+    if (!JSIConverter<swift::Optional<uint64_t>>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalInt64"));
+    if (!JSIConverter<swift::Optional<int64_t>>::canConvert(runtime, field_3)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3)};
+  }
+
+  ::NitroTestExternal::OptionalPrimitivesHolder JSIConverter<::NitroTestExternal::OptionalPrimitivesHolder>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTestExternal::OptionalPrimitivesHolder::init_cxx(JSIConverter<swift::Optional<double>>::fromJSI(runtime, fields[0]), JSIConverter<swift::Optional<bool>>::fromJSI(runtime, fields[1]), JSIConverter<swift::Optional<uint64_t>>::fromJSI(runtime, fields[2]), JSIConverter<swift::Optional<int64_t>>::fromJSI(runtime, fields[3]));
+  }
+
   jsi::Value JSIConverter<::NitroTestExternal::OptionalPrimitivesHolder>::toJSI(jsi::Runtime& runtime, const ::NitroTestExternal::OptionalPrimitivesHolder& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalNumber"), JSIConverter<swift::Optional<double>>::toJSI(runtime, value.getOptionalNumber_cxx()));

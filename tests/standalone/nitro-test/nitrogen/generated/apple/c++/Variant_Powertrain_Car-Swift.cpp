@@ -17,8 +17,8 @@ namespace margelo::nitro {
         ::NitroTest::Variant_Powertrain_Car_cxx::initializeFirst(payload, result);
       });
     }
-    if (JSIConverter<::NitroTest::Car>::canConvert(runtime, value)) {
-      auto payload = JSIConverter<::NitroTest::Car>::fromJSI(runtime, value);
+    if (auto prepared = JSIConverter<::NitroTest::Car>::prepareFromJSI(runtime, value)) {
+      auto payload = JSIConverter<::NitroTest::Car>::fromPreparedJSI(runtime, std::move(*prepared));
       return NitroModules::makeSwiftValue<::NitroTest::Variant_Powertrain_Car_cxx>([&](void* result) {
         ::NitroTest::Variant_Powertrain_Car_cxx::initializeSecond(payload, result);
       });

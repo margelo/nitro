@@ -37,6 +37,72 @@ namespace margelo::nitro {
     );
   }
 
+  std::optional<JSIConverter<margelo::nitro::test::OptionalEnumWrapper>::Prepared> JSIConverter<margelo::nitro::test::OptionalEnumWrapper>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "count"));
+    if (!JSIConverter<std::optional<double>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "weight"));
+    if (!JSIConverter<std::optional<double>>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "ttl"));
+    if (!JSIConverter<std::optional<double>>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "jitter"));
+    if (!JSIConverter<std::optional<double>>::canConvert(runtime, field_3)) return std::nullopt;
+    auto field_4 = object.getProperty(runtime, PropNameIDCache::get(runtime, "retries"));
+    if (!JSIConverter<std::optional<double>>::canConvert(runtime, field_4)) return std::nullopt;
+    auto field_5 = object.getProperty(runtime, PropNameIDCache::get(runtime, "delayMs"));
+    if (!JSIConverter<std::optional<double>>::canConvert(runtime, field_5)) return std::nullopt;
+    auto field_6 = object.getProperty(runtime, PropNameIDCache::get(runtime, "timeoutMs"));
+    if (!JSIConverter<std::optional<double>>::canConvert(runtime, field_6)) return std::nullopt;
+    auto field_7 = object.getProperty(runtime, PropNameIDCache::get(runtime, "ratio"));
+    if (!JSIConverter<std::optional<double>>::canConvert(runtime, field_7)) return std::nullopt;
+    auto field_8 = object.getProperty(runtime, PropNameIDCache::get(runtime, "threshold"));
+    if (!JSIConverter<std::optional<double>>::canConvert(runtime, field_8)) return std::nullopt;
+    auto field_9 = object.getProperty(runtime, PropNameIDCache::get(runtime, "enabled"));
+    if (!JSIConverter<std::optional<bool>>::canConvert(runtime, field_9)) return std::nullopt;
+    auto field_10 = object.getProperty(runtime, PropNameIDCache::get(runtime, "active"));
+    if (!JSIConverter<std::optional<bool>>::canConvert(runtime, field_10)) return std::nullopt;
+    auto field_11 = object.getProperty(runtime, PropNameIDCache::get(runtime, "shouldBuffer"));
+    if (!JSIConverter<std::optional<bool>>::canConvert(runtime, field_11)) return std::nullopt;
+    auto field_12 = object.getProperty(runtime, PropNameIDCache::get(runtime, "shouldRetry"));
+    if (!JSIConverter<std::optional<bool>>::canConvert(runtime, field_12)) return std::nullopt;
+    auto field_13 = object.getProperty(runtime, PropNameIDCache::get(runtime, "verbose"));
+    if (!JSIConverter<std::optional<bool>>::canConvert(runtime, field_13)) return std::nullopt;
+    auto field_14 = object.getProperty(runtime, PropNameIDCache::get(runtime, "tier"));
+    if (!JSIConverter<std::optional<margelo::nitro::test::Powertrain>>::canConvert(runtime, field_14)) return std::nullopt;
+    auto field_15 = object.getProperty(runtime, PropNameIDCache::get(runtime, "region"));
+    if (!JSIConverter<std::optional<margelo::nitro::test::Powertrain>>::canConvert(runtime, field_15)) return std::nullopt;
+    auto field_16 = object.getProperty(runtime, PropNameIDCache::get(runtime, "stage"));
+    if (!JSIConverter<std::optional<margelo::nitro::test::Powertrain>>::canConvert(runtime, field_16)) return std::nullopt;
+    auto field_17 = object.getProperty(runtime, PropNameIDCache::get(runtime, "tone"));
+    if (!JSIConverter<std::optional<margelo::nitro::test::Powertrain>>::canConvert(runtime, field_17)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3), std::move(field_4), std::move(field_5), std::move(field_6), std::move(field_7), std::move(field_8), std::move(field_9), std::move(field_10), std::move(field_11), std::move(field_12), std::move(field_13), std::move(field_14), std::move(field_15), std::move(field_16), std::move(field_17)};
+  }
+
+  margelo::nitro::test::OptionalEnumWrapper JSIConverter<margelo::nitro::test::OptionalEnumWrapper>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::OptionalEnumWrapper(
+      JSIConverter<std::optional<double>>::fromJSI(runtime, fields[0]),
+      JSIConverter<std::optional<double>>::fromJSI(runtime, fields[1]),
+      JSIConverter<std::optional<double>>::fromJSI(runtime, fields[2]),
+      JSIConverter<std::optional<double>>::fromJSI(runtime, fields[3]),
+      JSIConverter<std::optional<double>>::fromJSI(runtime, fields[4]),
+      JSIConverter<std::optional<double>>::fromJSI(runtime, fields[5]),
+      JSIConverter<std::optional<double>>::fromJSI(runtime, fields[6]),
+      JSIConverter<std::optional<double>>::fromJSI(runtime, fields[7]),
+      JSIConverter<std::optional<double>>::fromJSI(runtime, fields[8]),
+      JSIConverter<std::optional<bool>>::fromJSI(runtime, fields[9]),
+      JSIConverter<std::optional<bool>>::fromJSI(runtime, fields[10]),
+      JSIConverter<std::optional<bool>>::fromJSI(runtime, fields[11]),
+      JSIConverter<std::optional<bool>>::fromJSI(runtime, fields[12]),
+      JSIConverter<std::optional<bool>>::fromJSI(runtime, fields[13]),
+      JSIConverter<std::optional<margelo::nitro::test::Powertrain>>::fromJSI(runtime, fields[14]),
+      JSIConverter<std::optional<margelo::nitro::test::Powertrain>>::fromJSI(runtime, fields[15]),
+      JSIConverter<std::optional<margelo::nitro::test::Powertrain>>::fromJSI(runtime, fields[16]),
+      JSIConverter<std::optional<margelo::nitro::test::Powertrain>>::fromJSI(runtime, fields[17])
+    );
+  }
+
   jsi::Value JSIConverter<margelo::nitro::test::OptionalEnumWrapper>::toJSI(jsi::Runtime& runtime, const margelo::nitro::test::OptionalEnumWrapper& arg) {
     jsi::Object obj(runtime);
     obj.setProperty(runtime, PropNameIDCache::get(runtime, "count"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.count));

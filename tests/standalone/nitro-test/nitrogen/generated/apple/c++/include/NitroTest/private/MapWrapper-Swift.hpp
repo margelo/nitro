@@ -10,6 +10,7 @@
 #include <NitroModules/JSIConverter.hpp>
 // Forward declaration of `MapWrapper` to properly resolve imports.
 namespace NitroTest { class MapWrapper; }
+#include <array>
 
 namespace margelo::nitro {
 
@@ -18,6 +19,10 @@ namespace margelo::nitro {
     static ::NitroTest::MapWrapper fromJSI(jsi::Runtime& runtime, const jsi::Value& value);
     static jsi::Value toJSI(jsi::Runtime& runtime, const ::NitroTest::MapWrapper& value);
     static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+
+    using Prepared = std::array<jsi::Value, 2>;
+    static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+    static ::NitroTest::MapWrapper fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
   };
 
 } // namespace margelo::nitro

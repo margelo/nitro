@@ -29,6 +29,36 @@ namespace margelo::nitro {
     );
   }
 
+  std::optional<JSIConverter<margelo::nitro::test::UnsignedValues>::Prepared> JSIConverter<margelo::nitro::test::UnsignedValues>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"));
+    if (!JSIConverter<uint64_t>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalUnsigned"));
+    if (!JSIConverter<std::optional<uint64_t>>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "values"));
+    if (!JSIConverter<std::vector<uint64_t>>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "nested"));
+    if (!JSIConverter<std::vector<std::vector<uint64_t>>>::canConvert(runtime, field_3)) return std::nullopt;
+    auto field_4 = object.getProperty(runtime, PropNameIDCache::get(runtime, "record"));
+    if (!JSIConverter<std::unordered_map<std::string, std::optional<uint64_t>>>::canConvert(runtime, field_4)) return std::nullopt;
+    auto field_5 = object.getProperty(runtime, PropNameIDCache::get(runtime, "callbacks"));
+    if (!JSIConverter<std::vector<margelo::nitro::Callback<uint64_t(uint64_t)>>>::canConvert(runtime, field_5)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3), std::move(field_4), std::move(field_5)};
+  }
+
+  margelo::nitro::test::UnsignedValues JSIConverter<margelo::nitro::test::UnsignedValues>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::UnsignedValues(
+      JSIConverter<uint64_t>::fromJSI(runtime, fields[0]),
+      JSIConverter<std::optional<uint64_t>>::fromJSI(runtime, fields[1]),
+      JSIConverter<std::vector<uint64_t>>::fromJSI(runtime, fields[2]),
+      JSIConverter<std::vector<std::vector<uint64_t>>>::fromJSI(runtime, fields[3]),
+      JSIConverter<std::unordered_map<std::string, std::optional<uint64_t>>>::fromJSI(runtime, fields[4]),
+      JSIConverter<std::vector<margelo::nitro::Callback<uint64_t(uint64_t)>>>::fromJSI(runtime, fields[5])
+    );
+  }
+
   jsi::Value JSIConverter<margelo::nitro::test::UnsignedValues>::toJSI(jsi::Runtime& runtime, const margelo::nitro::test::UnsignedValues& arg) {
     jsi::Object obj(runtime);
     obj.setProperty(runtime, PropNameIDCache::get(runtime, "unsignedValue"), JSIConverter<uint64_t>::toJSI(runtime, arg.unsignedValue));

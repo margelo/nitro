@@ -22,6 +22,24 @@ namespace margelo::nitro {
     );
   }
 
+  std::optional<JSIConverter<margelo::nitro::test::MapWrapper>::Prepared> JSIConverter<margelo::nitro::test::MapWrapper>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "map"));
+    if (!JSIConverter<std::unordered_map<std::string, std::string>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "secondMap"));
+    if (!JSIConverter<margelo::nitro::test::SecondMapWrapper>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  margelo::nitro::test::MapWrapper JSIConverter<margelo::nitro::test::MapWrapper>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::MapWrapper(
+      JSIConverter<std::unordered_map<std::string, std::string>>::fromJSI(runtime, fields[0]),
+      JSIConverter<margelo::nitro::test::SecondMapWrapper>::fromJSI(runtime, fields[1])
+    );
+  }
+
   jsi::Value JSIConverter<margelo::nitro::test::MapWrapper>::toJSI(jsi::Runtime& runtime, const margelo::nitro::test::MapWrapper& arg) {
     jsi::Object obj(runtime);
     obj.setProperty(runtime, PropNameIDCache::get(runtime, "map"), JSIConverter<std::unordered_map<std::string, std::string>>::toJSI(runtime, arg.map));

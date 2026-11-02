@@ -125,6 +125,14 @@ public struct ${swiftEnumName}_cxx${conformancePrefix}${protocolNames.join(', ')
       storage: 'result',
       body: (pointer) => `${cppSwiftVariantType}::initialize${name}(payload, ${pointer});`,
     })
+    if (swiftType.supportsPreparedJSIDecoding) {
+      return `
+if (auto prepared = JSIConverter<${payloadType}>::prepareFromJSI(runtime, value)) {
+  auto payload = JSIConverter<${payloadType}>::fromPreparedJSI(runtime, std::move(*prepared));
+  return ${indent(result, '  ')};
+}
+`.trim()
+    }
     return `
 if (JSIConverter<${payloadType}>::canConvert(runtime, value)) {
   auto payload = JSIConverter<${payloadType}>::fromJSI(runtime, value);

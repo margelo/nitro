@@ -8,6 +8,7 @@
 #pragma once
 
 #include <fbjni/fbjni.h>
+#include <array>
 #include <NitroModules/JSIConverter.hpp>
 #include <NitroModules/JNIConverter+String.hpp>
 #include <NitroModules/JSIConverter+JString.hpp>
@@ -53,6 +54,10 @@ namespace margelo::nitro {
     static jni::local_ref<margelo::nitro::test::JPartialPerson> fromJSI(jsi::Runtime& runtime, const jsi::Value& value);
     static jsi::Value toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JPartialPerson> value);
     static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+
+    using Prepared = std::array<jsi::Value, 2>;
+    static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+    static jni::local_ref<margelo::nitro::test::JPartialPerson> fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
   };
 
 } // namespace margelo::nitro

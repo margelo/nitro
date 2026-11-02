@@ -16,6 +16,25 @@ namespace margelo::nitro {
     return ::NitroTestExternal::Size::init_cxx(JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "width"))), JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "height"))), JSIConverter<::NitroTestExternal::SizeUnit>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "unit"))), JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "scale"))));
   }
 
+  std::optional<JSIConverter<::NitroTestExternal::Size>::Prepared> JSIConverter<::NitroTestExternal::Size>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "width"));
+    if (!JSIConverter<double>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "height"));
+    if (!JSIConverter<double>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "unit"));
+    if (!JSIConverter<::NitroTestExternal::SizeUnit>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "scale"));
+    if (!JSIConverter<double>::canConvert(runtime, field_3)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3)};
+  }
+
+  ::NitroTestExternal::Size JSIConverter<::NitroTestExternal::Size>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTestExternal::Size::init_cxx(JSIConverter<double>::fromJSI(runtime, fields[0]), JSIConverter<double>::fromJSI(runtime, fields[1]), JSIConverter<::NitroTestExternal::SizeUnit>::fromJSI(runtime, fields[2]), JSIConverter<double>::fromJSI(runtime, fields[3]));
+  }
+
   jsi::Value JSIConverter<::NitroTestExternal::Size>::toJSI(jsi::Runtime& runtime, const ::NitroTestExternal::Size& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "width"), JSIConverter<double>::toJSI(runtime, value.getWidth_cxx()));

@@ -13,6 +13,7 @@ import { SWIFT_RESULT_STORAGE } from './SwiftMethodHelpers.js'
 import { SwiftCxxBorrowedPointerType } from './types/SwiftCxxBorrowedPointerType.js'
 import { SwiftCxxOutPointerType } from './types/SwiftCxxOutPointerType.js'
 import { SwiftNamedType } from './types/SwiftNamedType.js'
+import { createJSIStructPreparation } from '../createJSIStructPreparation.js'
 
 export function createSwiftStructBridge(swiftType: SwiftStructType): SourceFile[] {
   const structType = swiftType.type
@@ -118,6 +119,22 @@ object.setProperty(runtime, PropNameIDCache::get(runtime, "${p.name}"), JSIConve
     (p) =>
       `JSIConverter<${p.getCode('c++', { context: 'type-argument' })}>::canConvert(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "${p.name}")))`
   )
+  const preparationProperties = swiftType.properties.map((property) => ({
+    name: property.name,
+    converter: `JSIConverter<${property.getCode('c++', { context: 'type-argument' })}>`,
+  }))
+  const preparation = createJSIStructPreparation({ properties: preparationProperties })
+  const cppPreparedInitializerArguments = swiftType.properties.map((property, index) => {
+    const cppPropertyType = property.getCode('c++', { context: 'type-argument' })
+    const jsToSwiftPropertyCode = `
+JSIConverter<${cppPropertyType}>::fromJSI(runtime, fields[${index}])
+`.trim()
+    return { property: property, value: jsToSwiftPropertyCode }
+  })
+  const jsPreparedToSwiftInitializerCode = createCppStructInitializer({
+    type: cppStructType,
+    properties: cppPreparedInitializerArguments,
+  })
   const jsToSwiftConverterCode = `
 auto object = value.asObject(runtime);
 ${indent(jsToSwiftInitializerCode, '')}
@@ -152,6 +169,11 @@ return ${cppPropertyChecks.join(' && ')};
       fromJSI: jsToSwiftConverterCode,
       toJSI: swiftToJSConverterCode,
       canConvert: jsCanConvertCode,
+      preparation: {
+        preparedType: preparation.preparedType,
+        prepareFromJSI: preparation.prepareFromJSI,
+        fromPreparedJSI: jsPreparedToSwiftInitializerCode,
+      },
     }),
   ]
 }

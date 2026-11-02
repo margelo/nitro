@@ -16,6 +16,21 @@ namespace margelo::nitro {
     return ::NitroTest::Person::init_cxx(JSIConverter<swift::String>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "name"))), JSIConverter<double>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "age"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::Person>::Prepared> JSIConverter<::NitroTest::Person>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "name"));
+    if (!JSIConverter<swift::String>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "age"));
+    if (!JSIConverter<double>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  ::NitroTest::Person JSIConverter<::NitroTest::Person>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::Person::init_cxx(JSIConverter<swift::String>::fromJSI(runtime, fields[0]), JSIConverter<double>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::Person>::toJSI(jsi::Runtime& runtime, const ::NitroTest::Person& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "name"), JSIConverter<swift::String>::toJSI(runtime, value.getName_cxx()));

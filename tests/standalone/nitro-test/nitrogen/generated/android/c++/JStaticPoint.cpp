@@ -18,6 +18,23 @@ namespace margelo::nitro {
     return margelo::nitro::test::JStaticPoint::create(JSIConverter<jdouble>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "x"))), JSIConverter<jdouble>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "y"))), JSIConverter<jboolean>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "visible"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JStaticPoint>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JStaticPoint>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "x"));
+    if (!JSIConverter<jdouble>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "y"));
+    if (!JSIConverter<jdouble>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "visible"));
+    if (!JSIConverter<jboolean>::canConvert(runtime, field_2)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JStaticPoint> JSIConverter<jni::local_ref<margelo::nitro::test::JStaticPoint>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JStaticPoint::create(JSIConverter<jdouble>::fromJSI(runtime, fields[0]), JSIConverter<jdouble>::fromJSI(runtime, fields[1]), JSIConverter<jboolean>::fromJSI(runtime, fields[2]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JStaticPoint>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JStaticPoint> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "x"), JSIConverter<jdouble>::toJSI(runtime, value->getX()));

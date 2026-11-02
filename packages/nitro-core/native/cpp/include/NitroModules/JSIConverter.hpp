@@ -6,6 +6,7 @@
 
 #include <concepts>
 #include <jsi/jsi.h>
+#include <optional>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -46,6 +47,19 @@ concept JSIConvertible = JSIDecodable<T> && JSIEncodable<T>;
 template <typename T>
 concept JSITypeCheckable = requires(jsi::Runtime& runtime, const jsi::Value& value) {
   { JSIConverter<T>::canConvert(runtime, value) } -> std::same_as<bool>;
+};
+
+/**
+ * Optionally match and snapshot a value before decoding a selected variant case.
+ * Preparation must accept exactly the values accepted by canConvert(), return nullopt
+ * on a type mismatch, and let failures propagate. No native value is decoded until
+ * the whole case matches. Matched top-level struct fields are decoded from values observed
+ * during selection, so getters and proxy get traps run once instead of again.
+ */
+template <typename T>
+concept JSIPreparable = requires(jsi::Runtime& runtime, const jsi::Value& value, typename JSIConverter<T>::Prepared&& prepared) {
+  { JSIConverter<T>::prepareFromJSI(runtime, value) } -> std::same_as<std::optional<typename JSIConverter<T>::Prepared>>;
+  { JSIConverter<T>::fromPreparedJSI(runtime, std::move(prepared)) } -> std::same_as<T>;
 };
 
 // int <> number

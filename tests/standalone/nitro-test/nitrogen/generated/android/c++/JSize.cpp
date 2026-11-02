@@ -19,6 +19,23 @@ namespace margelo::nitro {
     return margelo::nitro::test::JSize::create(JSIConverter<jdouble>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "width"))), JSIConverter<jdouble>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "height"))), JSIConverter<jni::local_ref<margelo::nitro::test::JSizeUnit>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "unit"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JSize>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JSize>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "width"));
+    if (!JSIConverter<jdouble>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "height"));
+    if (!JSIConverter<jdouble>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "unit"));
+    if (!JSIConverter<jni::local_ref<margelo::nitro::test::JSizeUnit>>::canConvert(runtime, field_2)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JSize> JSIConverter<jni::local_ref<margelo::nitro::test::JSize>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JSize::create(JSIConverter<jdouble>::fromJSI(runtime, fields[0]), JSIConverter<jdouble>::fromJSI(runtime, fields[1]), JSIConverter<jni::local_ref<margelo::nitro::test::JSizeUnit>>::fromJSI(runtime, fields[2]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JSize>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JSize> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "width"), JSIConverter<jdouble>::toJSI(runtime, value->getWidth()));

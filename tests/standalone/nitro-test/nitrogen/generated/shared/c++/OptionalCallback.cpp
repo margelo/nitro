@@ -22,6 +22,21 @@ namespace margelo::nitro {
     );
   }
 
+  std::optional<JSIConverter<margelo::nitro::test::OptionalCallback>::Prepared> JSIConverter<margelo::nitro::test::OptionalCallback>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "callback"));
+    if (!JSIConverter<std::optional<std::variant<margelo::nitro::Callback<void()>, double>>>::canConvert(runtime, field_0)) return std::nullopt;
+    return Prepared{std::move(field_0)};
+  }
+
+  margelo::nitro::test::OptionalCallback JSIConverter<margelo::nitro::test::OptionalCallback>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::OptionalCallback(
+      JSIConverter<std::optional<std::variant<margelo::nitro::Callback<void()>, double>>>::fromJSI(runtime, fields[0])
+    );
+  }
+
   jsi::Value JSIConverter<margelo::nitro::test::OptionalCallback>::toJSI(jsi::Runtime& runtime, const margelo::nitro::test::OptionalCallback& arg) {
     jsi::Object obj(runtime);
     obj.setProperty(runtime, PropNameIDCache::get(runtime, "callback"), JSIConverter<std::optional<std::variant<margelo::nitro::Callback<void()>, double>>>::toJSI(runtime, arg.callback));

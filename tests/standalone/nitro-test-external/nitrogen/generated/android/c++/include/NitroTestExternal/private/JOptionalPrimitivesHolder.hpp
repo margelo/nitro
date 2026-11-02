@@ -8,6 +8,7 @@
 #pragma once
 
 #include <fbjni/fbjni.h>
+#include <array>
 #include <NitroModules/JSIConverter.hpp>
 #include <NitroModules/JNIConverter+Primitives.hpp>
 #include <NitroModules/JSIConverter+JNIPrimitives.hpp>
@@ -62,6 +63,10 @@ namespace margelo::nitro {
     static jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder> fromJSI(jsi::Runtime& runtime, const jsi::Value& value);
     static jsi::Value toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder> value);
     static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+
+    using Prepared = std::array<jsi::Value, 4>;
+    static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+    static jni::local_ref<margelo::nitro::test::external::JOptionalPrimitivesHolder> fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
   };
 
 } // namespace margelo::nitro

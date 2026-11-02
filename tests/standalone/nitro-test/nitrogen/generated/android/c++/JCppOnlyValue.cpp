@@ -19,6 +19,21 @@ namespace margelo::nitro {
     return margelo::nitro::test::JCppOnlyValue::create(JSIConverter<jni::local_ref<jni::JString>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "label"))), JSIConverter<jni::local_ref<margelo::nitro::test::JCppOnlyValueKind>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "kind"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JCppOnlyValue>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JCppOnlyValue>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "label"));
+    if (!JSIConverter<jni::local_ref<jni::JString>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "kind"));
+    if (!JSIConverter<jni::local_ref<margelo::nitro::test::JCppOnlyValueKind>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JCppOnlyValue> JSIConverter<jni::local_ref<margelo::nitro::test::JCppOnlyValue>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JCppOnlyValue::create(JSIConverter<jni::local_ref<jni::JString>>::fromJSI(runtime, fields[0]), JSIConverter<jni::local_ref<margelo::nitro::test::JCppOnlyValueKind>>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JCppOnlyValue>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JCppOnlyValue> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "label"), JSIConverter<jni::local_ref<jni::JString>>::toJSI(runtime, value->getLabel()));

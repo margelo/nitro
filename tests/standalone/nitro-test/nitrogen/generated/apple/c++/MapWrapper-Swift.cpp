@@ -16,6 +16,21 @@ namespace margelo::nitro {
     return ::NitroTest::MapWrapper::init_cxx(JSIConverter<::NitroTest::Record_swift__String_swift__String>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "map"))), JSIConverter<::NitroTest::SecondMapWrapper>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "secondMap"))));
   }
 
+  std::optional<JSIConverter<::NitroTest::MapWrapper>::Prepared> JSIConverter<::NitroTest::MapWrapper>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "map"));
+    if (!JSIConverter<::NitroTest::Record_swift__String_swift__String>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "secondMap"));
+    if (!JSIConverter<::NitroTest::SecondMapWrapper>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  ::NitroTest::MapWrapper JSIConverter<::NitroTest::MapWrapper>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return ::NitroTest::MapWrapper::init_cxx(JSIConverter<::NitroTest::Record_swift__String_swift__String>::fromJSI(runtime, fields[0]), JSIConverter<::NitroTest::SecondMapWrapper>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<::NitroTest::MapWrapper>::toJSI(jsi::Runtime& runtime, const ::NitroTest::MapWrapper& value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "map"), JSIConverter<::NitroTest::Record_swift__String_swift__String>::toJSI(runtime, value.getMap_cxx()));

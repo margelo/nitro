@@ -34,6 +34,51 @@ namespace margelo::nitro {
     );
   }
 
+  std::optional<JSIConverter<margelo::nitro::test::Car>::Prepared> JSIConverter<margelo::nitro::test::Car>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "year"));
+    if (!JSIConverter<double>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "make"));
+    if (!JSIConverter<std::string>::canConvert(runtime, field_1)) return std::nullopt;
+    auto field_2 = object.getProperty(runtime, PropNameIDCache::get(runtime, "model"));
+    if (!JSIConverter<std::string>::canConvert(runtime, field_2)) return std::nullopt;
+    auto field_3 = object.getProperty(runtime, PropNameIDCache::get(runtime, "power"));
+    if (!JSIConverter<double>::canConvert(runtime, field_3)) return std::nullopt;
+    auto field_4 = object.getProperty(runtime, PropNameIDCache::get(runtime, "powertrain"));
+    if (!JSIConverter<margelo::nitro::test::Powertrain>::canConvert(runtime, field_4)) return std::nullopt;
+    auto field_5 = object.getProperty(runtime, PropNameIDCache::get(runtime, "driver"));
+    if (!JSIConverter<std::optional<margelo::nitro::test::Person>>::canConvert(runtime, field_5)) return std::nullopt;
+    auto field_6 = object.getProperty(runtime, PropNameIDCache::get(runtime, "passengers"));
+    if (!JSIConverter<std::vector<margelo::nitro::test::Person>>::canConvert(runtime, field_6)) return std::nullopt;
+    auto field_7 = object.getProperty(runtime, PropNameIDCache::get(runtime, "isFast"));
+    if (!JSIConverter<std::optional<bool>>::canConvert(runtime, field_7)) return std::nullopt;
+    auto field_8 = object.getProperty(runtime, PropNameIDCache::get(runtime, "favouriteTrack"));
+    if (!JSIConverter<std::optional<std::string>>::canConvert(runtime, field_8)) return std::nullopt;
+    auto field_9 = object.getProperty(runtime, PropNameIDCache::get(runtime, "performanceScores"));
+    if (!JSIConverter<std::vector<double>>::canConvert(runtime, field_9)) return std::nullopt;
+    auto field_10 = object.getProperty(runtime, PropNameIDCache::get(runtime, "someVariant"));
+    if (!JSIConverter<std::optional<std::variant<double, std::string>>>::canConvert(runtime, field_10)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1), std::move(field_2), std::move(field_3), std::move(field_4), std::move(field_5), std::move(field_6), std::move(field_7), std::move(field_8), std::move(field_9), std::move(field_10)};
+  }
+
+  margelo::nitro::test::Car JSIConverter<margelo::nitro::test::Car>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::Car(
+      JSIConverter<double>::fromJSI(runtime, fields[0]),
+      JSIConverter<std::string>::fromJSI(runtime, fields[1]),
+      JSIConverter<std::string>::fromJSI(runtime, fields[2]),
+      JSIConverter<double>::fromJSI(runtime, fields[3]),
+      JSIConverter<margelo::nitro::test::Powertrain>::fromJSI(runtime, fields[4]),
+      JSIConverter<std::optional<margelo::nitro::test::Person>>::fromJSI(runtime, fields[5]),
+      JSIConverter<std::vector<margelo::nitro::test::Person>>::fromJSI(runtime, fields[6]),
+      JSIConverter<std::optional<bool>>::fromJSI(runtime, fields[7]),
+      JSIConverter<std::optional<std::string>>::fromJSI(runtime, fields[8]),
+      JSIConverter<std::vector<double>>::fromJSI(runtime, fields[9]),
+      JSIConverter<std::optional<std::variant<double, std::string>>>::fromJSI(runtime, fields[10])
+    );
+  }
+
   jsi::Value JSIConverter<margelo::nitro::test::Car>::toJSI(jsi::Runtime& runtime, const margelo::nitro::test::Car& arg) {
     jsi::Object obj(runtime);
     obj.setProperty(runtime, PropNameIDCache::get(runtime, "year"), JSIConverter<double>::toJSI(runtime, arg.year));

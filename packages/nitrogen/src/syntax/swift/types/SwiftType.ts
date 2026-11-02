@@ -35,6 +35,8 @@ export interface SwiftType extends Type {
    * name the same record both specialize its generic traits, so C++ including both fails.
    */
   readonly requiresOpaqueCxxBridge?: boolean
+  /** Whether its JSI converter can snapshot fields while selecting a variant case. */
+  readonly supportsPreparedJSIDecoding?: boolean
   /** Whether this Swift value uses the retained class-reference bridge. */
   readonly isReferenceType: boolean
   /**

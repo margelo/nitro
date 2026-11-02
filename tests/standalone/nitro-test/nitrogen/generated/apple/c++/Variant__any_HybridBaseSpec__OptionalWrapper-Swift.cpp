@@ -17,8 +17,8 @@ namespace margelo::nitro {
         ::NitroTest::Variant__any_HybridBaseSpec__OptionalWrapper_cxx::initializeFirst(payload, result);
       });
     }
-    if (JSIConverter<::NitroTest::OptionalWrapper>::canConvert(runtime, value)) {
-      auto payload = JSIConverter<::NitroTest::OptionalWrapper>::fromJSI(runtime, value);
+    if (auto prepared = JSIConverter<::NitroTest::OptionalWrapper>::prepareFromJSI(runtime, value)) {
+      auto payload = JSIConverter<::NitroTest::OptionalWrapper>::fromPreparedJSI(runtime, std::move(*prepared));
       return NitroModules::makeSwiftValue<::NitroTest::Variant__any_HybridBaseSpec__OptionalWrapper_cxx>([&](void* result) {
         ::NitroTest::Variant__any_HybridBaseSpec__OptionalWrapper_cxx::initializeSecond(payload, result);
       });

@@ -10,6 +10,7 @@
 #include <NitroModules/JSIConverter.hpp>
 // Forward declaration of `OptionalPrimitivesHolder` to properly resolve imports.
 namespace NitroTestExternal { class OptionalPrimitivesHolder; }
+#include <array>
 
 namespace margelo::nitro {
 
@@ -18,6 +19,10 @@ namespace margelo::nitro {
     static ::NitroTestExternal::OptionalPrimitivesHolder fromJSI(jsi::Runtime& runtime, const jsi::Value& value);
     static jsi::Value toJSI(jsi::Runtime& runtime, const ::NitroTestExternal::OptionalPrimitivesHolder& value);
     static bool canConvert(jsi::Runtime& runtime, const jsi::Value& value);
+
+    using Prepared = std::array<jsi::Value, 4>;
+    static std::optional<Prepared> prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value);
+    static ::NitroTestExternal::OptionalPrimitivesHolder fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields);
   };
 
 } // namespace margelo::nitro

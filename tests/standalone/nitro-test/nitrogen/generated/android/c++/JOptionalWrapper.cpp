@@ -23,6 +23,21 @@ namespace margelo::nitro {
     return margelo::nitro::test::JOptionalWrapper::create(JSIConverter<jni::local_ref<JOptional<JArrayBuffer::JavaPart>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalArrayBuffer"))), JSIConverter<jni::local_ref<JOptional<jni::JString>>>::fromJSI(runtime, object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalString"))));
   }
 
+  std::optional<JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalWrapper>>::Prepared> JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalWrapper>>::prepareFromJSI(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isObject()) return std::nullopt;
+    auto object = value.getObject(runtime);
+    if (!isPlainObject(runtime, object)) return std::nullopt;
+    auto field_0 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalArrayBuffer"));
+    if (!JSIConverter<jni::local_ref<JOptional<JArrayBuffer::JavaPart>>>::canConvert(runtime, field_0)) return std::nullopt;
+    auto field_1 = object.getProperty(runtime, PropNameIDCache::get(runtime, "optionalString"));
+    if (!JSIConverter<jni::local_ref<JOptional<jni::JString>>>::canConvert(runtime, field_1)) return std::nullopt;
+    return Prepared{std::move(field_0), std::move(field_1)};
+  }
+
+  jni::local_ref<margelo::nitro::test::JOptionalWrapper> JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalWrapper>>::fromPreparedJSI(jsi::Runtime& runtime, Prepared&& fields) {
+    return margelo::nitro::test::JOptionalWrapper::create(JSIConverter<jni::local_ref<JOptional<JArrayBuffer::JavaPart>>>::fromJSI(runtime, fields[0]), JSIConverter<jni::local_ref<JOptional<jni::JString>>>::fromJSI(runtime, fields[1]));
+  }
+
   jsi::Value JSIConverter<jni::local_ref<margelo::nitro::test::JOptionalWrapper>>::toJSI(jsi::Runtime& runtime, jni::alias_ref<margelo::nitro::test::JOptionalWrapper> value) {
     jsi::Object object(runtime);
     object.setProperty(runtime, PropNameIDCache::get(runtime, "optionalArrayBuffer"), JSIConverter<jni::local_ref<JOptional<JArrayBuffer::JavaPart>>>::toJSI(runtime, value->getOptionalArrayBuffer()));
