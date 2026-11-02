@@ -84,7 +84,7 @@ export class KotlinCallbackType extends CallbackType implements KotlinType {
       case 'c++': {
         // Kotlin has no borrowed callbacks, so `Inline<...>` uses the same escaped type.
         const jniClass = this.config.getCxxNamespace('c++', this.jniName)
-        return getJniReferenceCode(`JTypedCallback<${jniClass}::JavaPart>`, options)
+        return getJniReferenceCode(`JCallback<${jniClass}::JavaPart>`, options)
       }
       case 'kotlin':
         return this.type.getCode(language, options)

@@ -16,7 +16,7 @@
 
 namespace margelo::nitro::test {
 
-  jni::local_ref<JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__::JFunction_cxx> JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__::JFunction_cxx::create(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+  jni::local_ref<JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__::JFunction_cxx> JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__::JFunction_cxx::create(jni::alias_ref<JCallback<JavaPart>> callback) {
     return newInstance(callback);
   }
 
@@ -42,7 +42,7 @@ namespace margelo::nitro::test {
     callAndForget(array);
   }
 
-  JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__::CallbackType JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__::fromKotlin(jni::alias_ref<JTypedCallback<JavaPart>> callback) {
+  JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__::CallbackType JCallback_std__vector_std__vector_uint64_t___std__vector_std__vector_uint64_t__::fromKotlin(jni::alias_ref<JCallback<JavaPart>> callback) {
     auto function = JFunction_cxx::create(callback);
     return CallbackType::make(JNICallable<JFunction_cxx, NativeSignature>(jni::make_global(function)));
   }
