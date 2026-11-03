@@ -43,6 +43,7 @@ const sidebars: SidebarsConfig = {
         'guides/entry-point',
         'guides/sync-vs-async',
         'guides/view-components',
+        'guides/testing-nitro-modules',
         'guides/troubleshooting',
         'guides/running-example-app',
       ]
