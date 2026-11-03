@@ -28,11 +28,14 @@ typealias BoxedHardwareBuffer = Any
  *
  * A `ByteBuffer` will be used as the underlying `ArrayBuffer`'s data,
  * which has to remain valid for as long as the `ArrayBuffer` is alive.
+ *
+ * An `ArrayBuffer` holds a reference to its memory until the Java garbage collector frees it.
+ * Call [close] (or use [use]) to release it right away.
  */
 @Suppress("KotlinJniMissingFunction")
 @Keep
 @DoNotStrip
-class ArrayBuffer {
+class ArrayBuffer : AutoCloseable {
   /**
    * Holds the native C++ instance of the `ArrayBuffer`.
    */
@@ -46,14 +49,24 @@ class ArrayBuffer {
    * data access is not safe anymore. If you need to access data longer, copy the data.
    */
   val isOwner: Boolean
-    get() = getIsOwner()
+    get() {
+      checkNotClosed()
+      return getIsOwner()
+    }
+
+  /**
+   * Whether this `ArrayBuffer` has been closed with [close].
+   * A closed `ArrayBuffer` can no longer be accessed.
+   */
+  val isClosed: Boolean
+    get() = !mHybridData.isValid
 
   /**
    * Whether this `ArrayBuffer` is holding a `ByteBuffer`, or not.
    * - If the `ArrayBuffer` holds a `ByteBuffer`, `getBuffer(false)` can safely be called to
    * get shared access to the underlying data, without performing any copies.
    * - If the `ArrayBuffer` doesn't hold a `ByteBuffer`, it can still be accessed via `getBuffer(false)`,
-   * but the returned `ByteBuffer` is only valid as long as its parent `ArrayBuffer` is alive.
+   * but the returned `ByteBuffer` is only valid as long as its parent `ArrayBuffer` is alive and not closed.
    */
   val isByteBuffer: Boolean
 
@@ -64,13 +77,19 @@ class ArrayBuffer {
    * You will need to call `getByteBuffer(copyIfNeeded)` instead.
    */
   val isHardwareBuffer: Boolean
-    get() = getIsHardwareBuffer()
+    get() {
+      checkNotClosed()
+      return getIsHardwareBuffer()
+    }
 
   /**
    * Get the size of bytes in this `ArrayBuffer`.
    */
   val size: Int
-    get() = getBufferSize()
+    get() {
+      checkNotClosed()
+      return getBufferSize()
+    }
 
   /**
    * Get a `ByteBuffer` that holds- or wraps- the underlying data.
@@ -90,6 +109,7 @@ class ArrayBuffer {
    * its `position`, `limit`, or `mark` will not affect the `ArrayBuffer`'s internal `ByteBuffer`.
    */
   fun getBuffer(copyIfNeeded: Boolean): ByteBuffer {
+    checkNotClosed()
     val buffer = getByteBuffer(copyIfNeeded)
     return if (isByteBuffer) buffer.arrayBufferView() else buffer
   }
@@ -100,6 +120,7 @@ class ArrayBuffer {
    */
   @RequiresApi(Build.VERSION_CODES.O)
   fun getHardwareBuffer(): HardwareBuffer {
+    checkNotClosed()
     val boxed = getHardwareBufferBoxed()
     return boxed as HardwareBuffer
   }
@@ -139,6 +160,28 @@ class ArrayBuffer {
       return ArrayBuffer.copy(this)
     }
     return this
+  }
+
+  /**
+   * Releases this `ArrayBuffer`'s reference to its memory right away, without waiting for the
+   * Java garbage collector.
+   *
+   * - For **owning** `ArrayBuffer`s, the memory is freed once every other owner (e.g. JS, or
+   * other native references) has released it too.
+   * - For **non-owning** `ArrayBuffer`s, this releases the reference to the JS `ArrayBuffer`.
+   *
+   * Accessing this `ArrayBuffer` after closing it throws an [IllegalStateException].
+   * If this `ArrayBuffer` does not hold a `ByteBuffer` (`isByteBuffer == false`), `ByteBuffer`s
+   * previously returned by `getBuffer(false)` must not be used after closing it either.
+   * Closing an `ArrayBuffer` that has already been closed has no effect.
+   * Do not close an `ArrayBuffer` while another thread is still accessing it.
+   */
+  override fun close() {
+    mHybridData.resetNative()
+  }
+
+  private fun checkNotClosed() {
+    check(mHybridData.isValid) { "This ArrayBuffer has already been closed!" }
   }
 
   /**
