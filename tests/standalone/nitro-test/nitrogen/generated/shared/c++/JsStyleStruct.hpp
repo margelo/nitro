@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -44,7 +46,7 @@ namespace margelo::nitro::test {
 
   public:
     JsStyleStruct() = default;
-    explicit JsStyleStruct(double value, std::function<void(double /* num */)> onChanged): value(value), onChanged(onChanged) {}
+    explicit JsStyleStruct(double value, std::function<void(double /* num */)> onChanged): value(std::move(value)), onChanged(std::move(onChanged)) {}
 
   public:
     // JsStyleStruct is not equatable because these properties are not equatable: onChanged

@@ -19,6 +19,13 @@
 
 namespace margelo::nitro::test {
 
+bool HybridTestObjectCpp::personConstructorMovesName() {
+  std::string name(64, 'x');
+  const char* buffer = name.data();
+  Person person(std::move(name), 42);
+  return person.name == std::string(64, 'x') && person.age == 42 && person.name.data() == buffer;
+}
+
 size_t HybridTestObjectCpp::getExternalMemorySize() noexcept {
   return _string.size();
 }

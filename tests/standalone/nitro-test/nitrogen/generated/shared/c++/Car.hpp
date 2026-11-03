@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -61,7 +63,7 @@ namespace margelo::nitro::test {
 
   public:
     Car() = default;
-    explicit Car(double year, std::string make, std::string model, double power, Powertrain powertrain, std::optional<Person> driver, std::vector<Person> passengers, std::optional<bool> isFast, std::optional<std::string> favouriteTrack, std::vector<double> performanceScores, std::optional<std::variant<double, std::string>> someVariant): year(year), make(make), model(model), power(power), powertrain(powertrain), driver(driver), passengers(passengers), isFast(isFast), favouriteTrack(favouriteTrack), performanceScores(performanceScores), someVariant(someVariant) {}
+    explicit Car(double year, std::string make, std::string model, double power, Powertrain powertrain, std::optional<Person> driver, std::vector<Person> passengers, std::optional<bool> isFast, std::optional<std::string> favouriteTrack, std::vector<double> performanceScores, std::optional<std::variant<double, std::string>> someVariant): year(std::move(year)), make(std::move(make)), model(std::move(model)), power(std::move(power)), powertrain(std::move(powertrain)), driver(std::move(driver)), passengers(std::move(passengers)), isFast(std::move(isFast)), favouriteTrack(std::move(favouriteTrack)), performanceScores(std::move(performanceScores)), someVariant(std::move(someVariant)) {}
 
   public:
     friend bool operator==(const Car& lhs, const Car& rhs) = default;

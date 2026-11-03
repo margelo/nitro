@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -44,7 +46,7 @@ namespace margelo::nitro::test {
 
   public:
     SecondMapWrapper() = default;
-    explicit SecondMapWrapper(std::unordered_map<std::string, std::string> second): second(second) {}
+    explicit SecondMapWrapper(std::unordered_map<std::string, std::string> second): second(std::move(second)) {}
 
   public:
     friend bool operator==(const SecondMapWrapper& lhs, const SecondMapWrapper& rhs) = default;
