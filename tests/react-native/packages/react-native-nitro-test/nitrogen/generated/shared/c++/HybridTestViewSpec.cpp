@@ -24,6 +24,8 @@ namespace margelo::nitro::test {
       prototype.registerHybridSetter("colorScheme", &HybridTestViewSpec::setColorScheme);
       prototype.registerHybridGetter("someCallback", &HybridTestViewSpec::getSomeCallback);
       prototype.registerHybridSetter("someCallback", &HybridTestViewSpec::setSomeCallback);
+      prototype.registerHybridGetter("someOptionalCallback", &HybridTestViewSpec::getSomeOptionalCallback);
+      prototype.registerHybridSetter("someOptionalCallback", &HybridTestViewSpec::setSomeOptionalCallback);
       prototype.registerHybridGetter("nativeDefaultValue", &HybridTestViewSpec::getNativeDefaultValue);
       prototype.registerHybridSetter("nativeDefaultValue", &HybridTestViewSpec::setNativeDefaultValue);
       prototype.registerHybridMethod("getIsViewBlue", &HybridTestViewSpec::getIsViewBlue);
@@ -31,6 +33,7 @@ namespace margelo::nitro::test {
       prototype.registerHybridMethod("getIsBlueSetterCallCount", &HybridTestViewSpec::getIsBlueSetterCallCount);
       prototype.registerHybridMethod("getNativeDefaultValueSetterCallCount", &HybridTestViewSpec::getNativeDefaultValueSetterCallCount);
       prototype.registerHybridMethod("someMethod", &HybridTestViewSpec::someMethod);
+      prototype.registerHybridMethod("hasSomeOptionalCallback", &HybridTestViewSpec::hasSomeOptionalCallback);
     });
   }
 

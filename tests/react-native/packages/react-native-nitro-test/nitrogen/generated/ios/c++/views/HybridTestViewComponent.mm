@@ -128,6 +128,12 @@ using namespace margelo::nitro::test::views;
           : !newViewProps.someCallback.hasSameValue(oldViewProps->someCallback)) {
       swiftPart.setSomeCallback(newViewProps.someCallback.get());
     }
+    // someOptionalCallback: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.someOptionalCallback.isProvided()
+          : !newViewProps.someOptionalCallback.hasSameValue(oldViewProps->someOptionalCallback)) {
+      swiftPart.setSomeOptionalCallback(newViewProps.someOptionalCallback.get());
+    }
     // nativeDefaultValue: optional
     if (oldViewProps == nullptr
           ? newViewProps.nativeDefaultValue.isProvided()
