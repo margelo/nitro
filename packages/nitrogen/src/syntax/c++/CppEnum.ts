@@ -1,5 +1,5 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
-import { indent, toLowerCamelCase } from '../../utils.js'
+import { indent, toSwiftEnumCaseName } from '../../utils.js'
 import type { SourceFile, SourceImport } from '../SourceFile.js'
 import { createFileMetadataString } from '../helpers.js'
 import type { EnumMember } from '../types/EnumType.js'
@@ -12,7 +12,7 @@ export function createCppEnum(typename: string, enumMembers: EnumMember[]): Sour
   // Namespace typename
   const fullyQualifiedTypename = NitroConfig.current.getCxxNamespace('c++', typename)
   // Map enum to C++ code
-  const cppEnumMembers = enumMembers.map((m) => `${m.name}      SWIFT_NAME(${toLowerCamelCase(m.name)}) = ${m.value},`).join('\n')
+  const cppEnumMembers = enumMembers.map((m) => `${m.name}      SWIFT_NAME(${toSwiftEnumCaseName(m.name)}) = ${m.value},`).join('\n')
   const cxxNamespace = NitroConfig.current.getCxxNamespace('c++')
 
   // Aliases share a value, so only emit one case for each number.

@@ -16,6 +16,7 @@ public enum TruckPowertrain: Int32, CaseIterable, Sendable, CustomStringConverti
   case `gas` = 1
   case `hybrid` = 2
   case `diesel` = 3
+  case `_2stroke` = 4
 
   public static func fromRawValue(_ value: Int32) -> Self {
     return Self(rawValue: value)!
@@ -37,6 +38,8 @@ public extension TruckPowertrain {
         self = .hybrid
       case "diesel":
         self = .diesel
+      case "2stroke":
+        self = ._2stroke
       default:
         return nil
     }
@@ -55,6 +58,8 @@ public extension TruckPowertrain {
         return "hybrid"
       case .diesel:
         return "diesel"
+      case ._2stroke:
+        return "2stroke"
     }
   }
 

@@ -98,6 +98,8 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridTestObjectSwiftK
   func tryMiddleParam(num: Double, boo: Bool?, str: String) throws -> String
   func tryOptionalEnum(value: Powertrain?) throws -> Powertrain?
   func tryTrailingOptional(num: Double, str: String, boo: Bool?) throws -> Bool
+  func parseTruckPowertrain(value: String) throws -> TruckPowertrain?
+  func stringifyTruckPowertrain(value: TruckPowertrain) throws -> String
   func calculateFibonacciSync(value: Double) throws -> Int64
   func calculateFibonacciAsync(value: Double) throws -> any Promise<Int64>
   func wait(seconds: Double) throws -> any Promise<Void>

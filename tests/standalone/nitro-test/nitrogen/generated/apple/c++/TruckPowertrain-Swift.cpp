@@ -21,6 +21,7 @@ namespace margelo::nitro {
       case hashString("gas"): return ::NitroTest::TruckPowertrain::fromRawValue(1);
       case hashString("hybrid"): return ::NitroTest::TruckPowertrain::fromRawValue(2);
       case hashString("diesel"): return ::NitroTest::TruckPowertrain::fromRawValue(3);
+      case hashString("2stroke"): return ::NitroTest::TruckPowertrain::fromRawValue(4);
       default: [[unlikely]]
         throw std::invalid_argument("Cannot convert \"" + string + "\" to enum TruckPowertrain - invalid value!");
     }
@@ -32,6 +33,7 @@ namespace margelo::nitro {
       case 1: return createJSIString<"gas">(runtime);
       case 2: return createJSIString<"hybrid">(runtime);
       case 3: return createJSIString<"diesel">(runtime);
+      case 4: return createJSIString<"2stroke">(runtime);
       default: [[unlikely]]
         throw std::invalid_argument("Cannot convert TruckPowertrain to JS - invalid value: " + std::to_string(value.getRawValue()) + "!");
     }
@@ -45,6 +47,7 @@ namespace margelo::nitro {
       case hashString("gas"): return true;
       case hashString("hybrid"): return true;
       case hashString("diesel"): return true;
+      case hashString("2stroke"): return true;
       default: return false;
     }
   }

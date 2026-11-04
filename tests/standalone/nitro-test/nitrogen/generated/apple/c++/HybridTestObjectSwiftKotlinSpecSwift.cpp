@@ -778,6 +778,26 @@ namespace margelo::nitro::test {
     return std::move(__result.value());
   }
 
+  swift::Optional<::NitroTest::TruckPowertrain> HybridTestObjectSwiftKotlinSpecSwift::parseTruckPowertrain(const swift::String& value) {
+    auto __result = receiveSwiftResult<swift::Optional<::NitroTest::TruckPowertrain>>([&](const void* __onResult) {
+      return _swiftPart.parseTruckPowertrain(value, __onResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
+  swift::String HybridTestObjectSwiftKotlinSpecSwift::stringifyTruckPowertrain(::NitroTest::TruckPowertrain value) {
+    auto __result = receiveSwiftResult<swift::String>([&](const void* __onResult) {
+      return _swiftPart.stringifyTruckPowertrain(value, __onResult);
+    });
+    if (__result.hasError()) [[unlikely]] {
+      std::rethrow_exception(__result.error());
+    }
+    return std::move(__result.value());
+  }
+
   int64_t HybridTestObjectSwiftKotlinSpecSwift::calculateFibonacciSync(double value) {
     auto __result = _swiftPart.calculateFibonacciSync(value);
     if (__result.hasError()) [[unlikely]] {
@@ -1807,6 +1827,8 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("tryMiddleParam", &HybridTestObjectSwiftKotlinSpecSwift::tryMiddleParam);
       clazz.registerHybridMethod("tryOptionalEnum", &HybridTestObjectSwiftKotlinSpecSwift::tryOptionalEnum);
       clazz.registerHybridMethod("tryTrailingOptional", &HybridTestObjectSwiftKotlinSpecSwift::tryTrailingOptional);
+      clazz.registerHybridMethod("parseTruckPowertrain", &HybridTestObjectSwiftKotlinSpecSwift::parseTruckPowertrain);
+      clazz.registerHybridMethod("stringifyTruckPowertrain", &HybridTestObjectSwiftKotlinSpecSwift::stringifyTruckPowertrain);
       clazz.registerHybridMethod("calculateFibonacciSync", &HybridTestObjectSwiftKotlinSpecSwift::calculateFibonacciSync);
       clazz.registerHybridMethod("calculateFibonacciAsync", &HybridTestObjectSwiftKotlinSpecSwift::calculateFibonacciAsync);
       clazz.registerHybridMethod("wait", &HybridTestObjectSwiftKotlinSpecSwift::wait);
