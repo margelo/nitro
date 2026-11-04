@@ -6,6 +6,7 @@
 //
 
 import NitroModules
+import NitroTestExternal
 
 class HybridBase: HybridBaseSpec {
   required override init() throws {
@@ -14,10 +15,6 @@ class HybridBase: HybridBaseSpec {
 
   static func createAlternativeBase() throws -> any HybridBaseSpec {
     return try HybridAlternativeBase()
-  }
-
-  var baseValue: Double {
-    return 10
   }
 
   func bounceSize(size: Size) throws -> Size {
@@ -34,7 +31,8 @@ class HybridBase: HybridBaseSpec {
 }
 
 private final class HybridAlternativeBase: HybridBase {
-  override var baseValue: Double {
-    return 11
+  required init() throws {
+    try super.init()
+    baseValue = 11
   }
 }

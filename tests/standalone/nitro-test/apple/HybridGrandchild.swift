@@ -1,13 +1,12 @@
 import NitroModules
+import NitroTestExternal
 
 class HybridGrandchild: HybridGrandchildSpec {
   required override init() throws {
     try super.init()
+    baseValue = 20
   }
 
-  var baseValue: Double {
-    return 20
-  }
   var childValue: Double {
     return 30
   }
