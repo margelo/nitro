@@ -1,13 +1,10 @@
 #pragma once
 
 // React Native 0.89+ (RN_STRICT_API) rejects direct includes of headers that have
-// an umbrella, and makes <cxxreact/ReactNativeVersion.h> private.
-#if __has_include(<React/Utils.h>)
-#include <React/Utils.h>
-#else
-#include <cxxreact/ReactNativeVersion.h>
-#endif
-
+// an umbrella.
+// Do not include <cxxreact/ReactNativeVersion.h> here: this header is reachable from public headers
+// (exposed in the NitroModules modulemap), and pulling `cxxreact` in breaks `use_frameworks!` builds.
+// See https://github.com/margelo/nitro/issues/1520
 #if __has_include(<React/RendererCore.h>)
 #include <React/RendererCore.h>
 #else
