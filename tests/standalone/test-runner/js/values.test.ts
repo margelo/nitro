@@ -24,7 +24,7 @@ const UINT64_MAX = 18446744073709551615n
 // 2^64 - 1
 const ONE_MIB = 1024 * 1024
 
-const TRUCK_POWERTRAINS = ['electric', 'gas', 'hybrid', 'diesel'] as const
+const TRUCK_POWERTRAINS = ['electric', 'gas', 'hybrid', 'diesel', '2stroke'] as const
 
 const BASE = new TestObjectSwiftKotlin().createBase()
 
@@ -719,6 +719,13 @@ export const cases = {
 
     "optionalEnumPlusOne roundtrips 'diesel'": (testObject) => {
       const value = TRUCK_POWERTRAINS[3]!
+
+      testObject.optionalEnumPlusOne = value
+      expect(Object.is(testObject.optionalEnumPlusOne, value)).to.equal(true)
+    },
+
+    "optionalEnumPlusOne roundtrips '2stroke'": (testObject) => {
+      const value = TRUCK_POWERTRAINS[4]!
 
       testObject.optionalEnumPlusOne = value
       expect(Object.is(testObject.optionalEnumPlusOne, value)).to.equal(true)

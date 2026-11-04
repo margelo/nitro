@@ -30,7 +30,8 @@ export type NamedVariant = string | Car
 // A discriminating string union becomes an `enum` in C++.
 // This one is string-backed.
 export type Powertrain = 'electric' | 'gas' | 'hybrid'
-type TruckPowertrain = Powertrain | 'diesel'
+// '2stroke' starts with a digit, so its Swift case name needs a leading underscore.
+type TruckPowertrain = Powertrain | 'diesel' | '2stroke'
 
 // A classic TypeScript enum also becomes an `enum` in C++.
 // This one is number-backed.

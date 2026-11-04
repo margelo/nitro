@@ -19,7 +19,8 @@ enum class TruckPowertrain(@DoNotStrip @Keep val value: Int) {
   ELECTRIC(0),
   GAS(1),
   HYBRID(2),
-  DIESEL(3);
+  DIESEL(3),
+  _2STROKE(4);
 
   /**
    * Get the String value this TruckPowertrain represents.
@@ -31,6 +32,7 @@ enum class TruckPowertrain(@DoNotStrip @Keep val value: Int) {
         GAS -> "gas"
         HYBRID -> "hybrid"
         DIESEL -> "diesel"
+        _2STROKE -> "2stroke"
       }
 
   override fun toString(): String = stringValue
@@ -46,6 +48,7 @@ enum class TruckPowertrain(@DoNotStrip @Keep val value: Int) {
         "gas" -> GAS
         "hybrid" -> HYBRID
         "diesel" -> DIESEL
+        "2stroke" -> _2STROKE
         else -> null
       }
   }

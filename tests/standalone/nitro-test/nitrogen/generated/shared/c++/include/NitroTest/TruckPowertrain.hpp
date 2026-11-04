@@ -21,6 +21,7 @@ namespace margelo::nitro::test {
     GAS      SWIFT_NAME(gas) = 1,
     HYBRID      SWIFT_NAME(hybrid) = 2,
     DIESEL      SWIFT_NAME(diesel) = 3,
+    _2STROKE      SWIFT_NAME(_2stroke) = 4,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::test
@@ -37,6 +38,7 @@ namespace margelo::nitro {
         case hashString("gas"): return margelo::nitro::test::TruckPowertrain::GAS;
         case hashString("hybrid"): return margelo::nitro::test::TruckPowertrain::HYBRID;
         case hashString("diesel"): return margelo::nitro::test::TruckPowertrain::DIESEL;
+        case hashString("2stroke"): return margelo::nitro::test::TruckPowertrain::_2STROKE;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum TruckPowertrain - invalid value!");
       }
@@ -47,6 +49,7 @@ namespace margelo::nitro {
         case margelo::nitro::test::TruckPowertrain::GAS: return JSIConverter<std::string>::toJSI(runtime, "gas");
         case margelo::nitro::test::TruckPowertrain::HYBRID: return JSIConverter<std::string>::toJSI(runtime, "hybrid");
         case margelo::nitro::test::TruckPowertrain::DIESEL: return JSIConverter<std::string>::toJSI(runtime, "diesel");
+        case margelo::nitro::test::TruckPowertrain::_2STROKE: return JSIConverter<std::string>::toJSI(runtime, "2stroke");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert TruckPowertrain to JS - invalid value: "
                                     + std::to_string(static_cast<int>(arg)) + "!");
@@ -62,6 +65,7 @@ namespace margelo::nitro {
         case hashString("gas"):
         case hashString("hybrid"):
         case hashString("diesel"):
+        case hashString("2stroke"):
           return true;
         default:
           return false;

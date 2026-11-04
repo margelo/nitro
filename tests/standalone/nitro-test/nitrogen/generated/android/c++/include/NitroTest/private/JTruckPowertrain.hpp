@@ -51,6 +51,11 @@ namespace margelo::nitro::test {
           static const auto instance_DIESEL = jni::make_global(clazz->getStaticFieldValue(field_DIESEL));
           return instance_DIESEL;
         }
+        case 4: {
+          static const auto field__2STROKE = clazz->getStaticField<JTruckPowertrain>("_2STROKE");
+          static const auto instance__2STROKE = jni::make_global(clazz->getStaticFieldValue(field__2STROKE));
+          return instance__2STROKE;
+        }
         default: [[unlikely]]
           throw std::invalid_argument("Invalid TruckPowertrain value: " + std::to_string(value));
       }
