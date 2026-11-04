@@ -10,6 +10,7 @@ import {
   sumUpAllPassengers,
   TEST_CAR,
   TEST_CAR_2,
+  TEST_GALLERY,
   TEST_OPTIONAL_ENUM_WRAPPER,
   TEST_PERSON,
   TEST_WRAPPED_STRUCT,
@@ -101,6 +102,12 @@ export const cases = {
     ) => {
       expect(testObject.bounceOptionalEnumStruct(undefined)).to.equal(
         undefined,
+      );
+    },
+
+    "bounceGallery(...) returns the same struct graph": (testObject) => {
+      expect(testObject.bounceGallery(TEST_GALLERY)).to.deep.equal(
+        TEST_GALLERY,
       );
     },
 
