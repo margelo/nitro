@@ -989,6 +989,30 @@ public final class HybridTestObjectSwiftKotlinSpec_cxx {
     }
   }
 
+  public final func parseTruckPowertrain(value: String, __onResult: UnsafeRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.parseTruckPowertrain(value: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
+  public final func stringifyTruckPowertrain(value: TruckPowertrain, __onResult: UnsafeRawPointer) -> bridge.Result_void {
+    do {
+      let value = try __implementation.stringifyTruckPowertrain(value: value)
+      withUnsafePointer(to: value) { pointer in
+        margelo.nitro.SwiftResultConsumer.consume(__onResult, UnsafeRawPointer(pointer))
+      }
+      return bridge.Result_void.withValue()
+    } catch {
+      return bridge.Result_void.withError(error.toCpp())
+    }
+  }
+
   public final func calculateFibonacciSync(value: Double) -> bridge.Result_int64_t {
     do {
       let value = try __implementation.calculateFibonacciSync(value: value)

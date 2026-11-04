@@ -160,6 +160,8 @@ namespace margelo::nitro::test {
     swift::String tryMiddleParam(double num, const swift::Optional<bool>& boo, const swift::String& str);
     swift::Optional<::NitroTest::Powertrain> tryOptionalEnum(const swift::Optional<::NitroTest::Powertrain>& value);
     bool tryTrailingOptional(double num, const swift::String& str, const swift::Optional<bool>& boo);
+    swift::Optional<::NitroTest::TruckPowertrain> parseTruckPowertrain(const swift::String& value);
+    swift::String stringifyTruckPowertrain(::NitroTest::TruckPowertrain value);
     int64_t calculateFibonacciSync(double value);
     Promise<int64_t> calculateFibonacciAsync(double value);
     Promise<void> wait(double seconds);

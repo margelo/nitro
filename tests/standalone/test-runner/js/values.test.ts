@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { casesForTestObjects, recordCallback, waitFor } from './utils/cases'
+import { casesForTestObjects, namedCases, recordCallback, waitFor } from './utils/cases'
 import { debugOnly, deferred } from './utils/helpers'
 import {
   OldEnum,
@@ -756,6 +756,36 @@ export const cases = {
         // @ts-expect-error
         testObject.optionalEnum = 'diesel'
       }).to.throw(`${testObject.constructor.name}.optionalEnum: Cannot convert "diesel" to enum Powertrain - invalid value!`)
+    },
+
+    "optionalEnumPlusOne setter throws for the native case name of '2stroke'": (testObject) => {
+      expect(() => {
+        // @ts-expect-error
+        testObject.optionalEnumPlusOne = '_2stroke'
+      }).to.throw(`${testObject.constructor.name}.optionalEnumPlusOne: Cannot convert "_2stroke" to enum TruckPowertrain - invalid value!`)
+    },
+  }),
+  ...namedCases('Generated enum string helpers', {
+    'parseTruckPowertrain(...) parses every member': () => {
+      const testObject = new TestObjectSwiftKotlin()
+
+      for (const powertrain of TRUCK_POWERTRAINS) {
+        expect(Object.is(testObject.parseTruckPowertrain(powertrain), powertrain), powertrain).to.equal(true)
+      }
+    },
+
+    'parseTruckPowertrain(...) returns undefined for the native case name': () => {
+      const testObject = new TestObjectSwiftKotlin()
+
+      expect(testObject.parseTruckPowertrain('_2stroke')).to.equal(undefined)
+    },
+
+    'stringifyTruckPowertrain(...) returns the JS value of every member': () => {
+      const testObject = new TestObjectSwiftKotlin()
+
+      for (const powertrain of TRUCK_POWERTRAINS) {
+        expect(Object.is(testObject.stringifyTruckPowertrain(powertrain), powertrain), powertrain).to.equal(true)
+      }
     },
   }),
   ...casesForTestObjects('Optional properties reject null', {

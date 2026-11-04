@@ -584,6 +584,10 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
   tryOptionalEnum(value?: Powertrain): Powertrain | undefined
   tryTrailingOptional(num: number, str: string, boo?: boolean): boolean
 
+  // Generated enum string helpers (`fromString` / `stringValue` in Swift and Kotlin)
+  parseTruckPowertrain(value: string): TruckPowertrain | undefined
+  stringifyTruckPowertrain(value: TruckPowertrain): string
+
   // Variants
   someVariant: number | string
 
