@@ -11,6 +11,26 @@ export interface SwiftHybridObjectImplementation {
 }
 
 /**
+ * A handwritten superclass for the generated Swift base of a root HybridObject spec.
+ * @see {@linkcode HybridObjectPlatformOptions}
+ */
+export interface SwiftHybridObjectSuperclass {
+  /**
+   * The Swift class the generated base inherits from. It must be public and non-final,
+   * with a public, non-required, non-failable designated `init() throws`.
+   * A class from another module must be open.
+   * @example "ViewStorage"
+   */
+  className: string
+  /**
+   * The Swift module declaring the class, if it is not the spec's own module.
+   * The generated spec imports it publicly.
+   * @example "MyViews"
+   */
+  module?: string
+}
+
+/**
  * Identifies the concrete C++ class implementing a HybridObject spec.
  */
 export interface CppHybridObjectImplementation {
@@ -101,6 +121,13 @@ interface HybridObjectLanguageOptions {
      * @example [{ protocol: "View" }]
      */
     protocolConformances?: SwiftProtocolConformance[]
+    /**
+     * A handwritten superclass for the generated Swift base, for shared instance storage.
+     * Only root specs can set this option. Derived specs inherit it through their generated base.
+     * Defaults to no handwritten superclass.
+     * @example { className: "ViewStorage" }
+     */
+    superclass?: SwiftHybridObjectSuperclass
   }
   'kotlin': {
     /**
