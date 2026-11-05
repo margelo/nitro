@@ -1,7 +1,7 @@
 name: Harness Android
 
 concurrency:
-  group: harness-android-${{ inputs.ref && github.run_id || github.ref }}-${{ inputs.redroid_probe && 'probe' || inputs.prepare_redroid_image && 'image' || inputs.compare_devices && 'comparison' || inputs.device_backend || 'emulator' }}
+  group: harness-android-${{ github.event_name == 'workflow_dispatch' && github.run_id || inputs.ref && github.run_id || github.ref }}-${{ inputs.redroid_probe && 'probe' || inputs.prepare_redroid_image && 'image' || inputs.compare_devices && 'comparison' || inputs.device_backend || 'emulator' }}
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 on:
