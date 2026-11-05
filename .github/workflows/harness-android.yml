@@ -1,7 +1,7 @@
 name: Harness Android
 
 concurrency:
-  group: harness-android-${{ inputs.ref && github.run_id || github.ref }}-${{ inputs.redroid_probe && 'probe' || inputs.prepare_redroid_image && 'image' || 'tests' }}
+  group: harness-android-${{ inputs.ref && github.run_id || github.ref }}-${{ inputs.redroid_probe && 'probe' || inputs.prepare_redroid_image && 'image' || inputs.compare_devices && 'comparison' || inputs.device_backend || 'emulator' }}
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 on:
@@ -13,6 +13,11 @@ on:
         type: string
   workflow_dispatch:
     inputs:
+      device_backend:
+        description: "Android device for the complete build and test workflow"
+        type: choice
+        options: [emulator, redroid]
+        default: emulator
       prepare_redroid_image:
         description: "Build and publish the prepared Redroid image separately"
         type: boolean
@@ -128,9 +133,18 @@ jobs:
     if: ${{ inputs.redroid_probe != true && inputs.prepare_redroid_image != true }}
     name: Harness Android
     runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      actions: read
+      packages: read
     outputs:
       apk_artifact_id: ${{ steps.upload-apk.outputs.artifact-id }}
     env:
+      DEVICE_BACKEND: ${{ inputs.device_backend || 'emulator' }}
+      DEVICE_REPEAT: '1'
+      REDROID_IMAGE: ${{ inputs.redroid_image }}
+      RN_HARNESS_DIAGNOSTICS: '1'
+      HARNESS_DEBUG: '1'
       DEVICE_API_LEVEL: ${{ github.event.inputs.device_api_level || '36' }}
       AVD_NAME: ${{ github.event.inputs.avd_name || 'Pixel_7_API_36' }}
     steps:
@@ -138,6 +152,17 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.sha }}
           fetch-depth: 1
+
+      - name: Initialize full-run profiling
+        if: ${{ inputs.compare_devices != true }}
+        run: |
+          PROFILE_DIR="$RUNNER_TEMP/harness-profile"
+          mkdir -p "$PROFILE_DIR"
+          printf 'PROFILE_DIR=%s\n' "$PROFILE_DIR" >> "$GITHUB_ENV"
+          printf 'APK_DIR=%s/tests/react-native/apps/example/android/app/build/outputs/apk/debug\n' "$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+          date +%s%3N > "$PROFILE_DIR/profile-started-ms"
+          printf 'phase\tstarted_ms\tfinished_ms\tduration_ms\n' > "$PROFILE_DIR/workflow-timings.tsv"
+          uname -a > "$PROFILE_DIR/runner-kernel.txt"
 
       - name: Reclaim disk space
         if: ${{ inputs.apk_run_id == '' }}
@@ -148,6 +173,22 @@ jobs:
           remove-codeql: true
           remove-docker-images: true
 
+      - name: Add Android platform tools to PATH
+        if: ${{ inputs.device_backend == 'redroid' && inputs.compare_devices != true }}
+        run: |
+          test -x "$ANDROID_HOME/platform-tools/adb"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+
+      - name: Sign in to the image registry
+        if: ${{ inputs.device_backend == 'redroid' && inputs.compare_devices != true }}
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+
+      - name: Start Redroid during dependencies and app build
+        if: ${{ inputs.device_backend == 'redroid' && inputs.compare_devices != true }}
+        run: bash scripts/ci/redroid.sh start "$PROFILE_DIR"
+
       - uses: oven-sh/setup-bun@v2
         if: ${{ inputs.apk_run_id == '' }}
         with:
@@ -155,7 +196,14 @@ jobs:
 
       - name: Install npm dependencies (bun)
         if: ${{ inputs.apk_run_id == '' }}
-        run: bun install --frozen-lockfile
+        run: |
+          started_ms=$(date +%s%3N)
+          bun install --frozen-lockfile
+          if [ "${{ inputs.compare_devices }}" != true ]; then
+            finished_ms=$(date +%s%3N)
+            duration_ms=$((finished_ms - started_ms))
+            printf 'dependencies\t%s\t%s\t%s\n' "$started_ms" "$finished_ms" "$duration_ms" >> "$PROFILE_DIR/workflow-timings.tsv"
+          fi
 
       - name: Generate test bindings
         if: ${{ inputs.apk_run_id == '' }}
@@ -188,7 +236,14 @@ jobs:
       - name: Build React Native Android app
         if: ${{ inputs.apk_run_id == '' }}
         working-directory: tests/react-native/apps/example/android
-        run: ./gradlew :app:assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=${{ env.DEVICE_ARCH }}
+        run: |
+          started_ms=$(date +%s%3N)
+          ./gradlew :app:assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=${{ env.DEVICE_ARCH }}
+          if [ "${{ inputs.compare_devices }}" != true ]; then
+            finished_ms=$(date +%s%3N)
+            duration_ms=$((finished_ms - started_ms))
+            printf 'app_build\t%s\t%s\t%s\n' "$started_ms" "$finished_ms" "$duration_ms" >> "$PROFILE_DIR/workflow-timings.tsv"
+          fi
 
       - name: Reuse the shared APK
         if: ${{ inputs.apk_run_id != '' }}
@@ -215,7 +270,38 @@ jobs:
             tests/react-native/apps/example/android/app/build/outputs/apk/debug/app-debug.apk.sha256
           retention-days: 7
 
+      - name: Hash the full-run APK
+        if: ${{ inputs.compare_devices != true }}
+        working-directory: ${{ env.APK_DIR }}
+        run: sha256sum app-debug.apk > "$PROFILE_DIR/apk-sha256.txt"
+
+      - name: Wait for Redroid and install the app
+        if: ${{ inputs.device_backend == 'redroid' && inputs.compare_devices != true }}
+        run: |
+          bash scripts/ci/redroid.sh wait "$PROFILE_DIR"
+          manufacturer=$(adb -s 127.0.0.1:5555 shell getprop ro.product.manufacturer)
+          model=$(adb -s 127.0.0.1:5555 shell getprop ro.product.model)
+          printf 'REDROID_MANUFACTURER=%s\n' "${manufacturer//$'\r'/}" >> "$GITHUB_ENV"
+          printf 'REDROID_MODEL=%s\n' "${model//$'\r'/}" >> "$GITHUB_ENV"
+          started_ms=$(date +%s%3N)
+          adb -s 127.0.0.1:5555 install -r "$APK_DIR/app-debug.apk"
+          finished_ms=$(date +%s%3N)
+          duration_ms=$((finished_ms - started_ms))
+          printf 'apk_install\t%s\t%s\t%s\n' "$started_ms" "$finished_ms" "$duration_ms" >> "$PROFILE_DIR/workflow-timings.tsv"
+
+      - name: Select the Redroid configuration
+        if: ${{ inputs.device_backend == 'redroid' && inputs.compare_devices != true }}
+        working-directory: tests/react-native/apps/example
+        run: |
+          mv rn-harness.config.mjs rn-harness.baseline.config.mjs
+          cp rn-harness.redroid.config.mjs rn-harness.config.mjs
+
+      - name: Record Harness start
+        if: ${{ inputs.compare_devices != true }}
+        run: date +%s%3N > "$PROFILE_DIR/harness-action-started-ms"
+
       - name: Run Harness E2E tests
+        id: harness
         if: ${{ inputs.compare_devices != true }}
         uses: callstackincubator/react-native-harness@v1.5.0
         with:
@@ -236,9 +322,39 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Summarize full-run diagnostics
+        if: ${{ always() && inputs.compare_devices != true }}
+        env:
+          HARNESS_OUTCOME: ${{ steps.harness.outcome }}
+        run: |
+          node scripts/ci/summarize-harness-diagnostics.mjs "$PROFILE_DIR" tests/react-native/apps/example/.harness/diagnostics
+          for directory in diagnostics crash-reports; do
+            source_dir="tests/react-native/apps/example/.harness/$directory"
+            if [ -d "$source_dir" ]; then
+              cp -R "$source_dir" "$PROFILE_DIR/$directory"
+            fi
+          done
+
+      - name: Collect Redroid diagnostics
+        if: ${{ always() && inputs.device_backend == 'redroid' && inputs.compare_devices != true }}
+        run: bash scripts/ci/redroid.sh collect "$PROFILE_DIR"
+
+      - name: Stop Redroid
+        if: ${{ always() && inputs.device_backend == 'redroid' && inputs.compare_devices != true }}
+        run: bash scripts/ci/redroid.sh stop "$PROFILE_DIR"
+
+      - name: Upload full-run measurements
+        if: ${{ always() && inputs.compare_devices != true }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: harness-android-full-profile-${{ env.DEVICE_BACKEND }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.PROFILE_DIR }}
+          if-no-files-found: error
+          retention-days: 7
+
       # Gradle cache doesn't like daemons
       - name: Stop Gradle Daemon
-        if: ${{ inputs.apk_run_id == '' }}
+        if: ${{ always() && inputs.apk_run_id == '' }}
         working-directory: tests/react-native/apps/example/android
         run: ./gradlew --stop
 
