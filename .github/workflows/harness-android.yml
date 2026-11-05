@@ -1,7 +1,7 @@
 name: Harness Android
 
 concurrency:
-  group: harness-android-${{ inputs.ref && github.run_id || github.ref }}-${{ inputs.redroid_probe && 'probe' || 'tests' }}
+  group: harness-android-${{ inputs.ref && github.run_id || github.ref }}-${{ inputs.redroid_probe && 'probe' || inputs.prepare_redroid_image && 'image' || 'tests' }}
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 on:
@@ -13,6 +13,18 @@ on:
         type: string
   workflow_dispatch:
     inputs:
+      prepare_redroid_image:
+        description: "Build and publish the prepared Redroid image separately"
+        type: boolean
+        default: false
+      redroid_image:
+        description: "Prepared Redroid image reference"
+        type: string
+        default: ghcr.io/margelo/nitro-harness-redroid:android16-ashmem-1ec533f-7.0.0-1019-azure
+      apk_run_id:
+        description: "Reuse the shared APK from an earlier comparison run"
+        type: string
+        required: false
       compare_devices:
         description: "Build one APK and compare the emulator with Redroid"
         type: boolean
@@ -57,8 +69,20 @@ env:
   AVD_HEAP_SIZE: 1G
 
 jobs:
+  prepare_redroid_image:
+    name: Prepare Redroid image
+    if: ${{ inputs.prepare_redroid_image == true }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/prepare-redroid-image.yml
   redroid_probe:
     name: Probe Redroid
+    permissions:
+      contents: read
+      packages: read
+    env:
+      REDROID_IMAGE: ${{ inputs.redroid_image }}
     if: ${{ inputs.redroid_probe == true }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
@@ -71,6 +95,10 @@ jobs:
           modinfo binder_linux
           ls -l "$ANDROID_HOME/platform-tools/adb"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+      - name: Sign in to the image registry
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: echo "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
       - name: Start Redroid
         run: bash scripts/ci/redroid.sh start "$RUNNER_TEMP/harness-profile"
       - name: Wait for Android readiness
@@ -97,7 +125,7 @@ jobs:
         if: always()
         run: bash scripts/ci/redroid.sh stop "$RUNNER_TEMP/harness-profile"
   harness_android_new:
-    if: ${{ inputs.redroid_probe != true }}
+    if: ${{ inputs.redroid_probe != true && inputs.prepare_redroid_image != true }}
     name: Harness Android
     runs-on: ubuntu-26.04
     outputs:
@@ -112,6 +140,7 @@ jobs:
           fetch-depth: 1
 
       - name: Reclaim disk space
+        if: ${{ inputs.apk_run_id == '' }}
         uses: AdityaGarg8/remove-unwanted-software@v5
         with:
           remove-dotnet: true
@@ -120,19 +149,24 @@ jobs:
           remove-docker-images: true
 
       - uses: oven-sh/setup-bun@v2
+        if: ${{ inputs.apk_run_id == '' }}
         with:
           bun-version-file: package.json
 
       - name: Install npm dependencies (bun)
+        if: ${{ inputs.apk_run_id == '' }}
         run: bun install --frozen-lockfile
 
       - name: Generate test bindings
+        if: ${{ inputs.apk_run_id == '' }}
         run: bun specs
 
       - name: Set minSdk in build.gradle
+        if: ${{ inputs.apk_run_id == '' }}
         run: sed -i "s/minSdkVersion = 24/minSdkVersion = 26/g" tests/react-native/apps/example/android/build.gradle
 
       - name: Setup JDK 17
+        if: ${{ inputs.apk_run_id == '' }}
         uses: actions/setup-java@v6
         with:
           distribution: "zulu"
@@ -140,6 +174,7 @@ jobs:
           java-package: jdk
 
       - name: Restore Gradle/CMake cache
+        if: ${{ inputs.apk_run_id == '' }}
         uses: actions/cache@v6
         with:
           path: |
@@ -151,8 +186,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-26-${{ env.DEVICE_ARCH }}-Default-
       - name: Build React Native Android app
+        if: ${{ inputs.apk_run_id == '' }}
         working-directory: tests/react-native/apps/example/android
         run: ./gradlew :app:assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=${{ env.DEVICE_ARCH }}
+
+      - name: Reuse the shared APK
+        if: ${{ inputs.apk_run_id != '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: harness-android-measurement-apk
+          run-id: ${{ inputs.apk_run_id }}
+          github-token: ${{ github.token }}
+          path: tests/react-native/apps/example/android/app/build/outputs/apk/debug
 
       - name: Hash measurement APK
         if: ${{ inputs.compare_devices == true }}
@@ -193,6 +238,7 @@ jobs:
 
       # Gradle cache doesn't like daemons
       - name: Stop Gradle Daemon
+        if: ${{ inputs.apk_run_id == '' }}
         working-directory: tests/react-native/apps/example/android
         run: ./gradlew --stop
 
@@ -203,3 +249,4 @@ jobs:
     uses: ./.github/workflows/harness-android-device-comparison.yml
     with:
       artifact_id: ${{ needs.harness_android_new.outputs.apk_artifact_id }}
+      redroid_image: ${{ inputs.redroid_image }}

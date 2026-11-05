@@ -5,7 +5,7 @@ command="${1:?Expected start, wait, collect, or stop}"
 profile_dir="${2:?Expected a profiling directory}"
 container_name=nitro-redroid
 serial=127.0.0.1:5555
-image="${REDROID_IMAGE:-redroid/redroid:16.0.0_64only-latest}"
+image="${REDROID_IMAGE:?Expected a prepared Redroid image}"
 boot_timeout_seconds=300
 
 mkdir -p "$profile_dir"
@@ -89,6 +89,31 @@ case "$command" in
     docker image inspect "$image" > "$profile_dir/redroid-image.json"
 
     started_ms="$(now_ms)"
+    kernel_release="$(uname -r)"
+    image_kernel="$(docker image inspect --format '{{index .Config.Labels "io.nitro.kernel"}}' "$image")"
+    if [[ "$kernel_release" == "$image_kernel" ]]; then
+      docker create --name nitro-redroid-modules "$image"
+      docker cp nitro-redroid-modules:/opt/nitro/ashmem_linux.ko "$profile_dir/ashmem_linux.ko"
+      docker rm --volumes nitro-redroid-modules
+      modinfo "$profile_dir/ashmem_linux.ko" > "$profile_dir/ashmem-module.txt"
+      module_vermagic="$(modinfo --field vermagic "$profile_dir/ashmem_linux.ko")"
+      module_kernel="${module_vermagic%% *}"
+      if [[ "$kernel_release" == "$module_kernel" ]]; then
+        sudo insmod "$profile_dir/ashmem_linux.ko"
+        sudo udevadm settle
+        test -c /dev/ashmem
+      else
+        echo "Module kernel $module_kernel does not match runner kernel $kernel_release." >&2
+        exit 1
+      fi
+    else
+      echo "Image kernel $image_kernel does not match runner kernel $kernel_release." >&2
+      exit 1
+    fi
+    finished_ms="$(now_ms)"
+    record_timing kernel_module_load "$started_ms" "$finished_ms"
+
+    started_ms="$(now_ms)"
     docker run --detach --privileged --platform linux/amd64 \
       --name "$container_name" \
       --publish 127.0.0.1:5555:5555 \
@@ -130,6 +155,9 @@ case "$command" in
   collect)
     docker inspect "$container_name" > "$profile_dir/redroid-container.json" || true
     docker logs --timestamps "$container_name" > "$profile_dir/redroid-container.log" 2>&1 || true
+    timeout 15s docker exec "$container_name" getprop > "$profile_dir/redroid-container-properties.txt" 2>&1 || true
+    timeout 15s docker exec "$container_name" logcat -d > "$profile_dir/redroid-container-logcat.txt" 2>&1 || true
+    adb devices -l > "$profile_dir/adb-devices.txt" 2>&1 || true
     timeout 15s adb -s "$serial" logcat -d > "$profile_dir/redroid-logcat.txt" 2>&1 || true
     timeout 10s adb -s "$serial" shell getprop > "$profile_dir/redroid-properties.txt" 2>&1 || true
     { sudo dmesg --time-format iso; } > "$profile_dir/redroid-kernel.txt" 2>&1 || true
@@ -140,6 +168,7 @@ case "$command" in
       kill "$watcher_pid" 2>/dev/null || true
     fi
     docker rm --force "$container_name" || true
+    docker rm --force --volumes nitro-redroid-modules 2>/dev/null || true
     ;;
   *)
     echo "Unknown Redroid command: $command" >&2

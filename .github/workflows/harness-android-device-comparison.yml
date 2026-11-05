@@ -8,8 +8,14 @@ on:
         required: true
         type: string
 
+      redroid_image:
+        description: Immutable reference to the prepared Redroid image
+        required: true
+        type: string
+
 permissions:
   contents: read
+  packages: read
 
 jobs:
   compare:
@@ -23,7 +29,7 @@ jobs:
         repeat: [1, 2, 3]
         backend: [emulator, redroid]
     env:
-      REDROID_IMAGE: redroid/redroid@sha256:7b1e389bd15f37af3bcd06138f5b2ffa7cfba4332bd5ef54c53e99c2f160a15b
+      REDROID_IMAGE: ${{ inputs.redroid_image }}
       DEVICE_BACKEND: ${{ matrix.backend }}
       DEVICE_REPEAT: ${{ matrix.repeat }}
       DEVICE_API_LEVEL: '36'
@@ -63,6 +69,12 @@ jobs:
         run: |
           test -x "$ANDROID_HOME/platform-tools/adb"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+
+      - name: Sign in to the image registry
+        if: matrix.backend == 'redroid'
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: echo "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
 
       - name: Start Redroid while dependencies install
         if: matrix.backend == 'redroid'
