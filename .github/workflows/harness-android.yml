@@ -65,7 +65,8 @@ jobs:
           printf 'ImageVersion=%s\n' "$ImageVersion"
           modinfo binder_linux
           sudo modprobe binder_linux devices=binder,hwbinder,vndbinder
-          ls -l /dev/binder /dev/hwbinder /dev/vndbinder
+          find /dev -maxdepth 2 -iname "*binder*"
+          cat /proc/filesystems
       - name: Start Redroid
         run: |
           date -u +%FT%T.%NZ
