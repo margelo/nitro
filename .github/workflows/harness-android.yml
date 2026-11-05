@@ -13,6 +13,10 @@ on:
         type: string
   workflow_dispatch:
     inputs:
+      compare_devices:
+        description: "Build one APK and compare the emulator with Redroid"
+        type: boolean
+        default: false
       redroid_probe:
         description: "Only probe Redroid support on the hosted runner"
         type: boolean
@@ -65,6 +69,8 @@ jobs:
           uname -a
           printf 'ImageVersion=%s\n' "$ImageVersion"
           modinfo binder_linux
+          ls -l "$ANDROID_HOME/platform-tools/adb"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
       - name: Start Redroid
         run: bash scripts/ci/redroid.sh start "$RUNNER_TEMP/harness-profile"
       - name: Wait for Android readiness
@@ -93,7 +99,9 @@ jobs:
   harness_android_new:
     if: ${{ inputs.redroid_probe != true }}
     name: Harness Android
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
+    outputs:
+      apk_artifact_id: ${{ steps.upload-apk.outputs.artifact-id }}
     env:
       DEVICE_API_LEVEL: ${{ github.event.inputs.device_api_level || '36' }}
       AVD_NAME: ${{ github.event.inputs.avd_name || 'Pixel_7_API_36' }}
@@ -146,7 +154,24 @@ jobs:
         working-directory: tests/react-native/apps/example/android
         run: ./gradlew :app:assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=${{ env.DEVICE_ARCH }}
 
+      - name: Hash measurement APK
+        if: ${{ inputs.compare_devices == true }}
+        working-directory: tests/react-native/apps/example/android/app/build/outputs/apk/debug
+        run: sha256sum app-debug.apk > app-debug.apk.sha256
+
+      - name: Upload measurement APK
+        id: upload-apk
+        if: ${{ inputs.compare_devices == true }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: harness-android-measurement-apk
+          path: |
+            tests/react-native/apps/example/android/app/build/outputs/apk/debug/app-debug.apk
+            tests/react-native/apps/example/android/app/build/outputs/apk/debug/app-debug.apk.sha256
+          retention-days: 7
+
       - name: Run Harness E2E tests
+        if: ${{ inputs.compare_devices != true }}
         uses: callstackincubator/react-native-harness@v1.5.0
         with:
           runner: android
@@ -170,3 +195,11 @@ jobs:
       - name: Stop Gradle Daemon
         working-directory: tests/react-native/apps/example/android
         run: ./gradlew --stop
+
+  compare_devices:
+    name: Compare Android devices
+    needs: harness_android_new
+    if: ${{ inputs.compare_devices == true }}
+    uses: ./.github/workflows/harness-android-device-comparison.yml
+    with:
+      artifact_id: ${{ needs.harness_android_new.outputs.apk_artifact_id }}

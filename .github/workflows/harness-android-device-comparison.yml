@@ -1,0 +1,160 @@
+name: Harness Android device comparison
+
+on:
+  workflow_call:
+    inputs:
+      artifact_id:
+        description: Exact artifact containing the shared APK and its SHA-256 manifest
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    name: Harness Android ${{ matrix.backend }} (${{ matrix.repeat }}/3)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        repeat: [1, 2, 3]
+        backend: [emulator, redroid]
+    env:
+      REDROID_IMAGE: redroid/redroid@sha256:7b1e389bd15f37af3bcd06138f5b2ffa7cfba4332bd5ef54c53e99c2f160a15b
+      DEVICE_BACKEND: ${{ matrix.backend }}
+      DEVICE_REPEAT: ${{ matrix.repeat }}
+      DEVICE_API_LEVEL: '36'
+      DEVICE_ARCH: x86_64
+      DEVICE_PROFILE: pixel_7
+      AVD_DISK_SIZE: 1G
+      AVD_HEAP_SIZE: 1G
+      AVD_NAME: Nitro_Harness_${{ github.run_id }}_${{ github.run_attempt }}_${{ matrix.repeat }}
+      APK_ARTIFACT_ID: ${{ inputs.artifact_id }}
+      RN_HARNESS_DIAGNOSTICS: '1'
+      HARNESS_DEBUG: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Initialize profiling
+        run: |
+          PROFILE_DIR="$RUNNER_TEMP/harness-profile"
+          mkdir -p "$PROFILE_DIR"
+          printf 'PROFILE_DIR=%s\n' "$PROFILE_DIR" >> "$GITHUB_ENV"
+          printf 'APK_DIR=%s/harness-apk\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          date +%s%3N > "$PROFILE_DIR/profile-started-ms"
+          printf 'phase\tstarted_ms\tfinished_ms\tduration_ms\n' > "$PROFILE_DIR/workflow-timings.tsv"
+          uname -a > "$PROFILE_DIR/runner-kernel.txt"
+
+      - name: Reclaim disk space
+        uses: AdityaGarg8/remove-unwanted-software@v5
+        with:
+          remove-dotnet: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
+
+      - name: Add Android platform tools to PATH
+        run: |
+          test -x "$ANDROID_HOME/platform-tools/adb"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+
+      - name: Start Redroid while dependencies install
+        if: matrix.backend == 'redroid'
+        run: bash scripts/ci/redroid.sh start "$PROFILE_DIR"
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Install npm dependencies (bun)
+        run: |
+          started_ms=$(date +%s%3N)
+          bun install --frozen-lockfile
+          finished_ms=$(date +%s%3N)
+          duration_ms=$((finished_ms - started_ms))
+          printf 'dependencies\t%s\t%s\t%s\n' "$started_ms" "$finished_ms" "$duration_ms" >> "$PROFILE_DIR/workflow-timings.tsv"
+
+      - name: Download the shared APK
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ inputs.artifact_id }}
+          path: ${{ env.APK_DIR }}
+          merge-multiple: true
+
+      - name: Verify the shared APK
+        working-directory: ${{ env.APK_DIR }}
+        run: |
+          sha256sum --check app-debug.apk.sha256
+          sha256sum app-debug.apk > "$PROFILE_DIR/apk-sha256.txt"
+
+      - name: Wait for Redroid and install the app
+        if: matrix.backend == 'redroid'
+        run: |
+          bash scripts/ci/redroid.sh wait "$PROFILE_DIR"
+          manufacturer=$(adb -s 127.0.0.1:5555 shell getprop ro.product.manufacturer)
+          model=$(adb -s 127.0.0.1:5555 shell getprop ro.product.model)
+          printf 'REDROID_MANUFACTURER=%s\n' "${manufacturer//$'\r'/}" >> "$GITHUB_ENV"
+          printf 'REDROID_MODEL=%s\n' "${model//$'\r'/}" >> "$GITHUB_ENV"
+          started_ms=$(date +%s%3N)
+          adb -s 127.0.0.1:5555 install -r "$APK_DIR/app-debug.apk"
+          finished_ms=$(date +%s%3N)
+          duration_ms=$((finished_ms - started_ms))
+          printf 'apk_install\t%s\t%s\t%s\n' "$started_ms" "$finished_ms" "$duration_ms" >> "$PROFILE_DIR/workflow-timings.tsv"
+
+      - name: Select the Redroid configuration
+        if: matrix.backend == 'redroid'
+        working-directory: tests/react-native/apps/example
+        run: |
+          mv rn-harness.config.mjs rn-harness.baseline.config.mjs
+          cp rn-harness.redroid.config.mjs rn-harness.config.mjs
+
+      - name: Record Harness start
+        run: date +%s%3N > "$PROFILE_DIR/harness-action-started-ms"
+
+      - name: Run Harness E2E tests
+        id: harness
+        uses: callstackincubator/react-native-harness@v1.5.0
+        with:
+          runner: android
+          projectRoot: tests/react-native/apps/example
+          app: ${{ env.APK_DIR }}/app-debug.apk
+          packageManager: bun
+          cacheAvd: true
+          cacheSavePolicy: never
+          uploadVisualTestArtifacts: false
+
+      - name: Summarize Harness diagnostics
+        if: always()
+        env:
+          HARNESS_OUTCOME: ${{ steps.harness.outcome }}
+        run: |
+          node scripts/ci/summarize-harness-diagnostics.mjs "$PROFILE_DIR" tests/react-native/apps/example/.harness/diagnostics
+          for directory in diagnostics crash-reports; do
+            source_dir="tests/react-native/apps/example/.harness/$directory"
+            if [ -d "$source_dir" ]; then
+              cp -R "$source_dir" "$PROFILE_DIR/$directory"
+            fi
+          done
+
+      - name: Collect Redroid diagnostics
+        if: always() && matrix.backend == 'redroid'
+        run: bash scripts/ci/redroid.sh collect "$PROFILE_DIR"
+
+      - name: Stop Redroid
+        if: always() && matrix.backend == 'redroid'
+        run: bash scripts/ci/redroid.sh stop "$PROFILE_DIR"
+
+      - name: Upload comparison measurements
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: harness-android-profile-${{ matrix.backend }}-${{ matrix.repeat }}-${{ github.run_attempt }}
+          path: ${{ env.PROFILE_DIR }}
+          if-no-files-found: error
+          retention-days: 7
