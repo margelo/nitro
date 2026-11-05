@@ -59,53 +59,37 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
-      - name: Inspect Android kernel support
+      - uses: actions/checkout@v7
+      - name: Inspect runner
         run: |
           uname -a
           printf 'ImageVersion=%s\n' "$ImageVersion"
           modinfo binder_linux
-          sudo modprobe binder_linux devices=binder,hwbinder,vndbinder
-          find /dev -maxdepth 2 -iname "*binder*"
-          cat /proc/filesystems
       - name: Start Redroid
-        run: |
-          date -u +%FT%T.%NZ
-          docker run --detach --privileged --name nitro-redroid \
-            --publish 127.0.0.1:5555:5555 \
-            redroid/redroid:16.0.0_64only-latest \
-            androidboot.use_memfd=true \
-            androidboot.redroid_gpu_mode=guest \
-            androidboot.redroid_width=1080 \
-            androidboot.redroid_height=2400 \
-            androidboot.redroid_dpi=420
-          date -u +%FT%T.%NZ
+        run: bash scripts/ci/redroid.sh start "$RUNNER_TEMP/harness-profile"
       - name: Wait for Android readiness
         run: |
-          adb start-server
-          for attempt in $(seq 1 90); do
-            adb connect 127.0.0.1:5555
-            booted=$(timeout 5 adb -s 127.0.0.1:5555 shell getprop sys.boot_completed | tr -d '\r')
-            if [ "$booted" = 1 ]; then
-              timeout 10 adb -s 127.0.0.1:5555 shell pm path android
-              adb -s 127.0.0.1:5555 shell getprop ro.product.manufacturer
-              adb -s 127.0.0.1:5555 shell getprop ro.product.model
-              adb -s 127.0.0.1:5555 shell getprop ro.build.version.sdk
-              adb -s 127.0.0.1:5555 shell wm size
-              adb -s 127.0.0.1:5555 shell wm density
-              date -u +%FT%T.%NZ
-              exit 0
-            fi
-            sleep 2
-          done
-          exit 1
+          bash scripts/ci/redroid.sh wait "$RUNNER_TEMP/harness-profile"
+          adb -s 127.0.0.1:5555 shell getprop ro.product.manufacturer
+          adb -s 127.0.0.1:5555 shell getprop ro.product.model
+          adb -s 127.0.0.1:5555 shell getprop ro.build.version.sdk
+          adb -s 127.0.0.1:5555 shell wm size
+          adb -s 127.0.0.1:5555 shell wm density
       - name: Collect Redroid diagnostics
         if: always()
         run: |
-          docker ps -a
-          docker logs nitro-redroid || true
-          docker inspect nitro-redroid || true
-          docker exec nitro-redroid logcat -d -t 150 || true
-          docker rm -f nitro-redroid || true
+          bash scripts/ci/redroid.sh collect "$RUNNER_TEMP/harness-profile"
+          cat "$RUNNER_TEMP/harness-profile/redroid-timings.tsv"
+          cat "$RUNNER_TEMP/harness-profile/redroid-image.json"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: redroid-probe
+          path: ${{ runner.temp }}/harness-profile
+          retention-days: 7
+      - name: Stop Redroid
+        if: always()
+        run: bash scripts/ci/redroid.sh stop "$RUNNER_TEMP/harness-profile"
   harness_android_new:
     if: ${{ inputs.redroid_probe != true }}
     name: Harness Android
