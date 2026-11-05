@@ -20,10 +20,14 @@ namespace margelo::nitro {
 using namespace facebook;
 
 // std::optional<T> <> T | undefined
+// `null` is also accepted as "absent": React Native delivers a REMOVED prop
+// as JS `null` (not `undefined`), so an optional prop that is cleared at
+// runtime arrives here as `null` and must convert to `std::nullopt` rather
+// than fall through to the inner converter (where it would throw).
 template <typename TInner>
 struct JSIConverter<std::optional<TInner>> final {
   static inline std::optional<TInner> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
-    if (arg.isUndefined()) {
+    if (arg.isUndefined() || arg.isNull()) {
       return std::nullopt;
     } else {
       return JSIConverter<TInner>::fromJSI(runtime, arg);
@@ -37,7 +41,7 @@ struct JSIConverter<std::optional<TInner>> final {
     }
   }
   static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
-    if (value.isUndefined()) {
+    if (value.isUndefined() || value.isNull()) {
       return true;
     }
     if (JSIConverter<TInner>::canConvert(runtime, value)) {
