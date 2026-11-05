@@ -1,7 +1,7 @@
 name: Harness Android
 
 concurrency:
-  group: harness-android-${{ inputs.ref && github.run_id || github.ref }}
+  group: harness-android-${{ inputs.ref && github.run_id || github.ref }}-${{ inputs.redroid_probe && 'probe' || 'tests' }}
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 on:
