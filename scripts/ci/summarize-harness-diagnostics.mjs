@@ -3,7 +3,8 @@ import { appendFile, readFile, readdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 const [profileDir, diagnosticsDir] = process.argv.slice(2)
-const finishedMs = Date.now()
+const finishedNs = process.hrtime.bigint()
+const finishedMs = Number(finishedNs / 1_000_000n)
 const labels = new Set([
   'session.setup',
   'platform.init',
@@ -100,6 +101,11 @@ const summary = {
   runnerImage: process.env.ImageOS,
   runnerImageVersion: process.env.ImageVersion,
   harnessOutcome: process.env.HARNESS_OUTCOME,
+  clock: {
+    elapsedAndTimings: 'CLOCK_MONOTONIC',
+    unit: 'milliseconds',
+    androidBootOrigin: 'before docker run',
+  },
   elapsedMs: elapsed,
   timings,
   traceFiles,

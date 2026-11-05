@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 6
       matrix:
         repeat: [1, 2, 3]
         backend: [emulator, redroid]
@@ -53,7 +53,7 @@ jobs:
           mkdir -p "$PROFILE_DIR"
           printf 'PROFILE_DIR=%s\n' "$PROFILE_DIR" >> "$GITHUB_ENV"
           printf 'APK_DIR=%s/harness-apk\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
-          date +%s%3N > "$PROFILE_DIR/profile-started-ms"
+          python3 "$GITHUB_WORKSPACE/scripts/ci/monotonic-ms.py" > "$PROFILE_DIR/profile-started-ms"
           printf 'phase\tstarted_ms\tfinished_ms\tduration_ms\n' > "$PROFILE_DIR/workflow-timings.tsv"
           uname -a > "$PROFILE_DIR/runner-kernel.txt"
 
@@ -86,9 +86,9 @@ jobs:
 
       - name: Install npm dependencies (bun)
         run: |
-          started_ms=$(date +%s%3N)
+          started_ms=$(python3 "$GITHUB_WORKSPACE/scripts/ci/monotonic-ms.py")
           bun install --frozen-lockfile
-          finished_ms=$(date +%s%3N)
+          finished_ms=$(python3 "$GITHUB_WORKSPACE/scripts/ci/monotonic-ms.py")
           duration_ms=$((finished_ms - started_ms))
           printf 'dependencies\t%s\t%s\t%s\n' "$started_ms" "$finished_ms" "$duration_ms" >> "$PROFILE_DIR/workflow-timings.tsv"
 
@@ -116,9 +116,9 @@ jobs:
           model=$(adb -s 127.0.0.1:5555 shell getprop ro.product.model)
           printf 'REDROID_MANUFACTURER=%s\n' "${manufacturer//$'\r'/}" >> "$GITHUB_ENV"
           printf 'REDROID_MODEL=%s\n' "${model//$'\r'/}" >> "$GITHUB_ENV"
-          started_ms=$(date +%s%3N)
+          started_ms=$(python3 "$GITHUB_WORKSPACE/scripts/ci/monotonic-ms.py")
           adb -s 127.0.0.1:5555 install -r "$APK_DIR/app-debug.apk"
-          finished_ms=$(date +%s%3N)
+          finished_ms=$(python3 "$GITHUB_WORKSPACE/scripts/ci/monotonic-ms.py")
           duration_ms=$((finished_ms - started_ms))
           printf 'apk_install\t%s\t%s\t%s\n' "$started_ms" "$finished_ms" "$duration_ms" >> "$PROFILE_DIR/workflow-timings.tsv"
 
@@ -130,7 +130,7 @@ jobs:
           cp rn-harness.redroid.config.mjs rn-harness.config.mjs
 
       - name: Record Harness start
-        run: date +%s%3N > "$PROFILE_DIR/harness-action-started-ms"
+        run: python3 "$GITHUB_WORKSPACE/scripts/ci/monotonic-ms.py" > "$PROFILE_DIR/harness-action-started-ms"
 
       - name: Run Harness E2E tests
         id: harness

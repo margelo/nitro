@@ -6,9 +6,9 @@ on:
       image_ref:
         description: Immutable reference to the prepared Redroid image
         value: ${{ jobs.prepare.outputs.image_ref }}
-      kernel_release:
-        description: Exact runner kernel supported by the prepared ashmem module
-        value: ${{ jobs.prepare.outputs.kernel_release }}
+      kernel_releases:
+        description: Exact runner kernels supported by the prepared ashmem modules
+        value: ${{ jobs.prepare.outputs.kernel_releases }}
 
 permissions:
   contents: read
@@ -21,15 +21,15 @@ jobs:
     timeout-minutes: 20
     outputs:
       image_ref: ${{ steps.publish.outputs.image_ref }}
-      kernel_release: ${{ steps.kernel.outputs.kernel_release }}
+      kernel_releases: ${{ steps.kernel.outputs.kernel_releases }}
     steps:
-      - name: Record the target kernel
+      - name: Record the target kernels
         id: kernel
         run: |
           date +%s%3N > "$RUNNER_TEMP/redroid-image-preparation-started-ms"
-          kernel_release=$(uname -r)
-          printf 'kernel_release=%s\n' "$kernel_release" >> "$GITHUB_OUTPUT"
-          printf 'KERNEL_RELEASE=%s\n' "$kernel_release" >> "$GITHUB_ENV"
+          kernel_releases="7.0.0-1017-azure 7.0.0-1019-azure"
+          printf 'kernel_releases=%s\n' "$kernel_releases" >> "$GITHUB_OUTPUT"
+          printf 'KERNEL_RELEASES=%s\n' "$kernel_releases" >> "$GITHUB_ENV"
 
       - uses: actions/checkout@v7
         with:
@@ -47,22 +47,34 @@ jobs:
       - name: Install matching kernel headers and compiler
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends "linux-headers-$KERNEL_RELEASE" gcc-15 libelf-dev
+          read -r -a target_kernels <<< "$KERNEL_RELEASES"
+          kernel_packages=()
+          for kernel_release in "${target_kernels[@]}"; do
+            kernel_packages+=("linux-headers-$kernel_release")
+          done
+          sudo apt-get install --yes --no-install-recommends "${kernel_packages[@]}" gcc-15 libelf-dev
 
-      - name: Build and stage the ashmem module
+      - name: Build and stage the ashmem modules
         working-directory: .redroid-module-src/ashmem
         run: |
-          make KDIR="/lib/modules/$KERNEL_RELEASE/build" CC=gcc-15
-          test -s ashmem_linux.ko
-          vermagic=$(modinfo --field vermagic ashmem_linux.ko)
-          module_kernel="${vermagic%% *}"
-          test "$module_kernel" = "$KERNEL_RELEASE"
-          module_hash_line=$(sha256sum ashmem_linux.ko)
-          module_sha256="${module_hash_line%% *}"
-          printf 'MODULE_SHA256=%s\n' "$module_sha256" >> "$GITHUB_ENV"
           image_context="$GITHUB_WORKSPACE/scripts/ci/redroid-image"
-          cp ashmem_linux.ko "$image_context/ashmem_linux.ko"
-          printf '%s\n' "$KERNEL_RELEASE" > "$image_context/kernel-release"
+          mkdir -p "$image_context/modules"
+          : > "$image_context/modules/SHA256SUMS"
+          read -r -a target_kernels <<< "$KERNEL_RELEASES"
+          for kernel_release in "${target_kernels[@]}"; do
+            make KDIR="/lib/modules/$kernel_release/build" clean
+            make KDIR="/lib/modules/$kernel_release/build" CC=gcc-15
+            test -s ashmem_linux.ko
+            vermagic=$(modinfo --field vermagic ashmem_linux.ko)
+            module_kernel="${vermagic%% *}"
+            test "$module_kernel" = "$kernel_release"
+            module_hash_line=$(sha256sum ashmem_linux.ko)
+            module_sha256="${module_hash_line%% *}"
+            module_dir="$image_context/modules/$kernel_release"
+            mkdir -p "$module_dir"
+            cp ashmem_linux.ko "$module_dir/ashmem_linux.ko"
+            printf '%s  %s/ashmem_linux.ko\n' "$module_sha256" "$kernel_release" >> "$image_context/modules/SHA256SUMS"
+          done
 
       - name: Log in to GitHub Container Registry
         env:
@@ -72,10 +84,8 @@ jobs:
       - name: Build and publish the prepared image
         id: publish
         run: |
-          image_tag="ghcr.io/margelo/nitro-harness-redroid:android16-ashmem-1ec533f-$KERNEL_RELEASE"
+          image_tag="ghcr.io/margelo/nitro-harness-redroid:android16-ashmem-1ec533f-ubuntu26"
           docker build --platform linux/amd64 \
-            --build-arg KERNEL_RELEASE="$KERNEL_RELEASE" \
-            --build-arg MODULE_SHA256="$MODULE_SHA256" \
             --tag "$image_tag" scripts/ci/redroid-image
           docker push "$image_tag"
           image_ref=$(docker image inspect --format '{{index .RepoDigests 0}}' "$image_tag")
@@ -87,8 +97,10 @@ jobs:
             printf '### Prepared Redroid image\n\n'
             printf 'Image: %s\n\n' "$image_ref"
             printf 'Tag: %s\n\n' "$image_tag"
-            printf 'Kernel: %s\n\n' "$KERNEL_RELEASE"
+            printf 'Kernels: %s\n\n' "$KERNEL_RELEASES"
             printf 'ashmem source: 1ec533fa82ecb2d34a45141a10fbc7b4d80c1d7a\n\n'
-            printf 'ashmem SHA-256: %s\n\n' "$MODULE_SHA256"
+            printf 'ashmem SHA-256 checksums:\n\n```\n'
+            cat scripts/ci/redroid-image/modules/SHA256SUMS
+            printf '```\n\n'
             printf 'One-time preparation: %s ms, excluded from Harness measurements.\n' "$duration_ms"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -14,7 +14,7 @@ timings_file="$profile_dir/redroid-timings.tsv"
 status_file="$profile_dir/redroid-status"
 
 now_ms() {
-  date +%s%3N
+  python3 "$GITHUB_WORKSPACE/scripts/ci/monotonic-ms.py"
 }
 
 record_timing() {
@@ -34,9 +34,9 @@ watch_exit() {
 
 watch_boot() {
   trap 'watch_exit $?' EXIT
-  local container_started_ms
-  read -r container_started_ms < "$profile_dir/redroid-container-started-ms"
-  local deadline_ms=$((container_started_ms + boot_timeout_seconds * 1000))
+  local launch_started_ms
+  read -r launch_started_ms < "$profile_dir/redroid-launch-started-ms"
+  local deadline_ms=$((launch_started_ms + boot_timeout_seconds * 1000))
   local current_ms
   local running
   local boot_completed
@@ -61,7 +61,7 @@ watch_boot() {
       if [[ "$boot_completed" == 1 ]]; then
         if timeout 10s adb -s "$serial" shell cmd package list packages > "$profile_dir/redroid-packages.txt"; then
           current_ms="$(now_ms)"
-          record_timing android_boot "$container_started_ms" "$current_ms"
+          record_timing android_boot "$launch_started_ms" "$current_ms"
           printf 'ready\n' > "$status_file"
           echo 'Android boot completed and the package manager is responsive.'
           return
@@ -90,10 +90,9 @@ case "$command" in
 
     started_ms="$(now_ms)"
     kernel_release="$(uname -r)"
-    image_kernel="$(docker image inspect --format '{{index .Config.Labels "io.nitro.kernel"}}' "$image")"
-    if [[ "$kernel_release" == "$image_kernel" ]]; then
-      docker create --name nitro-redroid-modules "$image"
-      docker cp nitro-redroid-modules:/opt/nitro/ashmem_linux.ko "$profile_dir/ashmem_linux.ko"
+    docker create --name nitro-redroid-modules "$image"
+    module_path="/opt/nitro/modules/$kernel_release/ashmem_linux.ko"
+    if docker cp "nitro-redroid-modules:$module_path" "$profile_dir/ashmem_linux.ko"; then
       docker rm --volumes nitro-redroid-modules
       modinfo "$profile_dir/ashmem_linux.ko" > "$profile_dir/ashmem-module.txt"
       module_vermagic="$(modinfo --field vermagic "$profile_dir/ashmem_linux.ko")"
@@ -107,13 +106,14 @@ case "$command" in
         exit 1
       fi
     else
-      echo "Image kernel $image_kernel does not match runner kernel $kernel_release." >&2
+      echo "The prepared image does not support runner kernel $kernel_release." >&2
       exit 1
     fi
     finished_ms="$(now_ms)"
     record_timing kernel_module_load "$started_ms" "$finished_ms"
 
     started_ms="$(now_ms)"
+    printf '%s\n' "$started_ms" > "$profile_dir/redroid-launch-started-ms"
     docker run --detach --privileged --platform linux/amd64 \
       --name "$container_name" \
       --publish 127.0.0.1:5555:5555 \
@@ -126,9 +126,6 @@ case "$command" in
     finished_ms="$(now_ms)"
     record_timing container_start "$started_ms" "$finished_ms"
 
-    container_started_at="$(docker inspect --format '{{.State.StartedAt}}' "$container_name")"
-    container_started_ms="$(date --date "$container_started_at" +%s%3N)"
-    printf '%s\n' "$container_started_ms" > "$profile_dir/redroid-container-started-ms"
     nohup bash "$0" watch "$profile_dir" > "$profile_dir/redroid-boot.log" 2>&1 < /dev/null &
     printf '%s\n' "$!" > "$profile_dir/redroid-watcher-pid"
     ;;
