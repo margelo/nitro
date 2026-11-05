@@ -13,6 +13,10 @@ on:
         type: string
   workflow_dispatch:
     inputs:
+      redroid_probe:
+        description: "Only probe Redroid support on the hosted runner"
+        type: boolean
+        default: false
       device_api_level:
         description: "Android API level"
         required: false
@@ -49,7 +53,60 @@ env:
   AVD_HEAP_SIZE: 1G
 
 jobs:
+  redroid_probe:
+    name: Probe Redroid
+    if: ${{ inputs.redroid_probe == true }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - name: Inspect Android kernel support
+        run: |
+          uname -a
+          printf 'ImageVersion=%s\n' "$ImageVersion"
+          modinfo binder_linux
+          sudo modprobe binder_linux devices=binder,hwbinder,vndbinder
+          ls -l /dev/binder /dev/hwbinder /dev/vndbinder
+      - name: Start Redroid
+        run: |
+          date -u +%FT%T.%NZ
+          docker run --detach --privileged --name nitro-redroid \
+            --publish 127.0.0.1:5555:5555 \
+            redroid/redroid:16.0.0_64only-latest \
+            androidboot.use_memfd=true \
+            androidboot.redroid_gpu_mode=guest \
+            androidboot.redroid_width=1080 \
+            androidboot.redroid_height=2400 \
+            androidboot.redroid_dpi=420
+          date -u +%FT%T.%NZ
+      - name: Wait for Android readiness
+        run: |
+          adb start-server
+          for attempt in $(seq 1 90); do
+            adb connect 127.0.0.1:5555
+            booted=$(timeout 5 adb -s 127.0.0.1:5555 shell getprop sys.boot_completed | tr -d '\r')
+            if [ "$booted" = 1 ]; then
+              timeout 10 adb -s 127.0.0.1:5555 shell pm path android
+              adb -s 127.0.0.1:5555 shell getprop ro.product.manufacturer
+              adb -s 127.0.0.1:5555 shell getprop ro.product.model
+              adb -s 127.0.0.1:5555 shell getprop ro.build.version.sdk
+              adb -s 127.0.0.1:5555 shell wm size
+              adb -s 127.0.0.1:5555 shell wm density
+              date -u +%FT%T.%NZ
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+      - name: Collect Redroid diagnostics
+        if: always()
+        run: |
+          docker ps -a
+          docker logs nitro-redroid || true
+          docker inspect nitro-redroid || true
+          docker exec nitro-redroid logcat -d -t 150 || true
+          docker rm -f nitro-redroid || true
   harness_android_new:
+    if: ${{ inputs.redroid_probe != true }}
     name: Harness Android
     runs-on: ubuntu-latest
     env:
