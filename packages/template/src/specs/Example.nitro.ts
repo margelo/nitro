@@ -11,7 +11,5 @@ export * from '#nitro/Example'
   implementation: { className: 'HybridExample' },
 })
 export declare class Example extends HybridObject {
-  constructor()
-
-  add(a: number, b: number): number
+  static add(a: number, b: number): number
 }
