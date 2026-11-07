@@ -199,7 +199,6 @@ const config: Config = {
           'getting-started/what-is-nitro.md',
           'concepts/nitro-modules.md',
           'concepts/hybrid-objects.md',
-          'guides/performance-tips.md',
           'concepts/hybrid-views.md',
           'concepts/nitrogen.md',
           'types/typing-system.md',

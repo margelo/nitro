@@ -29,10 +29,6 @@ npx nitrogen
 Nitrogen fails if no specs are found or if a `.nitro.ts` file contains no HybridObjects. Files containing only helper types should use `.ts`
 or `.d.ts`.
 
-Default to static members for stateless utilities and factories. Declare a constructor and instance members when an object needs its own
-state, identity, or resource lifetime, as `Image` does below. See
-[Performance Tips](../../docs/docs/guides/performance-tips.md#use-static-methods-for-stateless-functions).
-
 Declare and export a class in an `*.nitro.ts` file. The spec re-exports the class's runtime value from `#nitro/<ClassName>`, and Nitrogen
 adds that line after the imports when it is missing:
 

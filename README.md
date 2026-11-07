@@ -51,9 +51,6 @@ import { Math } from './Math.nitro'
 const result = Math.add(5, 3)
 ```
 
-Use static methods for stateless functions. Instance methods are for objects with their own state or lifetime, such as an open database
-connection or a configured decoder. See [Performance Tips](docs/docs/guides/performance-tips.md#use-static-methods-for-stateless-functions).
-
 ## Installation
 
 Nitro V1 requires React Native 0.88 or newer with the New Architecture. Install the alpha package in your app:

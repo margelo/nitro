@@ -12,9 +12,6 @@ import { Example } from '$$packageName$$'
 console.log(Example.add(2, 3)) // 5
 ```
 
-The starter uses a static method because addition needs no instance state. Use static members by default for stateless functions and
-factories. Add a constructor and instance members when each object needs its own state, identity, or resource lifetime.
-
 The package pins Nitro and Nitrogen to the exact alpha version that created it. Keep those versions in sync when upgrading.
 
 - `src/specs/Example.nitro.ts` declares the static method and native implementations through `@Apple` and `@Android`.

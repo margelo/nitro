@@ -151,7 +151,7 @@ To actually use Nitro, you need to create [Hybrid Objects](../concepts/hybrid-ob
     Right now `Math` is a class that doesn't have a native implementation yet.
     It cannot be constructed (`new Math(..)`), nor are there any static methods that are accessible on it.
 
-    Default to static methods for functions without per-instance state or lifetime requirements. `Math.add(...)` only needs its two arguments, so declare it `static` and call it directly on the class. This also skips the receiver lookup, type check and lifetime handling of an instance call. Use instances for objects with their own state or resources, such as a database connection or a configured decoder.
+    For `Math` it makes sense to have an `add(...)` method that can add two numbers together - it won't make sense to create instances of `Math` via `new Math(...)`, so we make `add(...)` a **static method**.
 
     For this, we need to connect an `implementation` via the `@Apple`/`@Android` decorators - this connects the JS class with the native implementation in Swift/Kotlin or C++:
 

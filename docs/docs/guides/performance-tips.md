@@ -7,46 +7,8 @@ import Tabs from '@theme/Tabs'; import TabItem from '@theme/TabItem';
 
 # Performance Tips
 
-Start with static methods for APIs that do not need per-instance state or lifetime. Then consider argument conversion, callbacks and the
-native implementation.
-
-## Use static methods for stateless functions
-
-Use `static` by default when an operation does not depend on an object's state, identity, or resource lifetime. Utilities and factories can
-be called directly on the class:
-
-```ts title="Hasher.nitro.ts"
-import { Android, Apple, type HybridObject } from 'nitro-core'
-
-@Apple({
-  language: 'swift',
-  implementation: { className: 'HybridHasher' },
-})
-@Android({
-  language: 'kotlin',
-  implementation: { className: 'HybridHasher' },
-})
-export declare class Hasher extends HybridObject {
-  static hash(data: ArrayBuffer): string
-}
-export * from '#nitro/Hasher'
-```
-
-```ts title="Usage"
-import { Hasher } from './Hasher.nitro'
-
-const hash = Hasher.hash(data)
-```
-
-Every instance call has to look up the native object behind `this`, check its type, and keep it alive for the duration of the call. Static
-methods skip that work. You also avoid creating a Hybrid Object just to call a stateless function.
-
-This reduces the overhead of the call itself - it does not make the actual hashing code faster. Keep instance methods when your object has
-state, like an open database connection or a configured image decoder. Static methods require a concrete
-[`implementation`](../concepts/platform-decorators#concrete-implementations) in the platform decorators.
-
-Benchmark stateless functions through their static class API. If you also measure instance calls, label them separately and keep the
-arguments, conversions and native work equivalent.
+While Nitro is already insanely fast, there are some things you can do that affect the performance of your library. Here are some tips to
+make your library even faster.
 
 ## Avoid dynamic types
 
@@ -191,6 +153,48 @@ In Swift and C++, this lets Nitro borrow the JS function for the duration of the
 This only makes sense if you actually execute the callback inline, before the native method returns and on the calling JS Runtime's Thread.
 If you need to store it or call it from another Thread, use an ordinary callback or call `escape()` first. Escaping creates an owning
 `Callback` again, so always escaping an `Inline<...>` callback loses this optimization.
+
+## Use static methods for stateless functions
+
+If a method does not need any instance state, make it `static`:
+
+<div className="side-by-side-container">
+<div className="side-by-side-block">
+
+```ts title="Bad ❌"
+@Apple(...)
+export declare class BadHasher extends HybridObject {
+  constructor()
+  hash(data: ArrayBuffer): string
+}
+export * from '#nitro/BadHasher'
+
+const hasher = new BadHasher()
+const hash = hasher.hash(data)
+```
+
+</div>
+<div className="side-by-side-block">
+
+```ts title="Good ✅"
+@Apple(...)
+export declare class GoodHasher extends HybridObject {
+  static hash(data: ArrayBuffer): string
+}
+export * from '#nitro/GoodHasher'
+
+const hash = GoodHasher.hash(data)
+```
+
+</div>
+</div>
+
+Every instance call has to look up the native object behind `this`, check its type, and keep it alive for the duration of the call. Static
+methods skip that work. You also avoid creating a Hybrid Object just to call a stateless function.
+
+This reduces the overhead of the call itself - it does not make the actual hashing code faster. Keep instance methods when your object has
+state, like an open database connection or a configured image decoder. Static methods require a concrete
+[`implementation`](../concepts/platform-decorators#concrete-implementations) in the platform decorators.
 
 ## Use concrete implementations and disable inheritance
 

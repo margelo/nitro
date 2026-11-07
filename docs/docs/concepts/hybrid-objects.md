@@ -11,10 +11,6 @@ import Tabs from '@theme/Tabs'; import TabItem from '@theme/TabItem';
 A **Hybrid Object** is a native object that can also be used from JS. Similar to a JavaScript `class`, **Hybrid Objects** can have instance
 methods, properties (get + set), static methods and properties, constructors (`new`) and inheritance chains via prototypes.
 
-Default to static members for utilities and factories that do not need per-instance state or lifetime. Use instance members when each object
-holds its own state, identity, or resources. Static calls skip the receiver lookup, type check and lifetime handling needed for an instance
-call. See [Performance Tips](../guides/performance-tips#use-static-methods-for-stateless-functions).
-
 <div className="side-by-side-container">
 <div className="side-by-side-block">
 
