@@ -9,14 +9,15 @@ re-exports its generated JavaScript class through `#nitro/Example`.
 ```ts
 import { Example } from '$$packageName$$'
 
-const example = new Example()
-console.log(example.add(2, 3)) // 5
-console.log(example instanceof Example) // true
+console.log(Example.add(2, 3)) // 5
 ```
+
+The starter uses a static method because addition needs no instance state. Use static members by default for stateless functions and
+factories. Add a constructor and instance members when each object needs its own state, identity, or resource lifetime.
 
 The package pins Nitro and Nitrogen to the exact alpha version that created it. Keep those versions in sync when upgrading.
 
-- `src/specs/Example.nitro.ts` declares the constructor, methods and native implementations through `@Apple` and `@Android`.
+- `src/specs/Example.nitro.ts` declares the static method and native implementations through `@Apple` and `@Android`.
 - `apple/HybridExample.swift` implements the generated `HybridExampleSpec`.
 - `android/src/main/java/com/margelo/nitro/$$androidNamespace$$/HybridExample.kt` implements the Kotlin spec.
 - `nitro.json` sets native module names and namespaces.

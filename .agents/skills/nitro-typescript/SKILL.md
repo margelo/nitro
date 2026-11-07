@@ -1,8 +1,14 @@
 ---
 name: nitro-typescript
-description: Apply Nitro v1's typing rules when writing or reviewing TypeScript and TSX, including Nitrogen and generated TypeScript.
+description:
+  Apply Nitro v1's API design and typing rules when writing or reviewing TypeScript and TSX, including Nitrogen and generated TypeScript.
 ---
 
+- When designing Nitro HybridObject specs, default to `static` members for operations without per-instance state or lifetime requirements.
+  Use instance members when object-specific state, identity, resources, or polymorphism requires them. Do not introduce a constructor or
+  singleton instance solely to expose stateless utilities. See [Performance Tips](../../../docs/docs/guides/performance-tips.md).
+- Benchmark stateless Nitro APIs through their generated class's static methods. Label instance methods separately, and verify that the
+  generated bridge actually uses static dispatch. A `static const` cached JNI method handle does not make an instance API static.
 - Never use `as Type` or angle-bracket type assertions. `as const` is allowed.
 - Define values and APIs so the compiler checks their types from the start. Type annotations (`const value: Type = { ... }`) and `satisfies`
   (`const value = { ... } satisfies Type`) are equally acceptable. Contextual typing from function parameters or return types, generics, and
