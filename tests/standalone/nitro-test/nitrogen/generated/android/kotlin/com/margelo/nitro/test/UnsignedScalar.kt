@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -25,13 +24,11 @@ data class UnsignedScalar(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is UnsignedScalar) return false
-    return Objects.deepEquals(this.value, other.value)
+    return this.value == other.value
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      value
-    ).contentDeepHashCode()
+    return this.value.hashCode()
   }
 
   companion object {

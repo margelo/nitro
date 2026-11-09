@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -28,15 +27,14 @@ data class Person(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is Person) return false
-    return Objects.deepEquals(this.name, other.name)
-      && Objects.deepEquals(this.age, other.age)
+    return this.name == other.name
+      && this.age.toBits() == other.age.toBits()
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      name,
-      age
-    ).contentDeepHashCode()
+    var result = this.name.hashCode()
+    result = 31 * result + this.age.hashCode()
+    return result
   }
 
   companion object {

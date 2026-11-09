@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 import com.margelo.nitro.core.ArrayBuffer
 
 /**
@@ -28,15 +27,14 @@ data class OptionalWrapper(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is OptionalWrapper) return false
-    return Objects.deepEquals(this.optionalArrayBuffer, other.optionalArrayBuffer)
-      && Objects.deepEquals(this.optionalString, other.optionalString)
+    return (this.optionalArrayBuffer == null && other.optionalArrayBuffer == null || this.optionalArrayBuffer != null && other.optionalArrayBuffer != null && this.optionalArrayBuffer == other.optionalArrayBuffer)
+      && (this.optionalString == null && other.optionalString == null || this.optionalString != null && other.optionalString != null && this.optionalString == other.optionalString)
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      optionalArrayBuffer,
-      optionalString
-    ).contentDeepHashCode()
+    var result = (if (this.optionalArrayBuffer != null) this.optionalArrayBuffer.hashCode() else 0)
+    result = 31 * result + (if (this.optionalString != null) this.optionalString.hashCode() else 0)
+    return result
   }
 
   companion object {

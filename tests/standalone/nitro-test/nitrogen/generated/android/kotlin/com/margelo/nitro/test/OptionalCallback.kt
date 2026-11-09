@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 import com.margelo.nitro.core.Callback
 
 /**
@@ -25,13 +24,11 @@ data class OptionalCallback(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is OptionalCallback) return false
-    return Objects.deepEquals(this.callback, other.callback)
+    return (this.callback == null && other.callback == null || this.callback != null && other.callback != null && this.callback == other.callback)
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      callback
-    ).contentDeepHashCode()
+    return (if (this.callback != null) this.callback.hashCode() else 0)
   }
 
   companion object {

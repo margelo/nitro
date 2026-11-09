@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -28,15 +27,14 @@ data class CppOnlyValue(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is CppOnlyValue) return false
-    return Objects.deepEquals(this.label, other.label)
-      && Objects.deepEquals(this.kind, other.kind)
+    return this.label == other.label
+      && this.kind == other.kind
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      label,
-      kind
-    ).contentDeepHashCode()
+    var result = this.label.hashCode()
+    result = 31 * result + this.kind.hashCode()
+    return result
   }
 
   companion object {

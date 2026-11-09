@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -25,13 +24,11 @@ data class SecondMapWrapper(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is SecondMapWrapper) return false
-    return Objects.deepEquals(this.second, other.second)
+    return this.second == other.second
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      second
-    ).contentDeepHashCode()
+    return this.second.hashCode()
   }
 
   companion object {

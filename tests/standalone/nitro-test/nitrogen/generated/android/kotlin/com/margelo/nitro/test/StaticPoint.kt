@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -31,17 +30,16 @@ data class StaticPoint(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is StaticPoint) return false
-    return Objects.deepEquals(this.x, other.x)
-      && Objects.deepEquals(this.y, other.y)
-      && Objects.deepEquals(this.visible, other.visible)
+    return this.x.toBits() == other.x.toBits()
+      && this.y.toBits() == other.y.toBits()
+      && this.visible == other.visible
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      x,
-      y,
-      visible
-    ).contentDeepHashCode()
+    var result = this.x.hashCode()
+    result = 31 * result + this.y.hashCode()
+    result = 31 * result + this.visible.hashCode()
+    return result
   }
 
   companion object {

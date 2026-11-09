@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -76,47 +75,46 @@ data class OptionalEnumWrapper(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is OptionalEnumWrapper) return false
-    return Objects.deepEquals(this.count, other.count)
-      && Objects.deepEquals(this.weight, other.weight)
-      && Objects.deepEquals(this.ttl, other.ttl)
-      && Objects.deepEquals(this.jitter, other.jitter)
-      && Objects.deepEquals(this.retries, other.retries)
-      && Objects.deepEquals(this.delayMs, other.delayMs)
-      && Objects.deepEquals(this.timeoutMs, other.timeoutMs)
-      && Objects.deepEquals(this.ratio, other.ratio)
-      && Objects.deepEquals(this.threshold, other.threshold)
-      && Objects.deepEquals(this.enabled, other.enabled)
-      && Objects.deepEquals(this.active, other.active)
-      && Objects.deepEquals(this.shouldBuffer, other.shouldBuffer)
-      && Objects.deepEquals(this.shouldRetry, other.shouldRetry)
-      && Objects.deepEquals(this.verbose, other.verbose)
-      && Objects.deepEquals(this.tier, other.tier)
-      && Objects.deepEquals(this.region, other.region)
-      && Objects.deepEquals(this.stage, other.stage)
-      && Objects.deepEquals(this.tone, other.tone)
+    return (this.count == null && other.count == null || this.count != null && other.count != null && this.count.toBits() == other.count.toBits())
+      && (this.weight == null && other.weight == null || this.weight != null && other.weight != null && this.weight.toBits() == other.weight.toBits())
+      && (this.ttl == null && other.ttl == null || this.ttl != null && other.ttl != null && this.ttl.toBits() == other.ttl.toBits())
+      && (this.jitter == null && other.jitter == null || this.jitter != null && other.jitter != null && this.jitter.toBits() == other.jitter.toBits())
+      && (this.retries == null && other.retries == null || this.retries != null && other.retries != null && this.retries.toBits() == other.retries.toBits())
+      && (this.delayMs == null && other.delayMs == null || this.delayMs != null && other.delayMs != null && this.delayMs.toBits() == other.delayMs.toBits())
+      && (this.timeoutMs == null && other.timeoutMs == null || this.timeoutMs != null && other.timeoutMs != null && this.timeoutMs.toBits() == other.timeoutMs.toBits())
+      && (this.ratio == null && other.ratio == null || this.ratio != null && other.ratio != null && this.ratio.toBits() == other.ratio.toBits())
+      && (this.threshold == null && other.threshold == null || this.threshold != null && other.threshold != null && this.threshold.toBits() == other.threshold.toBits())
+      && (this.enabled == null && other.enabled == null || this.enabled != null && other.enabled != null && this.enabled == other.enabled)
+      && (this.active == null && other.active == null || this.active != null && other.active != null && this.active == other.active)
+      && (this.shouldBuffer == null && other.shouldBuffer == null || this.shouldBuffer != null && other.shouldBuffer != null && this.shouldBuffer == other.shouldBuffer)
+      && (this.shouldRetry == null && other.shouldRetry == null || this.shouldRetry != null && other.shouldRetry != null && this.shouldRetry == other.shouldRetry)
+      && (this.verbose == null && other.verbose == null || this.verbose != null && other.verbose != null && this.verbose == other.verbose)
+      && (this.tier == null && other.tier == null || this.tier != null && other.tier != null && this.tier == other.tier)
+      && (this.region == null && other.region == null || this.region != null && other.region != null && this.region == other.region)
+      && (this.stage == null && other.stage == null || this.stage != null && other.stage != null && this.stage == other.stage)
+      && (this.tone == null && other.tone == null || this.tone != null && other.tone != null && this.tone == other.tone)
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      count,
-      weight,
-      ttl,
-      jitter,
-      retries,
-      delayMs,
-      timeoutMs,
-      ratio,
-      threshold,
-      enabled,
-      active,
-      shouldBuffer,
-      shouldRetry,
-      verbose,
-      tier,
-      region,
-      stage,
-      tone
-    ).contentDeepHashCode()
+    var result = (if (this.count != null) this.count.hashCode() else 0)
+    result = 31 * result + (if (this.weight != null) this.weight.hashCode() else 0)
+    result = 31 * result + (if (this.ttl != null) this.ttl.hashCode() else 0)
+    result = 31 * result + (if (this.jitter != null) this.jitter.hashCode() else 0)
+    result = 31 * result + (if (this.retries != null) this.retries.hashCode() else 0)
+    result = 31 * result + (if (this.delayMs != null) this.delayMs.hashCode() else 0)
+    result = 31 * result + (if (this.timeoutMs != null) this.timeoutMs.hashCode() else 0)
+    result = 31 * result + (if (this.ratio != null) this.ratio.hashCode() else 0)
+    result = 31 * result + (if (this.threshold != null) this.threshold.hashCode() else 0)
+    result = 31 * result + (if (this.enabled != null) this.enabled.hashCode() else 0)
+    result = 31 * result + (if (this.active != null) this.active.hashCode() else 0)
+    result = 31 * result + (if (this.shouldBuffer != null) this.shouldBuffer.hashCode() else 0)
+    result = 31 * result + (if (this.shouldRetry != null) this.shouldRetry.hashCode() else 0)
+    result = 31 * result + (if (this.verbose != null) this.verbose.hashCode() else 0)
+    result = 31 * result + (if (this.tier != null) this.tier.hashCode() else 0)
+    result = 31 * result + (if (this.region != null) this.region.hashCode() else 0)
+    result = 31 * result + (if (this.stage != null) this.stage.hashCode() else 0)
+    result = 31 * result + (if (this.tone != null) this.tone.hashCode() else 0)
+    return result
   }
 
   companion object {

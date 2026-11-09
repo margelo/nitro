@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -55,33 +54,32 @@ data class Car(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is Car) return false
-    return Objects.deepEquals(this.year, other.year)
-      && Objects.deepEquals(this.make, other.make)
-      && Objects.deepEquals(this.model, other.model)
-      && Objects.deepEquals(this.power, other.power)
-      && Objects.deepEquals(this.powertrain, other.powertrain)
-      && Objects.deepEquals(this.driver, other.driver)
-      && Objects.deepEquals(this.passengers, other.passengers)
-      && Objects.deepEquals(this.isFast, other.isFast)
-      && Objects.deepEquals(this.favouriteTrack, other.favouriteTrack)
-      && Objects.deepEquals(this.performanceScores, other.performanceScores)
-      && Objects.deepEquals(this.someVariant, other.someVariant)
+    return this.year.toBits() == other.year.toBits()
+      && this.make == other.make
+      && this.model == other.model
+      && this.power.toBits() == other.power.toBits()
+      && this.powertrain == other.powertrain
+      && (this.driver == null && other.driver == null || this.driver != null && other.driver != null && this.driver == other.driver)
+      && this.passengers.contentDeepEquals(other.passengers)
+      && (this.isFast == null && other.isFast == null || this.isFast != null && other.isFast != null && this.isFast == other.isFast)
+      && (this.favouriteTrack == null && other.favouriteTrack == null || this.favouriteTrack != null && other.favouriteTrack != null && this.favouriteTrack == other.favouriteTrack)
+      && this.performanceScores.contentEquals(other.performanceScores)
+      && (this.someVariant == null && other.someVariant == null || this.someVariant != null && other.someVariant != null && this.someVariant == other.someVariant)
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      year,
-      make,
-      model,
-      power,
-      powertrain,
-      driver,
-      passengers,
-      isFast,
-      favouriteTrack,
-      performanceScores,
-      someVariant
-    ).contentDeepHashCode()
+    var result = this.year.hashCode()
+    result = 31 * result + this.make.hashCode()
+    result = 31 * result + this.model.hashCode()
+    result = 31 * result + this.power.hashCode()
+    result = 31 * result + this.powertrain.hashCode()
+    result = 31 * result + (if (this.driver != null) this.driver.hashCode() else 0)
+    result = 31 * result + this.passengers.contentDeepHashCode()
+    result = 31 * result + (if (this.isFast != null) this.isFast.hashCode() else 0)
+    result = 31 * result + (if (this.favouriteTrack != null) this.favouriteTrack.hashCode() else 0)
+    result = 31 * result + this.performanceScores.contentHashCode()
+    result = 31 * result + (if (this.someVariant != null) this.someVariant.hashCode() else 0)
+    return result
   }
 
   companion object {
