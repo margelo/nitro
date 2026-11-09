@@ -6,16 +6,7 @@ import { wrapKotlinType } from '../wrapKotlinType.js'
 import type { KotlinCppConverter } from '../KotlinConverter.js'
 import { KotlinCxxOptionalType } from './KotlinCxxOptionalType.js'
 import { getTypeAs } from '../../types/getTypeAs.js'
-import {
-  getJniReferenceCode,
-  getKotlinEqualityCode,
-  getKotlinHashCode,
-  type JniValueKind,
-  type KotlinConversion,
-  type KotlinEqualityOptions,
-  type KotlinType,
-  type KotlinTypeOptions,
-} from './KotlinType.js'
+import { getJniReferenceCode, type JniValueKind, type KotlinConversion, type KotlinType, type KotlinTypeOptions } from './KotlinType.js'
 
 /** JNI represents an optional as a nullable reference to its boxed value. */
 export class KotlinOptionalType extends OptionalType implements KotlinType {
@@ -28,20 +19,6 @@ export class KotlinOptionalType extends OptionalType implements KotlinType {
     const wrappingType = wrapKotlinType(type.wrappingType, { boxed: true, config: options.config })
     super(wrappingType)
     this.wrappingType = wrappingType
-  }
-
-  getEqualityCode({ left, right }: KotlinEqualityOptions): string {
-    const comparison = getKotlinEqualityCode(this.wrappingType, { left: left, right: right })
-    return `
-(${left} == null && ${right} == null || ${left} != null && ${right} != null && ${comparison})
-`.trim()
-  }
-
-  getHashCode(value: string): string {
-    const hash = getKotlinHashCode(this.wrappingType, value)
-    return `
-(if (${value} != null) ${hash} else 0)
-`.trim()
   }
 
   get hasStaticJNIReference(): boolean {

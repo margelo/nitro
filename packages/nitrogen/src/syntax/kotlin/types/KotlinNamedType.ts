@@ -4,25 +4,14 @@ import { NamedWrappingType } from '../../types/NamedWrappingType.js'
 import {
   convertJniValue,
   getJniCode,
-  getKotlinEqualityCode,
-  getKotlinHashCode,
   type GetKotlinCodeOptions,
   type JniValueDirection,
   type JniValueKind,
   type KotlinConversion,
-  type KotlinEqualityOptions,
   type KotlinType,
 } from './KotlinType.js'
 
 export class KotlinNamedType extends NamedWrappingType<KotlinType> implements KotlinType {
-  getEqualityCode(options: KotlinEqualityOptions): string {
-    return getKotlinEqualityCode(this.type, options)
-  }
-
-  getHashCode(value: string): string {
-    return getKotlinHashCode(this.type, value)
-  }
-
   get hasStaticJNIReference(): boolean {
     return this.type.hasStaticJNIReference ?? false
   }

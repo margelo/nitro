@@ -3,7 +3,9 @@ import { createFileMetadataString } from '../helpers.js'
 import type { SourceFile } from '../SourceFile.js'
 import type { KotlinStructType } from './types/KotlinStructType.js'
 import { getImportsCode } from '../getImportCode.js'
-import { convertJniValue, getJniCode, getKotlinEqualityCode, getKotlinHashCode } from './types/KotlinType.js'
+import { convertJniValue, getJniCode } from './types/KotlinType.js'
+import { getKotlinEqualityCode } from './getKotlinEqualityCode.js'
+import { getKotlinHashCode } from './getKotlinHashCode.js'
 
 export function createKotlinStruct(structType: KotlinStructType): SourceFile[] {
   const publicType = structType.type
@@ -43,11 +45,11 @@ private fun fromCpp(${cxxCreateFunctionParameters}): ${structType.structName} {
   const extraImports = getImportsCode(kotlinPropertyImports)
 
   const equalityComparators = structType.properties.map((property) =>
-    getKotlinEqualityCode(property, { left: `this.${property.escapedName}`, right: `other.${property.escapedName}` })
+    getKotlinEqualityCode({ type: property, left: `this.${property.escapedName}`, right: `other.${property.escapedName}` })
   )
   const equalityCode = equalityComparators.join(`\n      && `)
   const hashCodeStatements = structType.properties.map((property, index) => {
-    const hash = getKotlinHashCode(property, `this.${property.escapedName}`)
+    const hash = getKotlinHashCode({ type: property, value: `this.${property.escapedName}` })
     if (structType.properties.length === 1) {
       return `
 return ${hash}

@@ -4,14 +4,7 @@ import type { GetCodeOptions, Type } from '../../types/Type.js'
 import { NumberType } from '../../types/NumberType.js'
 import { KotlinCxxPrimitiveType } from './KotlinCxxPrimitiveType.js'
 import type { KotlinCppConverter } from '../KotlinConverter.js'
-import {
-  getJniPrimitiveCode,
-  type JniValueKind,
-  type KotlinConversion,
-  type KotlinEqualityOptions,
-  type KotlinType,
-  type KotlinTypeOptions,
-} from './KotlinType.js'
+import { getJniPrimitiveCode, type JniValueKind, type KotlinConversion, type KotlinType, type KotlinTypeOptions } from './KotlinType.js'
 
 export class KotlinNumberType extends NumberType implements KotlinType {
   readonly boxed: boolean
@@ -23,13 +16,6 @@ export class KotlinNumberType extends NumberType implements KotlinType {
 
   get jniValueKind(): JniValueKind {
     return this.boxed ? 'object' : 'primitive'
-  }
-
-  getEqualityCode({ left, right }: KotlinEqualityOptions): string {
-    // Match boxed Double equality: NaNs are equal, and signed zeros are distinct.
-    return `
-${left}.toBits() == ${right}.toBits()
-`.trim()
   }
 
   getCppConverter(cppType: Type): KotlinCppConverter {
