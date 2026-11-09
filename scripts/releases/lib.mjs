@@ -207,6 +207,8 @@ export function github(
   if (body !== undefined) args.push('--input', '-')
   const result = spawnSync('gh', args, {
     encoding: 'utf8',
+    // Release pages include asset metadata and can exceed the default 1 MiB buffer.
+    maxBuffer: 16 * 1024 * 1024,
     input: body === undefined ? undefined : JSON.stringify(body),
   })
   if (result.error) throw result.error
