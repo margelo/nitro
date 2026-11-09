@@ -20,7 +20,7 @@ import com.margelo.nitro.test.external.HybridTestView
 /**
  * Represents the React Native `ViewManager` for the "TestView" Nitro HybridView.
  */
-public class HybridTestViewManager: SimpleViewManager<View>() {
+public open class HybridTestViewManager: SimpleViewManager<View>() {
   /**
    * Represents the View and its last state snapshot (mutable)
    */

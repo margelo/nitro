@@ -9,6 +9,8 @@
 #include <NitroModules/HybridClassRegistry.hpp>
 #include <NitroTest/private/JHybridBenchmarkObjectSwiftKotlinSpec.hpp>
 #include <NitroTest/private/JCallback_double.hpp>
+#include <NitroTest/private/JHybridPaddedTestViewSpec.hpp>
+#include <NitroTest/private/views/JHybridPaddedTestViewStateUpdater.hpp>
 #include <NitroTest/private/JHybridRecyclableTestViewSpec.hpp>
 #include <NitroTest/private/views/JHybridRecyclableTestViewStateUpdater.hpp>
 #include <NitroTest/private/JHybridTestViewSpec.hpp>
@@ -20,6 +22,8 @@ namespace margelo::nitro::test {
   void registerAllNatives() {
     margelo::nitro::test::JHybridBenchmarkObjectSwiftKotlinSpec::CxxPart::registerNatives();
     margelo::nitro::test::JCallback_double::registerNatives();
+    margelo::nitro::test::JHybridPaddedTestViewSpec::CxxPart::registerNatives();
+    margelo::nitro::test::views::JHybridPaddedTestViewStateUpdater::registerNatives();
     margelo::nitro::test::JHybridRecyclableTestViewSpec::CxxPart::registerNatives();
     margelo::nitro::test::views::JHybridRecyclableTestViewStateUpdater::registerNatives();
     margelo::nitro::test::JHybridTestViewSpec::CxxPart::registerNatives();
@@ -28,6 +32,7 @@ namespace margelo::nitro::test {
 
     HybridClassRegistry::registerHybridClass("test.BenchmarkObjectCpp", HybridBenchmarkObjectCppSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.BenchmarkObjectSwiftKotlin", JHybridBenchmarkObjectSwiftKotlinSpec::Class::get());
+    HybridClassRegistry::registerHybridClass("test.PaddedTestView", JHybridPaddedTestViewSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.RecyclableTestView", JHybridRecyclableTestViewSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.TestView", JHybridTestViewSpec::Class::get());
   }

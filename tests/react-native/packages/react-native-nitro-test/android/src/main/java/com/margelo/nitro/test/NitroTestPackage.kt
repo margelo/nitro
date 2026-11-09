@@ -19,6 +19,7 @@ class NitroTestPackage : BaseReactPackage() {
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
     val viewManagers = ArrayList<ViewManager<*, *>>()
     viewManagers.add(HybridTestViewManager())
+    viewManagers.add(PaddedTestViewManager())
     viewManagers.add(HybridRecyclableTestViewManager())
     return viewManagers
   }
