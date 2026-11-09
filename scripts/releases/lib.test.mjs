@@ -654,7 +654,7 @@ test('successful publishes finalize fresh and resumed releases without registry 
     const { manifest, directory } = releaseFixture(t)
     const registry = registryFixture(manifest)
     const github = githubFixture(manifest)
-    const release = saveDraft(manifest, directory, 'nitro-release.json', github)
+    const release = await saveDraft(manifest, directory, 'nitro-release.json', github)
     if (resume) {
       const core = manifest.packages[0]
       registry.versions.set(registry.key(core.name, core.version), registry.record(core))
@@ -672,7 +672,7 @@ test('successful publishes finalize fresh and resumed releases without registry 
         registry.tags.delete(registry.key(name, manifest.npmTag))
       },
     })
-    finishRelease(manifest, { release, request: github.request })
+    await finishRelease(manifest, { release, request: github.request })
     const expected = resume ? releasePackages.slice(1) : releasePackages
     assert.deepEqual(registry.publishes, expected)
     assert.equal(github.releases[0].draft, false)
@@ -754,7 +754,7 @@ function githubFixture(manifest) {
   }
 }
 
-test('draft lookup scans all pages and selects the exact tag checkpoint past an empty duplicate', (t) => {
+test('draft lookup scans all pages and selects the exact tag checkpoint past an empty duplicate', async (t) => {
   const { manifest } = releaseFixture(t)
   const github = githubFixture(manifest)
   github.addRelease()
@@ -762,37 +762,37 @@ test('draft lookup scans all pages and selects the exact tag checkpoint past an 
   const original = github.addRelease({
     assets: [{ id: 500, name: 'nitro-release.json' }],
   })
-  assert.deepEqual(github.lookup(manifest.repository, manifest.tag), original)
+  assert.deepEqual(await github.lookup(manifest.repository, manifest.tag), original)
   assert.deepEqual(
     github.calls.map((call) => call.endpoint),
     ['repos/margelo/nitro/releases?per_page=100&page=1', 'repos/margelo/nitro/releases?per_page=100&page=2']
   )
 })
 
-test('draft lookup detects conflicting checkpoints even after the first matching page', (t) => {
+test('draft lookup detects conflicting checkpoints even after the first matching page', async (t) => {
   const { manifest } = releaseFixture(t)
   const github = githubFixture(manifest)
   github.addRelease({ assets: [{ id: 500, name: 'nitro-release.json' }] })
   for (let i = 0; i < 99; i++) github.addRelease({ tag_name: `${manifest.tag}-${i}` })
   github.addRelease({ assets: [{ id: 501, name: 'nitro-release.json' }] })
-  assert.throws(() => github.lookup(manifest.repository, manifest.tag), /Ambiguous releases/)
+  await assert.rejects(() => github.lookup(manifest.repository, manifest.tag), /Ambiguous releases/)
 })
 
-test('lookup distinguishes missing, incomplete, published and ambiguous releases', (t) => {
+test('lookup distinguishes missing, incomplete, published and ambiguous releases', async (t) => {
   const { manifest } = releaseFixture(t)
   const github = githubFixture(manifest)
-  assert.equal(github.lookup(manifest.repository, manifest.tag), null)
+  assert.equal(await github.lookup(manifest.repository, manifest.tag), null)
   const release = github.addRelease()
-  assert.deepEqual(github.lookup(manifest.repository, manifest.tag), release)
+  assert.deepEqual(await github.lookup(manifest.repository, manifest.tag), release)
   release.draft = false
-  assert.deepEqual(github.lookup(manifest.repository, manifest.tag), release)
+  assert.deepEqual(await github.lookup(manifest.repository, manifest.tag), release)
   github.addRelease()
-  assert.throws(() => github.lookup(manifest.repository, manifest.tag), /Ambiguous releases/)
+  await assert.rejects(() => github.lookup(manifest.repository, manifest.tag), /Ambiguous releases/)
 })
 
-test('lookup errors cannot be mistaken for an absent draft', () => {
+test('lookup errors cannot be mistaken for an absent draft', async () => {
   for (const status of [401, 403, 404, 503]) {
-    assert.throws(
+    await assert.rejects(
       () =>
         getRelease('margelo/nitro', 'v0.37.2', {
           request: () => {
@@ -804,7 +804,7 @@ test('lookup errors cannot be mistaken for an absent draft', () => {
   }
 })
 
-test('finishing a draft promotes only stable releases newer than GitHub Latest', (t) => {
+test('finishing a draft promotes only stable releases newer than GitHub Latest', async (t) => {
   const { manifest, directory } = releaseFixture(t)
   for (const [current, expectedLatest] of [
     [null, true],
@@ -813,8 +813,8 @@ test('finishing a draft promotes only stable releases newer than GitHub Latest',
     [{ tag_name: 'v0.38.0' }, false],
   ]) {
     const github = githubFixture(manifest)
-    const release = saveDraft(manifest, directory, 'nitro-release.json', github)
-    finishRelease(manifest, {
+    const release = await saveDraft(manifest, directory, 'nitro-release.json', github)
+    await finishRelease(manifest, {
       release,
       request: (endpoint, options) => {
         if (endpoint.endsWith('/latest')) {
@@ -832,21 +832,21 @@ test('finishing a draft promotes only stable releases newer than GitHub Latest',
   }
 })
 
-test('prereleases and non-latest channels never become GitHub Latest', (t) => {
+test('prereleases and non-latest channels never become GitHub Latest', async (t) => {
   for (const options of [
     { version: '0.38.0-beta.1', npmTag: 'beta' },
     { version: '0.38.0', npmTag: 'next' },
   ]) {
     const { manifest, directory } = releaseFixture(t, options)
     const github = githubFixture(manifest)
-    const release = saveDraft(manifest, directory, 'nitro-release.json', github)
-    finishRelease(manifest, { release, request: github.request })
+    const release = await saveDraft(manifest, directory, 'nitro-release.json', github)
+    await finishRelease(manifest, { release, request: github.request })
     assert.equal(github.calls.at(-1).body.make_latest, 'false')
     assert.ok(!github.calls.some((call) => call.endpoint?.endsWith('/latest')))
   }
 })
 
-test('completed releases are unchanged and missing checkpoints cannot be completed', (t) => {
+test('completed releases are unchanged and missing checkpoints cannot be completed', async (t) => {
   const { manifest } = releaseFixture(t)
   const release = {
     id: 1,
@@ -855,9 +855,9 @@ test('completed releases are unchanged and missing checkpoints cannot be complet
     assets: [{ id: 2, name: 'nitro-release.json' }],
   }
   const request = () => assert.fail('must not query or change GitHub')
-  finishRelease(manifest, { release, request })
-  assert.throws(() => finishRelease(manifest, { release: null, request }), /checkpoint is missing/)
-  assert.throws(
+  await finishRelease(manifest, { release, request })
+  await assert.rejects(() => finishRelease(manifest, { release: null, request }), /checkpoint is missing/)
+  await assert.rejects(
     () =>
       finishRelease(manifest, {
         release: { ...release, draft: true, assets: [] },
@@ -865,7 +865,7 @@ test('completed releases are unchanged and missing checkpoints cannot be complet
       }),
     /Missing or ambiguous release asset/
   )
-  assert.throws(
+  await assert.rejects(
     () =>
       finishRelease(manifest, {
         release: { ...release, tag_name: 'v0.37.3' },
@@ -875,11 +875,11 @@ test('completed releases are unchanged and missing checkpoints cannot be complet
   )
 })
 
-test('a GitHub Latest lookup failure leaves the release as a draft', (t) => {
+test('a GitHub Latest lookup failure leaves the release as a draft', async (t) => {
   const { manifest, directory } = releaseFixture(t)
   const github = githubFixture(manifest)
-  const release = saveDraft(manifest, directory, 'nitro-release.json', github)
-  assert.throws(
+  const release = await saveDraft(manifest, directory, 'nitro-release.json', github)
+  await assert.rejects(
     () =>
       finishRelease(manifest, {
         release,
@@ -892,13 +892,13 @@ test('a GitHub Latest lookup failure leaves the release as a draft', (t) => {
   assert.equal(github.releases[0].draft, true)
 })
 
-test('a draft checkpoint verifies its tag and uploads every tarball before the manifest', (t) => {
+test('a draft checkpoint verifies its tag and uploads every tarball before the manifest', async (t) => {
   const { manifest, directory } = releaseFixture(t, {
     version: '0.38.0-beta.1',
     npmTag: 'beta',
   })
   const github = githubFixture(manifest)
-  const release = saveDraft(manifest, directory, 'nitro-release.json', github)
+  const release = await saveDraft(manifest, directory, 'nitro-release.json', github)
   assert.equal(github.calls[1].endpoint, `repos/${manifest.repository}/git/ref/tags/${manifest.tag}`)
   assert.deepEqual(github.calls[2], {
     endpoint: `repos/${manifest.repository}/releases`,
@@ -919,9 +919,9 @@ test('a draft checkpoint verifies its tag and uploads every tarball before the m
   assert.deepEqual(JSON.parse(readFileSync(path.join(directory, 'nitro-release.json'), 'utf8')), manifest)
 })
 
-test('a missing remote tag prevents creating a draft', (t) => {
+test('a missing remote tag prevents creating a draft', async (t) => {
   const { manifest, directory } = releaseFixture(t)
-  assert.throws(
+  await assert.rejects(
     () =>
       saveDraft(manifest, directory, 'nitro-release.json', {
         lookup: () => null,
@@ -936,13 +936,13 @@ test('a missing remote tag prevents creating a draft', (t) => {
   )
 })
 
-test('drafts with a checkpoint and completed releases refuse artifact replacement', (t) => {
+test('drafts with a checkpoint and completed releases refuse artifact replacement', async (t) => {
   const { manifest, directory } = releaseFixture(t)
   for (const release of [
     { draft: false, assets: [] },
     { draft: true, assets: [{ name: 'nitro-release.json' }] },
   ]) {
-    assert.throws(
+    await assert.rejects(
       () =>
         saveDraft(manifest, directory, 'nitro-release.json', {
           lookup: () => release,
@@ -954,7 +954,7 @@ test('drafts with a checkpoint and completed releases refuse artifact replacemen
   }
 })
 
-test('an interrupted tarball upload resumes the same draft and writes the manifest last', (t) => {
+test('an interrupted tarball upload resumes the same draft and writes the manifest last', async (t) => {
   const { manifest, directory } = releaseFixture(t)
   const github = githubFixture(manifest)
   let failSecondUpload = true
@@ -965,7 +965,7 @@ test('an interrupted tarball upload resumes the same draft and writes the manife
     }
     return github.upload(...args)
   }
-  assert.throws(
+  await assert.rejects(
     () =>
       saveDraft(manifest, directory, 'nitro-release.json', {
         ...github,
@@ -978,7 +978,7 @@ test('an interrupted tarball upload resumes the same draft and writes the manife
     [manifest.packages[0].filename]
   )
   const releaseID = github.releases[0].id
-  saveDraft(manifest, directory, 'nitro-release.json', { ...github, upload })
+  await saveDraft(manifest, directory, 'nitro-release.json', { ...github, upload })
   assert.equal(github.releases.length, 1)
   assert.equal(github.releases[0].id, releaseID)
   assert.deepEqual(
@@ -987,14 +987,14 @@ test('an interrupted tarball upload resumes the same draft and writes the manife
   )
 })
 
-test('a published release can save its first checkpoint without replacing public assets', (t) => {
+test('a published release can save its first checkpoint without replacing public assets', async (t) => {
   const { manifest, directory } = releaseFixture(t)
   const github = githubFixture(manifest)
   const release = github.addRelease({ draft: false })
   const first = manifest.packages[0]
   github.upload(manifest.repository, release, path.join(directory, first.filename))
   github.calls.length = 0
-  saveDraft(manifest, directory, 'nitro-release.json', {
+  await saveDraft(manifest, directory, 'nitro-release.json', {
     ...github,
     allowPublished: true,
   })
@@ -1005,14 +1005,14 @@ test('a published release can save its first checkpoint without replacing public
   assert.ok(!github.calls.some((call) => call.method === 'DELETE'))
 })
 
-test('a published-release retry stops on corrupt public tarballs before uploading', (t) => {
+test('a published-release retry stops on corrupt public tarballs before uploading', async (t) => {
   const { manifest, directory } = releaseFixture(t)
   const github = githubFixture(manifest)
   const release = github.addRelease({ draft: false })
   const asset = github.upload(manifest.repository, release, path.join(directory, manifest.packages[0].filename))
   github.bytes.set(asset.id, Buffer.from('different bytes'))
   github.calls.length = 0
-  assert.throws(
+  await assert.rejects(
     () =>
       saveDraft(manifest, directory, 'nitro-release.json', {
         ...github,
@@ -1023,9 +1023,9 @@ test('a published-release retry stops on corrupt public tarballs before uploadin
   assert.ok(!github.calls.some((call) => call.upload || call.method))
 })
 
-test('a published-release checkpoint cannot be replaced even by its release-event retry', (t) => {
+test('a published-release checkpoint cannot be replaced even by its release-event retry', async (t) => {
   const { manifest, directory } = releaseFixture(t)
-  assert.throws(
+  await assert.rejects(
     () =>
       saveDraft(manifest, directory, 'nitro-release.json', {
         lookup: () => ({
@@ -1046,19 +1046,19 @@ test('a duplicate empty draft cannot redirect checkpoint downloads or finalizati
     npmTag: 'nightly',
   })
   const github = githubFixture(manifest)
-  const original = saveDraft(manifest, directory, 'nitro-release.json', github)
+  const original = await saveDraft(manifest, directory, 'nitro-release.json', github)
   const duplicate = github.addRelease()
   github.releases.reverse() // GitHub lists the newer empty draft first.
   const registry = registryFixture(manifest)
   registry.versions.set(registry.key(manifest.packages[0].name, manifest.version), registry.record(manifest.packages[0]))
   const savedBytes = new Map(github.bytes)
   github.calls.length = 0
-  const release = github.lookup(manifest.repository, manifest.tag)
+  const release = await github.lookup(manifest.repository, manifest.tag)
   const recovered = path.join(directory, 'recovered')
   const checkpoint = downloadRelease(manifest.repository, release, 'nitro-release.json', recovered, github)
   assert.deepEqual(checkpoint, manifest)
   await publishPackages(checkpoint, recovered, registry)
-  finishRelease(checkpoint, { release, request: github.request })
+  await finishRelease(checkpoint, { release, request: github.request })
   assert.deepEqual(registry.publishes, releasePackages.slice(1))
   assert.deepEqual(
     github.calls.filter((call) => call.download).map((call) => call.download),
@@ -1071,10 +1071,10 @@ test('a duplicate empty draft cannot redirect checkpoint downloads or finalizati
   assert.ok(!github.calls.some((call) => call.upload || call.method === 'DELETE'))
 })
 
-test('a lost manifest upload response resumes the completed checkpoint without replacing it', (t) => {
+test('a lost manifest upload response resumes the completed checkpoint without replacing it', async (t) => {
   const { manifest, directory } = releaseFixture(t)
   const github = githubFixture(manifest)
-  assert.throws(
+  await assert.rejects(
     () =>
       saveDraft(manifest, directory, 'nitro-release.json', {
         ...github,
@@ -1087,17 +1087,17 @@ test('a lost manifest upload response resumes the completed checkpoint without r
     /upload response lost/
   )
   github.calls.length = 0
-  const release = github.lookup(manifest.repository, manifest.tag)
-  assert.throws(() => saveDraft(manifest, directory, 'nitro-release.json', github), /checkpoint already exists/)
+  const release = await github.lookup(manifest.repository, manifest.tag)
+  await assert.rejects(() => saveDraft(manifest, directory, 'nitro-release.json', github), /checkpoint already exists/)
   assert.deepEqual(downloadRelease(manifest.repository, release, 'nitro-release.json', path.join(directory, 'recovered'), github), manifest)
   assert.ok(!github.calls.some((call) => call.upload || call.method))
 })
 
-test('checkpoint recovery refuses missing, ambiguous and corrupt tarballs', (t) => {
+test('checkpoint recovery refuses missing, ambiguous and corrupt tarballs', async (t) => {
   for (const defect of ['missing', 'duplicate', 'corrupt']) {
     const { manifest, directory } = releaseFixture(t)
     const github = githubFixture(manifest)
-    const release = saveDraft(manifest, directory, 'nitro-release.json', github)
+    const release = await saveDraft(manifest, directory, 'nitro-release.json', github)
     if (defect === 'missing') release.assets.shift()
     if (defect === 'duplicate') release.assets.push({ ...release.assets[0], id: 999 })
     if (defect === 'corrupt') github.bytes.set(release.assets[0].id, Buffer.from('different bytes'))

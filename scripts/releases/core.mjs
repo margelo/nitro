@@ -71,7 +71,7 @@ let allowPublishedCheckpoint = false
 if (exists) {
   const commit = git(['rev-parse', `${tag}^{commit}`])
   const annotation = git(['for-each-ref', '--format=%(contents)', `refs/tags/${tag}`])
-  release = getRelease(repository, tag)
+  release = await getRelease(repository, tag)
   allowPublishedCheckpoint = releaseEventTag === tag && release?.draft === false
   if (annotation.split('\n').includes(`Nitro-Release: ${tag}`)) {
     if (!annotation.split('\n').includes(`Npm-Tag: ${npmTag}`)) throw new Error(`Tag ${tag} was created with a different npm tag`)
@@ -118,7 +118,7 @@ if (exists) {
     .filter((line) => /^v\S+ Nitro-Release: v\S+(?: |$)/.test(line))
     .map((line) => line.split(' ')[0])
   for (const releaseTag of nightly ? [] : releaseTags.filter((name) => !isNightly(name.slice(1)))) {
-    const release = getRelease(repository, releaseTag)
+    const release = await getRelease(repository, releaseTag)
     if (!release || release.draft) throw new Error(`Resume ${releaseTag} before starting another release`)
   }
   for (const name of releasePackages) {
@@ -167,7 +167,7 @@ if (!manifest) {
     },
     { repository, tag, packages: releasePackages }
   )
-  release = saveDraft(manifest, directory, 'nitro-release.json', {
+  release = await saveDraft(manifest, directory, 'nitro-release.json', {
     allowPublished: allowPublishedCheckpoint,
   })
 }
@@ -176,6 +176,6 @@ if (dryRun) {
   process.exit(0)
 }
 await publishPackages(manifest, directory)
-finishRelease(manifest, { release })
+await finishRelease(manifest, { release })
 reportCompletedRelease()
 console.log(`Released ${releasePackages.join(', ')} at ${version}`)

@@ -158,27 +158,33 @@ export function validateManifest(manifest, { repository, tag, packages }) {
   return manifest
 }
 
-export function github(endpoint, { method = 'GET', body, allowNotFound = false } = {}) {
-  const args = ['api', endpoint, '--method', method]
-  if (body !== undefined) args.push('--input', '-')
-  const result = spawnSync('gh', args, {
-    encoding: 'utf8',
-    // Release pages include asset metadata and can exceed the default 1 MiB buffer.
-    maxBuffer: 16 * 1024 * 1024,
-    input: body === undefined ? undefined : JSON.stringify(body),
+export async function github(endpoint, { method = 'GET', body, allowNotFound = false } = {}) {
+  const token =
+    process.env.GH_TOKEN || process.env.GITHUB_TOKEN || run('gh', ['auth', 'token', '--hostname', 'github.com'], { capture: true })
+  const response = await fetch(`https://api.github.com/${endpoint}`, {
+    method,
+    headers: {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': `Bearer ${token}`,
+      'User-Agent': 'nitro-release',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    signal: AbortSignal.timeout(30_000),
   })
-  if (result.error) throw result.error
-  if (allowNotFound && result.status !== 0 && /HTTP 404/.test(result.stderr)) return null
-  if (result.status !== 0) throw new Error(`GitHub ${method} ${endpoint}: ${result.stderr}`)
-  return result.stdout.trim() ? JSON.parse(result.stdout) : null
+  const output = await response.text()
+  if (allowNotFound && response.status === 404) return null
+  if (!response.ok) throw new Error(`GitHub ${method} ${endpoint} (HTTP ${response.status}): ${output}`)
+  return output.trim() ? JSON.parse(output) : null
 }
 
-export function getRelease(repo, tag, { request = github, manifestName = 'nitro-release.json' } = {}) {
+export async function getRelease(repo, tag, { request = github, manifestName = 'nitro-release.json' } = {}) {
   // The tag endpoint excludes drafts. Scan every page so an empty duplicate
   // cannot hide an older release containing the saved checkpoint.
   const matches = []
   for (let page = 1; ; page++) {
-    const releases = request(`repos/${repo}/releases?per_page=100&page=${page}`)
+    const releases = await request(`repos/${repo}/releases?per_page=100&page=${page}`)
     matches.push(...releases.filter((release) => release.tag_name === tag))
     if (releases.length < 100) break
   }
@@ -331,13 +337,13 @@ export async function publishPackages(manifest, directory, { lookup = registryPa
   }
 }
 
-export function saveDraft(
+export async function saveDraft(
   manifest,
   directory,
   manifestName,
   { lookup = getRelease, request = github, upload = uploadAsset, download = downloadAsset, allowPublished = false } = {}
 ) {
-  const existing = lookup(manifest.repository, manifest.tag, { manifestName })
+  const existing = await lookup(manifest.repository, manifest.tag, { manifestName })
   if (existing && !existing.draft && !allowPublished) throw new Error('Cannot replace assets of a completed release')
   if (existing?.assets.some((asset) => asset.name === manifestName)) {
     throw new Error('Release checkpoint already exists; download and resume it')
@@ -346,8 +352,8 @@ export function saveDraft(
   let release = existing
   if (!release) {
     // Keep --verify-tag's guarantee when creating through the API.
-    request(`repos/${manifest.repository}/git/ref/tags/${manifest.tag}`)
-    release = request(`repos/${manifest.repository}/releases`, {
+    await request(`repos/${manifest.repository}/git/ref/tags/${manifest.tag}`)
+    release = await request(`repos/${manifest.repository}/releases`, {
       method: 'POST',
       body: {
         tag_name: manifest.tag,
@@ -374,7 +380,7 @@ export function saveDraft(
       continue
     }
     if (savedAsset) {
-      request(`repos/${manifest.repository}/releases/assets/${savedAsset.id}`, {
+      await request(`repos/${manifest.repository}/releases/assets/${savedAsset.id}`, {
         method: 'DELETE',
       })
       release.assets = release.assets.filter((asset) => asset.id !== savedAsset.id)
@@ -385,21 +391,22 @@ export function saveDraft(
   return release
 }
 
-export function finishRelease(manifest, { release = getRelease(manifest.repository, manifest.tag), request = github } = {}) {
+export async function finishRelease(manifest, { release, request = github } = {}) {
+  if (release === undefined) release = await getRelease(manifest.repository, manifest.tag, { request })
   if (!release) throw new Error('The release checkpoint is missing')
   assertRelease(release, manifest.tag)
   releaseAsset(release, 'nitro-release.json')
   if (!release.draft) return
   let latest = manifest.npmTag === 'latest' && !parseVersion(manifest.version).prerelease.length
   if (latest) {
-    const current = request(`repos/${manifest.repository}/releases/latest`, {
+    const current = await request(`repos/${manifest.repository}/releases/latest`, {
       allowNotFound: true,
     })
     if (current && current.tag_name !== manifest.tag) {
       latest = compareVersions(manifest.version, current.tag_name.replace(/^v/, '')) > 0
     }
   }
-  request(`repos/${manifest.repository}/releases/${release.id}`, {
+  await request(`repos/${manifest.repository}/releases/${release.id}`, {
     method: 'PATCH',
     body: { draft: false, make_latest: String(latest) },
   })
