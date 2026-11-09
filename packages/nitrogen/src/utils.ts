@@ -117,10 +117,11 @@ export function toLowerCamelCase(string: string): string {
  * Get the Swift case name for a C++ enum member name, e.g. `FOO_BAR` -> `fooBar`.
  * Names starting with a digit keep a leading underscore (`_2STROKE` -> `_2stroke`), because they must also be
  * valid C++ identifiers in `SWIFT_NAME(...)` and in the C++ header that `@_expose(Cxx)` generates.
+ * Names that become empty after camel-casing use `_`.
  */
 export function toSwiftEnumCaseName(cppName: string): string {
   const name = toLowerCamelCase(cppName)
-  if (/^[0-9]/.test(name)) return `_${name}`
+  if (!/^[A-Za-z_]/.test(name)) return `_${name}`
   return name
 }
 
