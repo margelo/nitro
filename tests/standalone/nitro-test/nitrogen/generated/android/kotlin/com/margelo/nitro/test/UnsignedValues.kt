@@ -48,8 +48,7 @@ data class UnsignedValues(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.unsignedValue.hashCode()
+    var result = this.unsignedValue.hashCode()
     result = 31 * result + (if (this.optionalUnsigned != null) this.optionalUnsigned.hashCode() else 0)
     result = 31 * result + this.values.contentDeepHashCode()
     result = 31 * result + this.nested.contentDeepHashCode()

@@ -28,9 +28,7 @@ data class OptionalCallback(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + (if (this.callback != null) this.callback.hashCode() else 0)
-    return result
+    return (if (this.callback != null) this.callback.hashCode() else 0)
   }
 
   companion object {

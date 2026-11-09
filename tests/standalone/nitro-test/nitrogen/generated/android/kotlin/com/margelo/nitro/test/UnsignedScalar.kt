@@ -28,9 +28,7 @@ data class UnsignedScalar(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.value.hashCode()
-    return result
+    return this.value.hashCode()
   }
 
   companion object {

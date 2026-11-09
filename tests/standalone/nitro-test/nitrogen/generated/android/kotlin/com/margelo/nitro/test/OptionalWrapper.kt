@@ -32,8 +32,7 @@ data class OptionalWrapper(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + (if (this.optionalArrayBuffer != null) this.optionalArrayBuffer.hashCode() else 0)
+    var result = (if (this.optionalArrayBuffer != null) this.optionalArrayBuffer.hashCode() else 0)
     result = 31 * result + (if (this.optionalString != null) this.optionalString.hashCode() else 0)
     return result
   }

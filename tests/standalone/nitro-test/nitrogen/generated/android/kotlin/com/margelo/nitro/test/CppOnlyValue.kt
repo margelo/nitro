@@ -32,8 +32,7 @@ data class CppOnlyValue(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.label.hashCode()
+    var result = this.label.hashCode()
     result = 31 * result + this.kind.hashCode()
     return result
   }

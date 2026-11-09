@@ -40,8 +40,7 @@ data class OptionalPrimitivesHolder(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + (if (this.optionalNumber != null) this.optionalNumber.hashCode() else 0)
+    var result = (if (this.optionalNumber != null) this.optionalNumber.hashCode() else 0)
     result = 31 * result + (if (this.optionalBoolean != null) this.optionalBoolean.hashCode() else 0)
     result = 31 * result + (if (this.optionalUInt64 != null) this.optionalUInt64.hashCode() else 0)
     result = 31 * result + (if (this.optionalInt64 != null) this.optionalInt64.hashCode() else 0)

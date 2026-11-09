@@ -32,8 +32,7 @@ data class PartialPerson(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + (if (this.name != null) this.name.hashCode() else 0)
+    var result = (if (this.name != null) this.name.hashCode() else 0)
     result = 31 * result + (if (this.age != null) this.age.hashCode() else 0)
     return result
   }

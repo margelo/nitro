@@ -36,8 +36,7 @@ data class StaticPoint(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.x.hashCode()
+    var result = this.x.hashCode()
     result = 31 * result + this.y.hashCode()
     result = 31 * result + this.visible.hashCode()
     return result

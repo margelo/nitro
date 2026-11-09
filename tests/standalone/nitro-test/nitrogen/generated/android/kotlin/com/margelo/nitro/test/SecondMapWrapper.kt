@@ -28,9 +28,7 @@ data class SecondMapWrapper(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.second.hashCode()
-    return result
+    return this.second.hashCode()
   }
 
   companion object {

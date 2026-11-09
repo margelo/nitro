@@ -32,8 +32,7 @@ data class SharedCallbackStruct(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.value.hashCode()
+    var result = this.value.hashCode()
     result = 31 * result + this.onChanged.hashCode()
     return result
   }

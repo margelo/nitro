@@ -32,8 +32,7 @@ data class MapWrapper(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.map.hashCode()
+    var result = this.map.hashCode()
     result = 31 * result + this.secondMap.hashCode()
     return result
   }

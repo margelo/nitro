@@ -46,18 +46,30 @@ private fun fromCpp(${cxxCreateFunctionParameters}): ${structType.structName} {
     getKotlinEqualityCode(property, { left: `this.${property.escapedName}`, right: `other.${property.escapedName}` })
   )
   const equalityCode = equalityComparators.join(`\n      && `)
-  const propertyHashes = structType.properties.map((property) => {
+  const hashCodeStatements = structType.properties.map((property, index) => {
     const hash = getKotlinHashCode(property, `this.${property.escapedName}`)
+    if (structType.properties.length === 1) {
+      return `
+return ${hash}
+`.trim()
+    }
+    if (index === 0) {
+      return `
+var result = ${hash}
+`.trim()
+    }
     return `
 result = 31 * result + ${hash}
 `.trim()
   })
-  // Keep Arrays.deepHashCode's seed so existing structs retain their hash values.
-  const hashCodeBody = `
-var result = 1
-${propertyHashes.join('\n')}
+  if (structType.properties.length > 1) {
+    hashCodeStatements.push(
+      `
 return result
 `.trim()
+    )
+  }
+  const hashCodeBody = hashCodeStatements.join('\n')
 
   const code = `
 ${createFileMetadataString(`${structType.structName}.kt`)}

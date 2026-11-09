@@ -96,8 +96,7 @@ data class OptionalEnumWrapper(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + (if (this.count != null) this.count.hashCode() else 0)
+    var result = (if (this.count != null) this.count.hashCode() else 0)
     result = 31 * result + (if (this.weight != null) this.weight.hashCode() else 0)
     result = 31 * result + (if (this.ttl != null) this.ttl.hashCode() else 0)
     result = 31 * result + (if (this.jitter != null) this.jitter.hashCode() else 0)

@@ -68,8 +68,7 @@ data class Car(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.year.hashCode()
+    var result = this.year.hashCode()
     result = 31 * result + this.make.hashCode()
     result = 31 * result + this.model.hashCode()
     result = 31 * result + this.power.hashCode()

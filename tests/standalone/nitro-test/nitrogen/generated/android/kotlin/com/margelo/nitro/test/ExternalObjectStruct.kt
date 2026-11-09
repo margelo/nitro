@@ -28,9 +28,7 @@ data class ExternalObjectStruct(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.someExternal.hashCode()
-    return result
+    return this.someExternal.hashCode()
   }
 
   companion object {

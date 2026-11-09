@@ -32,8 +32,7 @@ data class Person(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.name.hashCode()
+    var result = this.name.hashCode()
     result = 31 * result + this.age.hashCode()
     return result
   }

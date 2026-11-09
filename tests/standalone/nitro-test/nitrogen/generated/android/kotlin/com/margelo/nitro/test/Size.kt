@@ -36,8 +36,7 @@ data class Size(
   }
 
   override fun hashCode(): Int {
-    var result = 1
-    result = 31 * result + this.width.hashCode()
+    var result = this.width.hashCode()
     result = 31 * result + this.height.hashCode()
     result = 31 * result + this.unit.hashCode()
     return result
