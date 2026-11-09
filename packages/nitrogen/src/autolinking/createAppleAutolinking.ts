@@ -16,6 +16,7 @@ import { prepareSwiftMethod } from '../syntax/swift/SwiftMethodHelpers.js'
 import type { SwiftType } from '../syntax/swift/types/SwiftType.js'
 import { ForeignHybridObjectType } from '../syntax/c++/ForeignHybridObjectType.js'
 import { StaticMethod } from '../syntax/StaticMethod.js'
+import { createCocoaPodsConfig } from './apple/createCocoaPodsConfig.js'
 
 interface AppleAutolinking extends Autolinking {}
 
@@ -42,6 +43,9 @@ export function createAppleAutolinking(specs: HybridObjectSpec[]): AppleAutolink
     .flatMap((type) => (type instanceof ForeignHybridObjectType ? type.getSwiftTypes() : []))
   const swiftTypes = [...getSwiftTypes(specs), ...foreignSwiftTypes]
   const moduleDependencies = getModuleDependencies(specs, NitroConfig.current)
+  // TODO: Remove CocoaPods support once React Native defaults to Swift Package Manager.
+  // Remove createCocoaPodsConfig.ts, its sourceFiles entry, and generated apple/*+autolinking.json files.
+  const cocoaPodsConfig = createCocoaPodsConfig({ moduleDependencies: moduleDependencies })
   const swiftCxxBridge = createSwiftCxxBridge(swiftTypes)
   const swiftUmbrellaHeader = createSwiftUmbrellaHeader(swiftTypes, moduleDependencies)
   // TODO: Remove with ImportedCxxRecord.ts once our minimum Xcode includes
@@ -71,6 +75,7 @@ module ${NitroConfig.current.getAppleModuleName()}SwiftBridge {
   return {
     platform: 'apple',
     sourceFiles: [
+      cocoaPodsConfig,
       swiftCxxBridge.implementation,
       swiftUmbrellaHeader,
       ...swiftForeignTypeMetadata,

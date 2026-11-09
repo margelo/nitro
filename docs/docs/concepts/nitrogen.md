@@ -233,7 +233,53 @@ React Native's default `typescript-config` does not allow overridden `imports` i
 
 #### Apple
 
-Apple builds use Swift Package Manager. Create a `Package.swift` next to your library's `nitro.json`:
+Apple libraries can support CocoaPods and Swift Package Manager using the same generated bindings and native sources. Include both a podspec
+and `Package.swift` to support apps using either package manager.
+
+[//]: # 'TODO: Remove this CocoaPods setup once React Native defaults to Swift Package Manager.'
+
+##### CocoaPods
+
+Require Nitro's CocoaPods helper at the top of your podspec:
+
+```ruby
+require Pod::Executable.execute_command('node', [
+  '-p',
+  'require.resolve("react-native-nitro-modules/cocoapods.rb", {paths: [process.argv[1]]})',
+  __dir__,
+]).strip
+```
+
+Inside your existing `Pod::Spec.new` block, configure the generated library:
+
+```ruby
+Nitro::CocoaPods.configure_library(
+  s,
+  generated_directory: 'nitrogen/generated',
+  swift_sources: ['apple'],
+  cxx_sources: ['cpp']
+)
+```
+
+Source paths are relative to the podspec directory. Match `generated_directory` to Nitrogen's output directory, and change `swift_sources`
+and `cxx_sources` if your implementations use other directories. Keep the usual name, version, source and license metadata in your podspec,
+as shown in the [template podspec](https://github.com/margelo/nitro/blob/v1/packages/template/%24%24appleModuleName%24%24.podspec).
+
+When updating an existing podspec, replace `add_nitrogen_files(...)` with `Nitro::CocoaPods.configure_library(...)`. Remove `source_files`
+from the root podspec and pass your implementation paths through `swift_sources` and `cxx_sources`. Nitro compiles those sources in separate
+Swift and C++ pods.
+
+Nitrogen emits the module names and dependencies in `nitrogen/generated/apple/<Module>+autolinking.json`. Commit and publish the generated
+directory with your library. Nitro's CocoaPods helper uses this metadata to create the separate C++, Apple bridge and Swift bridge pods. The
+consuming app must [add `use_nitro_modules!` to its Podfile](../resources/for-library-users), then run `pod install`.
+
+`configure_library` carries pod dependencies, system frameworks and compiler settings into its companion pods. Package a vendored SDK as a
+separate CocoaPod and declare it with `s.dependency`. Binaries declared directly in the root podspec's `vendored_frameworks` or
+`vendored_libraries` are not available to the companion targets.
+
+##### Swift Package Manager
+
+Create a `Package.swift` next to your library's `nitro.json`:
 
 ```swift title="Package.swift"
 // swift-tools-version: 6.4
@@ -276,10 +322,8 @@ Add `swiftpmConfig` to your library's `package.json` so React Native links the g
 `name` must match `apple.moduleName` in `nitro.json`. Add the npm names of any other Nitro modules your library depends on to
 `dependencies`.
 
-Keep a `.podspec` with your library's metadata so React Native CLI can discover the iOS dependency, as in the
-[template podspec](https://github.com/margelo/nitro/blob/v1/packages/template/%24%24appleModuleName%24%24.podspec). Native sources and
-dependencies belong in `Package.swift`; remove the old `add_nitrogen_files(...)` call. Commit the updated manifest and include both
-`Package.swift` and the `.podspec` in your npm package.
+Keep the `.podspec` so React Native CLI can discover the iOS dependency. Commit the updated manifest and include `Package.swift`, the
+`.podspec` and generated files in your npm package. SwiftPM builds use the manifest; CocoaPods builds use the podspec.
 
 In the consuming React Native app, refresh SwiftPM after installing the library or changing its native sources:
 
@@ -287,7 +331,7 @@ In the consuming React Native app, refresh SwiftPM after installing the library 
 npx react-native spm
 ```
 
-For an existing CocoaPods app, first run `npx react-native spm add --deintegrate` from the app directory. See
+To convert a CocoaPods app to SwiftPM, first run `npx react-native spm add --deintegrate` from the app directory. See
 [Minimum Requirements](../getting-started/minimum-requirements) for the required React Native and Swift versions.
 
   </TabItem>

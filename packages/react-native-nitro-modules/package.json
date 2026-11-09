@@ -25,6 +25,7 @@
     "Package.swift",
     "README.md",
     "NitroModules.podspec",
+    "cocoapods.rb",
     "LICENSE"
   ],
   "keywords": [

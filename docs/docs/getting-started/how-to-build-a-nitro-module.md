@@ -87,7 +87,7 @@ First, you need to create a [Nitro Module](../concepts/nitro-modules) - either b
 
         ### 1.3. Configure generated imports and native sources
 
-        Follow [Nitrogen's build setup](../concepts/nitrogen#3-add-generated-sources-to-your-library) to add the `#nitro/*` package imports mapping and configure Swift Package Manager with `addNitrogenTargets(to:)`. Include the generated files in your npm package.
+        Follow [Nitrogen's build setup](../concepts/nitrogen#3-add-generated-sources-to-your-library) to add the `#nitro/*` package imports mapping and configure CocoaPods, Swift Package Manager, or both. Include the generated files in your npm package.
 
         Write your specs in step 2 before running Nitrogen. The generator requires at least one Hybrid Object spec.
 
