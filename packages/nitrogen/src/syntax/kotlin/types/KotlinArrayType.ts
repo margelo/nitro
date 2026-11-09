@@ -6,7 +6,13 @@ import { wrapKotlinType } from '../wrapKotlinType.js'
 import type { KotlinCppConverter } from '../KotlinConverter.js'
 import { KotlinCxxArrayType } from './KotlinCxxArrayType.js'
 import { getTypeAs } from '../../types/getTypeAs.js'
-import { getJniReferenceCode, type KotlinConversion, type KotlinType, type KotlinTypeOptions } from './KotlinType.js'
+import {
+  getJniReferenceCode,
+  type KotlinConversion,
+  type KotlinEqualityOptions,
+  type KotlinType,
+  type KotlinTypeOptions,
+} from './KotlinType.js'
 
 export class KotlinArrayType extends ArrayType implements KotlinType {
   override readonly itemType: KotlinType
@@ -19,6 +25,20 @@ export class KotlinArrayType extends ArrayType implements KotlinType {
     const itemType = wrapKotlinType(type.itemType, { boxed: type.itemType.kind === 'uint64', config: options.config })
     super(itemType)
     this.itemType = itemType
+  }
+
+  getEqualityCode({ left, right }: KotlinEqualityOptions): string {
+    const method = this.itemType.jniValueKind === 'primitive' ? 'contentEquals' : 'contentDeepEquals'
+    return `
+${left}.${method}(${right})
+`.trim()
+  }
+
+  getHashCode(value: string): string {
+    const method = this.itemType.jniValueKind === 'primitive' ? 'contentHashCode' : 'contentDeepHashCode'
+    return `
+${value}.${method}()
+`.trim()
   }
 
   getCppConverter(cppType: Type): KotlinCppConverter {

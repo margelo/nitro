@@ -3,7 +3,7 @@ import { createFileMetadataString } from '../helpers.js'
 import type { SourceFile } from '../SourceFile.js'
 import type { KotlinStructType } from './types/KotlinStructType.js'
 import { getImportsCode } from '../getImportCode.js'
-import { convertJniValue, getJniCode } from './types/KotlinType.js'
+import { convertJniValue, getJniCode, getKotlinEqualityCode, getKotlinHashCode } from './types/KotlinType.js'
 
 export function createKotlinStruct(structType: KotlinStructType): SourceFile[] {
   const publicType = structType.type
@@ -42,10 +42,22 @@ private fun fromCpp(${cxxCreateFunctionParameters}): ${structType.structName} {
   const kotlinPropertyImports = [...publicType.properties, ...structType.properties].flatMap((type) => type.getRequiredImports('kotlin'))
   const extraImports = getImportsCode(kotlinPropertyImports)
 
-  const equalityComparators = structType.properties.map(
-    (property) => `Objects.deepEquals(this.${property.escapedName}, other.${property.escapedName})`
+  const equalityComparators = structType.properties.map((property) =>
+    getKotlinEqualityCode(property, { left: `this.${property.escapedName}`, right: `other.${property.escapedName}` })
   )
-  const propertiesList = structType.properties.map((property) => property.escapedName).join(',\n')
+  const equalityCode = equalityComparators.join(`\n      && `)
+  const propertyHashes = structType.properties.map((property) => {
+    const hash = getKotlinHashCode(property, `this.${property.escapedName}`)
+    return `
+result = 31 * result + ${hash}
+`.trim()
+  })
+  // Keep Arrays.deepHashCode's seed so existing structs retain their hash values.
+  const hashCodeBody = `
+var result = 1
+${propertyHashes.join('\n')}
+return result
+`.trim()
 
   const code = `
 ${createFileMetadataString(`${structType.structName}.kt`)}
@@ -54,7 +66,6 @@ package ${packageName}
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 ${extraImports}
 
 /**
@@ -68,13 +79,11 @@ data class ${structType.structName}(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ${structType.structName}) return false
-    return ${equalityComparators.join(`\n      && `)}
+    return ${equalityCode}
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      ${indent(propertiesList, '      ')}
-    ).contentDeepHashCode()
+    ${indent(hashCodeBody, '    ')}
   }
 
   companion object {

@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -31,17 +30,17 @@ data class Size(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is Size) return false
-    return Objects.deepEquals(this.width, other.width)
-      && Objects.deepEquals(this.height, other.height)
-      && Objects.deepEquals(this.unit, other.unit)
+    return this.width.toBits() == other.width.toBits()
+      && this.height.toBits() == other.height.toBits()
+      && this.unit == other.unit
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      width,
-      height,
-      unit
-    ).contentDeepHashCode()
+    var result = 1
+    result = 31 * result + this.width.hashCode()
+    result = 31 * result + this.height.hashCode()
+    result = 31 * result + this.unit.hashCode()
+    return result
   }
 
   companion object {

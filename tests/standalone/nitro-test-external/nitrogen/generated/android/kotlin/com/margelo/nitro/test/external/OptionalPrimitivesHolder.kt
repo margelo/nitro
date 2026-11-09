@@ -9,7 +9,6 @@ package com.margelo.nitro.test.external
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -34,19 +33,19 @@ data class OptionalPrimitivesHolder(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is OptionalPrimitivesHolder) return false
-    return Objects.deepEquals(this.optionalNumber, other.optionalNumber)
-      && Objects.deepEquals(this.optionalBoolean, other.optionalBoolean)
-      && Objects.deepEquals(this.optionalUInt64, other.optionalUInt64)
-      && Objects.deepEquals(this.optionalInt64, other.optionalInt64)
+    return (this.optionalNumber == null && other.optionalNumber == null || this.optionalNumber != null && other.optionalNumber != null && this.optionalNumber.toBits() == other.optionalNumber.toBits())
+      && (this.optionalBoolean == null && other.optionalBoolean == null || this.optionalBoolean != null && other.optionalBoolean != null && this.optionalBoolean == other.optionalBoolean)
+      && (this.optionalUInt64 == null && other.optionalUInt64 == null || this.optionalUInt64 != null && other.optionalUInt64 != null && this.optionalUInt64 == other.optionalUInt64)
+      && (this.optionalInt64 == null && other.optionalInt64 == null || this.optionalInt64 != null && other.optionalInt64 != null && this.optionalInt64 == other.optionalInt64)
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      optionalNumber,
-      optionalBoolean,
-      optionalUInt64,
-      optionalInt64
-    ).contentDeepHashCode()
+    var result = 1
+    result = 31 * result + (if (this.optionalNumber != null) this.optionalNumber.hashCode() else 0)
+    result = 31 * result + (if (this.optionalBoolean != null) this.optionalBoolean.hashCode() else 0)
+    result = 31 * result + (if (this.optionalUInt64 != null) this.optionalUInt64.hashCode() else 0)
+    result = 31 * result + (if (this.optionalInt64 != null) this.optionalInt64.hashCode() else 0)
+    return result
   }
 
   companion object {

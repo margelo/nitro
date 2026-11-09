@@ -9,7 +9,6 @@ package com.margelo.nitro.test.external
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 import com.margelo.nitro.core.Callback
 
 /**
@@ -28,15 +27,15 @@ data class SharedCallbackStruct(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is SharedCallbackStruct) return false
-    return Objects.deepEquals(this.value, other.value)
-      && Objects.deepEquals(this.onChanged, other.onChanged)
+    return this.value.toBits() == other.value.toBits()
+      && this.onChanged == other.onChanged
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      value,
-      onChanged
-    ).contentDeepHashCode()
+    var result = 1
+    result = 31 * result + this.value.hashCode()
+    result = 31 * result + this.onChanged.hashCode()
+    return result
   }
 
   companion object {

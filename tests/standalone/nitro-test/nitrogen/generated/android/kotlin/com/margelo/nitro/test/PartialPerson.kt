@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -28,15 +27,15 @@ data class PartialPerson(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is PartialPerson) return false
-    return Objects.deepEquals(this.name, other.name)
-      && Objects.deepEquals(this.age, other.age)
+    return (this.name == null && other.name == null || this.name != null && other.name != null && this.name == other.name)
+      && (this.age == null && other.age == null || this.age != null && other.age != null && this.age.toBits() == other.age.toBits())
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      name,
-      age
-    ).contentDeepHashCode()
+    var result = 1
+    result = 31 * result + (if (this.name != null) this.name.hashCode() else 0)
+    result = 31 * result + (if (this.age != null) this.age.hashCode() else 0)
+    return result
   }
 
   companion object {

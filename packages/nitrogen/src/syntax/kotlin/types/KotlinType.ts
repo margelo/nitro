@@ -39,6 +39,11 @@ export interface GetKotlinCodeOptions extends GetCodeOptions {
   ownership?: 'owned' | 'borrowed'
 }
 
+export interface KotlinEqualityOptions {
+  left: string
+  right: string
+}
+
 /**
  * A Kotlin representation that crosses JNI.
  *
@@ -54,6 +59,10 @@ export interface GetKotlinCodeOptions extends GetCodeOptions {
  */
 export interface KotlinType extends Type {
   getCode(language: Language, options: GetKotlinCodeOptions): string
+  /** Overrides ordinary Kotlin equality, e.g. for floating-point values or array contents. */
+  getEqualityCode?(options: KotlinEqualityOptions): string
+  /** Overrides the Kotlin value's hash, e.g. to hash array contents. */
+  getHashCode?(value: string): string
   readonly jniValueKind: JniValueKind
   /** Whether this direct Kotlin type mangles JVM method names. */
   readonly requiresKotlinJvmName?: boolean
@@ -69,6 +78,22 @@ export interface KotlinType extends Type {
   getJniNativeRegistrations?(): readonly JNINativeRegistration[]
   /** Converts `value` across JNI, see `KotlinConversion`. */
   convert(value: string, conversion: KotlinConversion): string
+}
+
+/** Compares values using their type's policy, or ordinary Kotlin equality. */
+export function getKotlinEqualityCode(type: KotlinType, options: KotlinEqualityOptions): string {
+  const defaultEquality = `
+${options.left} == ${options.right}
+`.trim()
+  return type.getEqualityCode?.(options) ?? defaultEquality
+}
+
+/** Hashes a value without boxing primitives or allocating an object array. */
+export function getKotlinHashCode(type: KotlinType, value: string): string {
+  const defaultHash = `
+${value}.hashCode()
+`.trim()
+  return type.getHashCode?.(value) ?? defaultHash
 }
 
 /** Renders an fbjni object reference for the context it is used in. */

@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 import com.margelo.nitro.test.external.HybridSomeExternalObjectSpec
 
 /**
@@ -25,13 +24,13 @@ data class ExternalObjectStruct(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ExternalObjectStruct) return false
-    return Objects.deepEquals(this.someExternal, other.someExternal)
+    return this.someExternal == other.someExternal
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      someExternal
-    ).contentDeepHashCode()
+    var result = 1
+    result = 31 * result + this.someExternal.hashCode()
+    return result
   }
 
   companion object {

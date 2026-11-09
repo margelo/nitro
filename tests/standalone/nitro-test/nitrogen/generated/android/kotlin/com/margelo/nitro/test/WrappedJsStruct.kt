@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 
 
 /**
@@ -28,15 +27,15 @@ data class WrappedJsStruct(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is WrappedJsStruct) return false
-    return Objects.deepEquals(this.value, other.value)
-      && Objects.deepEquals(this.items, other.items)
+    return this.value == other.value
+      && this.items.contentDeepEquals(other.items)
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      value,
-      items
-    ).contentDeepHashCode()
+    var result = 1
+    result = 31 * result + this.value.hashCode()
+    result = 31 * result + this.items.contentDeepHashCode()
+    return result
   }
 
   companion object {

@@ -9,7 +9,6 @@ package com.margelo.nitro.test
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import java.util.Objects
 import com.margelo.nitro.core.Callback
 
 /**
@@ -40,23 +39,23 @@ data class UnsignedValues(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is UnsignedValues) return false
-    return Objects.deepEquals(this.unsignedValue, other.unsignedValue)
-      && Objects.deepEquals(this.optionalUnsigned, other.optionalUnsigned)
-      && Objects.deepEquals(this.values, other.values)
-      && Objects.deepEquals(this.nested, other.nested)
-      && Objects.deepEquals(this.record, other.record)
-      && Objects.deepEquals(this.callbacks, other.callbacks)
+    return this.unsignedValue == other.unsignedValue
+      && (this.optionalUnsigned == null && other.optionalUnsigned == null || this.optionalUnsigned != null && other.optionalUnsigned != null && this.optionalUnsigned == other.optionalUnsigned)
+      && this.values.contentDeepEquals(other.values)
+      && this.nested.contentDeepEquals(other.nested)
+      && this.record == other.record
+      && this.callbacks.contentDeepEquals(other.callbacks)
   }
 
   override fun hashCode(): Int {
-    return arrayOf<Any?>(
-      unsignedValue,
-      optionalUnsigned,
-      values,
-      nested,
-      record,
-      callbacks
-    ).contentDeepHashCode()
+    var result = 1
+    result = 31 * result + this.unsignedValue.hashCode()
+    result = 31 * result + (if (this.optionalUnsigned != null) this.optionalUnsigned.hashCode() else 0)
+    result = 31 * result + this.values.contentDeepHashCode()
+    result = 31 * result + this.nested.contentDeepHashCode()
+    result = 31 * result + this.record.hashCode()
+    result = 31 * result + this.callbacks.contentDeepHashCode()
+    return result
   }
 
   companion object {
