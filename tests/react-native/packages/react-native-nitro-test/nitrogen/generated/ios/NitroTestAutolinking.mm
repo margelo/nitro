@@ -13,6 +13,7 @@
 #include "HybridBenchmarkObjectCpp.hpp"
 #include "HybridBenchmarkObjectSwiftKotlinSpecSwift.hpp"
 #include "HybridTestViewSpecSwift.hpp"
+#include "HybridPaddedTestViewSpecSwift.hpp"
 #include "HybridRecyclableTestViewSpecSwift.hpp"
 
 @interface NitroTestAutolinking : NSObject
@@ -44,6 +45,13 @@
     "TestView",
     []() -> std::shared_ptr<HybridObject> {
       std::shared_ptr<HybridTestViewSpec> hybridObject = NitroTest::NitroTestAutolinking::createTestView();
+      return hybridObject;
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "PaddedTestView",
+    []() -> std::shared_ptr<HybridObject> {
+      std::shared_ptr<HybridPaddedTestViewSpec> hybridObject = NitroTest::NitroTestAutolinking::createPaddedTestView();
       return hybridObject;
     }
   );

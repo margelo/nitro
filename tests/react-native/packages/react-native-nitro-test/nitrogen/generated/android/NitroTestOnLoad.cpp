@@ -17,6 +17,8 @@
 
 #include "JHybridBenchmarkObjectSwiftKotlinSpec.hpp"
 #include "JFunc_double.hpp"
+#include "JHybridPaddedTestViewSpec.hpp"
+#include "views/JHybridPaddedTestViewStateUpdater.hpp"
 #include "JHybridRecyclableTestViewSpec.hpp"
 #include "views/JHybridRecyclableTestViewStateUpdater.hpp"
 #include "JHybridTestViewSpec.hpp"
@@ -49,6 +51,14 @@ struct JHybridTestViewSpecImpl: public jni::JavaClass<JHybridTestViewSpecImpl, J
     return javaPart->getJHybridTestViewSpec();
   }
 };
+struct JHybridPaddedTestViewSpecImpl: public jni::JavaClass<JHybridPaddedTestViewSpecImpl, JHybridPaddedTestViewSpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/HybridPaddedTestView;";
+  static std::shared_ptr<JHybridPaddedTestViewSpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridPaddedTestViewSpecImpl::javaobject()>();
+    jni::local_ref<JHybridPaddedTestViewSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridPaddedTestViewSpec();
+  }
+};
 struct JHybridRecyclableTestViewSpecImpl: public jni::JavaClass<JHybridRecyclableTestViewSpecImpl, JHybridRecyclableTestViewSpec::JavaPart> {
   static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/HybridRecyclableTestView;";
   static std::shared_ptr<JHybridRecyclableTestViewSpec> create() {
@@ -65,6 +75,8 @@ void registerAllNatives() {
   // Register native JNI methods
   margelo::nitro::test::JHybridBenchmarkObjectSwiftKotlinSpec::CxxPart::registerNatives();
   margelo::nitro::test::JFunc_double_cxx::registerNatives();
+  margelo::nitro::test::JHybridPaddedTestViewSpec::CxxPart::registerNatives();
+  margelo::nitro::test::views::JHybridPaddedTestViewStateUpdater::registerNatives();
   margelo::nitro::test::JHybridRecyclableTestViewSpec::CxxPart::registerNatives();
   margelo::nitro::test::views::JHybridRecyclableTestViewStateUpdater::registerNatives();
   margelo::nitro::test::JHybridTestViewSpec::CxxPart::registerNatives();
@@ -91,6 +103,12 @@ void registerAllNatives() {
     "TestView",
     []() -> std::shared_ptr<HybridObject> {
       return JHybridTestViewSpecImpl::create();
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "PaddedTestView",
+    []() -> std::shared_ptr<HybridObject> {
+      return JHybridPaddedTestViewSpecImpl::create();
     }
   );
   HybridObjectRegistry::registerHybridObjectConstructor(

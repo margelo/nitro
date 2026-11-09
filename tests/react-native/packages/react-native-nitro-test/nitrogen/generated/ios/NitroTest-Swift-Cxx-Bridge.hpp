@@ -12,6 +12,8 @@
 namespace margelo::nitro::test { struct Car; }
 // Forward declaration of `HybridBenchmarkObjectSwiftKotlinSpec` to properly resolve imports.
 namespace margelo::nitro::test { class HybridBenchmarkObjectSwiftKotlinSpec; }
+// Forward declaration of `HybridPaddedTestViewSpec` to properly resolve imports.
+namespace margelo::nitro::test { class HybridPaddedTestViewSpec; }
 // Forward declaration of `HybridRecyclableTestViewSpec` to properly resolve imports.
 namespace margelo::nitro::test { class HybridRecyclableTestViewSpec; }
 // Forward declaration of `HybridTestViewSpec` to properly resolve imports.
@@ -22,6 +24,8 @@ namespace margelo::nitro::test { struct Person; }
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridBenchmarkObjectSwiftKotlinSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridBenchmarkObjectSwiftKotlinSpec_cxx; }
+// Forward declaration of `HybridPaddedTestViewSpec_cxx` to properly resolve imports.
+namespace NitroTest { class HybridPaddedTestViewSpec_cxx; }
 // Forward declaration of `HybridRecyclableTestViewSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridRecyclableTestViewSpec_cxx; }
 // Forward declaration of `HybridTestViewSpec_cxx` to properly resolve imports.
@@ -30,6 +34,7 @@ namespace NitroTest { class HybridTestViewSpec_cxx; }
 // Include C++ defined types
 #include "Car.hpp"
 #include "HybridBenchmarkObjectSwiftKotlinSpec.hpp"
+#include "HybridPaddedTestViewSpec.hpp"
 #include "HybridRecyclableTestViewSpec.hpp"
 #include "HybridTestViewSpec.hpp"
 #include "Person.hpp"
@@ -426,6 +431,18 @@ namespace margelo::nitro::test::bridge::swift {
   inline Result_std__shared_ptr_Promise_double___ create_Result_std__shared_ptr_Promise_double___(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<Promise<double>>>::withError(error);
   }
+  
+  // pragma MARK: std::shared_ptr<HybridPaddedTestViewSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridPaddedTestViewSpec>`.
+   */
+  using std__shared_ptr_HybridPaddedTestViewSpec_ = std::shared_ptr<HybridPaddedTestViewSpec>;
+  std::shared_ptr<HybridPaddedTestViewSpec> create_std__shared_ptr_HybridPaddedTestViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridPaddedTestViewSpec_(std__shared_ptr_HybridPaddedTestViewSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridPaddedTestViewSpec>
+  using std__weak_ptr_HybridPaddedTestViewSpec_ = std::weak_ptr<HybridPaddedTestViewSpec>;
+  inline std__weak_ptr_HybridPaddedTestViewSpec_ weakify_std__shared_ptr_HybridPaddedTestViewSpec_(const std::shared_ptr<HybridPaddedTestViewSpec>& strong) noexcept { return strong; }
   
   // pragma MARK: std::optional<double>
   /**
