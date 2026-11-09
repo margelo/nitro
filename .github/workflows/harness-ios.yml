@@ -137,7 +137,7 @@ jobs:
         run: brew install watchman
 
       - name: Run Harness E2E tests
-        uses: callstackincubator/react-native-harness@v1.5.0
+        uses: callstackincubator/react-native-harness@v1.6.0
         with:
           runner: ios
           projectRoot: tests/react-native/apps/example
