@@ -134,6 +134,7 @@ async function runNitrogenCommand(baseDirectory: string, outputDirectory: string
       text = `Added ${addedFiles.length} file${as} and removed ${removedFiles.length} file${rs}`
     }
 
+    // TODO: Drop the `pod install` hint once React Native defaults to Swift Package Manager.
     console.log(
       `‼️   ${text} - ${chalk.bold('refresh Apple dependencies (`pod install` or `npx react-native spm`) or sync Gradle to update files!')}`
     )

@@ -43,7 +43,8 @@ export function createAppleAutolinking(specs: HybridObjectSpec[]): AppleAutolink
     .flatMap((type) => (type instanceof ForeignHybridObjectType ? type.getSwiftTypes() : []))
   const swiftTypes = [...getSwiftTypes(specs), ...foreignSwiftTypes]
   const moduleDependencies = getModuleDependencies(specs, NitroConfig.current)
-  // TODO: Remove CocoaPods support once Swift Package Manager is established across React Native apps.
+  // TODO: Remove CocoaPods support once React Native defaults to Swift Package Manager.
+  // Remove createCocoaPodsConfig.ts, its sourceFiles entry, and generated apple/*+autolinking.json files.
   const cocoaPodsConfig = createCocoaPodsConfig({ moduleDependencies: moduleDependencies })
   const swiftCxxBridge = createSwiftCxxBridge(swiftTypes)
   const swiftUmbrellaHeader = createSwiftUmbrellaHeader(swiftTypes, moduleDependencies)

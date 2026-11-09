@@ -28,6 +28,7 @@ on:
       - 'config/**'
 
 jobs:
+  # TODO: Remove this CocoaPods job once React Native defaults to Swift Package Manager.
   build_cocoapods:
     name: Build iOS Example App (CocoaPods, ${{ matrix.configuration }})
     runs-on: xcode-27

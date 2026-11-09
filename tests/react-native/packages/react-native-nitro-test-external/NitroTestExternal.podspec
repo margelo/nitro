@@ -14,6 +14,6 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "16.0" }
   s.source       = { :git => "https://github.com/margelo/nitro.git", :tag => "#{s.version}" }
 
-  # TODO: Remove CocoaPods support once React Native's SwiftPM integration is established.
+  # TODO: Remove CocoaPods support once React Native defaults to Swift Package Manager.
   Nitro::CocoaPods.configure_library(s, generated_directory: 'nitrogen/generated')
 end

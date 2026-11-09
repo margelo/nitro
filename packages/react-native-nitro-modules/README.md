@@ -26,6 +26,8 @@ Install the alpha package as a dependency in your React Native app:
 npm i react-native-nitro-modules@alpha
 ```
 
+<!-- TODO: Remove CocoaPods installation instructions once React Native defaults to Swift Package Manager. -->
+
 For CocoaPods, add Nitro's helper next to the React Native require in your `ios/Podfile`:
 
 ```ruby

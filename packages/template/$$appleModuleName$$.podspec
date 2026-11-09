@@ -4,7 +4,7 @@ require Pod::Executable.execute_command('node', ['-p',
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-# TODO: Remove CocoaPods support once Swift Package Manager is established across React Native apps.
+# TODO: Remove CocoaPods support once React Native defaults to Swift Package Manager.
 Pod::Spec.new do |s|
   s.name = "$$appleModuleName$$"
   s.version = package["version"]

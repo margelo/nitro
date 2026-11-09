@@ -24,6 +24,8 @@ The package pins Nitro and Nitrogen to the exact alpha version that created it. 
 - `package.json` maps `#nitro/*` to the generated `.cjs` modules. Keep that mapping available to the compiled files as well as the source
   specs.
 
+<!-- TODO: Remove CocoaPods setup instructions once React Native defaults to Swift Package Manager. -->
+
 React Native's SwiftPM autolinking uses `Package.swift` and `swiftpmConfig` from `package.json`. Nitrogen adds targets for the Swift sources
 in `apple/`, C++ sources in `cpp/`, and generated bindings. The podspec builds the same sources for CocoaPods apps. Those apps must require
 `react-native-nitro-modules/cocoapods.rb` in their Podfile, call `use_nitro_modules!` after `use_native_modules!`, and call

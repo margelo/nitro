@@ -488,6 +488,8 @@ On the JVM, a spec property `width` compiles to a `getWidth()` method and, unles
 function with one of those signatures, such as the Java getter `double getWidth()`, clashes with the property, and the property can't
 implement it. An interface property `width` clashes with a spec method `getWidth()` the same way.
 
+<!-- TODO: Remove this CocoaPods section once React Native defaults to Swift Package Manager. -->
+
 ## CocoaPods
 
 Require Nitro's CocoaPods helper at the top of your library's podspec:

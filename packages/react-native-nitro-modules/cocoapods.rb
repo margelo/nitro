@@ -3,7 +3,15 @@ require 'json'
 require 'pathname'
 
 module Nitro
-  # TODO: Remove CocoaPods support once React Native SwiftPM integration is established.
+  # TODO: Remove CocoaPods support once React Native defaults to Swift Package Manager.
+  # Remove this helper, its companion pods and SimdUTF specs, and the Podfile hooks.
+  # Remove CocoaPods build configuration from runtime, template and test podspecs.
+  # Stop publishing cocoapods.rb and any CocoaPods-only podspecs through package.json files.
+  # Remove createCocoaPodsConfig.ts and generated apple/*+autolinking.json files.
+  # Remove build_cocoapods from .github/workflows/build-ios-release.yml.
+  # Remove CocoaPods setup and simplify Apple package-manager instructions in docs/ and package READMEs.
+  # Drop Nitrogen's pod install hint in packages/nitrogen/src/index.ts.
+  # Keep discovery-only podspec/Podfile metadata while React Native CLI requires it.
   module CocoaPods
     SOURCE_EXTENSIONS = '*.{h,hh,hpp,hxx,c,cc,cpp,cxx,m,mm}'.freeze
     SIMDUTF_VERSION = '1.0.1'.freeze

@@ -40,6 +40,8 @@ Nitro V1 requires React Native 0.88 or newer with the New Architecture. Install 
 
 For iOS, use Xcode with Swift 6.4 or newer. Choose the package manager your app uses:
 
+{/* TODO: Remove the CocoaPods installation tab once React Native defaults to Swift Package Manager. */}
+
 <Tabs groupId="apple-package-manager">
   <TabItem value="cocoapods" label="CocoaPods" default>
 

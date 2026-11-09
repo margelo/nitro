@@ -236,6 +236,8 @@ React Native's default `typescript-config` does not allow overridden `imports` i
 Apple libraries can support CocoaPods and Swift Package Manager using the same generated bindings and native sources. Include both a podspec
 and `Package.swift` to support apps using either package manager.
 
+{/* TODO: Remove this CocoaPods setup once React Native defaults to Swift Package Manager. */}
+
 ##### CocoaPods
 
 Require Nitro's CocoaPods helper at the top of your podspec:

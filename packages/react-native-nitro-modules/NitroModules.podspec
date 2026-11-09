@@ -3,7 +3,7 @@ require_relative "cocoapods"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-# TODO: Remove CocoaPods support once React Native SwiftPM integration is established.
+# TODO: Remove CocoaPods support once React Native defaults to Swift Package Manager.
 Pod::Spec.new do |s|
   s.name = "NitroModules"
   s.version = package["version"]

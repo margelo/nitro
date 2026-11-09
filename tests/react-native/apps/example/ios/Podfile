@@ -1,4 +1,4 @@
-# TODO: Remove CocoaPods support once React Native's SwiftPM integration is established.
+# TODO: Remove CocoaPods support once React Native defaults to Swift Package Manager.
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve("react-native/scripts/react_native_pods.rb", { paths: [process.argv[1]] })', __dir__]).strip
 require Pod::Executable.execute_command('node', ['-p',
