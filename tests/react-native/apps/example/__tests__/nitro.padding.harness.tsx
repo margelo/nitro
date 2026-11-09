@@ -8,13 +8,10 @@ import * as UPNG from 'upng-js'
 const TEST_ID = 'padded-test-view'
 const COLOR_DOMINANCE_MARGIN = 50
 const SIZE = { width: 120, height: 100 }
-const INITIAL_PADDING = { paddingLeft: 8, paddingTop: 12, paddingRight: 20, paddingBottom: 4 }
+const NATIVE_PADDING = 7
 const UPDATED_PADDING = { paddingLeft: 20, paddingTop: 4, paddingRight: 8, paddingBottom: 12 }
-const NO_PADDING = { paddingLeft: 0, paddingTop: 0, paddingRight: 0, paddingBottom: 0 }
 
-type Padding = typeof INITIAL_PADDING
-
-async function expectRenderedPadding(padding: Padding): Promise<void> {
+async function expectNativePadding(): Promise<void> {
   const element = await screen.findByTestId(TEST_ID)
   const screenshot = await screen.screenshot(element)
   if (screenshot == null) {
@@ -32,16 +29,15 @@ async function expectRenderedPadding(padding: Padding): Promise<void> {
     height: PixelRatio.getPixelSizeForLayoutSize(SIZE.height),
   })
 
-  const left = PixelRatio.getPixelSizeForLayoutSize(padding.paddingLeft)
-  const top = PixelRatio.getPixelSizeForLayoutSize(padding.paddingTop)
-  const right = image.width - PixelRatio.getPixelSizeForLayoutSize(padding.paddingRight)
-  const bottom = image.height - PixelRatio.getPixelSizeForLayoutSize(padding.paddingBottom)
+  const padding = PixelRatio.getPixelSizeForLayoutSize(NATIVE_PADDING)
+  const right = image.width - padding
+  const bottom = image.height - padding
   const pixels = new DataView(rgba)
   for (let offset = 0; offset < rgba.byteLength; offset += 4) {
     const pixel = offset / 4
     const x = pixel % image.width
     const y = Math.floor(pixel / image.width)
-    const isContent = x >= left && x < right && y >= top && y < bottom
+    const isContent = x >= padding && x < right && y >= padding && y < bottom
     const red = pixels.getUint8(offset)
     const green = pixels.getUint8(offset + 1)
     const blue = pixels.getUint8(offset + 2)
@@ -58,15 +54,18 @@ async function expectRenderedPadding(padding: Padding): Promise<void> {
 }
 
 describe('PaddedTestView', () => {
-  it('applies, updates, and removes base padding around native content', async () => {
+  it('keeps native padding at 7 when React sets 1, changes it, or removes it', async () => {
     const style: ViewStyle = { width: SIZE.width, height: SIZE.height, backgroundColor: '#ff0000' }
-    const result = await render(<PaddedTestView testID={TEST_ID} style={[style, INITIAL_PADDING]} />, { timeout: 4000 })
-    await waitFor(() => expectRenderedPadding(INITIAL_PADDING), { timeout: 4000 })
+    const result = await render(<PaddedTestView testID={TEST_ID} style={style} />, { timeout: 4000 })
+    await waitFor(expectNativePadding, { timeout: 4000 })
+
+    await result.rerender(<PaddedTestView testID={TEST_ID} style={[style, { padding: 1 }]} />)
+    await waitFor(expectNativePadding, { timeout: 4000 })
 
     await result.rerender(<PaddedTestView testID={TEST_ID} style={[style, UPDATED_PADDING]} />)
-    await waitFor(() => expectRenderedPadding(UPDATED_PADDING), { timeout: 4000 })
+    await waitFor(expectNativePadding, { timeout: 4000 })
 
     await result.rerender(<PaddedTestView testID={TEST_ID} style={style} />)
-    await waitFor(() => expectRenderedPadding(NO_PADDING), { timeout: 4000 })
+    await waitFor(expectNativePadding, { timeout: 4000 })
   })
 })

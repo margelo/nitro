@@ -6,8 +6,8 @@ final class HybridPaddedTestView: HybridPaddedTestViewSpec {
     try super.init()
   }
 
-  let view: UIView = MainActor.assumeIsolated {
-    let view = UIView()
+  let view = MainActor.assumeIsolated {
+    let view = PaddedTestUIView()
     view.backgroundColor = .blue
     return view
   }
