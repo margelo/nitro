@@ -10,6 +10,7 @@
 
 #include <NitroTest/HybridBenchmarkObjectCppSpec.hpp>
 #include <NitroTest/private/HybridBenchmarkObjectSwiftKotlinSpecSwift.hpp>
+#include <NitroTest/private/HybridPaddedTestViewSpecSwift.hpp>
 #include <NitroTest/private/HybridRecyclableTestViewSpecSwift.hpp>
 #include <NitroTest/private/HybridTestViewSpecSwift.hpp>
 
@@ -20,6 +21,7 @@ namespace margelo::nitro::test {
 
     HybridClassRegistry::registerHybridClass("test.BenchmarkObjectCpp", HybridBenchmarkObjectCppSpec::Class::get());
     HybridClassRegistry::registerHybridClass("test.BenchmarkObjectSwiftKotlin", HybridBenchmarkObjectSwiftKotlinSpecSwift::Class::get());
+    HybridClassRegistry::registerHybridClass("test.PaddedTestView", HybridPaddedTestViewSpecSwift::Class::get());
     HybridClassRegistry::registerHybridClass("test.RecyclableTestView", HybridRecyclableTestViewSpecSwift::Class::get());
     HybridClassRegistry::registerHybridClass("test.TestView", HybridTestViewSpecSwift::Class::get());
   }

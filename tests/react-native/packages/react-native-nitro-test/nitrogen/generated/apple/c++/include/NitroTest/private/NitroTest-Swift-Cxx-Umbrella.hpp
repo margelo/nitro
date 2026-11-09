@@ -42,6 +42,7 @@
 #include <NitroTest/private/Variant_Bool__Double___String__Double_String-Swift.hpp>
 #include <NitroModules/Callback.hpp>
 #include <NitroModules/Result.hpp>
+#include <NitroTest/private/HybridPaddedTestViewSpec_cxx-Swift.hpp>
 #include <NitroTest/private/HybridRecyclableTestViewSpec_cxx-Swift.hpp>
 #include <NitroTest/private/HybridTestViewSpec_cxx-Swift.hpp>
 #include <NitroTest/private/ColorScheme-Swift.hpp>

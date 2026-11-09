@@ -7,6 +7,7 @@
 #include <NitroTest/private/NitroTest-Swift-Cxx-Umbrella.hpp>
 #include <NitroTest/private/HybridBenchmarkObjectSwiftKotlinSpecSwift.hpp>
 #include <NitroModules/Callback.hpp>
+#include <NitroTest/private/HybridPaddedTestViewSpecSwift.hpp>
 #include <NitroTest/private/HybridRecyclableTestViewSpecSwift.hpp>
 #include <NitroTest/private/HybridTestViewSpecSwift.hpp>
 
@@ -37,6 +38,16 @@ namespace margelo::nitro::test::swift_bridge {
       }
       return std::move(__result.value());
     });
+  }
+
+  std__shared_ptr_margelo__nitro__test__HybridPaddedTestViewSpec_ create_std__shared_ptr_margelo__nitro__test__HybridPaddedTestViewSpec_(void* NON_NULL pointer) {
+    return std::make_shared<margelo::nitro::test::HybridPaddedTestViewSpecSwift>(::NitroTest::HybridPaddedTestViewSpec_cxx::fromUnsafe(pointer));
+  }
+
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__test__HybridPaddedTestViewSpec_(const std::shared_ptr<HybridObject>& value) {
+    auto wrapper = std::dynamic_pointer_cast<margelo::nitro::test::HybridPaddedTestViewSpecSwift>(value);
+    if (!wrapper) throw std::runtime_error("HybridPaddedTestViewSpec is not implemented in Swift");
+    return wrapper->getSwiftPart().toUnsafe();
   }
 
   std__shared_ptr_margelo__nitro__test__HybridRecyclableTestViewSpec_ create_std__shared_ptr_margelo__nitro__test__HybridRecyclableTestViewSpec_(void* NON_NULL pointer) {

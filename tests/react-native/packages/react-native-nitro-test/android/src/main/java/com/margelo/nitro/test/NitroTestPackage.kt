@@ -6,6 +6,7 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.model.ReactModuleInfoProvider
 import com.facebook.react.uimanager.ViewManager
 import com.margelo.nitro.test.views.HybridRecyclableTestViewManager
+import com.margelo.nitro.test.views.HybridTestViewManager
 
 class NitroTestPackage : BaseReactPackage() {
   override fun getModule(
@@ -17,7 +18,8 @@ class NitroTestPackage : BaseReactPackage() {
 
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
     val viewManagers = ArrayList<ViewManager<*, *>>()
-    viewManagers.add(TestViewManager())
+    viewManagers.add(HybridTestViewManager())
+    viewManagers.add(PaddedTestViewManager())
     viewManagers.add(HybridRecyclableTestViewManager())
     return viewManagers
   }
