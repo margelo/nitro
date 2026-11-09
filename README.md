@@ -27,8 +27,7 @@ import { Apple, type HybridObject } from 'nitro-core'
   implementation: { className: 'HybridMath', include: '"HybridMath.hpp"' },
 })
 export declare class Math extends HybridObject {
-  constructor()
-  add(a: number, b: number): number
+  static add(a: number, b: number): number
 }
 export * from '#nitro/Math'
 ```
@@ -38,8 +37,7 @@ Implementation (C++, Swift or Kotlin):
 ```cpp
 class HybridMath: public HybridMathSpec {
 public:
-  HybridMath() = default;
-  double add(double a, double b) override {
+  static double add(double a, double b) {
     return a + b;
   }
 };
@@ -50,8 +48,7 @@ Usage (TypeScript):
 ```ts
 import { Math } from './Math.nitro'
 
-const math = new Math()
-const result = math.add(5, 3)
+const result = Math.add(5, 3)
 ```
 
 ## Installation

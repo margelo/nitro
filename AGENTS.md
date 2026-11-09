@@ -1,5 +1,10 @@
 # Repository preferences
 
+- Default to static methods and properties for Nitro APIs without per-instance state or lifetime requirements. Use instance members for
+  object-specific state, identity, resources, or polymorphism. Do not create a singleton HybridObject just to expose stateless functions.
+- Benchmark the recommended static API for stateless operations. Keep instance calls as explicitly labeled controls; a cached JNI method ID
+  declared with `static const` does not exercise a Nitro static method. Read [Performance Tips](docs/docs/guides/performance-tips.md) before
+  designing or comparing Nitro APIs.
 - Include a real caller with a new API when practical. A narrow throwing stub is fine when another part is not implemented yet; keep
   prerequisite PRs buildable.
 - Apply review feedback to equivalent code throughout the affected PR stack.
