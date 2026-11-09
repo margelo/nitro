@@ -70,7 +70,7 @@ ${implementationImport}
 /**
  * Represents the React Native \`ViewManager\` for the "${spec.name}" Nitro HybridView.
  */
-public class ${manager}: SimpleViewManager<View>() {
+public open class ${manager}: SimpleViewManager<View>() {
   /**
    * Represents the View and its last state snapshot (mutable)
    */
