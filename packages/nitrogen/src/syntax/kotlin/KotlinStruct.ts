@@ -51,25 +51,15 @@ private fun fromCpp(${cxxCreateFunctionParameters}): ${structType.structName} {
   const hashCodeStatements = structType.properties.map((property, index) => {
     const hash = getKotlinHashCode({ type: property, value: `this.${property.escapedName}` })
     if (structType.properties.length === 1) {
-      return `
-return ${hash}
-`.trim()
+      return `return ${hash}`
     }
     if (index === 0) {
-      return `
-var result = ${hash}
-`.trim()
+      return `var result = ${hash}`
     }
-    return `
-result = 31 * result + ${hash}
-`.trim()
+    return `result = 31 * result + ${hash}`
   })
   if (structType.properties.length > 1) {
-    hashCodeStatements.push(
-      `
-return result
-`.trim()
-    )
+    hashCodeStatements.push('return result')
   }
   const hashCodeBody = hashCodeStatements.join('\n')
 

@@ -7,6 +7,7 @@ import type { KotlinCppConverter } from '../KotlinConverter.js'
 import { KotlinCxxArrayType } from './KotlinCxxArrayType.js'
 import { getTypeAs } from '../../types/getTypeAs.js'
 import { getJniReferenceCode, type KotlinConversion, type KotlinType, type KotlinTypeOptions } from './KotlinType.js'
+import { isKotlinPrimitiveArray } from '../isKotlinPrimitiveArray.js'
 
 export class KotlinArrayType extends ArrayType implements KotlinType {
   override readonly itemType: KotlinType
@@ -89,17 +90,9 @@ export class KotlinArrayType extends ArrayType implements KotlinType {
     const imports = this.itemType.getRequiredImports(language)
     switch (language) {
       case 'c++': {
-        let jsiConverterHeader: string
-        switch (this.itemType.kind) {
-          case 'number':
-          case 'boolean':
-          case 'int64':
-            jsiConverterHeader = 'NitroModules/JSIConverter+JPrimitiveArray.hpp'
-            break
-          default:
-            jsiConverterHeader = 'NitroModules/JSIConverter+JArrayClass.hpp'
-            break
-        }
+        const jsiConverterHeader = isKotlinPrimitiveArray(this)
+          ? 'NitroModules/JSIConverter+JPrimitiveArray.hpp'
+          : 'NitroModules/JSIConverter+JArrayClass.hpp'
         imports.push(
           { language: language, declaration: { header: 'NitroModules/JNIConverter+Array.hpp', space: 'system' } },
           { language: language, declaration: { header: jsiConverterHeader, space: 'system' } }
