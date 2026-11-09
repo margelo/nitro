@@ -9,6 +9,7 @@
 
 // Include C++ implementation defined types
 #include "HybridBenchmarkObjectSwiftKotlinSpecSwift.hpp"
+#include "HybridPaddedTestViewSpecSwift.hpp"
 #include "HybridRecyclableTestViewSpecSwift.hpp"
 #include "HybridTestViewSpecSwift.hpp"
 #include "NitroTest-Swift-Cxx-Umbrella.hpp"
@@ -55,6 +56,22 @@ namespace margelo::nitro::test::bridge::swift {
     return [swiftClosure = std::move(swiftClosure)](const std::exception_ptr& error) mutable -> void {
       swiftClosure.call(error);
     };
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridPaddedTestViewSpec>
+  std::shared_ptr<HybridPaddedTestViewSpec> create_std__shared_ptr_HybridPaddedTestViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    NitroTest::HybridPaddedTestViewSpec_cxx swiftPart = NitroTest::HybridPaddedTestViewSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::test::HybridPaddedTestViewSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridPaddedTestViewSpec_(std__shared_ptr_HybridPaddedTestViewSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::test::HybridPaddedTestViewSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::test::HybridPaddedTestViewSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridPaddedTestViewSpec\" is not implemented in Swift!");
+    }
+    #endif
+    NitroTest::HybridPaddedTestViewSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
   }
   
   // pragma MARK: std::shared_ptr<HybridRecyclableTestViewSpec>

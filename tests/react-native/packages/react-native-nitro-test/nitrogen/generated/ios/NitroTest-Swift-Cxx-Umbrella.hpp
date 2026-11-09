@@ -14,6 +14,8 @@ namespace margelo::nitro::test { struct Car; }
 namespace margelo::nitro::test { enum class ColorScheme; }
 // Forward declaration of `HybridBenchmarkObjectSwiftKotlinSpec` to properly resolve imports.
 namespace margelo::nitro::test { class HybridBenchmarkObjectSwiftKotlinSpec; }
+// Forward declaration of `HybridPaddedTestViewSpec` to properly resolve imports.
+namespace margelo::nitro::test { class HybridPaddedTestViewSpec; }
 // Forward declaration of `HybridRecyclableTestViewSpec` to properly resolve imports.
 namespace margelo::nitro::test { class HybridRecyclableTestViewSpec; }
 // Forward declaration of `HybridTestViewSpec` to properly resolve imports.
@@ -27,6 +29,7 @@ namespace margelo::nitro::test { enum class Powertrain; }
 #include "Car.hpp"
 #include "ColorScheme.hpp"
 #include "HybridBenchmarkObjectSwiftKotlinSpec.hpp"
+#include "HybridPaddedTestViewSpec.hpp"
 #include "HybridRecyclableTestViewSpec.hpp"
 #include "HybridTestViewSpec.hpp"
 #include "Person.hpp"
@@ -55,6 +58,8 @@ namespace margelo::nitro::test { enum class Powertrain; }
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridBenchmarkObjectSwiftKotlinSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridBenchmarkObjectSwiftKotlinSpec_cxx; }
+// Forward declaration of `HybridPaddedTestViewSpec_cxx` to properly resolve imports.
+namespace NitroTest { class HybridPaddedTestViewSpec_cxx; }
 // Forward declaration of `HybridRecyclableTestViewSpec_cxx` to properly resolve imports.
 namespace NitroTest { class HybridRecyclableTestViewSpec_cxx; }
 // Forward declaration of `HybridTestViewSpec_cxx` to properly resolve imports.
