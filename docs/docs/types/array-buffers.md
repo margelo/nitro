@@ -156,6 +156,22 @@ buffer.withUnsafeMutableBytes { bytes in
 An `ArrayBuffer` can be accessed from both JS and native, and even from multiple Threads at once, but they are **not thread-safe**. To
 prevent race conditions or garbage-data from being read, make sure to not read from- and write to- the `ArrayBuffer` at the same time.
 
+## Releasing memory
+
+In C++ and Swift, an `ArrayBuffer` releases its memory once its last reference is gone. A Kotlin `ArrayBuffer` keeps its memory until the
+Java garbage collector frees it, which can take a while. Call `close()` (or use `use { }`) to release it right away:
+
+```kotlin
+override fun process(buffer: ArrayBuffer) {
+  buffer.use {
+    // read the data
+  }
+}
+```
+
+Closing only releases this reference. Memory that JS or other native code still uses stays valid until they release it too. A closed
+`ArrayBuffer` can no longer be accessed.
+
 ## Creating Buffers
 
 Buffers can either be created from native (**owning**), or from JS (**non-owning**).
