@@ -422,6 +422,48 @@ describe('TestView', () => {
     expect(view.getNativeDefaultValueSetterCallCount()).toBe(0)
   })
 
+  it('delivers undefined when an optional prop is removed', async () => {
+    const viewRef = deferred<TestViewRef>()
+    const stableSomeCallback = callback(fn())
+    const renderResult = await render(
+      <TestView
+        testID="test-view-prop-removal"
+        style={INITIAL_SIZE}
+        hybridRef={callback((view) => viewRef.resolve(view))}
+        isBlue={false}
+        hasBeenCalled={false}
+        int64Value={0n}
+        colorScheme="dark"
+        someCallback={stableSomeCallback}
+        nativeDefaultValue={1}
+      />,
+      { timeout: RENDER_TIMEOUT }
+    )
+
+    const view = await viewRef.promise
+    expect(view.nativeDefaultValue).toBe(1)
+    expect(view.getNativeDefaultValueSetterCallCount()).toBe(1)
+    expect(view.getIsBlueSetterCallCount()).toBe(1)
+
+    // Removing the optional `nativeDefaultValue` and `hybridRef` props sends
+    // an explicit `null` to native - Nitro must deliver `undefined` for them.
+    await renderResult.rerender(
+      <TestView
+        testID="test-view-prop-removal"
+        style={INITIAL_SIZE}
+        isBlue={false}
+        hasBeenCalled={false}
+        int64Value={0n}
+        colorScheme="dark"
+        someCallback={stableSomeCallback}
+      />
+    )
+
+    expect(view.nativeDefaultValue).toBe(undefined)
+    expect(view.getNativeDefaultValueSetterCallCount()).toBe(2)
+    expect(view.getIsBlueSetterCallCount()).toBe(1)
+  })
+
   it('only calls native setters for changed Nitro props', async () => {
     const viewRef = deferred<TestViewRef>()
     const stableHybridRef = callback((view: TestViewRef) =>

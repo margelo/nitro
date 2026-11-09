@@ -5,6 +5,7 @@
 #pragma once
 
 #include "BorrowingReference.hpp"
+#include "CountTrailingOptionals.hpp"
 #include "IsFunctionProp.hpp"
 #include "JSIConverter.hpp"
 #include "NitroDefines.hpp"
@@ -96,11 +97,24 @@ public:
 
       auto [runtime, value] = static_cast<std::pair<jsi::Runtime*, jsi::Value>>(*rawValue);
 
+      // TODO: Remove this explicit null handling path once React Native View Config supports `resetValue`:
+      // https://github.com/react/react-native/issues/59884
+      if constexpr (is_optional<T>::value) {
+        // React sends `null` for removed props. Clear optional values unless their type accepts `null` as data.
+        if (value.isNull() && !JSIConverter<T>::canConvert(*runtime, value)) [[unlikely]] {
+          value = jsi::Value::undefined();
+        }
+      }
+
       if constexpr (IsFunctionProp<std::remove_cv_t<T>>::value) {
         // React Native cannot transport functions as regular props. Nitrogen
         // wraps them as `{ f: function }`, so we unwrap `f` before converting
         // and caching the JSI value.
-        value = value.asObject(*runtime).getProperty(*runtime, PropNameIDCache::get(*runtime, "f"));
+        // TODO: Remove this explicit null handling path once React Native View Config supports `resetValue`:
+        // https://github.com/react/react-native/issues/59884
+        if (!value.isUndefined()) {
+          value = value.asObject(*runtime).getProperty(*runtime, PropNameIDCache::get(*runtime, "f"));
+        }
       }
 
       if (previousProp.equals(*runtime, value)) {
