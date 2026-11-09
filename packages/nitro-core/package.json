@@ -36,6 +36,25 @@
     "README.md",
     "LICENSE"
   ],
+  "keywords": [
+    "nitro",
+    "native",
+    "modules",
+    "ios",
+    "android",
+    "visionOS",
+    "tvOS",
+    "macOS",
+    "cpp",
+    "framework",
+    "swift",
+    "fast",
+    "jsi",
+    "turbo",
+    "interop",
+    "ffi",
+    "language"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/margelo/nitro.git",
