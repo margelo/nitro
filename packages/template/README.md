@@ -25,7 +25,9 @@ The package pins Nitro and Nitrogen to the exact alpha version that created it. 
   specs.
 
 React Native's SwiftPM autolinking uses `Package.swift` and `swiftpmConfig` from `package.json`. Nitrogen adds targets for the Swift sources
-in `apple/`, C++ sources in `cpp/`, and generated bindings. The metadata-only podspec lets React Native CLI discover the iOS dependency.
+in `apple/`, C++ sources in `cpp/`, and generated bindings. The podspec builds the same sources for CocoaPods apps. Those apps must require
+`react-native-nitro-modules/cocoapods.rb` in their Podfile, call `use_nitro_modules!` after `use_native_modules!`, and call
+`nitro_post_install(installer)` after `react_native_post_install`.
 
 Android's Gradle and CMake files include the generated autolinking scripts. The package loads its native library and registers the generated
 classes from `JNI_OnLoad`.

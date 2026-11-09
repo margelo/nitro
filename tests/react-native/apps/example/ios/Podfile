@@ -1,2 +1,26 @@
-# React Native CLI 20 uses this file to discover the iOS project.
-# All native dependencies are built through SwiftPM.
+# TODO: Remove CocoaPods support once React Native's SwiftPM integration is established.
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve("react-native/scripts/react_native_pods.rb", { paths: [process.argv[1]] })', __dir__]).strip
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve("react-native-nitro-modules/cocoapods.rb", { paths: [process.argv[1]] })', __dir__]).strip
+
+platform :ios, '16.0'
+prepare_react_native_project!
+
+linkage = ENV['USE_FRAMEWORKS']
+use_frameworks! :linkage => linkage.to_sym if linkage
+
+target 'NitroExample' do
+  config = use_native_modules!
+  use_nitro_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  post_install do |installer|
+    react_native_post_install(installer, config[:reactNativePath], :mac_catalyst_enabled => false)
+    nitro_post_install(installer)
+  end
+end

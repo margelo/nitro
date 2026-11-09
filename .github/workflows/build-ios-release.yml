@@ -28,6 +28,67 @@ on:
       - 'config/**'
 
 jobs:
+  build_cocoapods:
+    name: Build iOS Example App (CocoaPods, ${{ matrix.configuration }})
+    runs-on: xcode-27
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.release-tag || github.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: 3.3.0
+
+      - name: Install npm dependencies (bun)
+        run: bun install --frozen-lockfile
+
+      - name: Generate test bindings
+        run: bun specs
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_27.1.app/Contents/Developer
+          xcodebuild -version
+          xcrun swift --version
+
+      - name: Install CocoaPods
+        run: gem install cocoapods -v 1.16.2 --no-document
+
+      - name: Remove SwiftPM integration
+        working-directory: tests/react-native/apps/example
+        run: bun spm deinit
+
+      - name: Install pods
+        working-directory: tests/react-native/apps/example/ios
+        run: pod install
+
+      - name: Build App (CocoaPods, Simulator)
+        working-directory: tests/react-native/apps/example/ios
+        env:
+          CONFIGURATION: ${{ matrix.configuration }}
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -derivedDataPath build-cocoapods \
+            -workspace NitroExample.xcworkspace \
+            -scheme NitroExample \
+            -sdk iphonesimulator \
+            -configuration "$CONFIGURATION" \
+            -destination 'generic/platform=iOS Simulator' \
+            -showBuildTimingSummary \
+            ARCHS=arm64 \
+            build \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify --renderer github-actions
+
   build_release:
     name: Build iOS Example App (release, new architecture)
     runs-on: xcode-27

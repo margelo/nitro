@@ -15,7 +15,8 @@ It uses JSI to generate C++ templates that can bridge virtually any JS type to a
 
 ## Installation
 
-Nitro V1 requires React Native 0.88 or newer with the New Architecture. iOS builds use Swift Package Manager and require Swift 6.4 or newer.
+Nitro V1 requires React Native 0.88 or newer with the New Architecture. iOS builds support CocoaPods and Swift Package Manager, and require
+Swift 6.4 or newer.
 
 ### Inside an app
 
@@ -25,9 +26,22 @@ Install the alpha package as a dependency in your React Native app:
 npm i react-native-nitro-modules@alpha
 ```
 
-For iOS, run `npx react-native spm` from the app directory, then open the app's `.xcodeproj` in Xcode. If the project already uses
-CocoaPods, convert it with `npx react-native spm add --deintegrate` first. That conversion requires CocoaPods to remove its existing
-integration. Subsequent builds use SwiftPM.
+For CocoaPods, add Nitro's helper next to the React Native require in your `ios/Podfile`:
+
+```ruby
+require Pod::Executable.execute_command('node', [
+  '-p',
+  'require.resolve("react-native-nitro-modules/cocoapods.rb", {paths: [process.argv[1]]})',
+  __dir__,
+]).strip
+```
+
+Call `use_nitro_modules!` after `use_native_modules!` inside your app target, then run `pod install` from `ios/` and open the app's
+`.xcworkspace`. Add `nitro_post_install(installer)` after `react_native_post_install` in your existing `post_install` block. The
+[installation guide](../../docs/docs/resources/for-library-users.md) shows the Podfile setup.
+
+For Swift Package Manager, run `npx react-native spm` from the app directory, then open the app's `.xcodeproj` in Xcode. To convert a
+CocoaPods app to SwiftPM, use `npx react-native spm add --deintegrate` first.
 
 The package re-exports the shared `nitro-core` API and installs it into the React Native runtime through React Native's JSI bindings hooks.
 

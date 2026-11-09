@@ -488,6 +488,47 @@ On the JVM, a spec property `width` compiles to a `getWidth()` method and, unles
 function with one of those signatures, such as the Java getter `double getWidth()`, clashes with the property, and the property can't
 implement it. An interface property `width` clashes with a spec method `getWidth()` the same way.
 
+## CocoaPods
+
+Require Nitro's CocoaPods helper at the top of your library's podspec:
+
+```ruby
+require Pod::Executable.execute_command('node', [
+  '-p',
+  'require.resolve("react-native-nitro-modules/cocoapods.rb", {paths: [process.argv[1]]})',
+  __dir__,
+]).strip
+```
+
+Inside the `Pod::Spec.new` block, configure the library's generated bindings and implementation sources:
+
+```ruby
+Nitro::CocoaPods.configure_library(
+  s,
+  generated_directory: 'nitrogen/generated',
+  swift_sources: ['apple'],
+  cxx_sources: ['cpp']
+)
+```
+
+Paths are relative to the podspec directory. Nitrogen writes `apple/<Module>+autolinking.json` under the generated directory with the module
+name and referenced Nitro modules. Commit and publish this metadata with the generated bindings.
+
+For an existing podspec, replace `add_nitrogen_files(...)` with `Nitro::CocoaPods.configure_library(...)`. Remove the root podspec's
+`source_files` and pass your implementation paths through `swift_sources` and `cxx_sources`; Nitro compiles them in companion pods.
+
+The app must require the same `cocoapods.rb` helper in its Podfile and call `use_nitro_modules!` after `use_native_modules!`, before
+`use_react_native!`. Add `nitro_post_install(installer)` after `react_native_post_install` in the existing post-install hook. At
+`pod install`, the helper creates the companion C++, Apple bridge and Swift bridge podspecs, preserves their module names, and links their
+dependencies. See the [app installation guide](../../docs/docs/resources/for-library-users.md) for the Podfile setup.
+
+Ship the podspec and `Package.swift` together to support both CocoaPods and SwiftPM consumers. Both use the same generated bindings and
+native implementations.
+
+`configure_library` carries pod dependencies, system frameworks and compiler settings into its companion pods. Package a vendored SDK as a
+separate CocoaPod and declare it with `s.dependency`. Binaries declared directly in the root podspec's `vendored_frameworks` or
+`vendored_libraries` are not available to the companion targets.
+
 ## Swift packages
 
 Put `Package.swift` next to `nitro.json` and call `addNitrogenTargets(to:)`:

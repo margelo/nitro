@@ -1,9 +1,9 @@
 require "json"
+require_relative "cocoapods"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-# React Native CLI 20 still requires a podspec to discover iOS dependencies.
-# Native sources and dependencies are built through Package.swift.
+# TODO: Remove CocoaPods support once React Native SwiftPM integration is established.
 Pod::Spec.new do |s|
   s.name = "NitroModules"
   s.version = package["version"]
@@ -16,4 +16,6 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = "13.0"
   s.tvos.deployment_target = "16.0"
   s.visionos.deployment_target = "1.0"
+
+  Nitro::CocoaPods.configure_runtime(s)
 end

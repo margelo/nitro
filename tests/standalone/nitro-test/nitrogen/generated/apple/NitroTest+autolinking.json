@@ -1,0 +1,6 @@
+{
+  "moduleName": "NitroTest",
+  "dependencies": [
+    "NitroTestExternal"
+  ]
+}

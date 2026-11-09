@@ -78,7 +78,7 @@ Now, ensure `HybridMath` is implemented:
 
     :::tip
 
-    Ensure `HybridMath.swift` is being built by your project/SPM package.
+    Ensure `HybridMath.swift` is included in your CocoaPods or Swift Package Manager sources.
 
     :::
 
