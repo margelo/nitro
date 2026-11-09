@@ -16,6 +16,14 @@
 
 #include "ReactNativeCore.hpp"
 
+// React Native 0.89+ (RN_STRICT_API) makes <cxxreact/ReactNativeVersion.h> private.
+// Only include it in this translation unit, never in a header (see ReactNativeCore.hpp).
+#if __has_include(<React/Utils.h>)
+#include <React/Utils.h>
+#else
+#include <cxxreact/ReactNativeVersion.h>
+#endif
+
 #if defined(ANDROID) && REACT_NATIVE_VERSION_MAJOR == 0 && REACT_NATIVE_VERSION_MINOR >= 84 && REACT_NATIVE_VERSION_MINOR < 87
 #include <react/featureflags/ReactNativeFeatureFlags.h>
 #endif
