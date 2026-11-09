@@ -13,17 +13,19 @@ on:
       - main
     paths:
       - '.github/workflows/build-ios-rn080.yml'
+      - 'packages/nitro-core/native/**'
       - 'packages/react-native-nitro-modules/cpp/**'
-      - 'packages/react-native-nitro-modules/ios/**'
+      - 'packages/react-native-nitro-modules/apple/**'
       - 'packages/react-native-nitro-modules/*.podspec'
-      - 'packages/react-native-nitro-modules/nitro_pod_utils.rb'
+      - 'scripts/sync-core.mjs'
   pull_request:
     paths:
       - '.github/workflows/build-ios-rn080.yml'
+      - 'packages/nitro-core/native/**'
       - 'packages/react-native-nitro-modules/cpp/**'
-      - 'packages/react-native-nitro-modules/ios/**'
+      - 'packages/react-native-nitro-modules/apple/**'
       - 'packages/react-native-nitro-modules/*.podspec'
-      - 'packages/react-native-nitro-modules/nitro_pod_utils.rb'
+      - 'scripts/sync-core.mjs'
 
 env:
   XCODE_VERSION: '26.5'
@@ -35,6 +37,9 @@ jobs:
     runs-on: macOS-26
     steps:
       - uses: actions/checkout@v7
+
+      - name: Copy Nitro Core sources into the pod
+        run: node scripts/sync-core.mjs
 
       - name: Select Xcode ${{ env.XCODE_VERSION }}
         run: sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer"
