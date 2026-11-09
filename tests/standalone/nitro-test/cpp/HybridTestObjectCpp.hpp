@@ -118,6 +118,7 @@ public:
   void simpleFunc() override;
   std::shared_ptr<HybridObject> bounceAnyHybrid(const std::shared_ptr<HybridObject>& object) override;
   CustomString bounceCustomType(CustomString value) override;
+  bool personConstructorMovesName() override;
   void multipleArguments(double num, const std::string& str, bool boo) override;
   NullType bounceNull(NullType value) override;
   std::shared_ptr<AnyMap> createMap() override;

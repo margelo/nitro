@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -45,7 +47,7 @@ namespace margelo::nitro::test {
 
   public:
     ExternalObjectStruct() = default;
-    explicit ExternalObjectStruct(std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec> someExternal): someExternal(someExternal) {}
+    explicit ExternalObjectStruct(std::shared_ptr<margelo::nitro::test::external::HybridSomeExternalObjectSpec> someExternal): someExternal(std::move(someExternal)) {}
 
   public:
     friend bool operator==(const ExternalObjectStruct& lhs, const ExternalObjectStruct& rhs) = default;

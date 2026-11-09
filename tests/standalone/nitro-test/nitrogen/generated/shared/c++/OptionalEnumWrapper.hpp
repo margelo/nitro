@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -62,7 +64,7 @@ namespace margelo::nitro::test {
 
   public:
     OptionalEnumWrapper() = default;
-    explicit OptionalEnumWrapper(std::optional<double> count, std::optional<double> weight, std::optional<double> ttl, std::optional<double> jitter, std::optional<double> retries, std::optional<double> delayMs, std::optional<double> timeoutMs, std::optional<double> ratio, std::optional<double> threshold, std::optional<bool> enabled, std::optional<bool> active, std::optional<bool> shouldBuffer, std::optional<bool> shouldRetry, std::optional<bool> verbose, std::optional<Powertrain> tier, std::optional<Powertrain> region, std::optional<Powertrain> stage, std::optional<Powertrain> tone): count(count), weight(weight), ttl(ttl), jitter(jitter), retries(retries), delayMs(delayMs), timeoutMs(timeoutMs), ratio(ratio), threshold(threshold), enabled(enabled), active(active), shouldBuffer(shouldBuffer), shouldRetry(shouldRetry), verbose(verbose), tier(tier), region(region), stage(stage), tone(tone) {}
+    explicit OptionalEnumWrapper(std::optional<double> count, std::optional<double> weight, std::optional<double> ttl, std::optional<double> jitter, std::optional<double> retries, std::optional<double> delayMs, std::optional<double> timeoutMs, std::optional<double> ratio, std::optional<double> threshold, std::optional<bool> enabled, std::optional<bool> active, std::optional<bool> shouldBuffer, std::optional<bool> shouldRetry, std::optional<bool> verbose, std::optional<Powertrain> tier, std::optional<Powertrain> region, std::optional<Powertrain> stage, std::optional<Powertrain> tone): count(std::move(count)), weight(std::move(weight)), ttl(std::move(ttl)), jitter(std::move(jitter)), retries(std::move(retries)), delayMs(std::move(delayMs)), timeoutMs(std::move(timeoutMs)), ratio(std::move(ratio)), threshold(std::move(threshold)), enabled(std::move(enabled)), active(std::move(active)), shouldBuffer(std::move(shouldBuffer)), shouldRetry(std::move(shouldRetry)), verbose(std::move(verbose)), tier(std::move(tier)), region(std::move(region)), stage(std::move(stage)), tone(std::move(tone)) {}
 
   public:
     friend bool operator==(const OptionalEnumWrapper& lhs, const OptionalEnumWrapper& rhs) = default;

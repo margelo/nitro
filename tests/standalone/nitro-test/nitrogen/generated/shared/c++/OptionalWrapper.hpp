@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -46,7 +48,7 @@ namespace margelo::nitro::test {
 
   public:
     OptionalWrapper() = default;
-    explicit OptionalWrapper(std::optional<std::shared_ptr<ArrayBuffer>> optionalArrayBuffer, std::optional<std::string> optionalString): optionalArrayBuffer(optionalArrayBuffer), optionalString(optionalString) {}
+    explicit OptionalWrapper(std::optional<std::shared_ptr<ArrayBuffer>> optionalArrayBuffer, std::optional<std::string> optionalString): optionalArrayBuffer(std::move(optionalArrayBuffer)), optionalString(std::move(optionalString)) {}
 
   public:
     friend bool operator==(const OptionalWrapper& lhs, const OptionalWrapper& rhs) = default;

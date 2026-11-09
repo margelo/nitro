@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <utility>
+
 #if __has_include(<NitroModules/JSIConverter.hpp>)
 #include <NitroModules/JSIConverter.hpp>
 #else
@@ -45,7 +47,7 @@ namespace margelo::nitro::test {
 
   public:
     OptionalCallback() = default;
-    explicit OptionalCallback(std::optional<std::variant<std::function<void()>, double>> callback): callback(callback) {}
+    explicit OptionalCallback(std::optional<std::variant<std::function<void()>, double>> callback): callback(std::move(callback)) {}
 
   public:
     // OptionalCallback is not equatable because these properties are not equatable: callback
