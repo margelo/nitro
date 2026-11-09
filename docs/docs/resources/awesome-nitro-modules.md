@@ -89,6 +89,7 @@ A curated collection of community-built Nitro Modules, including production Reac
 | Module | Description | Links |
 |--------|-------------|-------|
 | **react-native-nitro-in-app-browser** | In-app browser with native UI | [GitHub](https://github.com/patrickkabwe/react-native-nitro-in-app-browser) |
+| **react-native-inappbrowser-nitro** | In-app browser (Safari View Controller & Chrome Custom Tabs) with auth sessions | [GitHub](https://github.com/mCodex/react-native-inappbrowser-nitro) |
 | **react-native-nitro-fetch** | super-fast network fetching library | [GitHub](https://github.com/margelo/react-native-nitro-fetch) |
 | **react-native-nitro-dns** | Fast Node.js `dns` supporting DoH/DoT/DoQ | [GitHub](https://github.com/iwater/react-native-nitro-dns) |
 | **react-native-nitro-http-server** | High-performance HTTP Server | [GitHub](https://github.com/iwater/react-native-nitro-http-server) |
@@ -100,6 +101,7 @@ A curated collection of community-built Nitro Modules, including production Reac
 | Module | Description | Links |
 |--------|-------------|-------|
 | **react-native-iap** | In-app purchases for iOS and Android | [GitHub](https://github.com/hyodotdev/openiap) |
+| **react-native-plugpag-nitro** | PagSeguro PlugPag payment terminals | [GitHub](https://github.com/mCodex/react-native-plugpag-nitro) |
 
 ### Maps
 
@@ -114,6 +116,7 @@ A curated collection of community-built Nitro Modules, including production Reac
 |--------|-------------|-------|
 | **react-native-unistyles** | Universal styling system | [GitHub](https://github.com/jpudysz/react-native-unistyles) |
 | **react-native-alternate-app-icon** | Dynamic alternate app icon switching | [GitHub](https://github.com/rutvik24/react-native-alternate-app-icon) |
+| **react-native-nitro-sfsymbols** | Render SF Symbols natively on iOS | [GitHub](https://github.com/mCodex/react-native-nitro-sfsymbols) |
 
 ### Text & Content
 
@@ -144,3 +147,4 @@ Modules currently under active development:
 |--------|-------------|-------|
 | **react-native-mlx** | Apple MLX machine learning | [GitHub](https://github.com/corasan/react-native-mlx) |
 | **react-native-fast-io** | Blazing fast I/O (WebSocket, Fetch, FS) | [GitHub](https://github.com/callstackincubator/react-native-fast-io) |
+| **react-native-nitro-archive** | ZIP archive creation, inspection and extraction | [GitHub](https://github.com/mCodex/react-native-nitro-archive) |
