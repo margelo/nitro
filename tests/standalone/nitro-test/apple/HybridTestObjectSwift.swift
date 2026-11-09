@@ -547,6 +547,14 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
     return boo ?? false
   }
 
+  func parseTruckPowertrain(value: String) throws -> TruckPowertrain? {
+    return TruckPowertrain(fromString: value)
+  }
+
+  func stringifyTruckPowertrain(value: TruckPowertrain) throws -> String {
+    return value.stringValue
+  }
+
   func bounceMap(map: [String: Variant_Bool_Double]) throws -> [String: Variant_Bool_Double] {
     return map
   }

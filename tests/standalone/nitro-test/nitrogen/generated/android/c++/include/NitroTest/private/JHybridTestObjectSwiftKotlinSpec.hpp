@@ -257,6 +257,8 @@ namespace margelo::nitro::test {
     jni::local_ref<jni::JString> tryMiddleParam(jdouble num, const jni::local_ref<JOptional<jni::JBoolean>>& boo, const jni::local_ref<jni::JString>& str);
     jni::local_ref<JOptional<JPowertrain>> tryOptionalEnum(const jni::local_ref<JOptional<JPowertrain>>& value);
     jboolean tryTrailingOptional(jdouble num, const jni::local_ref<jni::JString>& str, const jni::local_ref<JOptional<jni::JBoolean>>& boo);
+    jni::local_ref<JOptional<JTruckPowertrain>> parseTruckPowertrain(const jni::local_ref<jni::JString>& value);
+    jni::local_ref<jni::JString> stringifyTruckPowertrain(const jni::local_ref<JTruckPowertrain>& value);
     jlong calculateFibonacciSync(jdouble value);
     jni::local_ref<JTypedPromise<jni::local_ref<jni::JLong>>> calculateFibonacciAsync(jdouble value);
     jni::local_ref<JTypedPromise<void>> wait(jdouble seconds);

@@ -30,7 +30,8 @@ export type NamedVariant = string | Car
 // A discriminating string union becomes an `enum` in C++.
 // This one is string-backed.
 export type Powertrain = 'electric' | 'gas' | 'hybrid'
-type TruckPowertrain = Powertrain | 'diesel'
+// '2stroke' starts with a digit, so its Swift case name needs a leading underscore.
+type TruckPowertrain = Powertrain | 'diesel' | '2stroke'
 
 // A classic TypeScript enum also becomes an `enum` in C++.
 // This one is number-backed.
@@ -582,6 +583,10 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
   tryMiddleParam(num: number, boo: boolean | undefined, str: string): string
   tryOptionalEnum(value?: Powertrain): Powertrain | undefined
   tryTrailingOptional(num: number, str: string, boo?: boolean): boolean
+
+  // Generated enum string helpers (`fromString` / `stringValue` in Swift and Kotlin)
+  parseTruckPowertrain(value: string): TruckPowertrain | undefined
+  stringifyTruckPowertrain(value: TruckPowertrain): string
 
   // Variants
   someVariant: number | string

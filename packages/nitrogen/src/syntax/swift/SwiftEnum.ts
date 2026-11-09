@@ -3,7 +3,7 @@ import { createSwiftJSIConverter } from './SwiftJSIConverter.js'
 import { EnumType } from '../types/EnumType.js'
 import { getTypeAs } from '../types/getTypeAs.js'
 import type { Type } from '../types/Type.js'
-import { indent, toLowerCamelCase } from '../../utils.js'
+import { indent, toSwiftEnumCaseName } from '../../utils.js'
 import { createFileMetadataString } from '../helpers.js'
 import type { SourceFile } from '../SourceFile.js'
 import type { SwiftEnumType } from './types/SwiftEnumType.js'
@@ -17,16 +17,16 @@ export function createSwiftEnumBridge(type: SwiftEnumType): SourceFile[] {
   const baseTypes = ['Int32', ...protocolNames]
   const protocolImports = getProtocolConformanceImports(protocolConformances)
   const imports = getImportsCode(protocolImports)
-  const enumCases = enumType.enumMembers.map((m) => `case \`${toLowerCamelCase(m.name)}\` = ${m.value}`)
+  const enumCases = enumType.enumMembers.map((m) => `case \`${toSwiftEnumCaseName(m.name)}\` = ${m.value}`)
   const initializeCases = enumType.enumMembers.map((m) =>
     `
 case "${m.stringValue}":
-  self = .${toLowerCamelCase(m.name)}
+  self = .${toSwiftEnumCaseName(m.name)}
 `.trim()
   )
   const toStringCases = enumType.enumMembers.map((m) =>
     `
-case .${toLowerCamelCase(m.name)}:
+case .${toSwiftEnumCaseName(m.name)}:
   return "${m.stringValue}"
 `.trim()
   )

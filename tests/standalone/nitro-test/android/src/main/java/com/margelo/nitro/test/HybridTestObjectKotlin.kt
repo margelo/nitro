@@ -402,6 +402,14 @@ class HybridTestObjectKotlin : HybridTestObjectSwiftKotlinSpec() {
     return boo ?: false
   }
 
+  override fun parseTruckPowertrain(value: String): TruckPowertrain? {
+    return TruckPowertrain.fromString(value)
+  }
+
+  override fun stringifyTruckPowertrain(value: TruckPowertrain): String {
+    return value.stringValue
+  }
+
   override fun bounceMap(map: Map<String, Variant_Boolean_Double>): Map<String, Variant_Boolean_Double> {
     return map
   }

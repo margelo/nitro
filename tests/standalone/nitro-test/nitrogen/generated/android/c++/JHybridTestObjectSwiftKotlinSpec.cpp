@@ -238,6 +238,8 @@ namespace margelo::nitro::test {
       clazz.registerHybridMethod("tryMiddleParam", &JHybridTestObjectSwiftKotlinSpec::tryMiddleParam);
       clazz.registerHybridMethod("tryOptionalEnum", &JHybridTestObjectSwiftKotlinSpec::tryOptionalEnum);
       clazz.registerHybridMethod("tryTrailingOptional", &JHybridTestObjectSwiftKotlinSpec::tryTrailingOptional);
+      clazz.registerHybridMethod("parseTruckPowertrain", &JHybridTestObjectSwiftKotlinSpec::parseTruckPowertrain);
+      clazz.registerHybridMethod("stringifyTruckPowertrain", &JHybridTestObjectSwiftKotlinSpec::stringifyTruckPowertrain);
       clazz.registerHybridMethod("calculateFibonacciSync", &JHybridTestObjectSwiftKotlinSpec::calculateFibonacciSync);
       clazz.registerHybridMethod("calculateFibonacciAsync", &JHybridTestObjectSwiftKotlinSpec::calculateFibonacciAsync);
       clazz.registerHybridMethod("wait", &JHybridTestObjectSwiftKotlinSpec::wait);
@@ -865,6 +867,16 @@ namespace margelo::nitro::test {
   jboolean JHybridTestObjectSwiftKotlinSpec::tryTrailingOptional(jdouble num, const jni::local_ref<jni::JString>& str, const jni::local_ref<JOptional<jni::JBoolean>>& boo) {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jboolean(jdouble /* num */, jni::alias_ref<jni::JString> /* str */, jni::alias_ref<JOptional<jni::JBoolean>> /* boo */)>("tryTrailingOptional");
     auto __result = __method(_javaPart, CxxPart::getClass(), num, str, boo);
+    return __result;
+  }
+  jni::local_ref<JOptional<JTruckPowertrain>> JHybridTestObjectSwiftKotlinSpec::parseTruckPowertrain(const jni::local_ref<jni::JString>& value) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JOptional<JTruckPowertrain>>(jni::alias_ref<jni::JString> /* value */)>("parseTruckPowertrain");
+    auto __result = __method(_javaPart, CxxPart::getClass(), value);
+    return __result;
+  }
+  jni::local_ref<jni::JString> JHybridTestObjectSwiftKotlinSpec::stringifyTruckPowertrain(const jni::local_ref<JTruckPowertrain>& value) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<jni::JString>(jni::alias_ref<JTruckPowertrain> /* value */)>("stringifyTruckPowertrain");
+    auto __result = __method(_javaPart, CxxPart::getClass(), value);
     return __result;
   }
   jlong JHybridTestObjectSwiftKotlinSpec::calculateFibonacciSync(jdouble value) {

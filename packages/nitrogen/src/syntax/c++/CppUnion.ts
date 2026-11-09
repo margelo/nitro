@@ -1,6 +1,6 @@
 import type { SourceFile, SourceImport } from '../SourceFile.js'
 import { createFileMetadataString } from '../helpers.js'
-import { indent, toLowerCamelCase } from '../../utils.js'
+import { indent, toSwiftEnumCaseName } from '../../utils.js'
 import type { EnumMember } from '../types/EnumType.js'
 import { getImportCode } from '../getImportCode.js'
 import { NitroConfig } from '../../config/NitroConfig.js'
@@ -11,7 +11,7 @@ import { NitroConfig } from '../../config/NitroConfig.js'
 export function createCppUnion(typename: string, enumMembers: EnumMember[]): SourceFile {
   // Namespace typename
   const fullyQualifiedTypename = NitroConfig.current.getCxxNamespace('c++', typename)
-  const cppEnumMembers = enumMembers.map((m, i) => `${m.name}      SWIFT_NAME(${toLowerCamelCase(m.name)}) = ${i},`).join('\n')
+  const cppEnumMembers = enumMembers.map((m, i) => `${m.name}      SWIFT_NAME(${toSwiftEnumCaseName(m.name)}) = ${i},`).join('\n')
   const cppFromJsiHashCases = enumMembers
     .map((v) => `case hashString("${v.stringValue}"): return ${fullyQualifiedTypename}::${v.name};`.trim())
     .join('\n')

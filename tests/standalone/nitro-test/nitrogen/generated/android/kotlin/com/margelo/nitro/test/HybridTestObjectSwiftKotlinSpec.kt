@@ -427,6 +427,14 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
 
   @DoNotStrip
   @Keep
+  abstract fun parseTruckPowertrain(value: String): TruckPowertrain?
+
+  @DoNotStrip
+  @Keep
+  abstract fun stringifyTruckPowertrain(value: TruckPowertrain): String
+
+  @DoNotStrip
+  @Keep
   abstract fun calculateFibonacciSync(value: Double): Long
 
   @DoNotStrip
