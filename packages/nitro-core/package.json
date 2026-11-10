@@ -1,6 +1,6 @@
 {
   "name": "nitro-core",
-  "version": "0.37.2",
+  "version": "0.37.3-nightly.131.g4bc91a709d46",
   "description": "Nitro's shared native runtime, JavaScript API, and TypeScript definitions.",
   "main": "./js/lib/commonjs/index.js",
   "module": "./js/lib/module/index.js",
