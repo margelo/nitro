@@ -11,7 +11,7 @@ type LanguagePlatformOptions<L extends Language> = Extract<HybridObjectPlatformO
 /** Options that only some languages support. */
 interface NativeLanguageSpecs {
   'c++': {}
-  'swift': Pick<LanguagePlatformOptions<'swift'>, 'protocolConformances'>
+  'swift': Pick<LanguagePlatformOptions<'swift'>, 'protocolConformances' | 'superclass'>
   'kotlin': Pick<LanguagePlatformOptions<'kotlin'>, 'implementedInterfaces'>
 }
 

@@ -55,6 +55,12 @@ const swiftProtocolConformancesSchema = z
   .default([])
 const swiftOptions = {
   protocolConformances: swiftProtocolConformancesSchema,
+  superclass: z
+    .strictObject({
+      className: nativeNameSchema,
+      module: nativeNameSchema.optional(),
+    })
+    .optional(),
 }
 const kotlinImplementedInterfaceSchema = z.strictObject({
   interface: z

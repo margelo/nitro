@@ -46,7 +46,13 @@ export function createSwiftHybridObject(spec: HybridObjectSpec<'swift'>): Source
     protocolBaseClasses.push('HybridView')
   }
   const classBaseClasses: string[] = []
-  if (spec.baseTypes.length > 0) {
+  const hasHybridObjectBase = spec.baseTypes.length > 0
+  if (hasHybridObjectBase) {
+    if (spec.superclass != null) {
+      throw new Error(
+        `${name.T}: Cannot set a Swift superclass when extending another HybridObject. Set \`superclass\` on the root spec; derived specs inherit it through their generated base.`
+      )
+    }
     if (spec.baseTypes.length > 1) {
       throw new Error(`${name.T}: Inheriting from multiple HybridObject bases is not yet supported in Swift!`)
     }
@@ -56,11 +62,16 @@ export function createSwiftHybridObject(spec: HybridObjectSpec<'swift'>): Source
     }
     const baseName = getHybridObjectName(base.name)
     classBaseClasses.push(`${baseName.HybridTSpec}_base`)
+  } else if (spec.superclass != null) {
+    classBaseClasses.push(spec.superclass.className)
+    if (spec.superclass.module != null) {
+      extraImports.push({ language: 'swift', name: spec.superclass.module, access: 'public' })
+    }
   }
   const conformanceImports = getProtocolConformanceImports(conformances)
   const hasBaseClass = classBaseClasses.length > 0
   let wrapperAccessorModifiers = spec.allowInheritance ? 'open' : 'public final'
-  if (hasBaseClass) {
+  if (hasHybridObjectBase) {
     wrapperAccessorModifiers += ' override'
   }
   const baseMembers: string[] = []
@@ -101,6 +112,12 @@ ${wrapperAccessorModifiers} func getCxxWrapper() -> ${name.HybridTSpecCxx} {
   )
 
   const imports = getImportsCode([{ language: 'swift', name: 'NitroModules', access: 'public' }, ...extraImports, ...conformanceImports])
+  let classInheritance: string
+  if (hasBaseClass) {
+    classInheritance = `: ${classBaseClasses.join(',')}`
+  } else {
+    classInheritance = ''
+  }
 
   const protocolCode = `
 ${createFileMetadataString(`${protocolName}.swift`)}
@@ -133,7 +150,7 @@ public extension ${protocolName}_protocol {
 }
 
 /// See \`\`${protocolName}\`\`
-open class ${protocolName}_base${classBaseClasses.length > 0 ? `: ${classBaseClasses.join(',')}` : ''} {
+open class ${protocolName}_base${classInheritance} {
   ${indent(baseMembers.join('\n'), '  ')}
 }
 
