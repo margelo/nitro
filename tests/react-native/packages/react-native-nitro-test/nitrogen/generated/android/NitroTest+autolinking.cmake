@@ -34,6 +34,8 @@ target_sources(
   ../nitrogen/generated/android/NitroTestOnLoad.cpp
   # Shared Nitrogen C++ sources
   ../nitrogen/generated/shared/c++/HybridBenchmarkObjectCppSpec.cpp
+  ../nitrogen/generated/shared/c++/Person.cpp
+  ../nitrogen/generated/shared/c++/Car.cpp
   ../nitrogen/generated/shared/c++/HybridBenchmarkObjectSwiftKotlinSpec.cpp
   ../nitrogen/generated/shared/c++/HybridPaddedTestViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridPaddedTestViewComponent.cpp

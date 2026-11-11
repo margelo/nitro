@@ -47,7 +47,7 @@ namespace margelo::nitro::test {
     explicit SecondMapWrapper(std::unordered_map<std::string, std::string> second): second(second) {}
 
   public:
-    friend bool operator==(const SecondMapWrapper& lhs, const SecondMapWrapper& rhs) = default;
+    friend bool operator==(const SecondMapWrapper& lhs, const SecondMapWrapper& rhs);
   };
 
 } // namespace margelo::nitro::test

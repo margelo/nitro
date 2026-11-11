@@ -49,7 +49,7 @@ namespace margelo::nitro::test::external {
     explicit OptionalPrimitivesHolder(std::optional<double> optionalNumber, std::optional<bool> optionalBoolean, std::optional<uint64_t> optionalUInt64, std::optional<int64_t> optionalInt64): optionalNumber(optionalNumber), optionalBoolean(optionalBoolean), optionalUInt64(optionalUInt64), optionalInt64(optionalInt64) {}
 
   public:
-    friend bool operator==(const OptionalPrimitivesHolder& lhs, const OptionalPrimitivesHolder& rhs) = default;
+    friend bool operator==(const OptionalPrimitivesHolder& lhs, const OptionalPrimitivesHolder& rhs);
   };
 
 } // namespace margelo::nitro::test::external

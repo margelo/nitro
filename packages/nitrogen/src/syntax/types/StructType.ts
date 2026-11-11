@@ -1,6 +1,9 @@
 import { NitroConfig } from '../../config/NitroConfig.js'
 import type { Language } from '../../getPlatformSpecs.js'
-import { createCppStruct } from '../c++/CppStruct.js'
+import {
+  createCppStruct,
+  createCppStructEqualityDefinition,
+} from '../c++/CppStruct.js'
 import { getForwardDeclaration } from '../c++/getForwardDeclaration.js'
 import {
   type FileWithReferencedTypes,
@@ -13,11 +16,15 @@ export class StructType implements Type {
   readonly structName: string
   readonly properties: NamedType[]
   readonly declarationFile: FileWithReferencedTypes
+  readonly equalityDefinitionFile: SourceFile | undefined
 
   constructor(structName: string, properties: NamedType[]) {
     this.structName = structName
     this.properties = properties
     this.declarationFile = createCppStruct(structName, properties)
+    this.equalityDefinitionFile = properties.every((p) => p.isEquatable)
+      ? createCppStructEqualityDefinition(structName)
+      : undefined
 
     if (this.structName.startsWith('__')) {
       throw new Error(
@@ -64,7 +71,11 @@ export class StructType implements Type {
     const referencedTypes = this.declarationFile.referencedTypes.flatMap((r) =>
       r.getExtraFiles()
     )
-    return [this.declarationFile, ...referencedTypes]
+    const files: SourceFile[] = [this.declarationFile, ...referencedTypes]
+    if (this.equalityDefinitionFile != null) {
+      files.push(this.equalityDefinitionFile)
+    }
+    return files
   }
   getRequiredImports(language: Language): SourceImport[] {
     const imports: SourceImport[] = []

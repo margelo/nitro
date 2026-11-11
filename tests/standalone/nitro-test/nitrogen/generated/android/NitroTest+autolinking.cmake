@@ -35,8 +35,16 @@ target_sources(
   # Shared Nitrogen C++ sources
   ../nitrogen/generated/shared/c++/HybridBaseSpec.cpp
   ../nitrogen/generated/shared/c++/HybridChildSpec.cpp
+  ../nitrogen/generated/shared/c++/Person.cpp
+  ../nitrogen/generated/shared/c++/Car.cpp
   ../nitrogen/generated/shared/c++/HybridPlatformObjectSpec.cpp
   ../nitrogen/generated/shared/c++/HybridTestObjectCppSpec.cpp
+  ../nitrogen/generated/shared/c++/PartialPerson.cpp
+  ../nitrogen/generated/shared/c++/SecondMapWrapper.cpp
+  ../nitrogen/generated/shared/c++/MapWrapper.cpp
+  ../nitrogen/generated/shared/c++/OptionalWrapper.cpp
+  ../nitrogen/generated/shared/c++/OptionalEnumWrapper.cpp
+  ../nitrogen/generated/shared/c++/ExternalObjectStruct.cpp
   ../nitrogen/generated/shared/c++/HybridTestObjectSwiftKotlinSpec.cpp
   # Android-specific Nitrogen C++ sources
   ../nitrogen/generated/android/c++/JHybridBaseSpec.cpp

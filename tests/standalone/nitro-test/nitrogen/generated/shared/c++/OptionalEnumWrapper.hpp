@@ -65,7 +65,7 @@ namespace margelo::nitro::test {
     explicit OptionalEnumWrapper(std::optional<double> count, std::optional<double> weight, std::optional<double> ttl, std::optional<double> jitter, std::optional<double> retries, std::optional<double> delayMs, std::optional<double> timeoutMs, std::optional<double> ratio, std::optional<double> threshold, std::optional<bool> enabled, std::optional<bool> active, std::optional<bool> shouldBuffer, std::optional<bool> shouldRetry, std::optional<bool> verbose, std::optional<Powertrain> tier, std::optional<Powertrain> region, std::optional<Powertrain> stage, std::optional<Powertrain> tone): count(count), weight(weight), ttl(ttl), jitter(jitter), retries(retries), delayMs(delayMs), timeoutMs(timeoutMs), ratio(ratio), threshold(threshold), enabled(enabled), active(active), shouldBuffer(shouldBuffer), shouldRetry(shouldRetry), verbose(verbose), tier(tier), region(region), stage(stage), tone(tone) {}
 
   public:
-    friend bool operator==(const OptionalEnumWrapper& lhs, const OptionalEnumWrapper& rhs) = default;
+    friend bool operator==(const OptionalEnumWrapper& lhs, const OptionalEnumWrapper& rhs);
   };
 
 } // namespace margelo::nitro::test

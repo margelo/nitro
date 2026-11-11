@@ -48,7 +48,7 @@ namespace margelo::nitro::test {
     explicit PartialPerson(std::optional<std::string> name, std::optional<double> age): name(name), age(age) {}
 
   public:
-    friend bool operator==(const PartialPerson& lhs, const PartialPerson& rhs) = default;
+    friend bool operator==(const PartialPerson& lhs, const PartialPerson& rhs);
   };
 
 } // namespace margelo::nitro::test

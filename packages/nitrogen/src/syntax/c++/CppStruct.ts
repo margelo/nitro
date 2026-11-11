@@ -1,4 +1,4 @@
-import type { FileWithReferencedTypes } from '../SourceFile.js'
+import type { FileWithReferencedTypes, SourceFile } from '../SourceFile.js'
 import { indent } from '../../utils.js'
 import { createFileMetadataString, isNotDuplicate } from '../helpers.js'
 import type { NamedType } from '../types/Type.js'
@@ -55,7 +55,9 @@ export function createCppStruct(
   let equatableFunc: string
   const isEquatable = properties.every((p) => p.isEquatable)
   if (isEquatable) {
-    equatableFunc = `friend bool operator==(const ${typename}& lhs, const ${typename}& rhs) = default;`
+    // Declared here, defaulted OUT-OF-LINE (C++20) in ${typename}.cpp — see
+    // createCppStructEqualityDefinition for why it cannot stay in-class.
+    equatableFunc = `friend bool operator==(const ${typename}& lhs, const ${typename}& rhs);`
   } else {
     const nonEquatableTypes = properties
       .filter((p) => !p.isEquatable)
@@ -144,6 +146,35 @@ namespace margelo::nitro {
     subdirectory: [],
     language: 'c++',
     referencedTypes: properties,
+    platform: 'shared',
+  }
+}
+
+/**
+ * Creates the companion `.cpp` for an equatable struct, holding the
+ * out-of-line defaulted `operator==` (C++20).
+ */
+export function createCppStructEqualityDefinition(
+  typename: string
+): SourceFile {
+  const cxxNamespace = NitroConfig.current.getCxxNamespace('c++')
+  const cppCode = `
+${createFileMetadataString(`${typename}.cpp`)}
+
+#include "${typename}.hpp"
+
+namespace ${cxxNamespace} {
+
+  // Out-of-line defaulted comparison (C++20) — see ${typename}.hpp.
+  bool operator==(const ${typename}& lhs, const ${typename}& rhs) = default;
+
+} // namespace ${cxxNamespace}
+  `
+  return {
+    content: cppCode,
+    name: `${typename}.cpp`,
+    subdirectory: [],
+    language: 'c++',
     platform: 'shared',
   }
 }

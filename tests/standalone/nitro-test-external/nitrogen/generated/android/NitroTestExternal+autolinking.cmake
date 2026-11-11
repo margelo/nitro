@@ -34,6 +34,7 @@ target_sources(
   ../nitrogen/generated/android/NitroTestExternalOnLoad.cpp
   # Shared Nitrogen C++ sources
   ../nitrogen/generated/shared/c++/HybridSomeExternalObjectSpec.cpp
+  ../nitrogen/generated/shared/c++/OptionalPrimitivesHolder.cpp
   # Android-specific Nitrogen C++ sources
   ../nitrogen/generated/android/c++/JHybridSomeExternalObjectSpec.cpp
 )
