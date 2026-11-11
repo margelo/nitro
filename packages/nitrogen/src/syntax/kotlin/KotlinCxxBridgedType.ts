@@ -231,20 +231,23 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
     return files
   }
 
-  asJniReferenceType(referenceType: 'alias' | 'local' | 'global' = 'alias') {
+  asJniReferenceType(
+    referenceType: 'alias' | 'local' | 'global' = 'alias',
+    isBoxed = false
+  ) {
+    const typeCode = this.getTypeCode('c++', isBoxed)
     switch (this.type.kind) {
       case 'void':
+        return 'void'
       case 'number':
       case 'boolean':
       case 'int64':
-        // primitives are not references
-        return this.getTypeCode('c++')
       case 'uint64':
-        // ULong is unfortunately not representable in JNI. It's long + cast
-        return 'jlong'
-      default:
-        return `jni::${referenceType}_ref<${this.getTypeCode('c++')}>`
+        if (!isBoxed) {
+          return typeCode
+        }
     }
+    return `jni::${referenceType}_ref<${typeCode}>`
   }
 
   getTypeCode(language: 'kotlin' | 'c++', isBoxed = false): string {

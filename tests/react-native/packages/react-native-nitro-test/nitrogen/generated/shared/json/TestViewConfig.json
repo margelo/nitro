@@ -1,0 +1,15 @@
+{
+  "uiViewClassName": "TestView",
+  "supportsRawText": false,
+  "bubblingEventTypes": {},
+  "directEventTypes": {},
+  "validAttributes": {
+    "isBlue": true,
+    "hasBeenCalled": true,
+    "int64Value": true,
+    "colorScheme": true,
+    "someCallback": true,
+    "nativeDefaultValue": true,
+    "hybridRef": true
+  }
+}

@@ -13,7 +13,7 @@ This means, as long as your native method is executing, the JS Thread is blocked
 
 For small/light methods this is great because you can return results to the caller (JS) immediately without having to await a Promise.
 
-For example, [react-native-mmkv](https://github.com/mrousavy/react-native-mmkv) allows you to _get_ values synchronously:
+For example, [react-native-mmkv](https://github.com/margelo/react-native-mmkv) allows you to _get_ values synchronously:
 
 ```ts
 function App() {

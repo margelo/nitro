@@ -42,27 +42,27 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mrousavy/nitro.git"
+    "url": "git+https://github.com/margelo/nitro.git"
   },
   "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mrousavy/nitro/issues"
+    "url": "https://github.com/margelo/nitro/issues"
   },
   "homepage": "https://nitro.margelo.com/docs/getting-started/how-to-build-a-nitro-module",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@react-native/eslint-config": "0.85.3",
-    "@types/react": "^19.2.15",
+    "@react-native/eslint-config": "0.88.0",
+    "@types/react": "^19.3.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "nitrogen": "*",
     "prettier": "^3.8.3",
-    "react": "19.2.3",
-    "react-native": "0.85.3",
+    "react": "19.3.0",
+    "react-native": "0.88.0",
     "react-native-nitro-modules": "*",
     "typescript": "^6.0.3"
   },
