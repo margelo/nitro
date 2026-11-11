@@ -7,6 +7,7 @@
 
 #include "HybridNitroModulesProxy.hpp"
 #include "HybridObjectRegistry.hpp"
+#include "JSICache.hpp"
 #include "JSIConverter.hpp"
 #include "NitroDefines.hpp"
 
@@ -31,6 +32,8 @@ void HybridNitroModulesProxy::loadHybridMethods() {
     prototype.registerHybridGetter("version", &HybridNitroModulesProxy::getVersion);
 
     prototype.registerHybridMethod("debug_getTotalAllocatedHybridObjects", &HybridNitroModulesProxy::debug_getTotalAllocatedHybridObjects);
+    prototype.registerRawHybridMethod("debug_getJSICacheFunctionCacheSize", 0,
+                                      &HybridNitroModulesProxy::debug_getJSICacheFunctionCacheSize);
   });
 }
 
@@ -101,6 +104,16 @@ static std::atomic_size_t _hybridObjectInstancesCount{0};
 double HybridNitroModulesProxy::debug_getTotalAllocatedHybridObjects() {
   size_t count = _hybridObjectInstancesCount.load(std::memory_order_relaxed);
   return static_cast<double>(count);
+}
+
+jsi::Value HybridNitroModulesProxy::debug_getJSICacheFunctionCacheSize(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*,
+                                                                       size_t size) {
+  if (size != 0) [[unlikely]] {
+    throw jsi::JSError(runtime, "debug_getJSICacheFunctionCacheSize() does not accept arguments!");
+  }
+
+  JSICacheReference cache = JSICache::getOrCreateCache(runtime);
+  return jsi::Value(static_cast<double>(cache.getFunctionCacheSize()));
 }
 
 void HybridNitroModulesProxy::debug_notifyHybridObjectAllocated() {

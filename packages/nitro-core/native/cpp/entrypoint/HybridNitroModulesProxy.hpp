@@ -48,6 +48,7 @@ public:
 
   // Allocation tests
   double debug_getTotalAllocatedHybridObjects();
+  jsi::Value debug_getJSICacheFunctionCacheSize(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t size);
   static void debug_notifyHybridObjectAllocated();
   static void debug_notifyHybridObjectDeallocated();
 

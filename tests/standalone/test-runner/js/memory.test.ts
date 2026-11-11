@@ -47,6 +47,24 @@ function getHermesExternalMemorySize(): number {
 
 export const cases = {
   ...casesForTestObjects("Memory", {
+    "JSICache does not leak temporary JS callbacks": (testObject) => {
+      const initialSize = NitroModules.debug_getJSICacheFunctionCacheSize();
+      let callbackCalls = 0;
+      for (let i = 0; i < MEMORY_LEAK_TEST_ALLOCATION_COUNT; i++) {
+        const result = testObject.callbackSync(() => {
+          callbackCalls++;
+          return i;
+        });
+        expect(result).to.equal(i);
+        if ((i + 1) % GC_BATCH_SIZE === 0) gc();
+      }
+      gc();
+      gc();
+      gc();
+      const finalSize = NitroModules.debug_getJSICacheFunctionCacheSize();
+      expect(finalSize - initialSize, "JSICache function-cache growth").to.be.at.most(GC_BATCH_SIZE);
+      expect(callbackCalls).to.equal(MEMORY_LEAK_TEST_ALLOCATION_COUNT);
+    },
     "createNativeCallback(...) callbacks still work after gc()": async (
       testObject,
     ) => {

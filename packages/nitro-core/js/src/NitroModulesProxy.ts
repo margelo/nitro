@@ -101,4 +101,10 @@ export interface NitroModulesProxy extends HybridObject<{
    * @internal
    */
   debug_getTotalAllocatedHybridObjects(): number
+
+  /**
+   * Gets the current runtime's JSICache function-cache size.
+   * @internal
+   */
+  debug_getJSICacheFunctionCacheSize(): number
 }

@@ -11,6 +11,7 @@
 #include "NitroLogger.hpp"
 #include "WeakReference.hpp"
 #include <jsi/jsi.h>
+#include <cstddef>
 #include <memory>
 #include <mutex>
 #include <unordered_map>
@@ -113,6 +114,11 @@ public:
     BorrowingReference<jsi::ArrayBuffer> owning(new jsi::ArrayBuffer(std::move(value)));
     _strongCache->_arrayBufferCache.push_back(owning.weak());
     return owning;
+  }
+
+  [[nodiscard]]
+  std::size_t getFunctionCacheSize() const noexcept {
+    return _strongCache->_functionCache.size();
   }
 
 private:
