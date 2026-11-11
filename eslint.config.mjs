@@ -58,6 +58,7 @@ export default [
   {
     ignores: [
       '**/node_modules/**',
+      '**/.harness/**',
       '**/lib/**',
       '**/.eslintrc.*',
       '**/.prettierrc.*',
@@ -69,9 +70,10 @@ export default [
     ],
   },
   ...baseConfig,
-  packageConfig('packages/react-native-nitro-modules', ['./tsconfig.json']),
+  packageConfig('packages/nitro-core', true, false),
   packageConfig('packages/nitrogen', true, false),
-  packageConfig('packages/react-native-nitro-test'),
-  packageConfig('packages/react-native-nitro-test-external'),
-  packageConfig('example'),
+  packageConfig('packages/react-native-nitro-modules'),
+  packageConfig('tests/react-native/packages/react-native-nitro-test'),
+  packageConfig('tests/react-native/apps/example'),
+  packageConfig('tests/react-native/apps/benchmark'),
 ]

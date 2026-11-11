@@ -1,19 +1,17 @@
 name: Lint C++
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/lint-cpp.yml'
-      - '**/*.h'
-      - '**/*.hpp'
-      - '**/*.cpp'
-      - '**/*.c'
-      - '**/*.mm'
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
   pull_request:
     paths:
       - '.github/workflows/lint-cpp.yml'
+      - 'scripts/clang-format.sh'
+      - 'config/**'
       - '**/*.h'
       - '**/*.hpp'
       - '**/*.cpp'
@@ -26,7 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Run clang-format
         run: bun run lint-cpp

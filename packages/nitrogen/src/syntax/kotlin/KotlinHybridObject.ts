@@ -69,6 +69,7 @@ package ${javaPackage}
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import dalvik.annotation.optimization.FastNative
 ${imports.join('\n')}
 
 /**
@@ -99,6 +100,7 @@ abstract class ${name.HybridTSpec}: ${kotlinBase}() {
   @Keep
   protected open class CxxPart(javaPart: ${name.HybridTSpec}): ${cxxPartBase}(javaPart) {
     // C++ ${name.JHybridTSpec}::CxxPart::initHybrid(...)
+    @FastNative
     external override fun initHybrid(): HybridData
   }
   override fun createCxxPart(): CxxPart {

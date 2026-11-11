@@ -1,0 +1,7 @@
+{
+  "os": "26",
+  "device": null,
+  "arch": "auto",
+  "jobs": 2,
+  "deploymentTarget": "16.0"
+}
