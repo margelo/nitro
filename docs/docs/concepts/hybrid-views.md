@@ -41,6 +41,44 @@ class HybridCamera : HybridCameraSpec {
 </div>
 </div>
 
+## Defining `HybridViewProps` and `HybridViewMethods`
+
+Your `HybridView` type is parameterized by two interfaces:
+
+- `HybridViewProps`: properties implemented natively and settable from React props (no defaults; you define all props)
+- `HybridViewMethods`: methods implemented natively and callable from JS after obtaining a `hybridRef` (define these as method signatures)
+
+### HybridViewProps Definition
+
+`HybridViewProps` should contain properties with Nitro supported types (see the [Typing System](../types/typing-system)).
+
+```ts
+export interface CameraProps extends HybridViewProps {
+  enableFlash: boolean
+  zoom: number
+  onCaptured: (path: string) => void
+}
+```
+
+### HybridViewMethods Definition
+
+Define your view’s callable API using **method signatures**, not `methodName: () => ...` property syntax.
+
+```ts title="Bad ❌"
+export interface CameraMethods extends HybridViewMethods {
+  takePhoto: () => Promise<string>
+  setZoom: (zoom: number) => void
+}
+```
+
+```ts title="Good ✅"
+export interface CameraMethods extends HybridViewMethods {
+  takePhoto(): Promise<string>
+  setZoom(zoom: number): void
+}
+```
+
+
 ## Rendering Hybrid Views
 
 Unlike a **Hybrid Object**, **Hybrid Views** should not be created manually. Instead, you should use the `getHostComponent(...)` function to get a renderable version of your Hybrid View:
