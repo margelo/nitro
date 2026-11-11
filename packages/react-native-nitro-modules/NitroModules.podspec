@@ -51,6 +51,7 @@ Pod::Spec.new do |s|
     "cpp/core/utils/NitroHash.hpp",
     "cpp/core/utils/NitroDefines.hpp",
     "cpp/core/utils/PropNameIDCache.hpp",
+    "cpp/core/utils/WeakReferenceCache.hpp",
     "cpp/views/CachedProp.hpp",
     "cpp/views/RawPropsCompat.hpp",
     "cpp/views/ReactProp.hpp",
