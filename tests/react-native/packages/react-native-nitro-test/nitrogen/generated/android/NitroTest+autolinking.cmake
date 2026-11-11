@@ -35,6 +35,8 @@ target_sources(
   # Shared Nitrogen C++ sources
   ../nitrogen/generated/shared/c++/HybridBenchmarkObjectCppSpec.cpp
   ../nitrogen/generated/shared/c++/HybridBenchmarkObjectSwiftKotlinSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridGradientViewSpec.cpp
+  ../nitrogen/generated/shared/c++/views/HybridGradientViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridPaddedTestViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridPaddedTestViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridRecyclableTestViewSpec.cpp
@@ -45,6 +47,8 @@ target_sources(
   ../nitrogen/generated/android/c++/JHybridBenchmarkObjectSwiftKotlinSpec.cpp
   ../nitrogen/generated/android/c++/JVariant_Double_String.cpp
   ../nitrogen/generated/android/c++/JVariant_Boolean_DoubleArray_Array_String__Double_String.cpp
+  ../nitrogen/generated/android/c++/JHybridGradientViewSpec.cpp
+  ../nitrogen/generated/android/c++/views/JHybridGradientViewStateUpdater.cpp
   ../nitrogen/generated/android/c++/JHybridPaddedTestViewSpec.cpp
   ../nitrogen/generated/android/c++/views/JHybridPaddedTestViewStateUpdater.cpp
   ../nitrogen/generated/android/c++/JHybridRecyclableTestViewSpec.cpp

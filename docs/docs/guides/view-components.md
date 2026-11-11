@@ -158,6 +158,83 @@ function App() {
 }
 ```
 
+## Children
+
+A Nitro `HybridView` can render React children, just like a normal `<View>`. They get laid out by Yoga and mounted as subviews of your native view, so the view can draw behind or around them.
+
+<div className="side-by-side-container">
+<div className="side-by-side-block">
+
+```ts title="GradientView.nitro.ts"
+export interface GradientViewProps
+  extends HybridViewProps {
+  colors: string[]
+}
+export type GradientView =
+  HybridView<GradientViewProps>
+```
+
+</div>
+<div className="side-by-side-block">
+
+```jsx title="App.tsx"
+function App() {
+  return (
+    <GradientView
+      colors={['#FF0080', '#7928CA']}
+      style={{ flex: 1, padding: 24 }}
+    >
+      <Text>Welcome back</Text>
+      <Button title="Continue" />
+    </GradientView>
+  )
+}
+```
+
+</div>
+</div>
+
+This works out of the box, there's nothing extra to set up. The only requirement is that your native view can actually hold subviews:
+
+- On iOS, any `UIView` already can.
+- On Android, return a `NitroViewGroup` (or a subclass) from `view`. It leaves children where Fabric placed them. A regular `ViewGroup` would run its own layout and move them around, and a plain `View` can't hold children at all, so Nitro throws an error.
+
+<div className="side-by-side-container">
+<div className="side-by-side-block">
+
+```swift title="HybridGradientView.swift"
+class HybridGradientView: HybridGradientViewSpec {
+  let view = GradientUIView()
+
+  func setColors(_ colors: [String]) {
+    view.gradientLayer.colors = colors.map {
+      UIColor(hex: $0).cgColor
+    }
+  }
+}
+```
+
+</div>
+<div className="side-by-side-block">
+
+```kotlin title="HybridGradientView.kt"
+class HybridGradientView(context: ThemedReactContext):
+  HybridGradientViewSpec() {
+  override val view = GradientView(context)
+
+  override fun setColors(colors: Array<String>) {
+    view.setGradientColors(colors.map(Color::parseColor))
+  }
+}
+```
+
+</div>
+</div>
+
+:::note Styling
+A Hybrid View only forwards layout to its native view. It won't apply visual style props like `backgroundColor`, `borderRadius` or `boxShadow`, since the native view decides how it looks. To style one, wrap it in a normal `<View>` and add `overflow: 'hidden'` to clip.
+:::
+
 ## Props
 
 Since every `HybridView` is also a `HybridObject`, you can use any type that Nitro supports as a property - including custom types (`interface`), `ArrayBuffer`, and even other `HybridObject`s!

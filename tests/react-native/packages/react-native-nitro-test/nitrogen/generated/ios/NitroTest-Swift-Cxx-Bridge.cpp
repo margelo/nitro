@@ -9,6 +9,7 @@
 
 // Include C++ implementation defined types
 #include "HybridBenchmarkObjectSwiftKotlinSpecSwift.hpp"
+#include "HybridGradientViewSpecSwift.hpp"
 #include "HybridPaddedTestViewSpecSwift.hpp"
 #include "HybridRecyclableTestViewSpecSwift.hpp"
 #include "HybridTestViewSpecSwift.hpp"
@@ -32,7 +33,7 @@ namespace margelo::nitro::test::bridge::swift {
     NitroTest::HybridBenchmarkObjectSwiftKotlinSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
-  
+
   // pragma MARK: std::function<double()>
   Func_double create_Func_double(void* NON_NULL swiftClosureWrapper) noexcept {
     auto swiftClosure = NitroTest::Func_double::fromUnsafe(swiftClosureWrapper);
@@ -41,7 +42,7 @@ namespace margelo::nitro::test::bridge::swift {
       return __result;
     };
   }
-  
+
   // pragma MARK: std::function<void(double /* result */)>
   Func_void_double create_Func_void_double(void* NON_NULL swiftClosureWrapper) noexcept {
     auto swiftClosure = NitroTest::Func_void_double::fromUnsafe(swiftClosureWrapper);
@@ -49,7 +50,7 @@ namespace margelo::nitro::test::bridge::swift {
       swiftClosure.call(result);
     };
   }
-  
+
   // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
   Func_void_std__exception_ptr create_Func_void_std__exception_ptr(void* NON_NULL swiftClosureWrapper) noexcept {
     auto swiftClosure = NitroTest::Func_void_std__exception_ptr::fromUnsafe(swiftClosureWrapper);
@@ -57,7 +58,23 @@ namespace margelo::nitro::test::bridge::swift {
       swiftClosure.call(error);
     };
   }
-  
+
+  // pragma MARK: std::shared_ptr<HybridGradientViewSpec>
+  std::shared_ptr<HybridGradientViewSpec> create_std__shared_ptr_HybridGradientViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    NitroTest::HybridGradientViewSpec_cxx swiftPart = NitroTest::HybridGradientViewSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::test::HybridGradientViewSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridGradientViewSpec_(std__shared_ptr_HybridGradientViewSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::test::HybridGradientViewSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::test::HybridGradientViewSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridGradientViewSpec\" is not implemented in Swift!");
+    }
+    #endif
+    NitroTest::HybridGradientViewSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
+
   // pragma MARK: std::shared_ptr<HybridPaddedTestViewSpec>
   std::shared_ptr<HybridPaddedTestViewSpec> create_std__shared_ptr_HybridPaddedTestViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     NitroTest::HybridPaddedTestViewSpec_cxx swiftPart = NitroTest::HybridPaddedTestViewSpec_cxx::fromUnsafe(swiftUnsafePointer);
@@ -73,7 +90,7 @@ namespace margelo::nitro::test::bridge::swift {
     NitroTest::HybridPaddedTestViewSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
-  
+
   // pragma MARK: std::shared_ptr<HybridRecyclableTestViewSpec>
   std::shared_ptr<HybridRecyclableTestViewSpec> create_std__shared_ptr_HybridRecyclableTestViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     NitroTest::HybridRecyclableTestViewSpec_cxx swiftPart = NitroTest::HybridRecyclableTestViewSpec_cxx::fromUnsafe(swiftUnsafePointer);
@@ -89,7 +106,7 @@ namespace margelo::nitro::test::bridge::swift {
     NitroTest::HybridRecyclableTestViewSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
-  
+
   // pragma MARK: std::function<void()>
   Func_void create_Func_void(void* NON_NULL swiftClosureWrapper) noexcept {
     auto swiftClosure = NitroTest::Func_void::fromUnsafe(swiftClosureWrapper);
@@ -97,7 +114,7 @@ namespace margelo::nitro::test::bridge::swift {
       swiftClosure.call();
     };
   }
-  
+
   // pragma MARK: std::shared_ptr<HybridTestViewSpec>
   std::shared_ptr<HybridTestViewSpec> create_std__shared_ptr_HybridTestViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     NitroTest::HybridTestViewSpec_cxx swiftPart = NitroTest::HybridTestViewSpec_cxx::fromUnsafe(swiftUnsafePointer);

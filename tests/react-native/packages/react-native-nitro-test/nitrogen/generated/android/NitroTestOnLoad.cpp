@@ -17,6 +17,8 @@
 
 #include "JHybridBenchmarkObjectSwiftKotlinSpec.hpp"
 #include "JFunc_double.hpp"
+#include "JHybridGradientViewSpec.hpp"
+#include "views/JHybridGradientViewStateUpdater.hpp"
 #include "JHybridPaddedTestViewSpec.hpp"
 #include "views/JHybridPaddedTestViewStateUpdater.hpp"
 #include "JHybridRecyclableTestViewSpec.hpp"
@@ -67,6 +69,14 @@ struct JHybridRecyclableTestViewSpecImpl: public jni::JavaClass<JHybridRecyclabl
     return javaPart->getJHybridRecyclableTestViewSpec();
   }
 };
+struct JHybridGradientViewSpecImpl: public jni::JavaClass<JHybridGradientViewSpecImpl, JHybridGradientViewSpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/test/HybridGradientView;";
+  static std::shared_ptr<JHybridGradientViewSpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridGradientViewSpecImpl::javaobject()>();
+    jni::local_ref<JHybridGradientViewSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridGradientViewSpec();
+  }
+};
 
 void registerAllNatives() {
   using namespace margelo::nitro;
@@ -75,6 +85,8 @@ void registerAllNatives() {
   // Register native JNI methods
   margelo::nitro::test::JHybridBenchmarkObjectSwiftKotlinSpec::CxxPart::registerNatives();
   margelo::nitro::test::JFunc_double_cxx::registerNatives();
+  margelo::nitro::test::JHybridGradientViewSpec::CxxPart::registerNatives();
+  margelo::nitro::test::views::JHybridGradientViewStateUpdater::registerNatives();
   margelo::nitro::test::JHybridPaddedTestViewSpec::CxxPart::registerNatives();
   margelo::nitro::test::views::JHybridPaddedTestViewStateUpdater::registerNatives();
   margelo::nitro::test::JHybridRecyclableTestViewSpec::CxxPart::registerNatives();
@@ -115,6 +127,12 @@ void registerAllNatives() {
     "RecyclableTestView",
     []() -> std::shared_ptr<HybridObject> {
       return JHybridRecyclableTestViewSpecImpl::create();
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "GradientView",
+    []() -> std::shared_ptr<HybridObject> {
+      return JHybridGradientViewSpecImpl::create();
     }
   );
 }

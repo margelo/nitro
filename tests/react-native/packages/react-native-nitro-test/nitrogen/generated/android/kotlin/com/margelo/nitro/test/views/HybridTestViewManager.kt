@@ -8,6 +8,8 @@
 package com.margelo.nitro.test.views
 
 import android.view.View
+import android.view.ViewGroup
+import com.facebook.react.uimanager.IViewGroupManager
 import com.facebook.react.uimanager.ReactStylesDiffMap
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.StateWrapper
@@ -19,7 +21,7 @@ import com.margelo.nitro.test.*
 /**
  * Represents the React Native `ViewManager` for the "TestView" Nitro HybridView.
  */
-public open class HybridTestViewManager: SimpleViewManager<View>() {
+public open class HybridTestViewManager: SimpleViewManager<View>(), IViewGroupManager<View> {
   /**
    * Represents the View and its last state snapshot (mutable)
    */
@@ -92,5 +94,34 @@ public open class HybridTestViewManager: SimpleViewManager<View>() {
 
   private fun getHybridViewHolder(view: View): HybridViewHolder? {
     return view.getTag(associated_hybrid_view_tag) as? HybridViewHolder
+  }
+
+  override fun needsCustomLayoutForChildren(): Boolean {
+    // false: Fabric positions children directly, so we don't lay them out.
+    return false
+  }
+
+  override fun addView(parent: View, child: View, index: Int) {
+    asViewGroup(parent).addView(child, index)
+  }
+
+  override fun getChildAt(parent: View, index: Int): View? {
+    return asViewGroup(parent).getChildAt(index)
+  }
+
+  override fun getChildCount(parent: View): Int {
+    return (parent as? ViewGroup)?.childCount ?: 0
+  }
+
+  override fun removeViewAt(parent: View, index: Int) {
+    asViewGroup(parent).removeViewAt(index)
+  }
+
+  private fun asViewGroup(view: View): ViewGroup {
+    if (view is ViewGroup) {
+      return view
+    }
+    val className = view.javaClass.simpleName
+    throw IllegalStateException("Nitro view 'TestView' received React children, but its native view ($className) is not a ViewGroup! To render children, return a `NitroViewGroup` (or another `android.view.ViewGroup`) from your HybridView's `view`.")
   }
 }

@@ -19,7 +19,7 @@ public final class NitroTestAutolinking {
       return __cxxWrapped.getCxxPart()
     }()
   }
-  
+
   public static func createTestView() -> bridge.std__shared_ptr_HybridTestViewSpec_ {
     let hybridObject = HybridTestView()
     return { () -> bridge.std__shared_ptr_HybridTestViewSpec_ in
@@ -27,11 +27,11 @@ public final class NitroTestAutolinking {
       return __cxxWrapped.getCxxPart()
     }()
   }
-  
+
   public static func isTestViewRecyclable() -> Bool {
     return HybridTestView.self is any RecyclableView.Type
   }
-  
+
   public static func createPaddedTestView() -> bridge.std__shared_ptr_HybridPaddedTestViewSpec_ {
     let hybridObject = HybridPaddedTestView()
     return { () -> bridge.std__shared_ptr_HybridPaddedTestViewSpec_ in
@@ -39,11 +39,11 @@ public final class NitroTestAutolinking {
       return __cxxWrapped.getCxxPart()
     }()
   }
-  
+
   public static func isPaddedTestViewRecyclable() -> Bool {
     return HybridPaddedTestView.self is any RecyclableView.Type
   }
-  
+
   public static func createRecyclableTestView() -> bridge.std__shared_ptr_HybridRecyclableTestViewSpec_ {
     let hybridObject = HybridRecyclableTestView()
     return { () -> bridge.std__shared_ptr_HybridRecyclableTestViewSpec_ in
@@ -51,8 +51,20 @@ public final class NitroTestAutolinking {
       return __cxxWrapped.getCxxPart()
     }()
   }
-  
+
   public static func isRecyclableTestViewRecyclable() -> Bool {
     return HybridRecyclableTestView.self is any RecyclableView.Type
+  }
+
+  public static func createGradientView() -> bridge.std__shared_ptr_HybridGradientViewSpec_ {
+    let hybridObject = HybridGradientView()
+    return { () -> bridge.std__shared_ptr_HybridGradientViewSpec_ in
+      let __cxxWrapped = hybridObject.getCxxWrapper()
+      return __cxxWrapped.getCxxPart()
+    }()
+  }
+
+  public static func isGradientViewRecyclable() -> Bool {
+    return HybridGradientView.self is any RecyclableView.Type
   }
 }

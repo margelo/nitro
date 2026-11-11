@@ -71,6 +71,31 @@ using namespace margelo::nitro::test::views;
   [self setContentView:view];
 }
 
+- (void) mountChildComponentView:(UIView<RCTComponentViewProtocol>*)childComponentView index:(NSInteger)index {
+  // Mount children inside the contentView, not as siblings of it (fall back if there's none yet).
+  UIView* container = self.contentView;
+  if (container == nil) {
+    [super mountChildComponentView:childComponentView index:index];
+    return;
+  }
+  [container insertSubview:childComponentView atIndex:index];
+}
+
+- (void) unmountChildComponentView:(UIView<RCTComponentViewProtocol>*)childComponentView index:(NSInteger)index {
+  if (childComponentView.superview == nil) {
+    [super unmountChildComponentView:childComponentView index:index];
+    return;
+  }
+  [childComponentView removeFromSuperview];
+}
+
+- (void) updateLayoutMetrics:(const facebook::react::LayoutMetrics&)layoutMetrics
+            oldLayoutMetrics:(const facebook::react::LayoutMetrics&)oldLayoutMetrics {
+  [super updateLayoutMetrics:layoutMetrics oldLayoutMetrics:oldLayoutMetrics];
+  // Make the contentView fill the component, else children would be double-inset by padding/border.
+  self.contentView.frame = self.bounds;
+}
+
 - (void) notifyOnDropView {
   // A recycled component can later be invalidated. Notify only once per mount.
   if (_didDropView) {
@@ -98,7 +123,7 @@ using namespace margelo::nitro::test::views;
   if (hasTransactionPropChanges) {
     swiftPart.beforeUpdate();
 
-    
+
 
     // Update hybridRef if it changed
     if (oldViewProps == nullptr

@@ -21,3 +21,5 @@ export {
   RecyclableTestView,
   type RecyclableTestViewRef,
 } from './views/RecyclableTestView'
+
+export { GradientView } from './views/GradientView'

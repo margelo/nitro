@@ -1,11 +1,15 @@
 {
   "$schema": "https://nitro.margelo.com/nitro.schema.json",
-  "cxxNamespace": ["test"],
+  "cxxNamespace": [
+    "test"
+  ],
   "ios": {
     "iosModuleName": "NitroTest"
   },
   "android": {
-    "androidNamespace": ["test"],
+    "androidNamespace": [
+      "test"
+    ],
     "androidCxxLibName": "NitroTest"
   },
   "autolinking": {
@@ -54,7 +58,19 @@
         "language": "kotlin",
         "implementationClassName": "HybridRecyclableTestView"
       }
+    },
+    "GradientView": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridGradientView"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridGradientView"
+      }
     }
   },
-  "ignorePaths": ["**/node_modules"]
+  "ignorePaths": [
+    "**/node_modules"
+  ]
 }

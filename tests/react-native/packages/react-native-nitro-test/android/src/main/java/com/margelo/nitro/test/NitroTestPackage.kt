@@ -5,6 +5,7 @@ import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.model.ReactModuleInfoProvider
 import com.facebook.react.uimanager.ViewManager
+import com.margelo.nitro.test.views.HybridGradientViewManager
 import com.margelo.nitro.test.views.HybridRecyclableTestViewManager
 import com.margelo.nitro.test.views.HybridTestViewManager
 
@@ -21,6 +22,7 @@ class NitroTestPackage : BaseReactPackage() {
     viewManagers.add(HybridTestViewManager())
     viewManagers.add(PaddedTestViewManager())
     viewManagers.add(HybridRecyclableTestViewManager())
+    viewManagers.add(HybridGradientViewManager())
     return viewManagers
   }
 
