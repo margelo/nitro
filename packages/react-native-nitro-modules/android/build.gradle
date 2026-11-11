@@ -52,7 +52,7 @@ android {
     externalNativeBuild {
       cmake {
         cppFlags "-frtti -fexceptions -Wall -Wextra -fstack-protector-all"
-        arguments "-DANDROID_STL=c++_shared", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON", "-DNITRO_SANITIZER=${rootProject.findProperty('nitroSanitizer') ?: ''}"
+        arguments "-DANDROID_STL=c++_shared", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
         abiFilters (*reactNativeArchitectures())
 
         buildTypes {
@@ -123,6 +123,7 @@ android {
 
   sourceSets {
     main {
+      java.srcDirs += ["core/main/java"]
       if (isNewArchitectureEnabled()) {
         java.srcDirs += [
           // React Codegen files
@@ -159,6 +160,7 @@ if (isNewArchitectureEnabled()) {
 
 tasks.register('prepareHeaders', Copy) {
   from fileTree('./src/main/cpp').filter { it.isFile() }
+  from fileTree('./core/main/cpp').filter { it.isFile() }
   from fileTree('../cpp/').filter { it.isFile() }
   include "*.hpp"
   into "${project.buildDir}/headers/nitromodules/NitroModules/"

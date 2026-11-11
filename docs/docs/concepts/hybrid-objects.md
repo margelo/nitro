@@ -125,7 +125,7 @@ Usually, you should not need to manually dispose Hybrid Objects as the JS garbag
 Also, most Hybrid Objects in Nitro are just statically exported singletons, in which case they should never be deleted throughout the app's lifetime.
 
 In some rare, often performance-critical- cases it is beneficial to eagerly destroy any Hybrid Objects, which is why `dispose()` exists.
-For example, [VisionCamera](https://github.com/mrousavy/react-native-vision-camera) uses `dispose()` to clean up already processed Frames to make room for new incoming Frames:
+For example, [VisionCamera](https://github.com/margelo/react-native-vision-camera) uses `dispose()` to clean up already processed Frames to make room for new incoming Frames:
 
 ```ts
 const onFrameListener = (frame: Frame) => {
@@ -184,7 +184,7 @@ Hybrid Objects can be implemented in C++, Swift or Kotlin:
   </TabItem>
   <TabItem value="manually" label="Manually">
 
-  To implement a Hybrid Object without nitrogen, you just need to create a C++ class that inherits from the [`HybridObject`](https://github.com/mrousavy/nitro/blob/main/packages/react-native-nitro-modules/cpp/core/HybridObject.hpp) base class, and override `loadHybridMethods()`:
+  To implement a Hybrid Object without nitrogen, you just need to create a C++ class that inherits from the [`HybridObject`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/core/HybridObject.hpp) base class, and override `loadHybridMethods()`:
 
   <div className="side-by-side-container">
     <div className="side-by-side-block">

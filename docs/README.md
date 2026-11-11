@@ -1,41 +1,27 @@
-# Website
+# Nitro documentation
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+The [Nitro documentation](https://nitro.margelo.com) uses [Docusaurus](https://docusaurus.io/). Its source lives in the `docs/` directory of `margelo/nitro`.
 
-### Installation
+## Development
 
-```
-$ yarn
-```
+From the Nitro repository root:
 
-### Local Development
-
-```
-$ yarn start
+```sh
+bun install --frozen-lockfile --ignore-scripts
+bun docs start
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+The docs do not need the native packages or Nitrogen to be built. Docusaurus reloads the site when files change.
 
-### Build
+## Validation
 
-```
-$ yarn build
-```
-
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
-
-### Deployment
-
-Using SSH:
-
-```
-$ USE_SSH=true yarn deploy
+```sh
+bun docs typecheck
+bun docs build
 ```
 
-Not using SSH:
+The build writes the site to `docs/build/`. Preview it with `bun docs serve`.
 
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
-```
+## Deployment
 
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+Configure the Vercel project to use `margelo/nitro`, `main` as its production branch, and `docs` as its root directory, with access to the repository's root `bun.lock`. `vercel.json` installs the locked dependencies without running workspace build scripts, then runs `bun run build` from `docs/`.

@@ -1,0 +1,36 @@
+name: Build docs
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
+  pull_request:
+    paths:
+      - '.github/workflows/build-docs.yml'
+      - 'docs/**'
+      - 'package.json'
+      - 'bun.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun docs typecheck
+      - run: bun docs build

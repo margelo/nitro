@@ -1,0 +1,473 @@
+name: Nitro Performance
+run-name: 'Nitro Performance for PR #${{ github.event.issue.number }}'
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+jobs:
+  request:
+    if: >-
+      github.event.issue.pull_request &&
+      github.event.comment.body == '@nitro-modules-bot please test performance'
+    runs-on: ubuntu-24.04
+    # Serialize status writes with the publisher, without cancelling requests.
+    concurrency:
+      group: 'performance-status-Nitro Performance for PR #${{ github.event.issue.number }}'
+      queue: max
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      statuses: write
+    outputs:
+      allowed: ${{ steps.permission.outputs.allowed }}
+      base_sha: ${{ steps.metadata.outputs.base_sha }}
+      head_sha: ${{ steps.metadata.outputs.head_sha }}
+      head_repository: ${{ steps.metadata.outputs.head_repository }}
+      pr_number: ${{ steps.metadata.outputs.pr_number }}
+    steps:
+      - id: permission
+        name: Require repository write access
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+        run: |
+          set -euo pipefail
+          ALLOWED=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$COMMENT_AUTHOR/permission" \
+            --jq '.permission == "write" or .permission == "maintain" or .permission == "admin"')
+          echo "allowed=$ALLOWED" >> "$GITHUB_OUTPUT"
+          if [[ "$ALLOWED" != true ]]; then
+            echo 'Performance requests require write, maintain, or admin repository access.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - id: metadata
+        name: Resolve pull request revisions
+        if: steps.permission.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > pull-request.json
+          jq -e --arg repository "$GITHUB_REPOSITORY" --argjson number "$PR_NUMBER" '
+            .number == $number and .state == "open" and .base.repo.full_name == $repository and
+            (.base.sha | test("^[0-9a-f]{40}$")) and (.head.sha | test("^[0-9a-f]{40}$")) and
+            (.head.repo.full_name | test("^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"))
+          ' pull-request.json > /dev/null
+          jq -r '"base_sha=\(.base.sha)", "head_sha=\(.head.sha)",
+            "head_repository=\(.head.repo.full_name)", "pr_number=\(.number)"' \
+            pull-request.json >> "$GITHUB_OUTPUT"
+
+      - name: Show pending performance status on the PR
+        if: steps.permission.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ steps.metadata.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" \
+            -f state=pending -f context='Nitro Performance' \
+            -f target_url="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            -f description='Performance tests are running'
+          jq --arg repository "$GITHUB_REPOSITORY" --argjson run "$GITHUB_RUN_ID" \
+            --argjson attempt "$GITHUB_RUN_ATTEMPT" \
+            '{repository: $repository, workflowRunId: $run, requestAttempt: $attempt,
+              pullRequestNumber: .number, headSha: .head.sha}' pull-request.json > request.json
+
+      - name: Save performance request
+        if: steps.permission.outputs.allowed == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: performance-request-${{ github.run_attempt }}
+          path: request.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Create Nitro Modules Bot token
+        id: performance-bot-token
+        if: steps.permission.outputs.allowed == 'true' && vars.NITRO_PERFORMANCE_APP_CLIENT_ID != ''
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ vars.NITRO_PERFORMANCE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NITRO_PERFORMANCE_APP_PRIVATE_KEY }}
+          permission-issues: write
+          permission-pull-requests: write
+
+      - name: Acknowledge performance request
+        if: steps.permission.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.performance-bot-token.outputs.token || secrets.GITHUB_TOKEN }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content='+1'
+
+  prepare:
+    needs: request
+    if: needs.request.outputs.allowed == 'true'
+    runs-on: ubuntu-24.04
+    outputs:
+      base_sha: ${{ needs.request.outputs.base_sha }}
+      head_sha: ${{ needs.request.outputs.head_sha }}
+      head_repository: ${{ needs.request.outputs.head_repository }}
+      pr_number: ${{ needs.request.outputs.pr_number }}
+    steps:
+      - name: Checkout performance tooling
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ needs.request.outputs.head_repository }}
+          ref: ${{ needs.request.outputs.head_sha }}
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.14
+      - name: Test performance tooling
+        run: |
+          bun install --frozen-lockfile
+          bun run test:performance-tools
+          bun run typecheck:performance-tools
+          bun benchmark typecheck
+          bun benchmark lint-ci
+
+  build-android:
+    needs: prepare
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 40
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - name: Checkout base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.prepare.outputs.base_sha }}
+          path: base
+          persist-credentials: false
+      - name: Checkout head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ needs.prepare.outputs.head_repository }}
+          ref: ${{ needs.prepare.outputs.head_sha }}
+          path: head
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.14
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: zulu
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.0.0
+        with:
+          cache-provider: basic
+
+      - name: Build and package exact APKs
+        run: |
+          mkdir -p apps
+          bun head/scripts/performance/build-metadata.ts \
+            --platform android --base-root base --head-root head \
+            --architecture x86_64 --toolchain "$(java -version 2>&1 | head -1) / NDK 29.0.14206865" \
+            --output apps/build.json
+          bash head/scripts/performance/build-android.sh "$GITHUB_WORKSPACE/head" com.margelo.nitrobenchmark.head
+          cp head/tests/react-native/apps/benchmark/android/app/build/outputs/apk/release/app-release.apk apps/head.apk
+          if [[ "$(jq -r .baseSha apps/build.json)" == "$(jq -r .headSha apps/build.json)" ]]; then
+            cp apps/head.apk apps/base.apk
+          else
+            bash head/scripts/performance/build-android.sh "$GITHUB_WORKSPACE/base"
+            cp base/tests/react-native/apps/benchmark/android/app/build/outputs/apk/release/app-release.apk apps/base.apk
+          fi
+      - name: Save immutable Android apps
+        id: upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: performance-apps-android-${{ github.run_attempt }}
+          path: apps
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+  measure-android:
+    needs: [prepare, build-android]
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 75
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+    env:
+      BASE_SHA: ${{ needs.prepare.outputs.base_sha }}
+      HEAD_SHA: ${{ needs.prepare.outputs.head_sha }}
+      BUILD_ARTIFACT_ID: ${{ needs.build-android.outputs.artifact_id }}
+    steps:
+      - name: Checkout measurement controller
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ needs.prepare.outputs.head_repository }}
+          ref: ${{ env.HEAD_SHA }}
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.14
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: zulu
+          java-version: 17
+      - name: Download exact Android apps
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ env.BUILD_ARTIFACT_ID }}
+          path: apps
+
+      - name: Enable KVM for benchmark measurements
+        run: |
+          set -euxo pipefail
+          test -c /dev/kvm
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          sudo udevadm settle --timeout=30
+          stat --format='%A %U:%G %n' /dev/kvm
+          test -r /dev/kvm && test -w /dev/kvm
+
+      - name: Report Android command-line tools
+        run: |
+          echo "Emulator action SDK manager: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          cat "$ANDROID_HOME/cmdline-tools/latest/source.properties"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --version
+
+      - name: Run paired Android benchmarks
+        id: measure
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 36
+          arch: x86_64
+          profile: pixel_7
+          # Emulator 37.1.11, used by successful performance run 34414142495.
+          emulator-build: '15917651'
+          disable-animations: true
+          # CPU acceleration is required, independently of software GPU rendering.
+          disable-linux-hw-accel: false
+          emulator-boot-timeout: 300
+          pre-emulator-launch-script: '"$ANDROID_HOME/emulator/emulator" -version; "$ANDROID_HOME/emulator/emulator" -accel-check'
+          emulator-options: -accel on -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: >-
+            bun scripts/performance/run-sequence.ts
+            --platform android --base-app apps/base.apk --head-app apps/head.apk
+            --build-metadata apps/build.json
+            --base-sha "$BASE_SHA" --head-sha "$HEAD_SHA"
+            --output-directory performance-android
+            --device-id "$(adb get-serialno)"
+            --device "Pixel 7 emulator / KVM / Blacksmith 4 vCPU" --os-version "Android 16 / API 36"
+            --architecture x86_64 --toolchain "$(jq -r .toolchain apps/build.json)"
+      - name: Preserve Android host failure diagnostics
+        if: always() && steps.measure.outcome == 'failure'
+        continue-on-error: true
+        timeout-minutes: 2
+        # Run after measurements, even when ADB and the emulator are gone.
+        run: bun scripts/performance/collect-android-diagnostics.ts --output-directory performance-android/host
+      - name: Upload Android results
+        id: upload
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: performance-android-${{ github.run_attempt }}
+          path: performance-android
+          if-no-files-found: warn
+          retention-days: 30
+
+  build-ios:
+    needs: prepare
+    runs-on: blacksmith-6vcpu-macos-26
+    timeout-minutes: 60
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - name: Checkout base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.prepare.outputs.base_sha }}
+          path: base
+          persist-credentials: false
+      - name: Checkout head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ needs.prepare.outputs.head_repository }}
+          ref: ${{ needs.prepare.outputs.head_sha }}
+          path: head
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.14
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: 3.3.0
+          working-directory: head/tests/react-native/apps/benchmark
+      - name: Select Xcode 26.5
+        run: sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+      - name: Build and package exact simulator apps
+        run: |
+          mkdir -p apps
+          bun head/scripts/performance/build-metadata.ts \
+            --platform ios --base-root base --head-root head \
+            --architecture arm64 --toolchain "$(xcodebuild -version | tr '\n' ' ')" \
+            --output apps/build.json
+          bash head/scripts/performance/build-ios.sh "$GITHUB_WORKSPACE/head" com.margelo.nitrobenchmark.head
+          # Tar preserves the executable bits and symlinks inside each .app.
+          tar -czf apps/head.app.tar.gz -C head/tests/react-native/apps/benchmark/ios/build-benchmark/Build/Products/Release-iphonesimulator NitroBenchmark.app
+          if [[ "$(jq -r .baseSha apps/build.json)" == "$(jq -r .headSha apps/build.json)" ]]; then
+            cp apps/head.app.tar.gz apps/base.app.tar.gz
+          else
+            bash head/scripts/performance/build-ios.sh "$GITHUB_WORKSPACE/base"
+            tar -czf apps/base.app.tar.gz -C base/tests/react-native/apps/benchmark/ios/build-benchmark/Build/Products/Release-iphonesimulator NitroBenchmark.app
+          fi
+      - name: Save immutable iOS apps
+        id: upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: performance-apps-ios-${{ github.run_attempt }}
+          path: apps
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+  measure-ios:
+    needs: [prepare, build-ios]
+    runs-on: blacksmith-6vcpu-macos-26
+    timeout-minutes: 90
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+    env:
+      BASE_SHA: ${{ needs.prepare.outputs.base_sha }}
+      HEAD_SHA: ${{ needs.prepare.outputs.head_sha }}
+      BUILD_ARTIFACT_ID: ${{ needs.build-ios.outputs.artifact_id }}
+    steps:
+      - name: Checkout measurement controller
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ needs.prepare.outputs.head_repository }}
+          ref: ${{ env.HEAD_SHA }}
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.14
+      - name: Select Xcode 26.5
+        run: sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+      - name: Download exact iOS apps
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ env.BUILD_ARTIFACT_ID }}
+          path: apps
+      - name: Run paired iOS benchmarks
+        run: |
+          set -euo pipefail
+          mkdir -p apps/base apps/head
+          if [[ -f apps/base.app.tar.gz ]]; then tar -xzf apps/base.app.tar.gz -C apps/base; fi
+          tar -xzf apps/head.app.tar.gz -C apps/head
+          DEVICE_ID=$(xcrun simctl create \
+            'Nitro Performance' \
+            'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro' \
+            'com.apple.CoreSimulator.SimRuntime.iOS-26-5')
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$DEVICE_ID"
+          DEVICE_ID="$DEVICE_ID" bun -e '
+            const child = Bun.spawn(["xcrun", "simctl", "bootstatus", process.env.DEVICE_ID, "-b"], {
+              stdout: "inherit", stderr: "inherit", timeout: 300_000, killSignal: "SIGKILL",
+            });
+            if (await child.exited !== 0) throw new Error("iOS simulator did not boot successfully within five minutes.");
+          '
+          bun scripts/performance/run-sequence.ts \
+            --platform ios --base-app apps/base/NitroBenchmark.app --head-app apps/head/NitroBenchmark.app \
+            --build-metadata apps/build.json \
+            --base-sha "$BASE_SHA" --head-sha "$HEAD_SHA" \
+            --output-directory performance-ios --device-id "$DEVICE_ID" \
+            --device 'iPhone 17 Pro simulator / Blacksmith 6 vCPU' --os-version 'iOS 26.5' \
+            --architecture arm64 --toolchain "$(jq -r .toolchain apps/build.json)"
+      - name: Delete simulator
+        if: always() && env.DEVICE_ID != ''
+        run: |
+          xcrun simctl shutdown "$DEVICE_ID" || true
+          xcrun simctl delete "$DEVICE_ID" || true
+      - name: Upload iOS results
+        id: upload
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: performance-ios-${{ github.run_attempt }}
+          path: performance-ios
+          if-no-files-found: warn
+          retention-days: 30
+
+  nitro-performance:
+    name: nitro-performance
+    needs: [prepare, measure-android, measure-ios]
+    if: always() && !cancelled() && needs.prepare.result == 'success'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require successful platform runs
+        env:
+          PREPARE_RESULT: ${{ needs.prepare.result }}
+          ANDROID_RESULT: ${{ needs.measure-android.result }}
+          IOS_RESULT: ${{ needs.measure-ios.result }}
+        run: |
+          if [[ "$PREPARE_RESULT" != success || "$ANDROID_RESULT" != success || "$IOS_RESULT" != success ]]; then
+            echo "Prepare: $PREPARE_RESULT, Android: $ANDROID_RESULT, iOS: $IOS_RESULT" >&2
+            exit 1
+          fi
+      - name: Checkout report tooling
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ needs.prepare.outputs.head_repository }}
+          ref: ${{ needs.prepare.outputs.head_sha }}
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.14
+      # Job outputs deliberately retain an untouched platform's earlier artifact
+      # when only the other measurement job and its dependents are rerun.
+      - name: Download Android results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.measure-android.outputs.artifact_id }}
+          path: performance-report/raw/android
+      - name: Download iOS results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.measure-ios.outputs.artifact_id }}
+          path: performance-report/raw/ios
+      - name: Build aggregate report
+        env:
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
+          ANDROID_ARTIFACT_ID: ${{ needs.measure-android.outputs.artifact_id }}
+          IOS_ARTIFACT_ID: ${{ needs.measure-ios.outputs.artifact_id }}
+        run: |
+          cmp performance-report/raw/android/suite.json performance-report/raw/ios/suite.json
+          bun scripts/performance/report.ts \
+            --suite performance-report/raw/android/suite.json \
+            --raw-directory performance-report/raw \
+            --output performance-report/performance-report.json \
+            --repository "$REPOSITORY" --event-name "${{ github.event_name }}" \
+            --pull-request "$PR_NUMBER" \
+            --base-sha "${{ needs.prepare.outputs.base_sha }}" \
+            --head-sha "${{ needs.prepare.outputs.head_sha }}"
+      - name: Upload aggregate report
+        id: raw-report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: performance-report-${{ github.run_attempt }}
+          path: performance-report
+          if-no-files-found: error
+          retention-days: 30
+      - name: Render performance report from HEAD
+        run: |
+          bun scripts/performance/generate-report.ts \
+            --artifact-directory performance-report \
+            --output-directory performance-publication \
+            --artifact-id "${{ steps.raw-report.outputs.artifact-id }}"
+      - name: Upload rendered publication
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: performance-publication-${{ github.run_attempt }}
+          path: performance-publication
+          if-no-files-found: error
+          retention-days: 30

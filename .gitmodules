@@ -1,0 +1,4 @@
+[submodule "tests/standalone/hermes/hermes"]
+	path = tests/standalone/hermes/hermes
+	url = https://github.com/facebook/hermes.git
+	branch = static_h

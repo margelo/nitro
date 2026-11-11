@@ -10,7 +10,9 @@ import { getUmbrellaHeaderName } from './createSwiftUmbrellaHeader.js'
 type ObjcFile = Omit<SourceFile, 'language'> & { language: 'objective-c++' }
 type SwiftFile = Omit<SourceFile, 'language'> & { language: 'swift' }
 
-export function createHybridObjectIntializer(): [ObjcFile, SwiftFile] | [] {
+export function createHybridObjectIntializer(
+  hybridViewNames: ReadonlySet<string>
+): [ObjcFile, SwiftFile] | [] {
   const autolinkingClassName = `${NitroConfig.current.getIosModuleName()}Autolinking`
   const umbrellaHeaderName = getUmbrellaHeaderName()
   const bridgeNamespace = NitroConfig.current.getSwiftBridgeNamespace('swift')
@@ -47,6 +49,7 @@ export function createHybridObjectIntializer(): [ObjcFile, SwiftFile] | [] {
           createSwiftHybridObjectRegistration({
             hybridObjectName: hybridObjectName,
             swiftClassName: implementation.implementationClassName,
+            isHybridView: hybridViewNames.has(hybridObjectName),
           })
         cppImports.push(...requiredImports)
         cppRegistrations.push(cppCode)
