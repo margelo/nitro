@@ -19,12 +19,11 @@ description: Configure nitro.json for a React Native Nitro Module, including C++
     "androidCxxLibName": "$$androidCxxLibName$$"
   },
   "autolinking": {},
-  "ignorePaths": ["**/node_modules"],
-  "gitAttributesGeneratedFlag": true
+  "ignorePaths": ["**/node_modules"]
 }
 ```
 
-Nitrogen parses this file with Zod, see [`NitroUserConfig.ts`](https://github.com/mrousavy/nitro/blob/main/packages/nitrogen/src/config/NitroUserConfig.ts) for more information.
+Nitrogen parses this file with Zod, see [`NitroUserConfig.ts`](https://github.com/margelo/nitro/blob/main/packages/nitrogen/src/config/NitroUserConfig.ts) for more information.
 
 ## `cxxNamespace`
 
@@ -184,8 +183,3 @@ Here, the Hybrid Object "`Math`" is autolinked to create an instance of `HybridM
 Configures the TypeScript parser to ignore specific given paths when looking for `*.nitro.ts` specs.
 
 By default, this is empty (`[]`), but it can be set to ignore paths like `["node_modules", "lib"]`.
-
-## `gitAttributesGeneratedFlag`
-
-Configures whether all nitro-generated files are marked as [`linguist-generated`](https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github) for GitHub. This disables diffing for generated content and excludes them from language statistics.
-This is controlled via `nitrogen/generated/.gitattributes`.

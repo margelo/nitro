@@ -170,6 +170,14 @@ const apps: App[] = [
     icon: '/img/apps-using-nitro/scribeware.png',
     accent: '#3484ff',
   },
+  {
+    name: 'Juno',
+    company: 'SharedGenes, Inc.',
+    scale: '50K+ installs',
+    category: 'Health',
+    icon: '/img/apps-using-nitro/juno.png',
+    accent: '#fc5f2b',
+  },
 ];
 
 function AppIcon({ app, size }: { app: App; size: 'large' | 'small' }) {

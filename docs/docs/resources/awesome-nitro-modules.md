@@ -37,9 +37,9 @@ A curated collection of community-built Nitro Modules, including production Reac
 
 | Module | Description | Links |
 |--------|-------------|-------|
-| **react-native-vision-camera** | High-performance camera library | [GitHub](https://github.com/mrousavy/react-native-vision-camera) |
+| **react-native-vision-camera** | High-performance camera library | [GitHub](https://github.com/margelo/react-native-vision-camera) |
 | **react-native-data-scanner** | One-shot QR/barcode/data scanning | [GitHub](https://github.com/mrousavy/react-native-data-scanner) |
-| **react-native-fast-tflite** | Fast TensorFlow Lite bindings | [GitHub](https://github.com/mrousavy/react-native-fast-tflite) |
+| **react-native-fast-tflite** | Fast TensorFlow Lite bindings | [GitHub](https://github.com/margelo/react-native-fast-tflite) |
 
 ### Animation & Graphics
 
@@ -47,6 +47,7 @@ A curated collection of community-built Nitro Modules, including production Reac
 |--------|-------------|-------|
 | **@rive-app/react-native** | Rive animations built with Nitro | [GitHub](https://github.com/rive-app/rive-nitro-react-native) |
 | **react-native-nitro-palette** | Dominant color palette extraction | [GitHub](https://github.com/Ucekay/nitro-palette) |
+| **react-native-nitro-theme-transition** | GPU-driven theme-change transitions, sixteen effects | [GitHub](https://github.com/saleh2001k/react-native-nitro-theme-transition) |
 
 ### Cryptography & Security
 
@@ -71,6 +72,7 @@ A curated collection of community-built Nitro Modules, including production Reac
 | **react-native-ble-nitro** | Bluetooth Low Energy | [GitHub](https://github.com/zykeco/react-native-ble-nitro) |
 | **react-native-nitro-haptics** | Low-latency haptic feedback | [GitHub](https://github.com/oblador/react-native-nitro-haptics) |
 | **@renegades/react-native-tickle** | Haptic pattern editor and player | [GitHub](https://github.com/Renegades-Studio/react-native-tickle) |
+| **@iternio/react-native-auto-play** | Android Auto and Apple CarPlay support for React Native apps. | [GitHub](https://github.com/Iternio-Planning-AB/react-native-auto-play)|
 
 ### File System & Storage
 
@@ -79,7 +81,7 @@ A curated collection of community-built Nitro Modules, including production Reac
 | **react-native-nitro-fs** | High-performance file system operations | [GitHub](https://github.com/patrickkabwe/react-native-nitro-fs) |
 | **react-native-nitro-file-system** | Node.js-compatible `fs` with zero-copy binary data | [GitHub](https://github.com/iwater/react-native-nitro-file-system) |
 | **react-native-nitro-sqlite** | Fast SQLite database | [GitHub](https://github.com/margelo/react-native-nitro-sqlite) |
-| **react-native-mmkv** | Fast key-value storage (MMKV) | [GitHub](https://github.com/mrousavy/react-native-mmkv) |
+| **react-native-mmkv** | Fast key-value storage (MMKV) | [GitHub](https://github.com/margelo/react-native-mmkv) |
 | **react-native-superconfig** | Superfast typesafe config library | [GitHub](https://github.com/riteshshukla04/react-native-superconfig) |
 
 ### Networking
@@ -87,6 +89,7 @@ A curated collection of community-built Nitro Modules, including production Reac
 | Module | Description | Links |
 |--------|-------------|-------|
 | **react-native-nitro-in-app-browser** | In-app browser with native UI | [GitHub](https://github.com/patrickkabwe/react-native-nitro-in-app-browser) |
+| **react-native-inappbrowser-nitro** | In-app browser (Safari View Controller & Chrome Custom Tabs) with auth sessions | [GitHub](https://github.com/mCodex/react-native-inappbrowser-nitro) |
 | **react-native-nitro-fetch** | super-fast network fetching library | [GitHub](https://github.com/margelo/react-native-nitro-fetch) |
 | **react-native-nitro-dns** | Fast Node.js `dns` supporting DoH/DoT/DoQ | [GitHub](https://github.com/iwater/react-native-nitro-dns) |
 | **react-native-nitro-http-server** | High-performance HTTP Server | [GitHub](https://github.com/iwater/react-native-nitro-http-server) |
@@ -98,12 +101,14 @@ A curated collection of community-built Nitro Modules, including production Reac
 | Module | Description | Links |
 |--------|-------------|-------|
 | **react-native-iap** | In-app purchases for iOS and Android | [GitHub](https://github.com/hyodotdev/openiap) |
+| **react-native-plugpag-nitro** | PagSeguro PlugPag payment terminals | [GitHub](https://github.com/mCodex/react-native-plugpag-nitro) |
 
 ### Maps
 
 | Module | Description | Links |
 |--------|-------------|-------|
 | **react-native-google-maps-plus** | Google Maps SDK wrapper for Android & iOS | [GitHub](https://github.com/pinpong/react-native-google-maps-plus) |
+| **react-native-google-places** | Google Places SDK wrapper for Android & iOS | [GitHub](https://github.com/kore-koi/react-native-google-places) |
 
 ### UI & Styling
 
@@ -111,6 +116,7 @@ A curated collection of community-built Nitro Modules, including production Reac
 |--------|-------------|-------|
 | **react-native-unistyles** | Universal styling system | [GitHub](https://github.com/jpudysz/react-native-unistyles) |
 | **react-native-alternate-app-icon** | Dynamic alternate app icon switching | [GitHub](https://github.com/rutvik24/react-native-alternate-app-icon) |
+| **react-native-nitro-sfsymbols** | Render SF Symbols natively on iOS | [GitHub](https://github.com/mCodex/react-native-nitro-sfsymbols) |
 
 ### Text & Content
 
@@ -141,3 +147,4 @@ Modules currently under active development:
 |--------|-------------|-------|
 | **react-native-mlx** | Apple MLX machine learning | [GitHub](https://github.com/corasan/react-native-mlx) |
 | **react-native-fast-io** | Blazing fast I/O (WebSocket, Fetch, FS) | [GitHub](https://github.com/callstackincubator/react-native-fast-io) |
+| **react-native-nitro-archive** | ZIP archive creation, inspection and extraction | [GitHub](https://github.com/mCodex/react-native-nitro-archive) |

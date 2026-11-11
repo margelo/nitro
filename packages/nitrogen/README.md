@@ -1,14 +1,14 @@
 <a href="https://nitro.margelo.com/docs/concepts/nitrogen">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="../../docs/static/img/banner-nitrogen-dark.png" />
-    <source media="(prefers-color-scheme: light)" srcset="../../docs/static/img/banner-nitrogen-light.png" />
-    <img alt="Nitrogen" src="../../docs/static/img/banner-nitrogen-light.png" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/margelo/nitro/main/docs/static/img/banner-nitrogen-dark.png" />
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/margelo/nitro/main/docs/static/img/banner-nitrogen-light.png" />
+    <img alt="Nitrogen" src="https://raw.githubusercontent.com/margelo/nitro/main/docs/static/img/banner-nitrogen-light.png" />
   </picture>
 </a>
 
 <br />
 
-**Nitrogen** is a code-generator that takes TypeScript interfaces and generates C++, Swift and Kotlin code and native bindings built on top of the [**react-native-nitro-modules**](../react-native-nitro-modules/) core APIs.
+**Nitrogen** is a code-generator that takes TypeScript interfaces and generates C++, Swift and Kotlin code and native bindings built on top of the [**nitro-core**](../nitro-core/) APIs.
 
 ## Installation
 

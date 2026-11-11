@@ -1,0 +1,106 @@
+plugins {
+  id 'com.android.library' version '8.12.0'
+  id 'org.jetbrains.kotlin.android' version '2.1.21'
+}
+
+def nitroSanitizer = providers.gradleProperty('nitroSanitizer').getOrElse('')
+if (!(nitroSanitizer in ['', 'address'])) {
+  throw new GradleException("Unsupported nitroSanitizer: ${nitroSanitizer}")
+}
+def asanJniLibs = layout.buildDirectory.dir('generated/asan/jniLibs')
+def asanResources = layout.buildDirectory.dir('generated/asan/resources')
+
+android {
+  namespace 'com.margelo.nitro.testing.runner'
+  compileSdk providers.gradleProperty('nitroTestCompileSdk').get().toInteger()
+  ndkVersion providers.gradleProperty('nitroTestNdkVersion').get()
+
+  defaultConfig {
+    minSdk providers.gradleProperty('nitroTestMinSdk').get().toInteger()
+    testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    ndk { abiFilters providers.gradleProperty('nitroTestAbi').get() }
+    externalNativeBuild {
+      cmake {
+        arguments '-DANDROID_STL=c++_shared', '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON', "-DNITRO_SANITIZER=${nitroSanitizer}"
+        targets 'NitroTestRunner'
+      }
+    }
+  }
+
+  buildFeatures {
+    prefab true
+    buildConfig true
+  }
+  packaging { jniLibs { pickFirsts += ['**/libc++_shared.so', '**/libfbjni.so'] } }
+  if (nitroSanitizer == 'address') {
+    // Android must extract wrap.sh and the preloaded ASan runtime together.
+    packaging.jniLibs.useLegacyPackaging = true
+  }
+  externalNativeBuild {
+    cmake {
+      path 'CMakeLists.txt'
+      version providers.gradleProperty('nitroTestCmakeVersion').get()
+    }
+  }
+
+  sourceSets {
+    androidTest {
+      assets.srcDir '../build'
+      if (nitroSanitizer == 'address') {
+        jniLibs.srcDir asanJniLibs
+        resources.srcDir asanResources
+      }
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+  kotlinOptions { jvmTarget = '17' }
+}
+
+if (nitroSanitizer == 'address') {
+  def abi = providers.gradleProperty('nitroTestAbi').get()
+  def runtimeArch = ['arm64-v8a': 'aarch64', 'armeabi-v7a': 'arm', 'x86': 'i686', 'x86_64': 'x86_64'][abi]
+  if (runtimeArch == null) throw new GradleException("Unsupported ASan ABI: ${abi}")
+
+  def copyAsanRuntime = tasks.register('copyAsanRuntime', Sync) {
+    def runtimeName = "libclang_rt.asan-${runtimeArch}-android.so"
+    def runtimes = fileTree("${android.ndkDirectory}/toolchains/llvm/prebuilt") {
+      include "**/${runtimeName}"
+    }
+    from({ runtimes.files }) { into abi }
+    into asanJniLibs
+    doFirst {
+      if (runtimes.files.size() != 1) {
+        throw new GradleException("Expected one ${runtimeName} in ${android.ndkDirectory}, found ${runtimes.files.size()}")
+      }
+    }
+  }
+  def copyAsanWrap = tasks.register('copyAsanWrap', Sync) {
+    def wrapScript = file("${android.ndkDirectory}/wrap.sh/asan.sh")
+    from(wrapScript) {
+      rename { 'wrap.sh' }
+      into "lib/${abi}"
+    }
+    into asanResources
+    doFirst {
+      if (!wrapScript.isFile()) throw new GradleException("Missing NDK ASan wrapper: ${wrapScript}")
+    }
+  }
+  tasks.configureEach {
+    if (name == 'mergeDebugAndroidTestJniLibFolders') dependsOn copyAsanRuntime
+    if (name == 'processDebugAndroidTestJavaRes') dependsOn copyAsanWrap
+  }
+}
+
+dependencies {
+  implementation project(':hermes')
+  implementation project(':nitro-core')
+  implementation project(':nitro-test')
+
+  androidTestImplementation 'junit:junit:4.13.2'
+  androidTestImplementation 'androidx.test:runner:1.7.0'
+  androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+}

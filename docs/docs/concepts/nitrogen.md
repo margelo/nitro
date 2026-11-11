@@ -158,6 +158,8 @@ You should push the files in `./nitrogen/generated/` to git, and make sure those
 This way your library will always ship a working package as a whole (including generated interfaces), and the user does not need to do anything else than to install your package.
 :::
 
+Nitrogen always writes a `.gitattributes` file in the output directory with `** linguist-generated=true`. GitHub uses this to collapse generated files in diffs and exclude them from language statistics.
+
 ### 3. Add generated sources to your library
 
 All the generated sources (`./nitrogen/generated/`) need to be part of your library's code - so we need to add it to the iOS/Android build files.
@@ -165,7 +167,7 @@ All the generated sources (`./nitrogen/generated/`) need to be part of your libr
 <Tabs>
   <TabItem value="template" label="With the Nitro template">
 
-  If you created a library using the [Nitro Module template](https://github.com/mrousavy/nitro/tree/main/packages/template), your library already includes nitrogen's generated sources.
+  If you created a library using the [Nitro Module template](https://github.com/margelo/nitro/tree/main/packages/template), your library already includes nitrogen's generated sources.
 
   </TabItem>
   <TabItem value="manually" label="Manually">
@@ -295,7 +297,7 @@ Make sure `HybridMath` is default-constructible and scoped inside the correct na
 <Tabs>
   <TabItem value="template" label="With the Nitro template">
 
-  If you created a library using the [Nitro Module template](https://github.com/mrousavy/nitro/tree/main/packages/template), your library already initializes the C++ autolinking process from your `*Package.kt` and `OnLoad.cpp` files.
+  If you created a library using the [Nitro Module template](https://github.com/margelo/nitro/tree/main/packages/template), your library already initializes the C++ autolinking process from your `*Package.kt` and `OnLoad.cpp` files.
 
   </TabItem>
   <TabItem value="manually" label="Manually">

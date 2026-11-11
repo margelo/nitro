@@ -19,7 +19,7 @@ If you want to ask for help, join our [Margelo Community Discord](https://margel
 
 ## Run the example app
 
-Each release of Nitro contains a pre-built release version of the [Nitro Example app](https://github.com/mrousavy/nitro/tree/main/example). You can run this by following the ["Running the Example app" guide](running-example-app).
+Each release of Nitro contains a pre-built release version of the [Nitro Example app](https://github.com/margelo/nitro/tree/main/tests/react-native/apps/example). You can run this by following the ["Running the Example app" guide](running-example-app).
 
 ## Build error
 
@@ -65,6 +65,36 @@ If your app fails to build after installing Nitro or a library powered by Nitro,
 
   </TabItem>
 </Tabs>
+
+## Nitro was installed twice
+
+If your app crashes at startup with:
+
+```
+Nitro was installed twice: once with native version X and once with JS version Y.
+```
+
+...then two different copies of `react-native-nitro-modules` ended up in your project - the native build linked one, and Metro bundled the other.
+
+The most common cause is **installing a Nitro pre-release** (e.g. `0.37.0-beta.0`). Semver ranges never match pre-release versions, so a library declaring `"react-native-nitro-modules": "*"` as a required peer dependency does not consider the beta a match - and your package manager silently installs a second, stable copy inside that library's `node_modules` to satisfy the peer.
+
+To fix it:
+
+1. Check how many copies you have:
+   ```sh
+   npm ls react-native-nitro-modules
+   ```
+2. If a library nests its own copy, ask the library author to mark the peer dependency as [optional](../getting-started/how-to-build-a-nitro-module#11-install-nitro-and-nitrogen).
+3. As a workaround until then, force a single version from your app's `package.json`:
+   ```json title="package.json"
+   {
+     "overrides": {
+       "react-native-nitro-modules": "0.37.0-beta.0"
+     }
+   }
+   ```
+   (use `resolutions` instead of `overrides` for Yarn)
+4. Delete `node_modules` and reinstall - package managers often leave the stale nested copy on disk even after the lockfile is fixed.
 
 ## Runtime error
 
