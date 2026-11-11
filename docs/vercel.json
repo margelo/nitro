@@ -1,3 +1,69 @@
 {
-  "cleanUrls": true
+  "installCommand": "bun install --frozen-lockfile --ignore-scripts",
+  "buildCommand": "bun run build",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/nitro.schema.json",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/docs/:slug(hybrid-objects|hybrid-views|nitro-modules|nitrogen)",
+      "destination": "/docs/concepts/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/docs/:slug(configuration-nitro-json|how-to-build-a-nitro-module|minimum-requirements|what-is-nitro)",
+      "destination": "/docs/getting-started/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/docs/:slug(entry-point|errors|performance-tips|running-example-app|sync-vs-async|troubleshooting|view-components|worklets)",
+      "destination": "/docs/guides/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/docs/:slug(awesome-nitro-modules|comparison|contributing|for-library-users)",
+      "destination": "/docs/resources/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/docs/types",
+      "destination": "/docs/types/typing-system",
+      "permanent": true
+    },
+    {
+      "source": "/docs/using-nitro-in-a-library",
+      "destination": "/docs/getting-started/how-to-build-a-nitro-module",
+      "permanent": true
+    },
+    {
+      "source": "/docs/for-users",
+      "destination": "/docs/resources/for-library-users",
+      "permanent": true
+    },
+    {
+      "source": "/docs/using-nitro-in-your-app",
+      "destination": "/docs/resources/for-library-users",
+      "permanent": true
+    },
+    {
+      "source": "/docs/nitrogen/:path*",
+      "destination": "/docs/concepts/nitrogen",
+      "permanent": true
+    },
+    {
+      "source": "/docs/android-context",
+      "destination": "/docs/guides/android-context",
+      "permanent": true
+    }
+  ]
 }

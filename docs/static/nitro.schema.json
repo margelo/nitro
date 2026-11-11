@@ -62,26 +62,105 @@
           "type": "object",
           "oneOf": [
             {
+              "required": [
+                "all"
+              ],
               "properties": {
-                "cpp": {
-                  "type": "string"
+                "all": {
+                  "type": "object",
+                  "required": [
+                    "language",
+                    "implementationClassName"
+                  ],
+                  "properties": {
+                    "language": {
+                      "type": "string",
+                      "enum": [
+                        "c++"
+                      ]
+                    },
+                    "implementationClassName": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
                 }
               },
-              "additionalProperties": false,
-              "required": [
-                "cpp"
-              ]
+              "additionalProperties": false
             },
             {
-              "properties": {
-                "swift": {
-                  "type": "string"
-                },
-                "kotlin": {
-                  "type": "string"
-                }
+              "type": "object",
+              "not": {
+                "required": [
+                  "all"
+                ]
               },
               "minProperties": 1,
+              "properties": {
+                "ios": {
+                  "type": "object",
+                  "required": [
+                    "language",
+                    "implementationClassName"
+                  ],
+                  "properties": {
+                    "language": {
+                      "type": "string",
+                      "enum": [
+                        "c++",
+                        "swift"
+                      ]
+                    },
+                    "implementationClassName": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "android": {
+                  "type": "object",
+                  "required": [
+                    "language",
+                    "implementationClassName"
+                  ],
+                  "properties": {
+                    "language": {
+                      "type": "string",
+                      "enum": [
+                        "c++",
+                        "kotlin"
+                      ]
+                    },
+                    "implementationClassName": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "patternProperties": {
+                "^(?!all$|ios$|android$).+$": {
+                  "type": "object",
+                  "required": [
+                    "language",
+                    "implementationClassName"
+                  ],
+                  "properties": {
+                    "language": {
+                      "type": "string",
+                      "enum": [
+                        "c++",
+                        "swift",
+                        "kotlin"
+                      ]
+                    },
+                    "implementationClassName": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
               "additionalProperties": false
             }
           ]
@@ -94,11 +173,6 @@
         "type": "string"
       },
       "description": "A list of paths relative to the project directory that should be ignored by nitrogen. Nitrogen will not look for `.nitro.ts` files in these directories."
-    },
-    "gitAttributesGeneratedFlag": {
-      "type": "boolean",
-      "default": true,
-      "description": "Configures whether all nitro-generated files should be marked as `linguist-generated` for GitHub. This excludes generated files from diffing and language statistics."
     }
   }
 }

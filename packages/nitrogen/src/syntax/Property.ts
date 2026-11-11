@@ -6,7 +6,6 @@ import type { Type } from './types/Type.js'
 import { Method } from './Method.js'
 import { VoidType } from './types/VoidType.js'
 import { Parameter } from './Parameter.js'
-import { isBooleanPropertyPrefix } from './helpers.js'
 
 export interface PropertyBody {
   getter: string
@@ -14,6 +13,14 @@ export interface PropertyBody {
 }
 
 export type LanguageEnvironment = 'jvm' | 'swift' | 'other'
+
+// Kotlin only shortens accessors when `is` is not followed by a lowercase letter
+// (see `JvmAbi.startsWithIsPrefix`), and it does that for every type - not just booleans.
+function hasJvmIsPrefix(name: string): boolean {
+  if (!name.startsWith('is') || name.length === 2) return false
+  const next = name.charAt(2)
+  return next < 'a' || next > 'z'
+}
 
 export interface PropertyModifiers {
   /**
@@ -73,29 +80,34 @@ export class Property implements CodeNode {
   }
 
   getGetterName(environment: LanguageEnvironment): string {
-    if (this.type.kind === 'boolean' && isBooleanPropertyPrefix(this.name)) {
-      // Boolean accessors where the property starts with "is" or "has" are renamed in JVM and Swift
-      switch (environment) {
-        case 'jvm':
-        case 'swift':
+    switch (environment) {
+      case 'jvm':
+        if (hasJvmIsPrefix(this.name)) {
           // isSomething -> isSomething()
           return this.name
-        default:
-          break
-      }
+        }
+        break
+      case 'swift':
+        // Swift only shortens boolean accessors that start with "is" or "has"
+        if (
+          this.type.kind === 'boolean' &&
+          (this.name.startsWith('is') || this.name.startsWith('has'))
+        ) {
+          // isSomething -> isSomething()
+          return this.name
+        }
+        break
+      default:
+        break
     }
     // isSomething -> getIsSomething()
     return `get${capitalizeName(this.name)}`
   }
 
   getSetterName(environment: LanguageEnvironment): string {
-    if (this.type.kind === 'boolean' && this.name.startsWith('is')) {
-      // Boolean accessors where the property starts with "is" are renamed in JVM
-      if (environment === 'jvm') {
-        // isSomething -> setSomething()
-        const cleanName = this.name.replace('is', '')
-        return `set${capitalizeName(cleanName)}`
-      }
+    if (environment === 'jvm' && hasJvmIsPrefix(this.name)) {
+      // isSomething -> setSomething()
+      return `set${this.name.slice(2)}`
     }
     // isSomething -> setIsSomething()
     return `set${capitalizeName(this.name)}`

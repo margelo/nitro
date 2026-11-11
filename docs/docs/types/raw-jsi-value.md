@@ -1,12 +1,9 @@
 ---
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 # Raw `jsi::Value` / `jsi::Runtime`
 
-Even though Nitro supports virually any type in JS, there are certain use-cases where you might want to use a `jsi::Value` or `jsi::Runtime` directly - and Nitro provides an escape hatch for this.
+Even though Nitro supports virtually any JS type, there are certain use cases where you might want to work with a raw `jsi::Value` or a `jsi::Runtime` directly - and Nitro provides an escape hatch for this.
 
 Since JSI is not typed, Nitrogen does not have typing support for a method that takes raw `jsi::Value`s - so you have to define it yourself by **overriding** `loadHybridMethods()` in C++:
 

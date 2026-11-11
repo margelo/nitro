@@ -18,8 +18,13 @@
 }
 
 .heroLogo {
-  max-width: 25rem;
+  max-width: 20rem;
   width: 100%;
+}
+
+.heroLogoTitle {
+  line-height: 0;
+  margin: 0;
 }
 
 .heroButton {

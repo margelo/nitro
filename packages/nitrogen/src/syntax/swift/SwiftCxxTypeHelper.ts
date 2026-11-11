@@ -249,7 +249,7 @@ inline bool has_value_${name}(const ${actualType}& optional) noexcept {
   return optional.has_value();
 }
 inline ${wrappedBridge.getTypeCode('c++')} get_${name}(const ${actualType}& optional) noexcept {
-  return *optional;
+  return optional.value();
 }
     `.trim(),
       requiredIncludes: [

@@ -218,3 +218,13 @@ view[0] = 64
 view[1] = 128
 view[2] = 255
 ```
+
+#### Creating a native buffer from JS
+
+To create an **owning** `ArrayBuffer` from JS, you can use the `createNativeArrayBuffer(size)` helper:
+
+```ts
+const arrayBuffer = NitroModules.createNativeArrayBuffer(4096)
+```
+
+In contrast to using the default JS `ArrayBuffer` constructor, this allocates a native `ArrayBuffer` using Nitro's implementation, allowing you to use this buffer in native, without performing any copies as it already is **owning**.

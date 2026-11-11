@@ -1,4 +1,4 @@
-import type { ts, Type } from 'ts-morph'
+import { Node, type ts, type Type } from 'ts-morph'
 import type { NamedType } from './types/Type.js'
 import { createNamedType } from './createType.js'
 import type { Language } from '../getPlatformSpecs.js'
@@ -13,6 +13,9 @@ export function getInterfaceProperties(
       `Interface "${interfaceType.getText()}" does not have a Symbol!`
     )
   return interfaceType.getProperties().map((prop) => {
+    const propDeclaration = prop
+      .getDeclarations()
+      .find((declaration) => Node.isPropertySignature(declaration))
     let propType = prop.getDeclaredType()
     if (propType.isAny() || propType.isUnknown()) {
       // the interface is aliased/merged - we need to look into the actual declaration
@@ -29,7 +32,8 @@ export function getInterfaceProperties(
       language,
       prop.getName(),
       propType,
-      prop.isOptional() || propType.isNullable()
+      prop.isOptional() || propType.isNullable(),
+      propDeclaration?.getTypeNode()
     )
     return refType
   })

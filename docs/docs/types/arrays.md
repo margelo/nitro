@@ -6,7 +6,7 @@ import TabItem from '@theme/TabItem';
 
 # Arrays (`T[]`)
 
-Arrays of items are represented with the most common, and most efficient array datastructures in native languages, such as `std::vector<T>` or `Array<T>`.
+Arrays are represented with the most common and efficient native data structures, such as `std::vector<T>` in C++ or `Array<T>` in Swift and Kotlin.
 
 
 <Tabs>

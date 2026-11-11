@@ -1,0 +1,75 @@
+plugins {
+  id 'com.android.library'
+}
+
+def repositoryRoot = file('../../../..')
+def hermesRoot = file('../hermes')
+def prefabHeaders = layout.buildDirectory.dir('prefab-headers')
+
+android {
+  namespace 'com.margelo.nitro.tests.hermes'
+  compileSdk providers.gradleProperty('nitroTestCompileSdk').get().toInteger()
+  ndkVersion providers.gradleProperty('nitroTestNdkVersion').get()
+
+  defaultConfig {
+    minSdk providers.gradleProperty('nitroTestMinSdk').get().toInteger()
+    ndk { abiFilters providers.gradleProperty('nitroTestAbi').get() }
+    externalNativeBuild {
+      cmake {
+        arguments '-DANDROID_STL=c++_shared', '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
+        targets 'hermesvm'
+      }
+    }
+  }
+
+  buildFeatures {
+    prefab true
+    prefabPublishing true
+  }
+  prefab {
+    hermesvm { headers prefabHeaders.get().asFile.absolutePath }
+  }
+  externalNativeBuild {
+    cmake {
+      path 'CMakeLists.txt'
+      version providers.gradleProperty('nitroTestCmakeVersion').get()
+    }
+  }
+  sourceSets.main.java.srcDir new File(hermesRoot, 'lib/Platform/Unicode/java')
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+}
+
+dependencies {
+  api 'com.facebook.fbjni:fbjni:0.8.1'
+  implementation 'com.facebook.yoga:proguard-annotations:1.19.0'
+}
+
+def preparePrefabHeaders = tasks.register('preparePrefabHeaders', Sync) {
+  from(new File(hermesRoot, 'API/hermes')) {
+    include '**/*.h'
+    into 'hermes'
+  }
+  from(new File(hermesRoot, 'API/jsi/jsi')) {
+    include '**/*.h'
+    exclude 'test/**'
+    into 'jsi'
+  }
+  from(new File(hermesRoot, 'public/hermes/Public')) {
+    include '**/*.h'
+    into 'hermes/Public'
+  }
+  into prefabHeaders
+}
+
+def buildHermesHost = tasks.register('buildHermesHost', Exec) {
+  workingDir repositoryRoot
+  commandLine 'bun', 'tests/standalone/hermes/build.mjs', 'host'
+}
+tasks.configureEach {
+  if (name.startsWith('configureCMake')) dependsOn buildHermesHost
+  if (name == 'preBuild' || name.startsWith('prefab')) dependsOn preparePrefabHeaders
+}

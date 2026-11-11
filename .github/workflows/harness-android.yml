@@ -1,25 +1,22 @@
 name: Harness Android
 
 concurrency:
-  group: harness-android-${{ github.ref }}
+  group: harness-android-${{ inputs.ref && github.run_id || github.ref }}
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       device_api_level:
-        description: "Android API level for the emulator"
+        description: "Android API level"
         required: false
-        default: "35"
         type: string
-      device_arch:
-        description: "Device architecture (x86_64, arm64-v8a)"
-        required: false
-        default: "x86_64"
-        type: choice
-        options:
-          - x86_64
-          - arm64-v8a
       device_profile:
         description: "Device profile"
         required: false
@@ -28,59 +25,40 @@ on:
       avd_name:
         description: "AVD name"
         required: false
-        default: "Pixel_8_API_35"
         type: string
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/harness-android.yml"
-      - "example/android/**"
-      - "**/nitrogen/generated/shared/**"
-      - "**/nitrogen/generated/android/**"
-      - "packages/react-native-nitro-test/cpp/**"
-      - "packages/react-native-nitro-test/android/**"
-      - "packages/react-native-nitro-test-external/cpp/**"
-      - "packages/react-native-nitro-test-external/android/**"
-      - "packages/react-native-nitro-modules/cpp/**"
-      - "packages/react-native-nitro-modules/android/**"
-      - "**/bun.lock"
-      - "**/react-native.config.js"
-      - "**/nitro.json"
-      - "example/__tests__/**"
-      - "example/rn-harness.config.mjs"
   pull_request:
     paths:
-      - ".github/workflows/harness-android.yml"
-      - "example/android/**"
-      - "**/nitrogen/generated/shared/**"
-      - "**/nitrogen/generated/android/**"
-      - "packages/react-native-nitro-test/cpp/**"
-      - "packages/react-native-nitro-test/android/**"
-      - "packages/react-native-nitro-test-external/cpp/**"
-      - "packages/react-native-nitro-test-external/android/**"
-      - "packages/react-native-nitro-modules/cpp/**"
-      - "packages/react-native-nitro-modules/android/**"
-      - "**/bun.lock"
-      - "**/react-native.config.js"
-      - "**/nitro.json"
-      - "example/__tests__/**"
-      - "example/rn-harness.config.mjs"
+      - '.github/workflows/harness-android.yml'
+      - 'packages/nitro-core/**'
+      - 'packages/nitrogen/**'
+      - 'packages/react-native-nitro-modules/**'
+      - 'tests/react-native/**'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/core-package.mjs'
+      - 'scripts/set-version.mjs'
+      - 'package.json'
+      - 'bun.lock'
+      - 'bunfig.toml'
+      - 'scripts/releases/**'
+      - 'config/**'
 
 env:
-  # Device configuration - can be overridden by workflow_dispatch inputs
-  DEVICE_API_LEVEL: ${{ github.event.inputs.device_api_level || '35' }}
-  DEVICE_ARCH: ${{ github.event.inputs.device_arch || 'x86_64' }}
+  DEVICE_ARCH: x86_64
   DEVICE_PROFILE: ${{ github.event.inputs.device_profile || 'pixel_7' }}
-  AVD_NAME: ${{ github.event.inputs.avd_name || 'Pixel_8_API_35' }}
+  AVD_DISK_SIZE: 1G
+  AVD_HEAP_SIZE: 1G
 
 jobs:
   harness_android_new:
-    name: Harness Android (new architecture)
+    name: Harness Android
     runs-on: ubuntu-latest
+    env:
+      DEVICE_API_LEVEL: ${{ github.event.inputs.device_api_level || '36' }}
+      AVD_NAME: ${{ github.event.inputs.avd_name || 'Pixel_7_API_36' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.ref || github.sha }}
           fetch-depth: 1
 
       - name: Reclaim disk space
@@ -92,77 +70,61 @@ jobs:
           remove-docker-images: true
 
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile
+
+      - name: Generate test bindings
+        run: bun specs
+
+      - name: Set minSdk in build.gradle
+        run: sed -i "s/minSdkVersion = 24/minSdkVersion = 26/g" tests/react-native/apps/example/android/build.gradle
 
       - name: Setup JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: "zulu"
           java-version: 17
           java-package: jdk
 
-      - name: Restore Gradle cache
-        uses: actions/cache@v5
+      - name: Restore Gradle/CMake cache
+        uses: actions/cache@v6
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+            tests/react-native/apps/example/android/.gradle
+            tests/react-native/apps/example/android/app/.cxx
+          key: ${{ runner.os }}-gradle-26-${{ env.DEVICE_ARCH }}-Default-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Build Android app
-        working-directory: example/android
-        run: ./gradlew assembleDebug --no-daemon --build-cache
-
-      - name: Enable KVM group perms
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-          ls /dev/kvm
-
-      - name: AVD cache
-        uses: actions/cache@v5
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-${{ env.DEVICE_API_LEVEL }}-${{ env.DEVICE_ARCH }}
-
-      - name: Create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ env.DEVICE_API_LEVEL }}
-          arch: ${{ env.DEVICE_ARCH }}
-          profile: ${{ env.DEVICE_PROFILE }}
-          disk-size: 1G
-          heap-size: 1G
-          force-avd-creation: false
-          avd-name: ${{ env.AVD_NAME }}
-          disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: echo "Generated AVD snapshot for caching."
+            ${{ runner.os }}-gradle-26-${{ env.DEVICE_ARCH }}-Default-
+      - name: Build React Native Android app
+        working-directory: tests/react-native/apps/example/android
+        run: ./gradlew :app:assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=${{ env.DEVICE_ARCH }}
 
       - name: Run Harness E2E tests
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: callstackincubator/react-native-harness@v1.5.0
         with:
-          working-directory: example
-          api-level: ${{ env.DEVICE_API_LEVEL }}
-          arch: ${{ env.DEVICE_ARCH }}
-          force-avd-creation: false
-          avd-name: ${{ env.AVD_NAME }}
-          disable-animations: true
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
-            adb install -r "./android/app/build/outputs/apk/debug/app-debug.apk"
-            bun run test:harness --harnessRunner android
+          runner: android
+          projectRoot: tests/react-native/apps/example
+          app: android/app/build/outputs/apk/debug/app-debug.apk
+          packageManager: bun
+
+      - name: Print native crash reports
+        if: failure()
+        working-directory: tests/react-native/apps/example
+        shell: bash
+        run: |
+          [ -d .harness/crash-reports ] || exit 0
+          find .harness/crash-reports -type f | sort | while read -r report; do
+            echo "::group::$report"
+            cat "$report"
+            echo "::endgroup::"
+          done
 
       # Gradle cache doesn't like daemons
       - name: Stop Gradle Daemon
-        working-directory: example/android
+        working-directory: tests/react-native/apps/example/android
         run: ./gradlew --stop

@@ -25,4 +25,12 @@ abstract class HybridView : HybridObject() {
    * React props are updated in a single batch/transaction.
    */
   open fun afterUpdate() { /* noop */ }
+
+  /**
+   * Called when the [HybridView] is about
+   * to be dropped and unmounted.
+   * This is a good place to clean up view-related
+   * resources.
+   */
+  open fun onDropView() { /* noop */ }
 }

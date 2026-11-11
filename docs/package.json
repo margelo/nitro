@@ -1,5 +1,5 @@
 {
-  "name": "nitro",
+  "name": "nitro-docs",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -15,28 +15,28 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@docusaurus/core": "3.8.1",
-    "@docusaurus/faster": "3.8.1",
-    "@docusaurus/plugin-sitemap": "3.8.1",
-    "@docusaurus/plugin-vercel-analytics": "3.8.1",
-    "@docusaurus/preset-classic": "3.8.1",
-    "@docusaurus/theme-mermaid": "3.8.1",
+    "@docusaurus/core": "3.10.2",
+    "@docusaurus/faster": "3.10.2",
+    "@docusaurus/plugin-sitemap": "3.10.2",
+    "@docusaurus/plugin-vercel-analytics": "3.10.2",
+    "@docusaurus/preset-classic": "3.10.2",
+    "@docusaurus/theme-mermaid": "3.10.2",
     "@mdx-js/react": "^3.1.1",
-    "cheerio": "^1.1.2",
-    "clsx": "^2.0.0",
+    "cheerio": "^1.2.0",
+    "clsx": "^2.1.1",
     "esbuild-register": "^3.6.0",
-    "prism-react-renderer": "^2.3.0",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "satori": "^0.18.3",
-    "sharp": "^0.34.5"
+    "prism-react-renderer": "^2.4.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "satori": "^0.56.2",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.8.1",
-    "@docusaurus/tsconfig": "3.8.1",
-    "@docusaurus/types": "3.8.1",
-    "docusaurus-plugin-llms": "^0.2.2",
-    "typescript": "~5.8.3"
+    "@docusaurus/module-type-aliases": "3.10.2",
+    "@docusaurus/tsconfig": "3.10.2",
+    "@docusaurus/types": "3.10.2",
+    "docusaurus-plugin-llms": "^0.6.1",
+    "typescript": "~6.0.3"
   },
   "browserslist": {
     "production": [

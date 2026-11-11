@@ -6,7 +6,7 @@ import TabItem from '@theme/TabItem';
 
 # Optionals (`T?`)
 
-Optional or undefined values can be declared either by using the questionmark operator (`?`), or by adding an `undefined` variant:
+Optional or undefined values can be declared with the question mark operator (`?`) or with an `undefined` variant.
 
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>

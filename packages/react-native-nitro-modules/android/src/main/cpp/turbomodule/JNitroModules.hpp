@@ -4,7 +4,12 @@
 
 #pragma once
 
+// React Native 0.89+ (RN_STRICT_API) only allows the umbrella, which exists from 0.88
+#if __has_include(<React/CallInvoker.h>)
+#include <React/CallInvoker.h>
+#else
 #include <ReactCommon/CallInvoker.h>
+#endif
 #include <ReactCommon/CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
 #include <jsi/jsi.h>
@@ -15,7 +20,7 @@ using namespace facebook;
 
 class JNitroModules final : public jni::HybridClass<JNitroModules> {
 public:
-  static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/NitroModules;";
+  static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/NitroModules;";
 
 private:
   explicit JNitroModules() = default;
@@ -26,7 +31,7 @@ private:
   void install(jlong runtimePointer, jni::alias_ref<react::CallInvokerHolder::javaobject> callInvokerHolder);
 
 private:
-  static auto constexpr TAG = "NitroModules";
+  static constexpr auto TAG = "NitroModules";
   using HybridBase::HybridBase;
   friend HybridBase;
 

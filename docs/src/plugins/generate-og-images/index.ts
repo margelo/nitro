@@ -14,9 +14,9 @@ function getDocsPlugin(plugin: RouteConfig): PropVersionMetadata | undefined {
   if (plugin.props == null) return undefined
   if (!("version" in plugin.props)) return undefined
   const version = plugin.props.version
-  if ((typeof version !== "object") || !("docs" in version)) return undefined
+  if (version == null || (typeof version !== "object") || !("docs" in version)) return undefined
   const docs = version.docs
-  if (typeof docs !== 'object') return undefined
+  if (docs == null || typeof docs !== 'object') return undefined
 
   return version as PropVersionMetadata
 }
@@ -64,4 +64,3 @@ export default function plugin(context: LoadContext, { width, height }: Options 
     }
   }
 }
-

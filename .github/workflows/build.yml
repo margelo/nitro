@@ -1,0 +1,53 @@
+name: Build and validate published packages
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
+  pull_request:
+    paths:
+      - '.github/workflows/build.yml'
+      - 'packages/nitro-core/**'
+      - 'packages/nitrogen/**'
+      - 'packages/react-native-nitro-modules/**'
+      - 'config/**'
+      - 'scripts/core-package.mjs'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/set-version.mjs'
+      - 'scripts/releases/**'
+      - '**/package.json'
+      - 'bun.lock'
+      - 'bunfig.toml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - name: Test React Native wrapper
+        run: bun nitro-rn test --runInBand
+      - name: Test performance tooling
+        run: bun test scripts/performance
+      - name: Pack Nitro core
+        working-directory: packages/nitro-core
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+      - name: Pack Nitrogen
+        working-directory: packages/nitrogen
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+      - name: Pack React Native Nitro Modules
+        working-directory: packages/react-native-nitro-modules
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+      - name: Validate packed packages outside the workspace
+        run: node scripts/releases/check-consumer.mjs "$RUNNER_TEMP"/nitro-core-*.tgz "$RUNNER_TEMP"/nitrogen-*.tgz "$RUNNER_TEMP"/react-native-nitro-modules-*.tgz

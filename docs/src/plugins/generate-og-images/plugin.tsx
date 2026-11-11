@@ -91,8 +91,8 @@ export async function runPlugin({ width, height, outDirectory, docsPages, baseUr
   console.log(`Generating social-cards in ${outDirectory}...`)
   const cardConfigs: CardConfig[] = [
     {
-      title: 'NitroModules',
-      subtitle: 'A framework to build mindblowingly fast native modules with type-safe statically compiled JS bindings.',
+      title: 'Nitro Modules',
+      subtitle: 'A framework for building fast, type-safe native modules for React Native with statically compiled JSI bindings.',
       url: 'nitro.margelo.com',
       filePath: path.join(imgOutDirectory, 'og-card.png')
     },
@@ -136,7 +136,7 @@ export async function runPlugin({ width, height, outDirectory, docsPages, baseUr
     await replaceMetaTags(filePath, [
       {
         selector: 'property="og:image"',
-        value: cardPath
+        value: cardUrl.href
       },
       {
         selector: 'name="twitter:image"',

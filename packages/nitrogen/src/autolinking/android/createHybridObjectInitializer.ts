@@ -26,26 +26,41 @@ export function createHybridObjectIntializer(): SourceFile[] {
 
   const cppHybridObjectImports: SourceImport[] = []
   const cppRegistrations: string[] = []
+  const cppDefinitions: string[] = []
   for (const hybridObjectName of Object.keys(autolinkedHybridObjects)) {
-    const config = autolinkedHybridObjects[hybridObjectName]
-
-    if (config?.cpp != null) {
-      // Autolink a C++ HybridObject!
-      const { cppCode, requiredImports } = createCppHybridObjectRegistration({
-        hybridObjectName: hybridObjectName,
-        cppClassName: config.cpp,
-      })
-      cppHybridObjectImports.push(...requiredImports)
-      cppRegistrations.push(cppCode)
+    const implementation =
+      NitroConfig.current.getAndroidAutolinkedImplementation(hybridObjectName)
+    if (implementation == null) {
+      continue
     }
-    if (config?.kotlin != null) {
-      // Autolink a Kotlin HybridObject through JNI/C++!
-      const { cppCode, requiredImports } = createJNIHybridObjectRegistration({
-        hybridObjectName: hybridObjectName,
-        jniClassName: config.kotlin,
-      })
-      cppHybridObjectImports.push(...requiredImports)
-      cppRegistrations.push(cppCode)
+
+    switch (implementation.language) {
+      case 'c++': {
+        // Autolink a C++ HybridObject!
+        const { cppCode, requiredImports } = createCppHybridObjectRegistration({
+          hybridObjectName: hybridObjectName,
+          cppClassName: implementation.implementationClassName,
+        })
+        cppHybridObjectImports.push(...requiredImports)
+        cppRegistrations.push(cppCode)
+        break
+      }
+      case 'kotlin': {
+        // Autolink a Kotlin HybridObject through JNI/C++!
+        const { cppCode, cppDefinition, requiredImports } =
+          createJNIHybridObjectRegistration({
+            hybridObjectName: hybridObjectName,
+            jniClassName: implementation.implementationClassName,
+          })
+        cppHybridObjectImports.push(...requiredImports)
+        cppDefinitions.push(cppDefinition)
+        cppRegistrations.push(cppCode)
+        break
+      }
+      default:
+        throw new Error(
+          `The HybridObject "${hybridObjectName}" cannot be autolinked on Android - Language "${implementation.language}" is not supported on Android!`
+        )
     }
   }
 
@@ -62,21 +77,30 @@ export function createHybridObjectIntializer(): SourceFile[] {
 ${createFileMetadataString(`${autolinkingClassName}.hpp`)}
 
 #include <jni.h>
+#include <functional>
 #include <NitroModules/NitroDefines.hpp>
 
 namespace ${cxxNamespace} {
 
+  [[deprecated("Use registerNatives() instead.")]]
+  int initialize(JavaVM* vm);
+
   /**
-   * Initializes the native (C++) part of ${cppLibName}, and autolinks all Hybrid Objects.
-   * Call this in your \`JNI_OnLoad\` function (probably inside \`cpp-adapter.cpp\`).
+   * Register the native (C++) part of ${cppLibName}, and autolinks all Hybrid Objects.
+   * Call this in your \`JNI_OnLoad\` function (probably inside \`cpp-adapter.cpp\`),
+   * inside a \`facebook::jni::initialize(vm, ...)\` call.
    * Example:
    * \`\`\`cpp (cpp-adapter.cpp)
    * JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
-   *   return ${cxxNamespace}::initialize(vm);
+   *   return facebook::jni::initialize(vm, []() {
+   *     // register all ${cppLibName} HybridObjects
+   *     ${cxxNamespace}::registerNatives();
+   *     // any other custom registrations go here.
+   *   });
    * }
    * \`\`\`
    */
-  int initialize(JavaVM* vm);
+  void registerAllNatives();
 
 } // namespace ${cxxNamespace}
 
@@ -99,17 +123,22 @@ ${includes}
 namespace ${cxxNamespace} {
 
 int initialize(JavaVM* vm) {
+  return facebook::jni::initialize(vm, []() {
+    ::${cxxNamespace}::registerAllNatives();
+  });
+}
+
+${cppDefinitions.join('\n')}
+
+void registerAllNatives() {
   using namespace margelo::nitro;
   using namespace ${cxxNamespace};
-  using namespace facebook;
 
-  return facebook::jni::initialize(vm, [] {
-    // Register native JNI methods
-    ${indent(jniRegistrations.join('\n'), '    ')}
+  // Register native JNI methods
+  ${indent(jniRegistrations.join('\n'), '  ')}
 
-    // Register Nitro Hybrid Objects
-    ${indent(cppRegistrations.join('\n'), '    ')}
-  });
+  // Register Nitro Hybrid Objects
+  ${indent(cppRegistrations.join('\n'), '  ')}
 }
 
 } // namespace ${cxxNamespace}

@@ -33,7 +33,6 @@ package ${packageName}
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 ${extraImports.join('\n')}
 
 /**
@@ -82,7 +81,6 @@ class ${name}_cxx: ${name} {
   override fun invoke(${kotlinParams.join(', ')}): ${kotlinReturnType}
     = invoke_cxx(${kotlinParamsForward.join(',')})
 
-  @FastNative
   private external fun invoke_cxx(${kotlinParams.join(', ')}): ${kotlinReturnType}
 }
 
@@ -141,7 +139,9 @@ class ${name}_java(private val function: ${lambdaSignature}): ${name} {
       return bridge.parseFromCppToKotlin(p.escapedName, 'c++', false)
     }),
   ]
-  const jniSignature = `${bridgedReturn.asJniReferenceType('local')}(${functionType.parameters
+  // `invoke` overrides `FunctionN.invoke`, so primitive returns need boxing.
+  // Its parameters can remain primitive, and `Unit` returns remain `void`.
+  const jniSignature = `${bridgedReturn.asJniReferenceType('local', true)}(${functionType.parameters
     .map((p) => {
       const bridge = new KotlinCxxBridgedType(p)
       return `${bridge.asJniReferenceType('alias')} /* ${p.escapedName} */`
@@ -152,7 +152,7 @@ class ${name}_java(private val function: ${lambdaSignature}): ${name} {
   let jniCallBody: string
   if (functionType.returnType.kind === 'void') {
     // It returns void
-    cppCallBody = `_func(${indent(paramsForward.join(', '), '      ')});`
+    cppCallBody = `_func(${paramsForward.join(', ')});`
     jniCallBody = `
 static const auto method = javaClassStatic()->getMethod<${jniSignature}>("invoke");
 method(${jniParamsForward.join(', ')});
@@ -160,13 +160,13 @@ method(${jniParamsForward.join(', ')});
   } else {
     // It returns a type!
     cppCallBody = `
-${functionType.returnType.getCode('c++')} __result = _func(${indent(paramsForward.join(', '), '      ')});
+${functionType.returnType.getCode('c++')} __result = _func(${paramsForward.join(', ')});
 return ${bridgedReturn.parseFromCppToKotlin('__result', 'c++')};
 `.trim()
     jniCallBody = `
 static const auto method = javaClassStatic()->getMethod<${jniSignature}>("invoke");
 auto __result = method(${jniParamsForward.join(', ')});
-return ${bridgedReturn.parseFromKotlinToCpp('__result', 'c++', false)};
+return ${bridgedReturn.parseFromKotlinToCpp('__result', 'c++', true)};
     `.trim()
   }
 
@@ -201,7 +201,7 @@ namespace ${cxxNamespace} {
    */
   struct J${name}: public jni::JavaClass<J${name}> {
   public:
-    static auto constexpr kJavaDescriptor = "L${jniInterfaceDescriptor};";
+    static constexpr auto kJavaDescriptor = "L${jniInterfaceDescriptor};";
 
   public:
     /**
@@ -236,7 +236,7 @@ namespace ${cxxNamespace} {
     }
 
   public:
-    static auto constexpr kJavaDescriptor = "L${jniClassDescriptor};";
+    static constexpr auto kJavaDescriptor = "L${jniClassDescriptor};";
     static void registerNatives() {
       registerHybrid({makeNativeMethod("invoke_cxx", J${name}_cxx::invoke_cxx)});
     }

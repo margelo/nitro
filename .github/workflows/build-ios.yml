@@ -1,110 +1,119 @@
-name: Build iOS
+name: Build React Native iOS
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/build-ios.yml'
-      - 'example/ios/**'
-      - '**/nitrogen/generated/shared/**'
-      - '**/nitrogen/generated/ios/**'
-      - 'packages/react-native-nitro-test/cpp/**'
-      - 'packages/react-native-nitro-test/ios/**'
-      - 'packages/react-native-nitro-test-external/cpp/**'
-      - 'packages/react-native-nitro-test-external/ios/**'
-      - 'packages/react-native-nitro-modules/cpp/**'
-      - 'packages/react-native-nitro-modules/ios/**'
-      - '**/Podfile.lock'
-      - '**/*.podspec'
-      - '**/react-native.config.js'
-      - '**/nitro.json'
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
   pull_request:
     paths:
       - '.github/workflows/build-ios.yml'
-      - 'example/ios/**'
-      - '**/nitrogen/generated/shared/**'
-      - '**/nitrogen/generated/ios/**'
-      - 'packages/react-native-nitro-test/cpp/**'
-      - 'packages/react-native-nitro-test/ios/**'
-      - 'packages/react-native-nitro-test-external/cpp/**'
-      - 'packages/react-native-nitro-test-external/ios/**'
-      - 'packages/react-native-nitro-modules/cpp/**'
-      - 'packages/react-native-nitro-modules/ios/**'
-      - '**/Podfile.lock'
-      - '**/*.podspec'
-      - '**/react-native.config.js'
-      - '**/nitro.json'
+      - 'packages/nitro-core/**'
+      - 'packages/nitrogen/**'
+      - 'packages/react-native-nitro-modules/**'
+      - 'tests/react-native/**'
+      - 'scripts/sync-core.mjs'
+      - 'scripts/core-package.mjs'
+      - 'scripts/set-version.mjs'
+      - 'package.json'
+      - 'bun.lock'
+      - 'bunfig.toml'
+      - 'scripts/releases/**'
+      - 'config/**'
 
 env:
-  USE_CCACHE: 1
+  XCODE_VERSION: '26.5'
+  IOS_SIMULATOR_DESTINATION: 'generic/platform=iOS Simulator'
 
 jobs:
   build:
     name: Build iOS Example App
     runs-on: macOS-26
+    strategy:
+      matrix:
+        include:
+          - name: static_frameworks
+            use_frameworks: static
+          - name: no_frameworks
+            use_frameworks: ""   # intentionally unset
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Set USE_FRAMEWORKS
+        if: matrix.use_frameworks != ''
+        run: echo "USE_FRAMEWORKS=${{ matrix.use_frameworks }}" >> "$GITHUB_ENV"
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile
+
+      - name: Generate test bindings
+        run: bun specs
 
       - name: Install Ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           max-size: 1.5G
-          key: ${{ runner.os }}-ccache-example-ios
-          create-symlink: true
+          key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.XCODE_VERSION }}-${{ matrix.use_frameworks }}-ccache-example-ios
       - name: Setup ccache behavior
         run: |
-          echo "CCACHE_SLOPPINESS=clang_index_store,file_stat_matches,include_file_ctime,include_file_mtime,ivfsoverlay,pch_defines,modules,system_headers,time_macros" >> $GITHUB_ENV
-          echo "CCACHE_FILECLONE=true" >> $GITHUB_ENV
-          echo "CCACHE_DEPEND=true" >> $GITHUB_ENV
-          echo "CCACHE_INODECACHE=true" >> $GITHUB_ENV
+          {
+            echo "CCACHE_SLOPPINESS=clang_index_store,file_stat_matches,include_file_ctime,include_file_mtime,ivfsoverlay,pch_defines,modules,system_headers,time_macros"
+            echo "CCACHE_FILECLONE=true"
+            echo "CCACHE_DEPEND=true"
+            echo "CCACHE_INODECACHE=true"
+          } >> "$GITHUB_ENV"
 
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7.2
           bundler-cache: true
-          working-directory: example
+          working-directory: tests/react-native/apps/example
 
-      - name: Select Xcode 26.2
-        run: sudo xcode-select -s "/Applications/Xcode_26.2.app/Contents/Developer"
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer"
 
       - name: Restore Pods cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
-          path: example/ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock') }}
+          path: tests/react-native/apps/example/ios/Pods
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-pods-${{ hashFiles('bun.lock', 'tests/react-native/apps/example/Gemfile.lock', 'tests/react-native/apps/example/ios/Podfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pods-
+            ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-pods-
       - name: Install Pods
-        working-directory: example
+        working-directory: tests/react-native/apps/example
         run: bun pods
 
       - name: Restore DerivedData cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
-          path: example/ios/build
-          key: ${{ runner.os }}-dd-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock', '**/package.json', '**/bun.lockb') }}-xcode26.2
+          path: tests/react-native/apps/example/ios/build
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-xcode${{ env.XCODE_VERSION }}-dd-${{ hashFiles('bun.lock', 'tests/react-native/apps/example/Gemfile.lock', 'tests/react-native/apps/example/ios/Podfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-dd-
+            ${{ runner.os }}-${{ runner.arch }}-${{ matrix.use_frameworks }}-xcode${{ env.XCODE_VERSION }}-dd-
 
       - name: Build App
-        working-directory: example/ios
+        working-directory: tests/react-native/apps/example/ios
         run: |
           set -o pipefail
           xcodebuild \
-            CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
+            C_COMPILER_LAUNCHER="$(command -v ccache)" \
+            CLANG_ENABLE_EXPLICIT_MODULES_WITH_COMPILER_LAUNCHER=YES \
             -derivedDataPath build -UseModernBuildSystem=YES \
             -workspace NitroExample.xcworkspace \
             -scheme NitroExample \
             -sdk iphonesimulator \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -destination '${{ env.IOS_SIMULATOR_DESTINATION }}' \
             -showBuildTimingSummary \
             ONLY_ACTIVE_ARCH=YES \
+            ARCHS=arm64 \
             build \
             CODE_SIGNING_ALLOWED=NO | xcbeautify --renderer github-actions

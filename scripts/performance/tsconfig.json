@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ESNext",
+    "types": ["bun"]
+  },
+  "include": [
+    "./*.ts",
+    "../../tests/react-native/apps/benchmark/src/benchmarks/statistics.ts",
+    "../../tests/react-native/apps/benchmark/src/benchmarks/types.ts"
+  ]
+}

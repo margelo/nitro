@@ -1,4 +1,4 @@
-<a href="https://margelo.com">
+<a href="https://nitro.margelo.com">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./docs/static/img/banner-nitro-modules-dark.png" />
     <source media="(prefers-color-scheme: light)" srcset="./docs/static/img/banner-nitro-modules-light.png" />
@@ -8,11 +8,12 @@
 
 <br />
 
-**Nitro Modules** are highly efficient native modules with a statically compiled binding layer to JSI, and typesafe JS bindings.
-It consists of two parts:
+**Nitro Modules** are fast, type-safe native modules for React Native with statically compiled bindings to JSI.
+This repository contains:
 
-- [**react-native-nitro-modules**](packages/react-native-nitro-modules): The core C++ library powering all nitro modules
-- [**nitrogen**](packages/nitrogen): An optional code-generator for nitro module library authors
+- [**nitro-core**](packages/nitro-core): Shared native runtime for C++, Swift and Kotlin, the JavaScript API, and TypeScript definitions
+- [**nitrogen**](packages/nitrogen): Code generator for C++, Swift, and Kotlin bindings
+- [**react-native-nitro-modules**](packages/react-native-nitro-modules): React Native installation, views, worklets, and native build integration
 
 ## Example
 
@@ -58,8 +59,8 @@ cd ios && pod install
 - [**How to build a Nitro Module** YouTube Tutorial ▶️](https://youtu.be/528SxTGnIlc?si=IxH7n09ZVe4iwRPv)
 - [**nitrogen**/README.md](./packages/nitrogen/README.md)
 - [**react-native-nitro-modules**/README.md](./packages/react-native-nitro-modules/README.md)
-- [**react-native-nitro-test** example module](./packages/react-native-nitro-test/README.md)
-- [`TestObject.nitro.ts` example playground](./packages/react-native-nitro-test/src/specs/TestObject.nitro.ts)
+- [**react-native-nitro-test** example module](./tests/react-native/packages/react-native-nitro-test/README.md)
+- [`TestObject.nitro.ts` HybridObject test specs](./tests/standalone/nitro-test/specs/TestObject.nitro.ts)
 
 ## Supported Platforms
 
@@ -87,7 +88,7 @@ We build fast and beautiful apps. Contact us at [margelo.com](https://margelo.co
 
 ## Contributing
 
-See the [contributing guide](https://nitro.margelo.com/docs/contributing) to learn how to contribute to the repository and the development workflow.
+Read [CONTRIBUTING.md](./CONTRIBUTING.md) for the contribution flow (PR expectations, the required test-per-fix rule, and the nitrogen workflow). For environment setup and reproduction walkthroughs, see the [contributing guide](https://nitro.margelo.com/docs/resources/contributing) on the docs site.
 
 ## License
 

@@ -1,4 +1,4 @@
-import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
+import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 
 /**
  * Creating a sidebar enables you to:
@@ -16,34 +16,35 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Getting started',
       items: [
-        'what-is-nitro',
-        'how-to-build-a-nitro-module',
-        'configuration-nitro-json',
-        'minimum-requirements',
+        'getting-started/what-is-nitro',
+        'getting-started/how-to-build-a-nitro-module',
+        'getting-started/configuration-nitro-json',
+        'getting-started/minimum-requirements',
       ]
     },
     {
       type: 'category',
       label: 'Concepts',
       items: [
-        'nitro-modules',
-        'hybrid-objects',
-        'hybrid-views',
-        'nitrogen',
+        'concepts/nitro-modules',
+        'concepts/hybrid-objects',
+        'concepts/hybrid-views',
+        'concepts/nitrogen',
       ]
     },
     {
       type: 'category',
       label: 'Guides',
       items: [
-        'errors',
-        'performance-tips',
-        'worklets',
-        'entry-point',
-        'sync-vs-async',
-        'view-components',
-        'troubleshooting',
-        'running-example-app',
+        'guides/errors',
+        'guides/performance-tips',
+        'guides/worklets',
+        'guides/android-context',
+        'guides/entry-point',
+        'guides/sync-vs-async',
+        'guides/view-components',
+        'guides/troubleshooting',
+        'guides/running-example-app',
       ]
     },
     {
@@ -75,10 +76,11 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Resources',
       items: [
-        'awesome-nitro-modules',
-        'comparison',
-        'for-library-users',
-        'contributing',
+        'resources/apps-using-nitro',
+        'resources/awesome-nitro-modules',
+        'resources/comparison',
+        'resources/for-library-users',
+        'resources/contributing',
       ]
     },
   ],

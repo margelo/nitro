@@ -353,7 +353,7 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
         switch (language) {
           case 'swift':
             return `
-{ () -> ${name.HybridTSpec} in
+{ () -> any ${name.HybridTSpec} in
   let __unsafePointer = ${getFunc}(${cppParameterName})
   let __instance = ${name.HybridTSpecCxx}.fromUnsafe(__unsafePointer)
   return __instance.get${name.HybridTSpec}()
@@ -465,11 +465,15 @@ export class SwiftCxxBridgedType implements BridgedType<'swift', 'c++'> {
                 return `${cppParameterName}.has_value() ? ${cppParameterName}.pointee : nil`
               }
             }
-            // TODO: Remove this check for booleans once https://github.com/swiftlang/swift/issues/84848 is fixed.
+            // TODO: Remove this check for booleans/doubles once https://github.com/swiftlang/swift/issues/84848 is fixed.
+            //       Right now, optionals of doubles or booleans (and who knows what else?) fail to compile when `.value` is used.
             const swiftBug84848Workaround =
-              optional.wrappingType.kind === 'boolean'
-            if (!wrapping.needsSpecialHandling && !swiftBug84848Workaround) {
-              return `${cppParameterName}.value`
+              optional.wrappingType.kind === 'boolean' ||
+              optional.wrappingType.kind === 'number'
+            if (!swiftBug84848Workaround) {
+              if (!wrapping.needsSpecialHandling) {
+                return `${cppParameterName}.value`
+              }
             }
             return `
 { () -> ${optional.getCode('swift')} in

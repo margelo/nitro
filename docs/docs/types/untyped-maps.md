@@ -6,7 +6,7 @@ import TabItem from '@theme/TabItem';
 
 # Untyped maps (`AnyMap` / `object`)
 
-An untyped map represents a JSON-like structure with a value that can either be a `number`, a `string`, a `boolean`, a `bigint`, a `null`, an array or an object.
+An untyped map represents a JSON-like structure with a value that can either be a `number`, a `string`, a `boolean`, an `Int64`, a `null`, an array or an object.
 
 <Tabs>
   <TabItem value="ts" label="TypeScript" default>

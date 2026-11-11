@@ -17,18 +17,20 @@ function HomepageHeader() {
     <header className={clsx('', styles.heroBanner)}>
       <div className={styles.heroContainer}>
         <div className={styles.heroContentContainer}>
-          <img className={styles.heroIcon} src={Icon} />
-          <ThemedImage
-            className={styles.heroLogo}
-            alt="Nitrous Logo"
-            sources={{
-              light: useBaseUrl('/img/logo.svg'),
-              dark: useBaseUrl('/img/logo-dark.svg'),
-            }}
-          />
+          <img className={styles.heroIcon} src={Icon} alt="" aria-hidden="true" />
+          <h1 className={styles.heroLogoTitle}>
+            <ThemedImage
+              className={styles.heroLogo}
+              alt="Nitro Modules"
+              sources={{
+                light: useBaseUrl('/img/logo.svg'),
+                dark: useBaseUrl('/img/logo-dark.svg'),
+              }}
+            />
+          </h1>
           <p className="hero__subtitle">{siteConfig.tagline}</p>
 
-          <Link to="/docs/what-is-nitro" className={styles.heroButton}>
+          <Link to="/docs/getting-started/what-is-nitro" className={styles.heroButton}>
             Get Started
           </Link>
         </div>
@@ -40,8 +42,8 @@ function HomepageHeader() {
 export default function Home(): React.ReactElement {
   return (
     <Layout
-      title="Welcome to Nitro!"
-      description="A framework to build mindblowingly fast native modules with type-safe statically compiled JS bindings."
+      title="React Native Nitro Modules"
+      description="Build fast, type-safe native modules for React Native with Nitro, Nitrogen, and statically compiled JSI bindings."
     >
       <HomepageHeader />
       <main>

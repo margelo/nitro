@@ -66,8 +66,13 @@ public final func afterUpdate() {
 `.trim(),
       `
 public final func maybePrepareForRecycle() {
-  guard let recyclable = __implementation as? RecyclableView else { return }
+  guard let recyclable = __implementation as? any RecyclableView else { return }
   recyclable.prepareForRecycle()
+}
+`.trim(),
+      `
+public final func onDropView() {
+  __implementation.onDropView()
 }
 `.trim()
     )
@@ -130,7 +135,6 @@ public override func getCxxPart() -> bridge.${baseBridge.specializationName} {
   const swiftCxxWrapperCode = `
 ${createFileMetadataString(`${name.HybridTSpecCxx}.swift`)}
 
-import Foundation
 ${imports.join('\n')}
 
 /**
@@ -153,7 +157,7 @@ ${hasBase ? `open class ${name.HybridTSpecCxx} : ${baseClasses.join(', ')}` : `o
   /**
    * Holds an instance of the \`${name.HybridTSpec}\` Swift protocol.
    */
-  private var __implementation: any ${name.HybridTSpec}
+  private let __implementation: any ${name.HybridTSpec}
 
   /**
    * Holds a weak pointer to the C++ class that wraps the Swift class.
@@ -201,7 +205,7 @@ ${hasBase ? `open class ${name.HybridTSpecCxx} : ${baseClasses.join(', ')}` : `o
    */
   public func getCxxPart() -> bridge.${bridge.specializationName} {
     let cachedCxxPart = self.__cxxPart.lock()
-    if Bool(fromCxx: cachedCxxPart) {
+    if cachedCxxPart.use_count() > 0 {
       return cachedCxxPart
     } else {
       let newCxxPart = bridge.${bridge.funcName}(self.toUnsafe())

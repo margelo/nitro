@@ -56,6 +56,9 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
         const keyType = new KotlinCxxBridgedType(record.keyType)
         const valueType = new KotlinCxxBridgedType(record.valueType)
         return keyType.needsSpecialHandling || valueType.needsSpecialHandling
+      case 'uint64':
+        // ULong == Long, we need to cast
+        return true
       default:
         break
     }
@@ -63,7 +66,13 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
     return false
   }
 
-  getRequiredImports(language: Language): SourceImport[] {
+  getRequiredImports(
+    language: Language,
+    visited: Set<Type> = new Set()
+  ): SourceImport[] {
+    if (visited.has(this.type)) return []
+    visited.add(this.type)
+
     const imports = this.type.getRequiredImports(language)
 
     if (language === 'c++') {
@@ -176,19 +185,17 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
 
     // Recursively look into referenced types (e.g. the `T` of a `optional<T>`, or `T` of a `T[]`)
     const referencedTypes = getReferencedTypes(this.type)
-    referencedTypes.forEach((t) => {
-      if (t === this.type) {
-        // break a recursion - we already know this type
-        return
-      }
+    for (const t of referencedTypes) {
       const bridged = new KotlinCxxBridgedType(t)
-      imports.push(...bridged.getRequiredImports(language))
-    })
+      imports.push(...bridged.getRequiredImports(language, visited))
+    }
 
     return imports
   }
 
-  getExtraFiles(): SourceFile[] {
+  getExtraFiles(visited: Set<Type> = new Set()): SourceFile[] {
+    if (visited.has(this.type)) return []
+    visited.add(this.type)
     const files: SourceFile[] = []
 
     switch (this.type.kind) {
@@ -216,36 +223,38 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
 
     // Recursively look into referenced types (e.g. the `T` of a `optional<T>`, or `T` of a `T[]`)
     const referencedTypes = getReferencedTypes(this.type)
-    referencedTypes.forEach((t) => {
-      if (t === this.type) {
-        // break a recursion - we already know this type
-        return
-      }
+    for (const t of referencedTypes) {
       const bridged = new KotlinCxxBridgedType(t)
-      files.push(...bridged.getExtraFiles())
-    })
+      files.push(...bridged.getExtraFiles(visited))
+    }
 
     return files
   }
 
-  asJniReferenceType(referenceType: 'alias' | 'local' | 'global' = 'alias') {
+  asJniReferenceType(
+    referenceType: 'alias' | 'local' | 'global' = 'alias',
+    isBoxed = false
+  ) {
+    const typeCode = this.getTypeCode('c++', isBoxed)
     switch (this.type.kind) {
       case 'void':
+        return 'void'
       case 'number':
       case 'boolean':
-      case 'bigint':
-        // primitives are not references
-        return this.getTypeCode('c++')
-      default:
-        return `jni::${referenceType}_ref<${this.getTypeCode('c++')}>`
+      case 'int64':
+      case 'uint64':
+        if (!isBoxed) {
+          return typeCode
+        }
     }
+    return `jni::${referenceType}_ref<${typeCode}>`
   }
 
   getTypeCode(language: 'kotlin' | 'c++', isBoxed = false): string {
     switch (this.type.kind) {
       case 'number':
-      case 'bigint':
       case 'boolean':
+      case 'int64':
         if (isBoxed) {
           return getKotlinBoxedPrimitiveType(this.type)
         } else {
@@ -254,6 +263,20 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
             return 'jboolean'
           }
           return this.type.getCode(language)
+        }
+      case 'uint64':
+        // ULong is unfortunately not representable in JNI. It's long + cast
+        switch (language) {
+          case 'c++':
+            if (isBoxed) {
+              return 'jni::JLong'
+            } else {
+              return 'jlong'
+            }
+          case 'kotlin':
+            return 'Long'
+          default:
+            return this.type.getCode(language)
         }
       case 'array':
         const array = getTypeAs(this.type, ArrayType)
@@ -265,7 +288,10 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
                 return 'jni::JArrayDouble'
               case 'boolean':
                 return 'jni::JArrayBoolean'
-              case 'bigint':
+              case 'int64':
+                return 'jni::JArrayLong'
+              case 'uint64':
+                // ULong is Long, we have to reinterpret cast it
                 return 'jni::JArrayLong'
               default:
                 return `jni::JArrayClass<${bridgedItem.getTypeCode(language)}>`
@@ -276,7 +302,10 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
                 return 'DoubleArray'
               case 'boolean':
                 return 'BooleanArray'
-              case 'bigint':
+              case 'int64':
+                return 'LongArray'
+              case 'uint64':
+                // ULong is Long, we have to reinterpret cast it
                 return 'LongArray'
               default:
                 return `Array<${bridgedItem.getTypeCode(language)}>`
@@ -337,7 +366,7 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
           case 'c++':
             const hybridObjectType = getTypeAs(this.type, HybridObjectType)
             const fullName = this.getFullJHybridObjectName(hybridObjectType)
-            return `${fullName}::javaobject`
+            return `${fullName}::JavaPart`
           default:
             return this.type.getCode(language)
         }
@@ -400,7 +429,8 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
               // primitives need to be boxed to make them nullable
               case 'number':
               case 'boolean':
-              case 'bigint':
+              case 'int64':
+              case 'uint64':
                 const boxed = getKotlinBoxedPrimitiveType(optional.wrappingType)
                 return boxed
               default:
@@ -442,10 +472,16 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
 
   dereferenceToJObject(parameterName: string): string {
     switch (this.type.kind) {
+      // an optional bridges to a (possibly `nullptr`) ref of its wrapping type,
+      // so it needs to be dereferenced the same way as the type it wraps.
+      case 'optional': {
+        const optional = getTypeAs(this.type, OptionalType)
+        const bridge = new KotlinCxxBridgedType(optional.wrappingType)
+        return bridge.dereferenceToJObject(parameterName)
+      }
       // any jni::HybridClass needs to be dereferenced to jobject with .get()
       case 'array-buffer':
       case 'function':
-      case 'hybrid-object':
       case 'hybrid-object-base':
       case 'map':
       case 'promise':
@@ -464,7 +500,8 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
     switch (this.type.kind) {
       case 'number':
       case 'boolean':
-      case 'bigint':
+      case 'int64':
+      case 'uint64':
         switch (language) {
           case 'c++':
             if (isBoxed) {
@@ -473,6 +510,14 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
               return `${boxed}::valueOf(${parameterName})`
             } else {
               return parameterName
+            }
+          case 'kotlin':
+            switch (this.type.kind) {
+              case 'uint64':
+                // Long -> ULong
+                return `${parameterName}.toULong()`
+              default:
+                return parameterName
             }
           default:
             return parameterName
@@ -623,7 +668,8 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
             switch (array.itemType.kind) {
               case 'number':
               case 'boolean':
-              case 'bigint': {
+              case 'int64':
+              case 'uint64': {
                 // primitive arrays can be constructed more efficiently with region/batch access.
                 // no need to iterate through the entire array.
                 return `
@@ -636,18 +682,24 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
 `.trim()
               }
               default: {
-                // other arrays need to loop through
+                // other arrays need to loop through.
+                // we wrap the lambda with a parameter (`__input`) so that nested arrays
+                // don't end up shadowing `__element` in their own initializers
+                // (which would be `const auto& __element = __element[__i]`,
+                //  an invalid self-referential `auto`-type deduction).
+                // `auto&&` is a forwarding reference so it binds to both const and
+                // non-const inputs across nesting levels.
                 return `
-[&]() {
-  size_t __size = ${parameterName}.size();
+[&](auto&& __input) {
+  size_t __size = __input.size();
   jni::local_ref<${arrayType}> __array = ${arrayType}::newArray(__size);
   for (size_t __i = 0; __i < __size; __i++) {
-    const auto& __element = ${parameterName}[__i];
+    const auto& __element = __input[__i];
     auto __elementJni = ${indent(bridge.parseFromCppToKotlin('__element', 'c++'), '    ')};
     __array->setElement(__i, ${bridge.dereferenceToJObject('__elementJni')});
   }
   return __array;
-}()
+}(${parameterName})
             `.trim()
               }
             }
@@ -731,9 +783,10 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
     isBoxed = false
   ): string {
     switch (this.type.kind) {
-      case 'number':
       case 'boolean':
-      case 'bigint':
+      case 'number':
+      case 'int64':
+      case 'uint64':
         switch (language) {
           case 'c++':
             let code: string
@@ -744,11 +797,27 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
               // it's just the primitive type directly
               code = parameterName
             }
-            if (this.type.kind === 'boolean') {
-              // jboolean =/= bool (it's a char in Java)
-              code = `static_cast<bool>(${code})`
+            switch (this.type.kind) {
+              case 'boolean':
+                // jboolean =/= bool (it's a char in Java)
+                code = `static_cast<bool>(${code})`
+                break
+              case 'uint64':
+                // jlong =/= uint64 (it's signed in Java)
+                code = `static_cast<uint64_t>(${code})`
+                break
+              default:
+                break
             }
             return code
+          case 'kotlin':
+            switch (this.type.kind) {
+              case 'uint64':
+                // ULong -> Long
+                return `${parameterName}.toLong()`
+              default:
+                return parameterName
+            }
           default:
             return parameterName
         }
@@ -795,9 +864,11 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
       case 'hybrid-object': {
         switch (language) {
           case 'c++':
-            const hybrid = getTypeAs(this.type, HybridObjectType)
-            const fullName = this.getFullJHybridObjectName(hybrid)
-            return `${parameterName}->cthis()->shared_cast<${fullName}>()`
+            const hybridObject = getTypeAs(this.type, HybridObjectType)
+            const { JHybridTSpec } = getHybridObjectName(
+              hybridObject.hybridObjectName
+            )
+            return `${parameterName}->get${JHybridTSpec}()`
           default:
             return parameterName
         }
@@ -907,7 +978,8 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
             switch (array.itemType.kind) {
               case 'number':
               case 'boolean':
-              case 'bigint': {
+              case 'int64':
+              case 'uint64': {
                 // primitive arrays can use region/batch access,
                 // which we can use to construct the vector directly instead of looping through it.
                 return `
@@ -920,18 +992,25 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
 `.trim()
               }
               default: {
-                // other arrays need to loop through
+                // other arrays need to loop through.
+                // we wrap the lambda with a parameter (`__input`) so that nested arrays
+                // don't end up shadowing `__element` in their own initializers
+                // (which would be `auto __element = __element->getElement(__i)`,
+                //  an invalid self-referential `auto`-type deduction).
+                // `auto&&` is a forwarding reference so it binds to both const and
+                // non-const inputs across nesting levels (and to JNI `local_ref`s,
+                // which expose non-const `getElement(...)`).
                 return `
-[&]() {
-  size_t __size = ${parameterName}->size();
+[&](auto&& __input) {
+  size_t __size = __input->size();
   std::vector<${itemType}> __vector;
   __vector.reserve(__size);
   for (size_t __i = 0; __i < __size; __i++) {
-    auto __element = ${parameterName}->getElement(__i);
-    __vector.push_back(${bridge.parseFromKotlinToCpp('__element', 'c++')});
+    auto __element = __input->getElement(__i);
+    __vector.push_back(${indent(bridge.parseFromKotlinToCpp('__element', 'c++'), '    ')});
   }
   return __vector;
-}()
+}(${parameterName})
             `.trim()
               }
             }

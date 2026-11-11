@@ -6,6 +6,43 @@ import {
 } from './NitroUserConfig.js'
 import chalk from 'chalk'
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value != null && !Array.isArray(value)
+}
+
+function getLegacyAutolinkingEntries(config: unknown): string[] {
+  if (!isObject(config)) return []
+
+  const autolinking = config.autolinking
+  if (!isObject(autolinking)) return []
+
+  const entries: string[] = []
+  for (const [hybridObjectName, entry] of Object.entries(autolinking)) {
+    if (!isObject(entry)) continue
+
+    const hasLegacySyntax =
+      'cpp' in entry || 'swift' in entry || 'kotlin' in entry
+    if (hasLegacySyntax) {
+      entries.push(hybridObjectName)
+    }
+  }
+
+  return entries
+}
+
+// TODO: Remove this once users have migrated to new `nitro.json`
+function logLegacyAutolinkingDeprecation(config: unknown): void {
+  const legacyEntries = getLegacyAutolinkingEntries(config)
+  if (legacyEntries.length === 0) return
+
+  console.warn(
+    chalk.yellow(
+      `Warning: nitro.json uses deprecated autolinking syntax ("cpp"/"swift"/"kotlin") for [${legacyEntries.join(', ')}]. ` +
+        `Use "all"/"ios"/"android" entries with { language, implementationClassName } instead.`
+    )
+  )
+}
+
 function readFile(configPath: string): string {
   try {
     return fs.readFileSync(configPath, 'utf8')
@@ -58,6 +95,7 @@ function parseConfig(json: string): NitroUserConfig {
   }
 
   try {
+    logLegacyAutolinkingDeprecation(object)
     return NitroUserConfigSchema.parse(object)
   } catch (error) {
     if (error instanceof ZodError) {

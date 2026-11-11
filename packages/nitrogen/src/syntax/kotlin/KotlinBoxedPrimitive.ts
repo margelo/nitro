@@ -11,7 +11,10 @@ export function getKotlinBoxedPrimitiveType(type: Type): string {
       return 'jni::JDouble'
     case 'boolean':
       return 'jni::JBoolean'
-    case 'bigint':
+    case 'int64':
+      return 'jni::JLong'
+    case 'uint64':
+      // this sucks, but ULong is actually Long in JNI. We have to reinterpret it.
       return 'jni::JLong'
     default:
       throw new Error(`Type ${type.kind} is not a primitive!`)

@@ -35,7 +35,10 @@ export class ArrayType implements Type {
             return 'DoubleArray'
           case 'boolean':
             return 'BooleanArray'
-          case 'bigint':
+          case 'int64':
+            return 'LongArray'
+          case 'uint64':
+            // ULong is just interpret as LongArray in Java.
             return 'LongArray'
           default:
             return `Array<${itemCode}>`

@@ -1,9 +1,6 @@
 ---
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 # Custom Enums (`A | B`)
 
 There's two different types of enums - [enums](#typescript-enums) and [unions](#typescript-union).

@@ -1,12 +1,17 @@
 import { Platform, type HostComponent, type ViewProps } from 'react-native'
-// @ts-expect-error this unfortunately isn't typed or default-exported.
-// eslint-disable-next-line @react-native/no-deep-imports
-import * as NativeComponentRegistry from 'react-native/Libraries/NativeComponent/NativeComponentRegistry'
 import type {
   HybridView,
   HybridViewMethods,
   HybridViewProps,
 } from './HybridView'
+
+// Keep the runtime import compatible with React Native < 0.82. The public
+// TypeScript export was added in 0.83; use it because RN 0.88 no longer exposes
+// declarations at the deep-import path.
+// TODO: Migrate to the official export of `NativeComponentRegistry` from `react-native` once react-native 0.83.0 becomes more established as this is deprecated
+const NativeComponentRegistry =
+  // eslint-disable-next-line @react-native/no-deep-imports
+  require('react-native/Libraries/NativeComponent/NativeComponentRegistry') as typeof import('react-native').NativeComponentRegistry
 
 type AttributeValue<T, V = T> =
   | boolean
@@ -23,6 +28,14 @@ export interface ViewConfig<Props> {
   validAttributes: {
     [K in keyof Props]: AttributeValue<Props[K]>
   }
+}
+type ReactNativeViewConfig = ReturnType<
+  Parameters<typeof NativeComponentRegistry.get>[1]
+>
+
+function typesafe<Props>(config: ViewConfig<Props>): ReactNativeViewConfig {
+  // TODO: Remove this unsafe cast and make it safe
+  return config as ReactNativeViewConfig
 }
 
 /**
@@ -46,7 +59,7 @@ interface DefaultHybridViewProps<RefType> {
    * }
    * ```
    * @note If you're wondering about the `callback(...)` syntax, see
-   * ["Callbacks have to be wrapped"](https://nitro.margelo.com/docs/view-components#callbacks-have-to-be-wrapped).
+   * ["Callbacks have to be wrapped"](https://nitro.margelo.com/docs/guides/view-components#callbacks-have-to-be-wrapped).
    */
   hybridRef?: (ref: RefType) => void
 }
@@ -58,7 +71,7 @@ interface DefaultHybridViewProps<RefType> {
  * because RN converts them to booleans (`true`). As a workaround,
  * Nitro requires you to wrap each function using `callback(...)`,
  * which bypasses React Native's conversion.
- * Please see the [Callbacks have to be wrapped](https://nitro.margelo.com/docs/view-components#callbacks-have-to-be-wrapped) section for more information.
+ * Please see the [Callbacks have to be wrapped](https://nitro.margelo.com/docs/guides/view-components#callbacks-have-to-be-wrapped) section for more information.
  *
  * @type {Object} NitroViewWrappedCallback
  * @property {T} f - The wrapped callback function
@@ -132,21 +145,6 @@ export function getHostComponent<
   return NativeComponentRegistry.get(name, () => {
     const config = getViewConfig()
     config.validAttributes = wrapValidAttributes(config.validAttributes)
-    return config
+    return typesafe(config)
   })
-}
-
-/**
- * Wrap the given {@linkcode func} in a Nitro callback.
- * - For older versions of react-native, this wraps the callback in a `{ f: T }` object.
- * - For newer versions of react-native, this just returns the function as-is.
- */
-export function callback<T>(
-  func: T
-): T extends (...args: any[]) => any ? NitroViewWrappedCallback<T> : T
-export function callback(func: unknown) {
-  if (typeof func === 'function') {
-    return { f: func }
-  }
-  return func
 }

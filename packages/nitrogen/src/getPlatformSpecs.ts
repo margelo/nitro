@@ -1,6 +1,6 @@
-import type { PlatformSpec } from 'react-native-nitro-modules'
+import type { PlatformSpec } from 'nitro-core'
 import type { InterfaceDeclaration, Type, TypeAliasDeclaration } from 'ts-morph'
-import { Node, Symbol } from 'ts-morph'
+import { Symbol } from 'ts-morph'
 import { getBaseTypes } from './utils.js'
 
 export type Platform = keyof Required<PlatformSpec>
@@ -185,27 +185,22 @@ export function getHybridObjectPlatforms(
 export function getHybridViewPlatforms(
   view: InterfaceDeclaration | TypeAliasDeclaration
 ): PlatformSpec {
-  if (Node.isTypeAliasDeclaration(view)) {
-    const hybridViewTypeNode = view.getTypeNode()
-
-    const isHybridViewType =
-      Node.isTypeReference(hybridViewTypeNode) &&
-      hybridViewTypeNode.getTypeName().getText() === 'HybridView'
-
-    if (!isHybridViewType) {
-      throw new Error(
-        `${view.getName()} looks like a HybridView, but doesn't seem to alias HybridView<...>!`
-      )
-    }
-
-    const genericArguments = hybridViewTypeNode.getTypeArguments()
-
-    const platformSpecArg = genericArguments[2]
-    if (platformSpecArg != null) {
-      return getPlatformSpec(view.getName(), platformSpecArg.getType())
-    }
+  const hybridViewTag = view
+    .getType()
+    .getIntersectionTypes()
+    .find((type) => type.getSymbol()?.getName() === 'HybridViewTag')
+  if (hybridViewTag == null) {
+    throw new Error(
+      `${view.getName()} looks like a HybridView, but doesn't contain HybridViewTag<...>!`
+    )
   }
 
-  // it uses `HybridObject` without generic arguments. This defaults to platform native languages
-  return { ios: 'swift', android: 'kotlin' }
+  const platformSpecArg = hybridViewTag.getTypeArguments()[0]
+  if (platformSpecArg == null) {
+    throw new Error(
+      `${view.getName()} does not declare any platforms in HybridView<...>!`
+    )
+  }
+
+  return getPlatformSpec(view.getName(), platformSpecArg)
 }

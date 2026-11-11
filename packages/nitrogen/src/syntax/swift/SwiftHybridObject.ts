@@ -70,7 +70,6 @@ public ${hasBaseClass ? 'override func' : 'func'} getCxxWrapper() -> ${name.Hybr
   const protocolCode = `
 ${createFileMetadataString(`${protocolName}.swift`)}
 
-import Foundation
 ${imports.join('\n')}
 
 /// See \`\`${protocolName}\`\`

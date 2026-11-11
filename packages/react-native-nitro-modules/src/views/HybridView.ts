@@ -1,4 +1,4 @@
-import type { HybridObject } from '../HybridObject'
+import type { HybridObject } from 'nitro-core'
 
 /**
  * Describes the languages this view will be implemented in.
@@ -87,8 +87,9 @@ export type HybridRef<
 /**
  * This interface acts as a tag for Hybrid Views so nitrogen detects them.
  */
-interface HybridViewTag<Platforms extends ViewPlatformSpec>
-  extends HybridObject<Platforms> {}
+interface HybridViewTag<
+  Platforms extends ViewPlatformSpec,
+> extends HybridObject<Platforms> {}
 
 /**
  * Represents a Nitro Hybrid View.

@@ -37,7 +37,6 @@ var ${p.escapedName}: ${p.getCode('swift')} {
   const code = `
 ${createFileMetadataString(`${struct.structName}.swift`)}
 
-import Foundation
 ${imports.join('\n')}
 
 /**
