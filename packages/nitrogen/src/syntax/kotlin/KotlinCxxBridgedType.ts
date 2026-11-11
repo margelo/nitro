@@ -231,20 +231,23 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
     return files
   }
 
-  asJniReferenceType(referenceType: 'alias' | 'local' | 'global' = 'alias') {
+  asJniReferenceType(
+    referenceType: 'alias' | 'local' | 'global' = 'alias',
+    isBoxed = false
+  ) {
+    const typeCode = this.getTypeCode('c++', isBoxed)
     switch (this.type.kind) {
       case 'void':
+        return 'void'
       case 'number':
       case 'boolean':
       case 'int64':
-        // primitives are not references
-        return this.getTypeCode('c++')
       case 'uint64':
-        // ULong is unfortunately not representable in JNI. It's long + cast
-        return 'jlong'
-      default:
-        return `jni::${referenceType}_ref<${this.getTypeCode('c++')}>`
+        if (!isBoxed) {
+          return typeCode
+        }
     }
+    return `jni::${referenceType}_ref<${typeCode}>`
   }
 
   getTypeCode(language: 'kotlin' | 'c++', isBoxed = false): string {
@@ -469,6 +472,13 @@ export class KotlinCxxBridgedType implements BridgedType<'kotlin', 'c++'> {
 
   dereferenceToJObject(parameterName: string): string {
     switch (this.type.kind) {
+      // an optional bridges to a (possibly `nullptr`) ref of its wrapping type,
+      // so it needs to be dereferenced the same way as the type it wraps.
+      case 'optional': {
+        const optional = getTypeAs(this.type, OptionalType)
+        const bridge = new KotlinCxxBridgedType(optional.wrappingType)
+        return bridge.dereferenceToJObject(parameterName)
+      }
       // any jni::HybridClass needs to be dereferenced to jobject with .get()
       case 'array-buffer':
       case 'function':

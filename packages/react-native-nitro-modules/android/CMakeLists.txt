@@ -10,6 +10,7 @@ file(GLOB_RECURSE shared_files RELATIVE ${CMAKE_SOURCE_DIR}
 )
 file(GLOB_RECURSE android_files RELATIVE ${CMAKE_SOURCE_DIR}
      "src/main/cpp/**.cpp"
+     "core/main/cpp/**.cpp"
 )
 
 # Create library "NitroModules" and add all C++ files to it
@@ -18,37 +19,31 @@ add_library(NitroModules SHARED
             ${android_files}
 )
 
-set(NITRO_SANITIZER "" CACHE STRING "Native sanitizer")
-if(NITRO_SANITIZER STREQUAL "address")
-  target_compile_options(NitroModules PUBLIC -fsanitize=address -fno-omit-frame-pointer)
-  set_target_properties(NitroModules PROPERTIES LINK_FLAGS "-fsanitize=address")
-elseif(NOT NITRO_SANITIZER STREQUAL "")
-  message(FATAL_ERROR "Unsupported NITRO_SANITIZER: ${NITRO_SANITIZER}")
-endif()
-
 # Specifies a path to native header files.
 include_directories(
-  # Shared C++ includes
-  ../cpp/core
-  ../cpp/entrypoint
-  ../cpp/jsi
-  ../cpp/platform
-  ../cpp/registry
-  ../cpp/prototype
-  ../cpp/test-object
-  ../cpp/templates
+  # Shared Nitro Core C++ includes
+  ../cpp/core/core
+  ../cpp/core/entrypoint
+  ../cpp/core/jsi
+  ../cpp/core/platform
+  ../cpp/core/registry
+  ../cpp/core/prototype
+  ../cpp/core/test-object
+  ../cpp/core/templates
+  ../cpp/core/threading
+  ../cpp/core/utils
+  # React Native C++ includes
   ../cpp/threading
-  ../cpp/turbomodule
-  ../cpp/utils
   ../cpp/views
-  # Android-specific C++ includes
-  src/main/cpp/core
-  src/main/cpp/registry
   src/main/cpp/turbomodule
-  src/main/cpp/platform
-  src/main/cpp/threading
-  src/main/cpp/utils
   src/main/cpp/views
+  # Android-specific Nitro Core C++ includes
+  core/main/cpp
+  core/main/cpp/core
+  core/main/cpp/registry
+  core/main/cpp/platform
+  core/main/cpp/threading
+  core/main/cpp/utils
 )
 
 # Find required libraries

@@ -26,7 +26,13 @@ export class Parameter implements CodeNode {
       const type = param.getType()
       const isOptional =
         param.hasQuestionToken() || param.isOptional() || type.isNullable()
-      this.type = createNamedType(language, name, type, isOptional)
+      this.type = createNamedType(
+        language,
+        name,
+        type,
+        isOptional,
+        param.getTypeNode()
+      )
     } else {
       // constructor(...)???
       throw new Error(`Invalid constructor! Arguments: ${args}`)

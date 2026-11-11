@@ -1,12 +1,17 @@
 import { Platform, type HostComponent, type ViewProps } from 'react-native'
-// TODO: Migrate to the official export of `NativeComponentRegistry` from `react-native` once react-native 0.83.0 becomes more established as this is deprecated
-// eslint-disable-next-line @react-native/no-deep-imports
-import * as NativeComponentRegistry from 'react-native/Libraries/NativeComponent/NativeComponentRegistry'
 import type {
   HybridView,
   HybridViewMethods,
   HybridViewProps,
 } from './HybridView'
+
+// Keep the runtime import compatible with React Native < 0.82. The public
+// TypeScript export was added in 0.83; use it because RN 0.88 no longer exposes
+// declarations at the deep-import path.
+// TODO: Migrate to the official export of `NativeComponentRegistry` from `react-native` once react-native 0.83.0 becomes more established as this is deprecated
+const NativeComponentRegistry =
+  // eslint-disable-next-line @react-native/no-deep-imports
+  require('react-native/Libraries/NativeComponent/NativeComponentRegistry') as typeof import('react-native').NativeComponentRegistry
 
 type AttributeValue<T, V = T> =
   | boolean
@@ -142,19 +147,4 @@ export function getHostComponent<
     config.validAttributes = wrapValidAttributes(config.validAttributes)
     return typesafe(config)
   })
-}
-
-/**
- * Wrap the given {@linkcode func} in a Nitro callback.
- * - For older versions of react-native, this wraps the callback in a `{ f: T }` object.
- * - For newer versions of react-native, this just returns the function as-is.
- */
-export function callback<T>(
-  func: T
-): T extends (...args: any[]) => any ? NitroViewWrappedCallback<T> : T
-export function callback(func: unknown) {
-  if (typeof func === 'function') {
-    return { f: func }
-  }
-  return func
 }

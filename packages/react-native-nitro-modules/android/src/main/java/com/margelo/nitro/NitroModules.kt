@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.common.annotations.FrameworkAPI
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
 import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder
+import dalvik.annotation.optimization.FastNative
 
 @DoNotStrip
 @Keep
@@ -52,6 +53,7 @@ class NitroModules internal constructor(
     }
   }
 
+  @FastNative
   private external fun initHybrid(): HybridData
 
   private external fun install(

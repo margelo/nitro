@@ -113,14 +113,24 @@ function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
       const t = declaration.getType()
       const isOptional =
         prop.isOptional() || t.getUnionTypes().some((u) => u.isUndefined())
-      const propType = createType(language, t, isOptional)
+      const propType = createType(
+        language,
+        t,
+        isOptional,
+        declaration.getTypeNode()
+      )
       properties.push(
         new Property(prop.getName(), propType, declaration.isReadonly())
       )
     } else if (Node.isMethodSignature(declaration)) {
       const returnType = declaration.getReturnType()
       const isOptional = returnType.getUnionTypes().some((t) => t.isUndefined())
-      const methodReturnType = createType(language, returnType, isOptional)
+      const methodReturnType = createType(
+        language,
+        returnType,
+        isOptional,
+        declaration.getReturnTypeNode()
+      )
       const methodParameters = declaration
         .getParameters()
         .map((p) => new Parameter(p, language))

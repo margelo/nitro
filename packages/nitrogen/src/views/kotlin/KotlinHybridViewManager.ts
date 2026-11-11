@@ -57,7 +57,15 @@ import ${javaNamespace}.*
 /**
  * Represents the React Native \`ViewManager\` for the "${spec.name}" Nitro HybridView.
  */
-public class ${manager}: SimpleViewManager<View>(), IViewGroupManager<View> {
+public open class ${manager}: SimpleViewManager<View>(), IViewGroupManager<View> {
+  /**
+   * Represents the View and its last state snapshot (mutable)
+   */
+  private class HybridViewHolder(
+    val hybridView: ${viewImplementation},
+    var lastState: StateWrapper? = null,
+  )
+
   init {
     if (RecyclableView::class.java.isAssignableFrom(${viewImplementation}::class.java)) {
       // Enable view recycling
@@ -72,38 +80,46 @@ public class ${manager}: SimpleViewManager<View>(), IViewGroupManager<View> {
   override fun createViewInstance(reactContext: ThemedReactContext): View {
     val hybridView = ${viewImplementation}(reactContext)
     val view = hybridView.view
-    view.setTag(associated_hybrid_view_tag, hybridView)
+    view.setTag(associated_hybrid_view_tag, HybridViewHolder(hybridView))
     return view
   }
 
   override fun updateState(view: View, props: ReactStylesDiffMap, stateWrapper: StateWrapper): Any? {
-    val hybridView = getHybridView(view)
+    val holder = getHybridViewHolder(view)
       ?: throw Error("Couldn't find view $view in local views table!")
+    val hybridView = holder.hybridView
+    val oldState = holder.lastState
+    val newState = stateWrapper
 
     // 1. Update each prop individually
     hybridView.beforeUpdate()
-    ${stateUpdaterName}.updateViewProps(hybridView, stateWrapper)
+    ${stateUpdaterName}.updateViewProps(hybridView, newState, oldState)
     hybridView.afterUpdate()
+    holder.lastState = newState
 
     // 2. Continue in base View props
-    return super.updateState(view, props, stateWrapper)
+    return super.updateState(view, props, newState)
   }
 
   override fun onDropViewInstance(view: View) {
-    val hybridView = getHybridView(view)
-    hybridView?.onDropView()
+    val holder = getHybridViewHolder(view)
+    holder?.lastState = null
+    holder?.hybridView?.onDropView()
     return super.onDropViewInstance(view)
   }
 
   protected override fun prepareToRecycleView(reactContext: ThemedReactContext, view: View): View? {
-    super.prepareToRecycleView(reactContext, view)
-    val hybridView = getHybridView(view)
+    val preparedView = super.prepareToRecycleView(reactContext, view)
       ?: return null
+    val holder = getHybridViewHolder(preparedView)
+      ?: return null
+    val hybridView = holder.hybridView
+    holder.lastState = null
 
-    @Suppress("USELESS_IS_CHECK")
-    if (hybridView is RecyclableView) {
+    val recyclableView = (hybridView as Any) as? RecyclableView
+    if (recyclableView != null) {
       // Recycle in it's implementation
-      hybridView.prepareForRecycle()
+      recyclableView.prepareForRecycle()
 
       // Maybe update the view if it changed
       return hybridView.view
@@ -112,8 +128,8 @@ public class ${manager}: SimpleViewManager<View>(), IViewGroupManager<View> {
     }
   }
 
-  private fun getHybridView(view: View): ${viewImplementation}? {
-    return view.getTag(associated_hybrid_view_tag) as? ${viewImplementation}
+  private fun getHybridViewHolder(view: View): HybridViewHolder? {
+    return view.getTag(associated_hybrid_view_tag) as? HybridViewHolder
   }
 
   override fun needsCustomLayoutForChildren(): Boolean {
@@ -142,7 +158,7 @@ public class ${manager}: SimpleViewManager<View>(), IViewGroupManager<View> {
       return view
     }
     val className = view.javaClass.simpleName
-    throw IllegalStateException("Nitro view \\"${spec.name}\\" received React children, but its native view ($className) is not a ViewGroup! To render children, return a \`NitroViewGroup\` (or another \`android.view.ViewGroup\`) from your HybridView's \`view\`.")
+    throw IllegalStateException("Nitro view '${spec.name}' received React children, but its native view ($className) is not a ViewGroup! To render children, return a \`NitroViewGroup\` (or another \`android.view.ViewGroup\`) from your HybridView's \`view\`.")
   }
 }
   `.trim()
@@ -159,11 +175,11 @@ internal class ${stateUpdaterName} {
   companion object {
     /**
      * Updates the props for [view] through C++.
-     * The [state] prop is expected to contain [view]'s props as wrapped Fabric state.
+     * The [newState] prop is expected to contain [view]'s props as wrapped Fabric state.
      */
     @Suppress("KotlinJniMissingFunction")
     @JvmStatic
-    external fun updateViewProps(view: ${HybridTSpec}, state: StateWrapper)
+    external fun updateViewProps(view: ${HybridTSpec}, newState: StateWrapper, oldState: StateWrapper?)
   }
 }
   `.trim()
@@ -202,7 +218,12 @@ public:
 public:
   static void updateViewProps(jni::alias_ref<jni::JClass> /* class */,
                               jni::alias_ref<${JHybridTSpec}::JavaPart> view,
-                              jni::alias_ref<JStateWrapper::javaobject> stateWrapperInterface);
+                              jni::alias_ref<JStateWrapper::javaobject> newState,
+                              jni::alias_ref<JStateWrapper::javaobject> oldState);
+
+private:
+  static std::shared_ptr<const ${propsClassName}> getPropsFromStateWrapper(
+      jni::alias_ref<JStateWrapper::javaobject> stateWrapper);
 
 public:
   static void registerNatives() {
@@ -224,9 +245,10 @@ public:
     const name = escapeCppName(p.name)
     const setter = p.getSetterName('other')
     return `
-if (props->${name}.isDirty) {
-  hybridView->${setter}(props->${name}.value);
-  props->${name}.isDirty = false;
+if (oldProps == nullptr
+      ? newProps->${name}.isProvided()
+      : !newProps->${name}.hasSameValue(oldProps->${name})) {
+  hybridView->${setter}(newProps->${name}.get());
 }
     `.trim()
   })
@@ -243,38 +265,55 @@ namespace ${cxxNamespace} {
 using namespace facebook;
 using ConcreteStateData = react::ConcreteState<${stateClassName}>;
 
-void J${stateUpdaterName}::updateViewProps(jni::alias_ref<jni::JClass> /* class */,
-                                           jni::alias_ref<${JHybridTSpec}::JavaPart> javaView,
-                                           jni::alias_ref<JStateWrapper::javaobject> stateWrapperInterface) {
-  std::shared_ptr<${JHybridTSpec}> hybridView = javaView->get${JHybridTSpec}();
-
-  // Get concrete StateWrapperImpl from passed StateWrapper interface object
-  jobject rawStateWrapper = stateWrapperInterface.get();
-  if (!stateWrapperInterface->isInstanceOf(react::StateWrapperImpl::javaClassStatic())) [[unlikely]] {
-      throw std::runtime_error("StateWrapper is not a StateWrapperImpl");
+std::shared_ptr<const ${propsClassName}> J${stateUpdaterName}::getPropsFromStateWrapper(
+    jni::alias_ref<JStateWrapper::javaobject> stateWrapper) {
+  if (stateWrapper.get() == nullptr) {
+    return nullptr;
   }
-  auto stateWrapper = jni::alias_ref<react::StateWrapperImpl::javaobject>{
-            static_cast<react::StateWrapperImpl::javaobject>(rawStateWrapper)};
-  std::shared_ptr<const react::State> state = stateWrapper->cthis()->getState();
+  // Get concrete StateWrapperImpl from passed StateWrapper interface object
+  jobject rawStateWrapper = stateWrapper.get();
+  if (!stateWrapper->isInstanceOf(react::StateWrapperImpl::javaClassStatic())) [[unlikely]] {
+    throw std::runtime_error("StateWrapper is not a StateWrapperImpl");
+  }
+  auto stateWrapperImpl = jni::alias_ref<react::StateWrapperImpl::javaobject>{
+    static_cast<react::StateWrapperImpl::javaobject>(rawStateWrapper)
+  };
+  std::shared_ptr<const react::State> state = stateWrapperImpl->cthis()->getState();
+  if (state == nullptr) {
+    return nullptr;
+  }
   auto concreteState = std::static_pointer_cast<const ConcreteStateData>(state);
   const ${stateClassName}& data = concreteState->getData();
-  const std::shared_ptr<${propsClassName}>& props = data.getProps();
+  const std::shared_ptr<const ${propsClassName}>& props = data.getProps();
   if (props == nullptr) [[unlikely]] {
-    // Props aren't set yet!
     throw std::runtime_error("${stateClassName}'s data doesn't contain any props!");
   }
+  return props;
+}
 
-  // Update all props if they are dirty
+void J${stateUpdaterName}::updateViewProps(jni::alias_ref<jni::JClass> /* class */,
+                                           jni::alias_ref<${JHybridTSpec}::JavaPart> javaView,
+                                           jni::alias_ref<JStateWrapper::javaobject> newState,
+                                           jni::alias_ref<JStateWrapper::javaobject> oldState) {
+  std::shared_ptr<${JHybridTSpec}> hybridView = javaView->get${JHybridTSpec}();
+  std::shared_ptr<const ${propsClassName}> newProps = getPropsFromStateWrapper(newState);
+  std::shared_ptr<const ${propsClassName}> oldProps = getPropsFromStateWrapper(oldState);
+  if (newProps == nullptr) [[unlikely]] {
+    throw std::runtime_error("Current StateWrapper doesn't contain any props!");
+  }
+
+  // Update only props that differ from the previous State snapshot.
   ${indent(propsUpdaterCalls.join('\n'), '  ')}
 
   // Update hybridRef if it changed
-  if (props->hybridRef.isDirty) {
+  if (oldProps == nullptr
+        ? newProps->hybridRef.isProvided()
+        : !newProps->hybridRef.hasSameValue(oldProps->hybridRef)) {
     // hybridRef changed - call it with new this
-    const auto& maybeFunc = props->hybridRef.value;
+    const auto& maybeFunc = newProps->hybridRef.get();
     if (maybeFunc.has_value()) {
       maybeFunc.value()(hybridView);
     }
-    props->hybridRef.isDirty = false;
   }
 }
 

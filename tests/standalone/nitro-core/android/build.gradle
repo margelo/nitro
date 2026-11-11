@@ -1,0 +1,69 @@
+plugins {
+  id 'com.android.library'
+  id 'org.jetbrains.kotlin.android'
+}
+
+def nativeRoot = file('../../../../packages/nitro-core/native')
+def prefabHeaders = layout.buildDirectory.dir('generated/prefab-headers')
+def prepareHeaders = tasks.register('prepareHeaders', Sync) {
+  from(new File(nativeRoot, 'cpp')) { include '**/*.hpp' }
+  from(new File(nativeRoot, 'android/src/main/cpp')) { include '**/*.hpp' }
+  eachFile { path = "NitroModules/${name}" }
+  includeEmptyDirs = false
+  duplicatesStrategy = DuplicatesStrategy.FAIL
+  into prefabHeaders
+}
+
+android {
+  namespace 'com.margelo.nitro.testing.core'
+  compileSdk providers.gradleProperty('nitroTestCompileSdk').get().toInteger()
+  ndkVersion providers.gradleProperty('nitroTestNdkVersion').get()
+
+  defaultConfig {
+    minSdk providers.gradleProperty('nitroTestMinSdk').get().toInteger()
+    ndk { abiFilters providers.gradleProperty('nitroTestAbi').get() }
+    externalNativeBuild {
+      cmake {
+        arguments '-DANDROID_STL=c++_shared', '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON', "-DNITRO_SANITIZER=${providers.gradleProperty('nitroSanitizer').getOrElse('')}"
+        targets 'NitroModules'
+      }
+    }
+  }
+
+  buildFeatures {
+    prefab true
+    prefabPublishing true
+  }
+  prefab {
+    NitroModules { headers prefabHeaders.get().asFile.absolutePath }
+  }
+  externalNativeBuild {
+    cmake {
+      path 'CMakeLists.txt'
+      version providers.gradleProperty('nitroTestCmakeVersion').get()
+    }
+  }
+  sourceSets {
+    main {
+      java.srcDirs += [new File(nativeRoot, 'android/src/main/java')]
+    }
+  }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+  kotlinOptions { jvmTarget = '17' }
+}
+
+dependencies {
+  api project(':hermes')
+  api 'com.facebook.fbjni:fbjni:0.8.1'
+  api 'com.facebook.yoga:proguard-annotations:1.19.0'
+  api 'androidx.annotation:annotation:1.8.1'
+  implementation 'com.facebook.soloader:nativeloader:0.12.1'
+  api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
+}
+
+tasks.configureEach {
+  if (name == 'preBuild' || name.startsWith('prefab')) dependsOn prepareHeaders
+}

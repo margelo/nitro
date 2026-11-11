@@ -27,7 +27,7 @@ export async function initNewNitroModule(
   await fs.mkdir(directory)
 
   const modulePath = await downloadGitHubFolder(
-    'mrousavy',
+    'margelo',
     'nitro',
     ref,
     'packages/template',
