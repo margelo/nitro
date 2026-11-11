@@ -8,7 +8,7 @@ Many Android APIs require a [`Context`](https://developer.android.com/reference/
 ## Using `Context` in a `HybridObject`
 
 Unlike in TurboModules, a [Hybrid Object](../concepts/hybrid-objects) does not receive a [`Context`](https://developer.android.com/reference/android/content/Context) via its constructor, as that would make it non-portable.
-Instead, Nitro exposes the current `ReactApplicationContext` via the static [`NitroModules.applicationContext`](https://github.com/mrousavy/nitro/blob/fb1102ca7657665aad3011d7556fcd06f3cc796d/packages/react-native-nitro-modules/android/src/main/java/com/margelo/nitro/NitroModules.kt#L68-L72) getter, which you can access in your [Hybrid Object](../concepts/hybrid-objects) if needed:
+Instead, Nitro exposes the current `ReactApplicationContext` via the static [`NitroModules.applicationContext`](https://github.com/margelo/nitro/blob/fb1102ca7657665aad3011d7556fcd06f3cc796d/packages/react-native-nitro-modules/android/src/main/java/com/margelo/nitro/NitroModules.kt#L68-L72) getter, which you can access in your [Hybrid Object](../concepts/hybrid-objects) if needed:
 
 ```kotlin
 class HybridClipboard: HybridClipboardSpec() {

@@ -1,0 +1,21 @@
+{
+  "name": "nitro-test-runner",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "bundle": "bun scripts/bundle.ts",
+    "test:helpers": "bun test scripts/*.test.ts",
+    "prepare-tests": "bun --cwd ../nitro-test specs && bun run typecheck && bun run test:helpers && bun run bundle",
+    "test:ios": "bun ios/run.mjs",
+    "test:android": "cd android && ./gradlew :connectedDebugAndroidTest"
+  },
+  "devDependencies": {
+    "@types/chai": "5.2.3",
+    "chai": "5.3.3",
+    "nitro-core": "workspace:*",
+    "nitro-test": "workspace:*",
+    "nitro-test-external": "workspace:*"
+  }
+}

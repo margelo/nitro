@@ -1,0 +1,11 @@
+{
+  "uiViewClassName": "RecyclableTestView",
+  "supportsRawText": false,
+  "bubblingEventTypes": {},
+  "directEventTypes": {},
+  "validAttributes": {
+    "isBlue": true,
+    "nativeDefaultValue": true,
+    "hybridRef": true
+  }
+}

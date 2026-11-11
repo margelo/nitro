@@ -1,7 +1,13 @@
 import type { TurboModule } from 'react-native'
 import { TurboModuleRegistry } from 'react-native'
 import { ModuleNotFoundError } from '../ModuleNotFoundError'
-import type { NitroModulesProxy } from '../NitroModulesProxy'
+import {
+  assertNitroVersion,
+  getInstalledNitro,
+  getNitroModules,
+  isRuntimeAlive,
+  warnIfNitroVersionMismatch,
+} from 'nitro-core'
 
 interface Spec extends TurboModule {
   /**
@@ -12,24 +18,12 @@ interface Spec extends TurboModule {
   install(): string | undefined
 }
 
-const jsVersion = require('react-native-nitro-modules/package.json').version
-
-function getInstalledNitro(): NitroModulesProxy | undefined {
-  // @ts-expect-error
-  return global.NitroModulesProxy as NitroModulesProxy | undefined
-}
-
 let nitroModules = getInstalledNitro()
 
 // Reuse the existing proxy when the same JS runtime evaluates Nitro again,
 // such as when react-native-harness loads a dedicated test bundle.
 if (nitroModules != null) {
-  if (nitroModules.version !== jsVersion) {
-    throw new Error(
-      `Nitro was installed twice: once with native version ${nitroModules.version} and once with JS version ${jsVersion}. ` +
-        'This usually means react-native-nitro-modules exists multiple times in node_modules (e.g. in monorepos or double-linked setups).'
-    )
-  }
+  assertNitroVersion(nitroModules)
 } else {
   // 1. Get (and initialize) the TurboModule
   let turboModule: Spec | undefined
@@ -55,20 +49,11 @@ if (nitroModules != null) {
   }
 }
 
-export const NitroModules = nitroModules as NitroModulesProxy
+export const NitroModules = getNitroModules()
 
 // Double-check native version
 if (__DEV__) {
-  if (jsVersion !== NitroModules.version) {
-    console.warn(
-      `The native Nitro Modules core runtime version is ${NitroModules.version}, but the JS code is using version ${jsVersion}. ` +
-        `This could lead to undefined behaviour! Make sure to keep your Nitro versions in sync.`
-    )
-  }
+  warnIfNitroVersionMismatch(NitroModules)
 }
 
-export function isRuntimeAlive() {
-  const cache = globalThis.__nitroJsiCache
-  const dispatcher = globalThis.__nitroDispatcher
-  return cache != null && dispatcher != null
-}
+export { isRuntimeAlive }

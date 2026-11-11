@@ -12,6 +12,7 @@ export interface GetFunctionCodeOptions extends GetCodeOptions {
 export class FunctionType implements Type {
   readonly returnType: Type
   readonly parameters: NamedType[]
+  readonly isSync: boolean
 
   constructor(returnType: Type, parameters: NamedType[], isSync = false) {
     if (returnType.kind === 'void' || isSync) {
@@ -22,6 +23,7 @@ export class FunctionType implements Type {
       this.returnType = new PromiseType(returnType)
     }
     this.parameters = parameters
+    this.isSync = isSync
 
     if (isSync && returnType.kind === 'void') {
       throw new Error(

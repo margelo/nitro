@@ -44,6 +44,25 @@ First, you need to create a [Nitro Module](../concepts/nitro-modules) - either b
     npm install nitrogen --save-dev
     ```
 
+    Also declare `react-native-nitro-modules` as an **optional peer dependency**, so the app using your library is the one that decides which Nitro version gets installed:
+
+    ```json title="package.json"
+    {
+      "peerDependencies": {
+        "react-native-nitro-modules": "*"
+      },
+      "peerDependenciesMeta": {
+        "react-native-nitro-modules": {
+          "optional": true
+        }
+      }
+    }
+    ```
+
+    :::warning
+    The `optional` flag matters. Without it, package managers try to satisfy the peer range themselves - and since semver ranges never match pre-releases, `"*"` does **not** match a version like `0.37.0-beta.0`. A user testing a Nitro beta would then get a second, stable copy of `react-native-nitro-modules` installed next to yours, and Nitro throws [`Nitro was installed twice`](../guides/troubleshooting#nitro-was-installed-twice) at runtime. Marking the peer optional stops the package manager from installing Nitro on your behalf.
+    :::
+
     Then, you need to decide if you want to use Nitro's C++ library directly, or use [nitrogen](../concepts/nitrogen) to generate specs:
 
     <Tabs>
@@ -287,7 +306,7 @@ To actually use Nitro, you need to create [Hybrid Objects](../concepts/hybrid-ob
 
 ## 3. (Optional) Register Hybrid Objects
 
-Each Hybrid Object you want to be able to construct from JS has to be registered in Nitro's [`HybridObjectRegistry`](https://github.com/mrousavy/nitro/blob/main/packages/react-native-nitro-modules/cpp/registry/HybridObjectRegistry.hpp).
+Each Hybrid Object you want to be able to construct from JS has to be registered in Nitro's [`HybridObjectRegistry`](https://github.com/margelo/nitro/blob/main/packages/nitro-core/native/cpp/registry/HybridObjectRegistry.hpp).
 If you don't want to register this Hybrid Object, you can skip this part - you will still be able to create it from another Hybrid Object's function (e.g. using the Factory-pattern).
 
 You can either use [Nitrogen](../concepts/nitrogen) to automatically generate bindings for your [Hybrid Object](../concepts/hybrid-objects)'s constructor, or manually register them using the C++ API for `HybridObjectRegistry`:

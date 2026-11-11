@@ -1,20 +1,22 @@
 name: Test Nitrogen init command
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/run-nitrogen.yml'
-      - '**/*.lockb'
-      - '**/package.json'
-      - 'packages/nitrogen/**'
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate
+        required: true
+        type: string
   pull_request:
     paths:
-      - '.github/workflows/run-nitrogen.yml'
-      - '**/*.lockb'
-      - '**/package.json'
       - 'packages/nitrogen/**'
+      - 'packages/nitro-core/**'
+      - 'packages/react-native-nitro-modules/**'
+      - 'packages/template/**'
+      - 'config/**'
+      - 'package.json'
+      - 'bun.lock'
+      - '.github/workflows/run-nitrogen-init.yml'
 
 jobs:
   lint:
@@ -22,14 +24,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Install npm dependencies (bun)
-        run: bun install
+        run: bun install --frozen-lockfile
 
-      - name: Build all packages
-        run: bun run build
-
-      - name: Run nitrogen init in packages/nitrogen
-        working-directory: packages/nitrogen
-        run: bun i && bun run nitrogen init react-native-math
+      - name: Run nitrogen init outside the checkout
+        working-directory: ${{ runner.temp }}
+        run: node "$GITHUB_WORKSPACE/packages/nitrogen/lib/index.js" init react-native-math

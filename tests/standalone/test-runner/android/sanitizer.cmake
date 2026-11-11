@@ -1,0 +1,10 @@
+set(NITRO_SANITIZER "" CACHE STRING "Sanitizer for standalone Android tests")
+
+function(nitro_apply_test_sanitizer TARGET)
+  if(NITRO_SANITIZER STREQUAL "address")
+    target_compile_options(${TARGET} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+    target_link_options(${TARGET} PRIVATE -fsanitize=address)
+  elseif(NOT NITRO_SANITIZER STREQUAL "")
+    message(FATAL_ERROR "Unsupported NITRO_SANITIZER: ${NITRO_SANITIZER}")
+  endif()
+endfunction()

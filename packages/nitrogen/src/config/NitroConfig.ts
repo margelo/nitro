@@ -165,10 +165,6 @@ export class NitroConfig {
     return this.config.ignorePaths ?? []
   }
 
-  getGitAttributesGeneratedFlag(): boolean {
-    return this.config.gitAttributesGeneratedFlag ?? false
-  }
-
   get isExternalConfig(): boolean {
     // If the C++ namespaces are NOT equal, we are an external config.
     return (

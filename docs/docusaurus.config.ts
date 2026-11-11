@@ -108,13 +108,13 @@ const jsonLd = {
       description: tagline,
       url: homeUrl,
       sameAs: [
-        'https://github.com/mrousavy/nitro',
+        'https://github.com/margelo/nitro',
         'https://www.npmjs.com/package/react-native-nitro-modules',
         'https://www.npmjs.com/package/nitrogen',
       ],
       applicationCategory: 'DeveloperApplication',
       operatingSystem: 'iOS, Android',
-      codeRepository: 'https://github.com/mrousavy/nitro',
+      codeRepository: 'https://github.com/margelo/nitro',
       programmingLanguage: ['C++', 'Swift', 'Kotlin', 'TypeScript'],
       license: 'https://opensource.org/licenses/MIT',
       author: { '@id': marcId },
@@ -142,7 +142,7 @@ const config: Config = {
   baseUrl: '/',
 
   // GitHub pages deployment config.
-  organizationName: 'mrousavy',
+  organizationName: 'margelo',
   projectName: 'nitro',
   trailingSlash: false,
   onBrokenLinks: 'throw',
@@ -285,12 +285,12 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://github.com/mrousavy/nitro/releases/latest',
+          href: 'https://github.com/margelo/nitro/releases/latest',
           label: 'Latest Release',
           position: 'right',
         },
         {
-          href: 'https://github.com/mrousavy/nitro',
+          href: 'https://github.com/margelo/nitro',
           label: 'GitHub',
           position: 'right',
         },
