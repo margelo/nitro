@@ -33,6 +33,20 @@ namespace margelo::nitro::test { struct OptionalWrapper; }
 namespace margelo::nitro::test { struct OptionalCallback; }
 // Forward declaration of `OptionalEnumWrapper` to properly resolve imports.
 namespace margelo::nitro::test { struct OptionalEnumWrapper; }
+// Forward declaration of `Gallery` to properly resolve imports.
+namespace margelo::nitro::test { struct Gallery; }
+// Forward declaration of `AlbumItem` to properly resolve imports.
+namespace margelo::nitro::test { struct AlbumItem; }
+// Forward declaration of `MediaInfo` to properly resolve imports.
+namespace margelo::nitro::test { struct MediaInfo; }
+// Forward declaration of `GalleryItem` to properly resolve imports.
+namespace margelo::nitro::test { struct GalleryItem; }
+// Forward declaration of `TagInfo` to properly resolve imports.
+namespace margelo::nitro::test { struct TagInfo; }
+// Forward declaration of `EntityInfo` to properly resolve imports.
+namespace margelo::nitro::test { struct EntityInfo; }
+// Forward declaration of `UserInfo` to properly resolve imports.
+namespace margelo::nitro::test { struct UserInfo; }
 // Forward declaration of `WeirdNumbersEnum` to properly resolve imports.
 namespace margelo::nitro::test { enum class WeirdNumbersEnum; }
 // Forward declaration of `HybridBaseSpec` to properly resolve imports.
@@ -100,6 +114,20 @@ namespace margelo::nitro::test { enum class HardwareBufferFormat; }
 #include "JVariant_______Unit_Double.hpp"
 #include "OptionalEnumWrapper.hpp"
 #include "JOptionalEnumWrapper.hpp"
+#include "Gallery.hpp"
+#include "JGallery.hpp"
+#include "AlbumItem.hpp"
+#include "JAlbumItem.hpp"
+#include "MediaInfo.hpp"
+#include "JMediaInfo.hpp"
+#include "GalleryItem.hpp"
+#include "JGalleryItem.hpp"
+#include "TagInfo.hpp"
+#include "JTagInfo.hpp"
+#include "EntityInfo.hpp"
+#include "JEntityInfo.hpp"
+#include "UserInfo.hpp"
+#include "JUserInfo.hpp"
 #include "JVariant_OldEnum_Boolean.hpp"
 #include "JVariant_Powertrain_Car.hpp"
 #include "WeirdNumbersEnum.hpp"
@@ -1427,6 +1455,11 @@ namespace margelo::nitro::test {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JOptionalEnumWrapper>(jni::alias_ref<JOptionalEnumWrapper> /* value */)>("bounceOptionalEnumStruct");
     auto __result = method(_javaPart, value.has_value() ? JOptionalEnumWrapper::fromCpp(value.value()) : nullptr);
     return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  Gallery JHybridTestObjectSwiftKotlinSpec::bounceGallery(const Gallery& gallery) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JGallery>(jni::alias_ref<JGallery> /* gallery */)>("bounceGallery");
+    auto __result = method(_javaPart, JGallery::fromCpp(gallery));
+    return __result->toCpp();
   }
   std::shared_ptr<ArrayBuffer> JHybridTestObjectSwiftKotlinSpec::createArrayBuffer() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JArrayBuffer::javaobject>()>("createArrayBuffer");
