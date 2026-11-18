@@ -21,6 +21,8 @@
 #include <NitroTest/private/JPowertrain.hpp>
 #include <NitroTest/private/JOldEnum.hpp>
 #include <NitroTest/private/JTruckPowertrain.hpp>
+#include <NitroTest/private/JNamedVariant.hpp>
+#include <NitroTest/private/JCar.hpp>
 #include <NitroTest/private/JCallback_void_double.hpp>
 #include <NitroModules/JNIConverter+Callback.hpp>
 #include <NitroTest/private/JVariant_Double_String.hpp>
@@ -47,7 +49,6 @@
 #include <NitroModules/JNIConverter+ArrayBuffer.hpp>
 #include <NitroModules/JSIConverter+JArrayBuffer.hpp>
 #include <NitroTest/private/JVariant_Boolean_Double.hpp>
-#include <NitroTest/private/JCar.hpp>
 #include <NitroTest/private/JUnsignedScalar.hpp>
 #include <NitroTest/private/JUnsignedValues.hpp>
 #include <NitroTest/private/JWrappedJsStruct.hpp>
@@ -59,7 +60,6 @@
 #include <NitroTest/private/JVariant_WeirdNumbersEnum_Boolean.hpp>
 #include <NitroTest/private/JWeirdNumbersEnum.hpp>
 #include <NitroTest/private/JVariant_Person_Car.hpp>
-#include <NitroTest/private/JNamedVariant.hpp>
 #include <NitroTest/private/JVariant_HybridBaseSpec_OptionalWrapper.hpp>
 #include <NitroTest/private/JHybridBaseSpec.hpp>
 #include <NitroTest/private/JCoreTypesVariant.hpp>
@@ -170,6 +170,7 @@ namespace margelo::nitro::test {
       clazz.registerHybridProperty("optionalEnum", &JHybridTestObjectSwiftKotlinSpec::getOptionalEnum, &JHybridTestObjectSwiftKotlinSpec::setOptionalEnum);
       clazz.registerHybridProperty("optionalOldEnum", &JHybridTestObjectSwiftKotlinSpec::getOptionalOldEnum, &JHybridTestObjectSwiftKotlinSpec::setOptionalOldEnum);
       clazz.registerHybridProperty("optionalEnumPlusOne", &JHybridTestObjectSwiftKotlinSpec::getOptionalEnumPlusOne, &JHybridTestObjectSwiftKotlinSpec::setOptionalEnumPlusOne);
+      clazz.registerHybridProperty("optionalNamedVariant", &JHybridTestObjectSwiftKotlinSpec::getOptionalNamedVariant, &JHybridTestObjectSwiftKotlinSpec::setOptionalNamedVariant);
       clazz.registerHybridProperty("optionalCallback", &JHybridTestObjectSwiftKotlinSpec::getOptionalCallback, &JHybridTestObjectSwiftKotlinSpec::setOptionalCallback);
       clazz.registerHybridProperty("hasBoolean", &JHybridTestObjectSwiftKotlinSpec::getHasBoolean);
       clazz.registerHybridProperty("isBoolean", &JHybridTestObjectSwiftKotlinSpec::getIsBoolean);
@@ -502,6 +503,15 @@ namespace margelo::nitro::test {
   void JHybridTestObjectSwiftKotlinSpec::setOptionalEnumPlusOne(const jni::local_ref<JOptional<JTruckPowertrain>>& optionalEnumPlusOne) {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<JOptional<JTruckPowertrain>> /* optionalEnumPlusOne */)>("setOptionalEnumPlusOne");
     __method(_javaPart, CxxPart::getClass(), optionalEnumPlusOne);
+  }
+  jni::local_ref<JOptional<JNamedVariant>> JHybridTestObjectSwiftKotlinSpec::getOptionalNamedVariant() {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JOptional<JNamedVariant>>()>("getOptionalNamedVariant");
+    auto __result = __method(_javaPart, CxxPart::getClass());
+    return __result;
+  }
+  void JHybridTestObjectSwiftKotlinSpec::setOptionalNamedVariant(const jni::local_ref<JOptional<JNamedVariant>>& optionalNamedVariant) {
+    static const auto __method = CxxPart::getClass()->getNonvirtualMethod<void(jni::alias_ref<JOptional<JNamedVariant>> /* optionalNamedVariant */)>("setOptionalNamedVariant");
+    __method(_javaPart, CxxPart::getClass(), optionalNamedVariant);
   }
   jni::local_ref<JOptional<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>> JHybridTestObjectSwiftKotlinSpec::getOptionalCallback() {
     static const auto __method = CxxPart::getClass()->getNonvirtualMethod<jni::local_ref<JOptional<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>>()>("getOptionalCallback");

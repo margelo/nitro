@@ -17,6 +17,7 @@
 #include <NitroTest/Powertrain.hpp>
 #include <NitroTest/OldEnum.hpp>
 #include <NitroTest/TruckPowertrain.hpp>
+#include <NitroTest/Car.hpp>
 #include <NitroModules/Callback.hpp>
 #include <functional>
 #include <NitroTest/HybridBaseSpecCxx.hpp>
@@ -26,7 +27,6 @@
 namespace margelo::nitro::test { class HybridTestObjectCppSpec; }
 #include <NitroTest/Person.hpp>
 #include <NitroTest/PartialPerson.hpp>
-#include <NitroTest/Car.hpp>
 #include <NitroModules/Promise.hpp>
 #include <unordered_map>
 #include <NitroTest/HybridChildSpecCxx.hpp>
@@ -124,6 +124,8 @@ namespace margelo::nitro::test {
       virtual void setOptionalOldEnum(const std::optional<OldEnum>& optionalOldEnum) = 0;
       virtual std::optional<TruckPowertrain> getOptionalEnumPlusOne() = 0;
       virtual void setOptionalEnumPlusOne(const std::optional<TruckPowertrain>& optionalEnumPlusOne) = 0;
+      virtual std::optional<std::variant<std::string, Car>> getOptionalNamedVariant() = 0;
+      virtual void setOptionalNamedVariant(const std::optional<std::variant<std::string, Car>>& optionalNamedVariant) = 0;
       virtual std::optional<Callback<void(double /* value */)>> getOptionalCallback() = 0;
       virtual void setOptionalCallback(const std::optional<Callback<void(double /* value */)>>& optionalCallback) = 0;
       virtual bool getHasBoolean() = 0;

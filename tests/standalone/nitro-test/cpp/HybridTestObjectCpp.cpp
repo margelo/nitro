@@ -207,6 +207,14 @@ void HybridTestObjectCpp::setOptionalEnumPlusOne(const std::optional<TruckPowert
   _optionalEnumPlusOne = optionalEnumPlusOne;
 }
 
+std::optional<std::variant<std::string, Car>> HybridTestObjectCpp::getOptionalNamedVariant() {
+  return _optionalNamedVariant;
+}
+
+void HybridTestObjectCpp::setOptionalNamedVariant(const std::optional<std::variant<std::string, Car>>& optionalNamedVariant) {
+  _optionalNamedVariant = optionalNamedVariant;
+}
+
 std::optional<Callback<void(double /* value */)>> HybridTestObjectCpp::getOptionalCallback() {
   return _optionalCallback;
 }

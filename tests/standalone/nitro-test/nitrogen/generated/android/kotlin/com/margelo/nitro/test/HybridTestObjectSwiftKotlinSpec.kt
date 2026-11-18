@@ -132,6 +132,12 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @get:Keep
   @set:DoNotStrip
   @set:Keep
+  abstract var optionalNamedVariant: NamedVariant?
+
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
   abstract var optionalCallback: Callback<(value: Double) -> Unit>?
 
   @get:DoNotStrip

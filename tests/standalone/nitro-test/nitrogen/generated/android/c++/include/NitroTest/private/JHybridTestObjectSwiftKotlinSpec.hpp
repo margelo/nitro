@@ -27,6 +27,8 @@
 #include <NitroTest/private/JPowertrain.hpp>
 #include <NitroTest/private/JOldEnum.hpp>
 #include <NitroTest/private/JTruckPowertrain.hpp>
+#include <NitroTest/private/JNamedVariant.hpp>
+#include <NitroTest/private/JCar.hpp>
 #include <NitroTest/private/JCallback_void_double.hpp>
 #include <NitroModules/JNIConverter+Callback.hpp>
 #include <NitroTest/private/JVariant_Double_String.hpp>
@@ -53,7 +55,6 @@
 #include <NitroModules/JNIConverter+ArrayBuffer.hpp>
 #include <NitroModules/JSIConverter+JArrayBuffer.hpp>
 #include <NitroTest/private/JVariant_Boolean_Double.hpp>
-#include <NitroTest/private/JCar.hpp>
 #include <NitroTest/private/JUnsignedScalar.hpp>
 #include <NitroTest/private/JUnsignedValues.hpp>
 #include <NitroTest/private/JWrappedJsStruct.hpp>
@@ -65,7 +66,6 @@
 #include <NitroTest/private/JVariant_WeirdNumbersEnum_Boolean.hpp>
 #include <NitroTest/private/JWeirdNumbersEnum.hpp>
 #include <NitroTest/private/JVariant_Person_Car.hpp>
-#include <NitroTest/private/JNamedVariant.hpp>
 #include <NitroTest/private/JVariant_HybridBaseSpec_OptionalWrapper.hpp>
 #include <NitroTest/private/JHybridBaseSpecJavaPart.hpp>
 #include <NitroTest/private/JCoreTypesVariant.hpp>
@@ -179,6 +179,8 @@ namespace margelo::nitro::test {
     void setOptionalOldEnum(const jni::local_ref<JOptional<JOldEnum>>& optionalOldEnum);
     jni::local_ref<JOptional<JTruckPowertrain>> getOptionalEnumPlusOne();
     void setOptionalEnumPlusOne(const jni::local_ref<JOptional<JTruckPowertrain>>& optionalEnumPlusOne);
+    jni::local_ref<JOptional<JNamedVariant>> getOptionalNamedVariant();
+    void setOptionalNamedVariant(const jni::local_ref<JOptional<JNamedVariant>>& optionalNamedVariant);
     jni::local_ref<JOptional<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>> getOptionalCallback();
     void setOptionalCallback(const jni::local_ref<JOptional<JCallback<margelo::nitro::test::JCallback_void_double::JavaPart>>>& optionalCallback);
     jboolean getHasBoolean();
