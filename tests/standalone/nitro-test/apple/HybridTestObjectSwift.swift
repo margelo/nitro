@@ -86,6 +86,8 @@ class HybridTestObjectSwift: HybridTestObjectSwiftKotlinSpec {
 
   var optionalEnumPlusOne: TruckPowertrain? = nil
 
+  var optionalNamedVariant: NamedVariant? = nil
+
   var optionalCallback: (any Callback<Double, Void>)? = nil
 
   let hasBoolean = false

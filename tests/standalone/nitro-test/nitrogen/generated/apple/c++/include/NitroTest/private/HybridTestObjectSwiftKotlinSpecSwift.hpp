@@ -84,6 +84,8 @@ namespace margelo::nitro::test {
     void setOptionalOldEnum(const swift::Optional<::NitroTest::OldEnum>& optionalOldEnum);
     swift::Optional<::NitroTest::TruckPowertrain> getOptionalEnumPlusOne();
     void setOptionalEnumPlusOne(const swift::Optional<::NitroTest::TruckPowertrain>& optionalEnumPlusOne);
+    swift::Optional<::NitroTest::NamedVariant_cxx> getOptionalNamedVariant();
+    void setOptionalNamedVariant(const swift::Optional<::NitroTest::NamedVariant_cxx>& optionalNamedVariant);
     swift::Optional<Callback<void(double)>> getOptionalCallback();
     void setOptionalCallback(const swift::Optional<Callback<void(double)>>& optionalCallback);
     bool getHasBoolean();

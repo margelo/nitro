@@ -28,6 +28,7 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridTestObjectSwiftK
   var optionalEnum: Powertrain? { get set }
   var optionalOldEnum: OldEnum? { get set }
   var optionalEnumPlusOne: TruckPowertrain? { get set }
+  var optionalNamedVariant: NamedVariant? { get set }
   var optionalCallback: (any Callback<(/* value */ Double), Void>)? { get set }
   var hasBoolean: Bool { get }
   var isBoolean: Bool { get }
