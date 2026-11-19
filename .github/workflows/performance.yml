@@ -213,7 +213,7 @@ jobs:
           distribution: zulu
           java-version: 17
       - name: Download exact Android apps
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           artifact-ids: ${{ env.BUILD_ARTIFACT_ID }}
           path: apps
@@ -353,7 +353,7 @@ jobs:
       - name: Select Xcode 26.5
         run: sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
       - name: Download exact iOS apps
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           artifact-ids: ${{ env.BUILD_ARTIFACT_ID }}
           path: apps
@@ -425,12 +425,12 @@ jobs:
       # Job outputs deliberately retain an untouched platform's earlier artifact
       # when only the other measurement job and its dependents are rerun.
       - name: Download Android results
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           artifact-ids: ${{ needs.measure-android.outputs.artifact_id }}
           path: performance-report/raw/android
       - name: Download iOS results
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           artifact-ids: ${{ needs.measure-ios.outputs.artifact_id }}
           path: performance-report/raw/ios
