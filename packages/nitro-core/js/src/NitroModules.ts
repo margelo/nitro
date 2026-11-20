@@ -8,7 +8,8 @@ import './globals.js'
  * Nitro into the JavaScript runtime. The binding then refers to that same
  * native object, including its NativeState and prototype.
  */
-export let NitroModules: NitroModulesProxy
+let NitroModules: NitroModulesProxy
+export { NitroModules }
 
 /**
  * Returns the native proxy, if this JavaScript runtime has installed Nitro.
