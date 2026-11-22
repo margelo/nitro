@@ -32,6 +32,7 @@ A curated collection of community-built Nitro Modules, including production Reac
 | **@corasan/image-compressor** | Image compression using OpenCV | [GitHub](https://github.com/corasan/image-compressor) |
 | **react-native-nitro-player** | A powerful audio player library for React Native | [GitHub](https://github.com/riteshshukla04/react-native-nitro-player) |
 | **react-native-nitro-sound** | Audio playback and recording | [GitHub](https://github.com/hyochan/react-native-nitro-sound) |
+| **react-native-nitro-speech** | Feature-rich speech recognition, including Apple’s newest models  | [GitHub](https://github.com/NotGeorgeMessier/nitro-speech) |
 
 ### Camera & Vision
 
