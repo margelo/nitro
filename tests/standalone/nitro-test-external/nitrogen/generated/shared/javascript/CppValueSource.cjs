@@ -13,7 +13,20 @@ module.exports = {
   get CppValueSource() {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.external.CppValueSource')
+      const descriptor = Object.getOwnPropertyDescriptor(runtimeExports, "CppValueSource")
+      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === hybridClassGetter) {
+        Object.defineProperty(runtimeExports, "CppValueSource", {
+          value: hybridClass,
+          writable: false,
+          enumerable: descriptor.enumerable,
+          configurable: true,
+        })
+      }
     }
     return hybridClass
   },
 }
+
+// A bundler may copy a getter. Replace only the original property if it still has that getter.
+const runtimeExports = module.exports
+const hybridClassGetter = Object.getOwnPropertyDescriptor(runtimeExports, "CppValueSource").get

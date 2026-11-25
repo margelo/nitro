@@ -14,6 +14,15 @@ module.exports = {
   get RecyclableTestView() {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.RecyclableTestView')
+      const descriptor = Object.getOwnPropertyDescriptor(runtimeExports, "RecyclableTestView")
+      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === hybridClassGetter) {
+        Object.defineProperty(runtimeExports, "RecyclableTestView", {
+          value: hybridClass,
+          writable: false,
+          enumerable: descriptor.enumerable,
+          configurable: true,
+        })
+      }
     }
     return hybridClass
   },
@@ -25,7 +34,21 @@ module.exports = {
         "nativeDefaultValue": NitroViewProp,
         "hybridRef": NitroViewProp,
       })
+      const descriptor = Object.getOwnPropertyDescriptor(runtimeExports, "RecyclableTestViewComponent")
+      if (hybridComponent !== undefined && descriptor?.configurable && descriptor.get === hybridComponentGetter) {
+        Object.defineProperty(runtimeExports, "RecyclableTestViewComponent", {
+          value: hybridComponent,
+          writable: false,
+          enumerable: descriptor.enumerable,
+          configurable: true,
+        })
+      }
     }
     return hybridComponent
   },
 }
+
+// A bundler may copy a getter. Replace only the original property if it still has that getter.
+const runtimeExports = module.exports
+const hybridClassGetter = Object.getOwnPropertyDescriptor(runtimeExports, "RecyclableTestView").get
+const hybridComponentGetter = Object.getOwnPropertyDescriptor(runtimeExports, "RecyclableTestViewComponent").get

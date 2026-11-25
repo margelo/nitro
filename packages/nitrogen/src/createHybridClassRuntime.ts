@@ -33,19 +33,41 @@ interface LazyExportOptions {
   initializer: string
 }
 
-/** Copies of the getter share its cache, including Babel's re-export getters. */
-function createLazyExport({ name, cacheName, setupCode, initializer }: LazyExportOptions): string {
+interface LazyExportCode {
+  accessor: string
+  captureGetter: string
+}
+
+function createLazyExport({ name, cacheName, setupCode, initializer }: LazyExportOptions): LazyExportCode {
+  const nameCode = JSON.stringify(name)
+  const getterName = `${cacheName}Getter`
   const initializationCode: string[] = []
   if (setupCode != null) initializationCode.push(setupCode)
   initializationCode.push(`${cacheName} = ${initializer}`)
-  return `
+  const accessor = `
 get ${name}() {
   if (${cacheName} === undefined) {
     ${indent(initializationCode.join('\n'), '    ')}
+    const descriptor = Object.getOwnPropertyDescriptor(runtimeExports, ${nameCode})
+    if (${cacheName} !== undefined && descriptor?.configurable && descriptor.get === ${getterName}) {
+      Object.defineProperty(runtimeExports, ${nameCode}, {
+        value: ${cacheName},
+        writable: false,
+        enumerable: descriptor.enumerable,
+        configurable: true,
+      })
+    }
   }
   return ${cacheName}
 },
 `.trim()
+  const captureGetter = `
+const ${getterName} = Object.getOwnPropertyDescriptor(runtimeExports, ${nameCode}).get
+`.trim()
+  return {
+    accessor: accessor,
+    captureGetter: captureGetter,
+  }
 }
 
 /** The component's native implementation uses the same property-name list. */
@@ -122,7 +144,7 @@ function createHybridClassRuntime({ classNames, views = [], outputDirectory }: W
       cacheName: 'hybridClass',
       initializer: `NitroModules.getHybridClass('${registryName}')`,
     })
-    const exportsCode = [classExportCode]
+    const lazyExports = [classExportCode]
     // Getters copied by interop helpers share these module-level caches.
     const cacheDeclarationsCode = ['let hybridClass']
     let declarationsCode: string
@@ -134,7 +156,7 @@ function createHybridClassRuntime({ classNames, views = [], outputDirectory }: W
         setupCode: "const { getHostComponent, NitroViewProp } = require('react-native-nitro-modules')",
         initializer: componentInitializerCode,
       })
-      exportsCode.push(componentExportCode)
+      lazyExports.push(componentExportCode)
       cacheDeclarationsCode.push('let hybridComponent')
       declarationsCode = createViewDeclarations({
         view: view,
@@ -146,6 +168,8 @@ function createHybridClassRuntime({ classNames, views = [], outputDirectory }: W
 export {}
 `.trim()
     }
+    const exportsCode = lazyExports.map((value) => value.accessor)
+    const captureGettersCode = lazyExports.map((value) => value.captureGetter)
     const jsCode = `
 ${createFileMetadataString(jsFileName)}
 
@@ -156,6 +180,10 @@ ${cacheDeclarationsCode.join('\n')}
 module.exports = {
   ${indent(exportsCode.join('\n'), '  ')}
 }
+
+// A bundler may copy a getter. Replace only the original property if it still has that getter.
+const runtimeExports = module.exports
+${captureGettersCode.join('\n')}
 `.trim()
     const declarationCode = `
 ${createFileMetadataString(declarationFileName)}

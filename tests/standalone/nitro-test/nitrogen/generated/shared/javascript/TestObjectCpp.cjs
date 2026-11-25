@@ -13,7 +13,20 @@ module.exports = {
   get TestObjectCpp() {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.TestObjectCpp')
+      const descriptor = Object.getOwnPropertyDescriptor(runtimeExports, "TestObjectCpp")
+      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === hybridClassGetter) {
+        Object.defineProperty(runtimeExports, "TestObjectCpp", {
+          value: hybridClass,
+          writable: false,
+          enumerable: descriptor.enumerable,
+          configurable: true,
+        })
+      }
     }
     return hybridClass
   },
 }
+
+// A bundler may copy a getter. Replace only the original property if it still has that getter.
+const runtimeExports = module.exports
+const hybridClassGetter = Object.getOwnPropertyDescriptor(runtimeExports, "TestObjectCpp").get
