@@ -19,7 +19,7 @@ bun run build
 bun typecheck
 ```
 
-The checked-in `bun.lock` keeps installs hoisted. If you recreate the lockfile from scratch, use `bun install --linker hoisted`.
+The checked-in `bun.lock` uses `configVersion: 0` to keep installs hoisted. Preserve that setting if you recreate the lockfile.
 
 Shared repository commands live in the private `@nitro/scripts` workspace. Call them with `bun --filter @nitro/scripts <command>` from other
 packages, and use workspace filters for cross-package builds instead of relative paths. The root keeps shortcuts such as `bun sync-core` and
