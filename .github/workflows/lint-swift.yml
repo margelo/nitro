@@ -11,7 +11,7 @@ on:
     paths:
       - '**/*.swift'
       - '.github/workflows/lint-swift.yml'
-      - '.swift-format'
+      - 'config/.swift-format'
       - 'scripts/swift-format.sh'
       - 'scripts/format-files.sh'
       - 'package.json'

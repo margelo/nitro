@@ -1,3 +1,0 @@
-[install]
-# Opt out from isolated installs
-linker = "hoisted"

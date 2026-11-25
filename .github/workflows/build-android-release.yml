@@ -21,7 +21,6 @@ on:
       - 'scripts/set-version.mjs'
       - 'package.json'
       - 'bun.lock'
-      - 'bunfig.toml'
       - 'scripts/releases/**'
       - 'config/**'
 

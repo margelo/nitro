@@ -18,6 +18,5 @@ done < <(
     ':(exclude,glob)**/lib/**' \
     ':(exclude,glob)**/Pods/**' \
     ':(exclude,glob)**/vendor/**' \
-    ':(exclude)tests/standalone/hermes/hermes/**' \
-    ':(exclude)patches/**'
+    ':(exclude)tests/standalone/hermes/hermes/**'
 )

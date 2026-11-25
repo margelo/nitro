@@ -40,7 +40,6 @@ on:
       - 'scripts/set-version.mjs'
       - 'package.json'
       - 'bun.lock'
-      - 'bunfig.toml'
       - 'scripts/releases/**'
       - 'config/**'
 
@@ -104,7 +103,7 @@ jobs:
         run: ./gradlew :app:assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=${{ env.DEVICE_ARCH }}
 
       - name: Run Harness E2E tests
-        uses: callstackincubator/react-native-harness@v1.6.0
+        uses: callstackincubator/react-native-harness@v1.7.0
         with:
           runner: android
           projectRoot: tests/react-native/apps/example

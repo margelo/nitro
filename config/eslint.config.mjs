@@ -3,7 +3,8 @@ import js from '@eslint/js'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const rootDir = path.dirname(fileURLToPath(import.meta.url))
+const configDir = path.dirname(fileURLToPath(import.meta.url))
+const rootDir = path.dirname(configDir)
 
 const compat = new FlatCompat({
   baseDirectory: rootDir,
@@ -17,7 +18,7 @@ const baseConfig = compat.config({
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: true,
-    tsconfigRootDir: path.join(rootDir, 'config'),
+    tsconfigRootDir: configDir,
     ecmaFeatures: {
       jsx: true,
     },
@@ -30,11 +31,13 @@ const baseConfig = compat.config({
 })
 
 function packageConfig(packageDir, project = true, jsx = true) {
+  const basePath = path.join(rootDir, packageDir)
   return {
-    files: [`${packageDir}/**/*.{js,ts,tsx}`],
+    basePath,
+    files: ['**/*.{js,ts,tsx}'],
     languageOptions: {
       parserOptions: {
-        tsconfigRootDir: path.join(rootDir, packageDir),
+        tsconfigRootDir: basePath,
         project,
         ecmaFeatures: {
           jsx,

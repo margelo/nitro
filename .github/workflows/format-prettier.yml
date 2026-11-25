@@ -50,7 +50,6 @@ on:
       - '!**/Pods/**'
       - '!**/vendor/**'
       - '!**/.spm-injected.json'
-      - '!patches/**'
       - '!tests/standalone/hermes/hermes/**'
       - '!**/nitrogen/generated/**'
 
