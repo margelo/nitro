@@ -9,24 +9,19 @@ const { NitroModules } = require('nitro-core')
 
 let hybridClass
 
-module.exports = {
+const hybridClasses = {
   get SharedSpecializationsCpp() {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.external.SharedSpecializationsCpp')
-      const descriptor = Object.getOwnPropertyDescriptor(runtimeExports, "SharedSpecializationsCpp")
-      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === hybridClassGetter) {
-        Object.defineProperty(runtimeExports, "SharedSpecializationsCpp", {
-          value: hybridClass,
-          writable: false,
-          enumerable: descriptor.enumerable,
-          configurable: true,
-        })
+      const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "SharedSpecializationsCpp")
+      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === originalDescriptors["SharedSpecializationsCpp"].get) {
+        Object.defineProperty(hybridClasses, "SharedSpecializationsCpp", { value: hybridClass })
       }
     }
     return hybridClass
   },
 }
 
-// A bundler may copy a getter. Replace only the original property if it still has that getter.
-const runtimeExports = module.exports
-const hybridClassGetter = Object.getOwnPropertyDescriptor(runtimeExports, "SharedSpecializationsCpp").get
+// A copied getter may run after the original property has been changed.
+const originalDescriptors = Object.getOwnPropertyDescriptors(hybridClasses)
+module.exports = hybridClasses

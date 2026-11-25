@@ -10,18 +10,13 @@ const { NitroModules } = require('react-native-nitro-modules')
 let hybridClass
 let hybridComponent
 
-module.exports = {
+const hybridClasses = {
   get TestView() {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.TestView')
-      const descriptor = Object.getOwnPropertyDescriptor(runtimeExports, "TestView")
-      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === hybridClassGetter) {
-        Object.defineProperty(runtimeExports, "TestView", {
-          value: hybridClass,
-          writable: false,
-          enumerable: descriptor.enumerable,
-          configurable: true,
-        })
+      const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "TestView")
+      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === originalDescriptors["TestView"].get) {
+        Object.defineProperty(hybridClasses, "TestView", { value: hybridClass })
       }
     }
     return hybridClass
@@ -38,21 +33,15 @@ module.exports = {
         "nativeDefaultValue": NitroViewProp,
         "hybridRef": NitroViewProp,
       })
-      const descriptor = Object.getOwnPropertyDescriptor(runtimeExports, "TestViewComponent")
-      if (hybridComponent !== undefined && descriptor?.configurable && descriptor.get === hybridComponentGetter) {
-        Object.defineProperty(runtimeExports, "TestViewComponent", {
-          value: hybridComponent,
-          writable: false,
-          enumerable: descriptor.enumerable,
-          configurable: true,
-        })
+      const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "TestViewComponent")
+      if (hybridComponent !== undefined && descriptor?.configurable && descriptor.get === originalDescriptors["TestViewComponent"].get) {
+        Object.defineProperty(hybridClasses, "TestViewComponent", { value: hybridComponent })
       }
     }
     return hybridComponent
   },
 }
 
-// A bundler may copy a getter. Replace only the original property if it still has that getter.
-const runtimeExports = module.exports
-const hybridClassGetter = Object.getOwnPropertyDescriptor(runtimeExports, "TestView").get
-const hybridComponentGetter = Object.getOwnPropertyDescriptor(runtimeExports, "TestViewComponent").get
+// A copied getter may run after the original property has been changed.
+const originalDescriptors = Object.getOwnPropertyDescriptors(hybridClasses)
+module.exports = hybridClasses
