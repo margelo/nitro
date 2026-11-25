@@ -14,8 +14,8 @@ const hybridClasses = {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.external.CppValueSource')
       const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "CppValueSource")
-      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === originalDescriptors["CppValueSource"].get) {
-        Object.defineProperty(hybridClasses, "CppValueSource", { value: hybridClass })
+      if (descriptor?.get === originalDescriptors["CppValueSource"].get) {
+        Reflect.defineProperty(hybridClasses, "CppValueSource", { value: hybridClass })
       }
     }
     return hybridClass

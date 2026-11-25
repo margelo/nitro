@@ -15,8 +15,8 @@ const hybridClasses = {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.PaddedTestView')
       const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "PaddedTestView")
-      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === originalDescriptors["PaddedTestView"].get) {
-        Object.defineProperty(hybridClasses, "PaddedTestView", { value: hybridClass })
+      if (descriptor?.get === originalDescriptors["PaddedTestView"].get) {
+        Reflect.defineProperty(hybridClasses, "PaddedTestView", { value: hybridClass })
       }
     }
     return hybridClass
@@ -28,8 +28,8 @@ const hybridClasses = {
         "hybridRef": NitroViewProp,
       })
       const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "PaddedTestViewComponent")
-      if (hybridComponent !== undefined && descriptor?.configurable && descriptor.get === originalDescriptors["PaddedTestViewComponent"].get) {
-        Object.defineProperty(hybridClasses, "PaddedTestViewComponent", { value: hybridComponent })
+      if (descriptor?.get === originalDescriptors["PaddedTestViewComponent"].get) {
+        Reflect.defineProperty(hybridClasses, "PaddedTestViewComponent", { value: hybridComponent })
       }
     }
     return hybridComponent

@@ -43,8 +43,8 @@ get ${name}() {
   if (${cacheName} === undefined) {
     ${indent(initializationCode.join('\n'), '    ')}
     const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, ${nameCode})
-    if (${cacheName} !== undefined && descriptor?.configurable && descriptor.get === originalDescriptors[${nameCode}].get) {
-      Object.defineProperty(hybridClasses, ${nameCode}, { value: ${cacheName} })
+    if (descriptor?.get === originalDescriptors[${nameCode}].get) {
+      Reflect.defineProperty(hybridClasses, ${nameCode}, { value: ${cacheName} })
     }
   }
   return ${cacheName}

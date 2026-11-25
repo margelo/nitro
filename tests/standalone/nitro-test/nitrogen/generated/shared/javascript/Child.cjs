@@ -14,8 +14,8 @@ const hybridClasses = {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.Child')
       const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "Child")
-      if (hybridClass !== undefined && descriptor?.configurable && descriptor.get === originalDescriptors["Child"].get) {
-        Object.defineProperty(hybridClasses, "Child", { value: hybridClass })
+      if (descriptor?.get === originalDescriptors["Child"].get) {
+        Reflect.defineProperty(hybridClasses, "Child", { value: hybridClass })
       }
     }
     return hybridClass
