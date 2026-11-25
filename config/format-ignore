@@ -18,4 +18,3 @@ tests/standalone/hermes/hermes/
 **/.spm-injected.json
 **/Podfile.lock
 bun.lock
-patches/

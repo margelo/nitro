@@ -7,7 +7,7 @@ const tools = { ...(await import('@react-native-harness/tools')) }
 const spawn = mock()
 mock.module('@react-native-harness/tools', () => ({ ...tools, spawn }))
 
-// Exercise the installed code used by the Harness CLI, including the Bun patch.
+// Exercise the installed code used by the Harness CLI.
 const packageUrl = import.meta.resolve('@react-native-harness/platform-apple/package.json')
 const { getAppInfo, isAppInstalled } = await import(new URL('dist/xcrun/simctl.js', packageUrl).href)
 const { getAppleSimulatorPlatformInstance } = await import(new URL('dist/instance.js', packageUrl).href)
@@ -48,11 +48,14 @@ afterAll(() => {
 })
 
 for (const [name, stderr] of [
-  ['Xcode 27 output with an indented diagnostic', MISSING_APP],
+  ['indented Xcode 27 output', MISSING_APP],
   ['an unindented diagnostic', 'Application not found\n'],
   ['CRLF output with spaces', 'Underlying error:\r\n  Application not found\r\n'],
+  ['a different diagnostic', 'No such process'],
+  ['no diagnostic', ''],
+  ['a diagnostic embedded in another message', 'Unexpected Application not found during lookup'],
 ]) {
-  test(`Harness treats ${name} as a missing app`, async () => {
+  test(`Harness treats appinfo exit code 3 with ${name} as a missing app`, async () => {
     spawn.mockRejectedValue(subprocessError(3, stderr))
     expect(await getAppInfo(UDID, BUNDLE_ID)).toBeNull()
     expect(await isAppInstalled(UDID, BUNDLE_ID)).toBe(false)
@@ -64,9 +67,6 @@ for (const [name, stderr] of [
 }
 
 for (const [name, exitCode, stderr] of [
-  ['a different exit-code-3 error', 3, 'No such process'],
-  ['an exit-code-3 error without a diagnostic', 3, ''],
-  ['a diagnostic embedded in another message', 3, 'Unexpected Application not found during lookup'],
   ['a diagnostic with a different exit code', 22, MISSING_APP],
   ['an invalid device', 148, 'Invalid device'],
   ['a shut-down device', 149, 'Unable to lookup applications in current state: Shutdown'],

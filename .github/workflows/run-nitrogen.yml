@@ -18,7 +18,6 @@ on:
       - 'config/**'
       - '**/package.json'
       - 'bun.lock'
-      - 'bunfig.toml'
       - 'scripts/releases/**'
       - 'scripts/sync-core.mjs'
       - 'scripts/core-package.mjs'

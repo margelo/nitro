@@ -99,7 +99,7 @@ services.
 
 ## Contributing
 
-Read [CONTRIBUTING.md](./CONTRIBUTING.md) for the contribution flow (PR expectations, the required test-per-fix rule, and the nitrogen
+Read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for the contribution flow (PR expectations, the required test-per-fix rule, and the nitrogen
 workflow). For environment setup and reproduction walkthroughs, see the
 [contributing guide](https://nitro.margelo.com/docs/resources/contributing) on the docs site.
 

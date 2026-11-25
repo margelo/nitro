@@ -12,7 +12,7 @@ running first.
 
 This page covers **environment setup and reproduction** - how to run Nitro locally. For the contribution flow itself (what PRs we accept,
 the required test-per-fix rule, the nitrogen workflow, and the PR checklist), see
-[**CONTRIBUTING.md**](https://github.com/margelo/nitro/blob/main/CONTRIBUTING.md) in the repo root. Read it before opening a PR.
+[**CONTRIBUTING.md**](https://github.com/margelo/nitro/blob/v1/docs/CONTRIBUTING.md). Read it before opening a PR.
 
 :::
 
@@ -100,7 +100,7 @@ failing test (compile error or runtime error caught by the standalone or Harness
 have to attempt a fix. A clean, 100% deterministic repro pinned in CI is often more valuable than a guessed patch; the actual fix can be
 taken from there.
 
-See [You don't need to ship a fix](https://github.com/margelo/nitro/blob/main/CONTRIBUTING.md#scope-and-code-review) in `CONTRIBUTING.md`
+See [You don't need to ship a fix](https://github.com/margelo/nitro/blob/v1/docs/CONTRIBUTING.md#scope-and-code-review) in `CONTRIBUTING.md`
 for details and the test-writing rules (reuse existing types, keep it small, don't remove existing tests).
 
 :::
@@ -125,7 +125,7 @@ bun specs
 Commit the generated files. If that change causes a compile error downstream (e.g. Swift refuses to build the generated code), that's a
 valid repro on its own - open the PR with the red CI and leave the fix to a maintainer if you don't have one.
 
-When adding a reproduction, follow the rules in [CONTRIBUTING.md](https://github.com/margelo/nitro/blob/main/CONTRIBUTING.md): reuse
+When adding a reproduction, follow the rules in [CONTRIBUTING.md](https://github.com/margelo/nitro/blob/v1/docs/CONTRIBUTING.md): reuse
 existing types where possible, don't remove existing test cases, and keep the addition small. Dumping a full user spec into the test module
 is not the right approach - distill the bug to the minimal type or call that reproduces it.
 
@@ -148,8 +148,8 @@ Performance CI is opt-in. A maintainer with write, maintain, or admin repository
 `@nitro-modules-bot please test performance` on an open PR. The bot acknowledges it with 👍, updates the PR's `Nitro Performance` status,
 and posts the results or a failure link. Contributors without write access can ask a maintainer to run it, including for PRs from forks.
 
-See [Performance tests in CONTRIBUTING.md](https://github.com/margelo/nitro/blob/main/CONTRIBUTING.md#performance-tests) for repeat runs and
-measurement-only retries.
+See [Performance tests in CONTRIBUTING.md](https://github.com/margelo/nitro/blob/v1/docs/CONTRIBUTING.md#performance-tests) for repeat runs
+and measurement-only retries.
 
 ## Run Nitro Docs
 
@@ -205,12 +205,11 @@ For Prettier, use `bun format:prettier --write` or `bun format:prettier --check`
 ESLint.
 
 Prettier reads its settings from `package.json` and exclusions from `.gitignore` and `config/format-ignore`. C++ uses
-`config/.clang-format`. Swift and Kotlin use `.swift-format` and `.editorconfig` at the root so editors discover them automatically.
-Generated sections of Swift package manifests have formatter ignore markers. Keep the template package's Prettier options in sync with the
-root package so newly created modules start with the same style.
+`config/.clang-format`, Swift uses `config/.swift-format`, and Kotlin uses the root `.editorconfig`. The workspace lint commands load
+`config/eslint.config.mjs`. Generated sections of Swift package manifests have formatter ignore markers. Keep the template package's
+Prettier options in sync with the root package so newly created modules start with the same style.
 
-VS Code recommends and selects the appropriate formatter extensions, while respecting your personal format-on-save preference. C++ uses
-`clang-format` on your PATH, Kotlin uses ktlint 1.8.0, and Swift uses the formatter from your selected toolchain.
+The formatter commands use `clang-format` and ktlint 1.8.0 from your PATH, and `swift format` from your selected Swift toolchain.
 
 Each language has its own CI workflow with PR path filters for its source files, configuration, and scripts. The release workflow also runs
 all formatting checks on the exact source commit before publishing.

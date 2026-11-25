@@ -19,6 +19,8 @@ bun run build
 bun typecheck
 ```
 
+The checked-in `bun.lock` keeps installs hoisted. If you recreate the lockfile from scratch, use `bun install --linker hoisted`.
+
 Shared repository commands live in the private `@nitro/scripts` workspace. Call them with `bun --filter @nitro/scripts <command>` from other
 packages, and use workspace filters for cross-package builds instead of relative paths. The root keeps shortcuts such as `bun sync-core` and
 `bun build:core`.
@@ -46,7 +48,7 @@ bun test:ios
 bun test:android
 ```
 
-See [the standalone guide](tests/standalone/README.md) for native toolchain requirements.
+See [the standalone guide](../tests/standalone/README.md) for native toolchain requirements.
 
 The RN environment in `tests/react-native/` contains the example and benchmark apps. Its `react-native-nitro-test` package supplies
 benchmark objects and View fixtures. The example app hosts nine Harness View tests and three React Native integration checks.
@@ -59,7 +61,7 @@ bun test:react-native:ios
 bun test:react-native:android
 ```
 
-See [the RN test guide](tests/react-native/README.md) for setup and test scope.
+See [the RN test guide](../tests/react-native/README.md) for setup and test scope.
 
 After editing specs or Nitrogen, generate and commit all bindings:
 
@@ -82,7 +84,7 @@ to check React Native integration and Views. Portable cases run in the standalon
 ## Performance tests
 
 The benchmark app lives in `tests/react-native/apps/benchmark`. Performance CI is opt-in. A maintainer can request it on a PR with
-`@nitro-modules-bot please test performance`. See [.github/PERFORMANCE.md](.github/PERFORMANCE.md) for setup and reruns. Both revisions
+`@nitro-modules-bot please test performance`. See [.github/PERFORMANCE.md](../.github/PERFORMANCE.md) for setup and reruns. Both revisions
 being compared must contain the benchmark app.
 
 ## Documentation

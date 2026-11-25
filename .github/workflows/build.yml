@@ -24,7 +24,6 @@ on:
       - 'scripts/performance/**'
       - '**/package.json'
       - 'bun.lock'
-      - 'bunfig.toml'
 
 permissions:
   contents: read

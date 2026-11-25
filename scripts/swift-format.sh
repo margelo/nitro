@@ -8,4 +8,4 @@ case "${1:-}" in
 esac
 source "$(dirname "$0")/format-files.sh" '*.swift'
 [[ ${#files[@]} -eq 0 ]] && exit 0
-swift format "${options[@]}" --configuration .swift-format "${files[@]}"
+swift format "${options[@]}" --configuration config/.swift-format "${files[@]}"

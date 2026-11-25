@@ -229,7 +229,9 @@ test('push selection uses the native workflows pull request paths', async (t) =>
   const fixture = nativeFixture(t)
   const standalone = fixture.commit('tests/standalone/test-runner/android/config.properties')
   assert.deepEqual(selected(await resolveNativeChecks(fixture.options(standalone))), ['test-runtime-ios', 'test-runtime-android'])
-  const harness = fixture.commit('patches/@react-native-harness%2Fplatform-apple@1.5.0.patch')
+  const workflowPath = '.github/workflows/harness-ios.yml'
+  const harnessWorkflow = readFileSync(path.join(fixture.cwd, workflowPath), 'utf8')
+  const harness = fixture.commit(workflowPath, `${harnessWorkflow}\n# Updated workflow\n`)
   const runs = [{ ...fixture.run, head_sha: standalone }]
   assert.deepEqual(selected(await resolveNativeChecks(fixture.options(harness, runs))), ['harness-ios'])
 })

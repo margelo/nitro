@@ -16,7 +16,6 @@ on:
       - 'tests/standalone/**'
       - 'package.json'
       - 'bun.lock'
-      - 'bunfig.toml'
       - 'scripts/releases/**'
       - 'config/**'
       - 'scripts/set-version.mjs'

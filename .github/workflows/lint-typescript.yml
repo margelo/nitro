@@ -19,11 +19,9 @@ on:
       - '**/*.js'
       - '**/*.mjs'
       - '**/*.cjs'
-      - 'eslint.config.mjs'
       - '**/*.jsx'
       - '**/*.json'
       - 'bun.lock'
-      - 'bunfig.toml'
       - '**/package.json'
 
 jobs:

@@ -1,9 +1,0 @@
-{
-  "recommendations": [
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint",
-    "ms-vscode.cpptools",
-    "swiftlang.swift-vscode",
-    "rnoro.vscode-ktlint-formatter"
-  ]
-}
