@@ -33,8 +33,8 @@ interface LazyExportOptions {
   initializer: string
 }
 
-/** Copies of the getter share its cache, including Babel's re-export getters. */
 function createLazyExport({ name, cacheName, setupCode, initializer }: LazyExportOptions): string {
+  const nameCode = JSON.stringify(name)
   const initializationCode: string[] = []
   if (setupCode != null) initializationCode.push(setupCode)
   initializationCode.push(`${cacheName} = ${initializer}`)
@@ -42,6 +42,10 @@ function createLazyExport({ name, cacheName, setupCode, initializer }: LazyExpor
 get ${name}() {
   if (${cacheName} === undefined) {
     ${indent(initializationCode.join('\n'), '    ')}
+    const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, ${nameCode})
+    if (descriptor?.get === originalDescriptors[${nameCode}].get) {
+      Reflect.defineProperty(hybridClasses, ${nameCode}, { value: ${cacheName} })
+    }
   }
   return ${cacheName}
 },
@@ -153,9 +157,13 @@ const { NitroModules } = require('${NitroConfig.current.getRuntimePackageName()}
 
 ${cacheDeclarationsCode.join('\n')}
 
-module.exports = {
+const hybridClasses = {
   ${indent(exportsCode.join('\n'), '  ')}
 }
+
+// A copied getter may run after the original property has been changed.
+const originalDescriptors = Object.getOwnPropertyDescriptors(hybridClasses)
+module.exports = hybridClasses
 `.trim()
     const declarationCode = `
 ${createFileMetadataString(declarationFileName)}

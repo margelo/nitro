@@ -10,10 +10,14 @@ const { NitroModules } = require('react-native-nitro-modules')
 let hybridClass
 let hybridComponent
 
-module.exports = {
+const hybridClasses = {
   get RecyclableTestView() {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.RecyclableTestView')
+      const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "RecyclableTestView")
+      if (descriptor?.get === originalDescriptors["RecyclableTestView"].get) {
+        Reflect.defineProperty(hybridClasses, "RecyclableTestView", { value: hybridClass })
+      }
     }
     return hybridClass
   },
@@ -25,7 +29,15 @@ module.exports = {
         "nativeDefaultValue": NitroViewProp,
         "hybridRef": NitroViewProp,
       })
+      const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "RecyclableTestViewComponent")
+      if (descriptor?.get === originalDescriptors["RecyclableTestViewComponent"].get) {
+        Reflect.defineProperty(hybridClasses, "RecyclableTestViewComponent", { value: hybridComponent })
+      }
     }
     return hybridComponent
   },
 }
+
+// A copied getter may run after the original property has been changed.
+const originalDescriptors = Object.getOwnPropertyDescriptors(hybridClasses)
+module.exports = hybridClasses

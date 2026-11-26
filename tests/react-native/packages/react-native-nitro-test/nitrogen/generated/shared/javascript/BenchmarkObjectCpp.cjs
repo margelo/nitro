@@ -9,11 +9,19 @@ const { NitroModules } = require('react-native-nitro-modules')
 
 let hybridClass
 
-module.exports = {
+const hybridClasses = {
   get BenchmarkObjectCpp() {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.BenchmarkObjectCpp')
+      const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "BenchmarkObjectCpp")
+      if (descriptor?.get === originalDescriptors["BenchmarkObjectCpp"].get) {
+        Reflect.defineProperty(hybridClasses, "BenchmarkObjectCpp", { value: hybridClass })
+      }
     }
     return hybridClass
   },
 }
+
+// A copied getter may run after the original property has been changed.
+const originalDescriptors = Object.getOwnPropertyDescriptors(hybridClasses)
+module.exports = hybridClasses

@@ -9,11 +9,19 @@ const { NitroModules } = require('nitro-core')
 
 let hybridClass
 
-module.exports = {
+const hybridClasses = {
   get SharedSpecializations() {
     if (hybridClass === undefined) {
       hybridClass = NitroModules.getHybridClass('test.external.SharedSpecializations')
+      const descriptor = Object.getOwnPropertyDescriptor(hybridClasses, "SharedSpecializations")
+      if (descriptor?.get === originalDescriptors["SharedSpecializations"].get) {
+        Reflect.defineProperty(hybridClasses, "SharedSpecializations", { value: hybridClass })
+      }
     }
     return hybridClass
   },
 }
+
+// A copied getter may run after the original property has been changed.
+const originalDescriptors = Object.getOwnPropertyDescriptors(hybridClasses)
+module.exports = hybridClasses
