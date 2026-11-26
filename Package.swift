@@ -29,7 +29,7 @@ let package = Package(
   dependencies: [
     .package(
       url: "https://github.com/margelo/simdutf-swift.git",
-      from: "1.0.1",
+      from: "1.1.0",
       traits: ["UTF8", "UTF16", "ASCII"]
     )
   ],

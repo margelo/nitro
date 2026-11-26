@@ -8,7 +8,7 @@ sources directly from `packages/nitro-core/native`, with separate C++, Apple C++
 use the same target split as Nitrogen's generated React Native packages. Xcode supplies the simulator test runner; there is no application
 target or React Native dependency.
 
-The V1 runtime requires Swift 6.4. Its Swift target links [SimdUTF](https://github.com/margelo/simdutf-swift) 1.0.1 or newer with the
+The V1 runtime requires Swift 6.4. Its Swift target links [SimdUTF](https://github.com/margelo/simdutf-swift) 1.1.0 or newer with the
 `UTF8`, `UTF16`, and `ASCII` traits. Public include directories expose the existing `<NitroModules/Header.hpp>` imports. The private bridge
 targets compile after Swift and include its generated headers.
 
