@@ -54,10 +54,16 @@ export function wrapKotlinType(type: Type, options: KotlinTypeOptions = {}): Kot
       return new KotlinArrayBufferType()
     case 'error':
       return new KotlinErrorType()
-    case 'enum':
-      return new KotlinEnumType(getTypeAs(type, EnumType), options.config)
-    case 'struct':
-      return new KotlinStructType(getTypeAs(type, StructType), options.config)
+    case 'enum': {
+      const enumType = getTypeAs(type, EnumType)
+      const owner = enumType.declaration.getOwner('kotlin', options.config)
+      return new KotlinEnumType(enumType, owner)
+    }
+    case 'struct': {
+      const structType = getTypeAs(type, StructType)
+      const owner = structType.declaration.getOwner('kotlin', options.config)
+      return new KotlinStructType(structType, owner)
+    }
     case 'variant':
       return new KotlinVariantType(getTypeAs(type, VariantType), options.config)
     case 'callback':

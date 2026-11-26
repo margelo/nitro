@@ -19,7 +19,7 @@ export class KotlinStructType extends StructType implements KotlinType {
     readonly config: NitroConfig = NitroConfig.current
   ) {
     const properties = type.properties.map((p) => new KotlinNamedType(p.name, wrapKotlinType(p, { config: config })))
-    super(type.structName, properties, type.sourceConfig)
+    super(type.structName, properties, type.declaration)
     this.properties = properties
   }
 
@@ -55,6 +55,8 @@ export class KotlinStructType extends StructType implements KotlinType {
         if (options.fullyQualified || this.config.isExternalConfig) name = this.config.getCxxNamespace('c++', name)
         return getJniReferenceCode(name, options)
       }
+      case 'kotlin':
+        return this.config.isExternalConfig ? this.config.getAndroidPackage('java/kotlin', this.structName) : this.structName
       default:
         return super.getCode(language, options)
     }
@@ -70,9 +72,6 @@ export class KotlinStructType extends StructType implements KotlinType {
       case 'c++':
         return [{ language: 'c++', declaration: this.config.getCxxHeader(`${this.jniName}.hpp`, 'private') }]
       case 'kotlin':
-        if (this.config.isExternalConfig) {
-          return [{ language: 'kotlin', name: `${this.config.getAndroidPackage('java/kotlin')}.${this.structName}` }]
-        }
         return []
       default:
         return super.getRequiredImports(language)

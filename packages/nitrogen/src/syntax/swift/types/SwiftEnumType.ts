@@ -1,3 +1,4 @@
+import { createImportedSwiftValue, getImportedSwiftValueName } from '../SwiftImportedValue.js'
 import type { Type, GetCodeOptions } from '../../types/Type.js'
 import type { CppHelper } from '../../c++/CppHelper.js'
 import type { SourceFile } from '../../SourceFile.js'
@@ -28,7 +29,7 @@ export class SwiftEnumType extends EnumType implements SwiftType {
   }
   override getExtraFiles(): SourceFile[] {
     if (this.config.isExternalConfig) {
-      return []
+      return [createImportedSwiftValue(this.config, this.name)]
     }
     return createSwiftEnumBridge(this)
   }
@@ -72,7 +73,7 @@ export class SwiftEnumType extends EnumType implements SwiftType {
       case 'c++':
         return `::${this.moduleName}::${this.name}`
       case 'swift':
-        return this.config.isExternalConfig ? `${this.moduleName}.${this.name}` : this.name
+        return this.config.isExternalConfig ? getImportedSwiftValueName(this.config, this.name) : this.name
       default:
         return super.getCode(language, options)
     }

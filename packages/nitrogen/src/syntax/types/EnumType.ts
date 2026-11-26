@@ -1,3 +1,5 @@
+import type { ValueTypeDeclaration } from '../ValueTypeDeclaration.js'
+import { getImportedSwiftValueName } from '../swift/SwiftImportedValue.js'
 import { EnumDeclaration, SyntaxKind } from 'ts-morph'
 import { Type as TSMorphType, type ts } from 'ts-morph'
 import type { Language } from '../../getPlatformSpecs.js'
@@ -6,7 +8,7 @@ import type { GetCodeOptions, Type, TypeKind } from './Type.js'
 import { createCppEnum } from '../c++/CppEnum.js'
 import { escapeCppName } from '../helpers.js'
 import { createCppUnion } from '../c++/CppUnion.js'
-import { NitroConfig } from '../../config/NitroConfig.js'
+import type { NitroConfig } from '../../config/NitroConfig.js'
 import { SourceError } from '../../SourceError.js'
 
 export interface EnumMember {
@@ -20,13 +22,16 @@ export class EnumType implements Type {
   readonly enumMembers: EnumMember[]
   readonly jsType: 'enum' | 'union'
   readonly declarationFile: SourceFile
-  readonly sourceConfig: NitroConfig
+  readonly declaration: ValueTypeDeclaration
+  get sourceConfig(): NitroConfig {
+    return this.declaration.sourceConfig
+  }
 
-  constructor(enumName: string, enumDeclaration: EnumDeclaration, sourceConfig?: NitroConfig)
-  constructor(enumName: string, union: TSMorphType<ts.UnionType>, sourceConfig?: NitroConfig)
+  constructor(enumName: string, enumDeclaration: EnumDeclaration, source: ValueTypeDeclaration)
+  constructor(enumName: string, union: TSMorphType<ts.UnionType>, source: ValueTypeDeclaration)
   constructor(type: EnumType)
   constructor(
-    ...args: [enumName: string, declaration: EnumDeclaration | TSMorphType<ts.UnionType>, sourceConfig?: NitroConfig] | [type: EnumType]
+    ...args: [enumName: string, declaration: EnumDeclaration | TSMorphType<ts.UnionType>, source: ValueTypeDeclaration] | [type: EnumType]
   ) {
     if (args.length === 1) {
       const [type] = args
@@ -34,11 +39,11 @@ export class EnumType implements Type {
       this.enumMembers = type.enumMembers
       this.jsType = type.jsType
       this.declarationFile = type.declarationFile
-      this.sourceConfig = type.sourceConfig
+      this.declaration = type.declaration
     } else {
-      const [enumName, declaration, sourceConfig = NitroConfig.current] = args
+      const [enumName, declaration, valueDeclaration] = args
       this.enumName = enumName
-      this.sourceConfig = sourceConfig
+      this.declaration = valueDeclaration
       if (declaration instanceof EnumDeclaration) {
         // It's a JS enum { ... }
         this.jsType = 'enum'
@@ -116,32 +121,46 @@ export class EnumType implements Type {
 
   getCode(language: Language, { fullyQualified }: GetCodeOptions): string {
     switch (language) {
-      case 'c++':
-        if (fullyQualified) {
-          return NitroConfig.current.getCxxNamespace('c++', this.enumName)
+      case 'c++': {
+        const owner = this.declaration.getOwner('c++')
+        if (fullyQualified || owner.isExternalConfig) {
+          return owner.getCxxNamespace('c++', this.enumName)
         } else {
           return this.enumName
         }
-      case 'swift':
-        return this.enumName
-      case 'kotlin':
-        return this.enumName
+      }
+      case 'swift': {
+        const owner = this.declaration.getOwner('swift')
+        return owner.isExternalConfig ? getImportedSwiftValueName(owner, this.enumName) : this.enumName
+      }
+      case 'kotlin': {
+        const owner = this.declaration.getOwner('kotlin')
+        return owner.isExternalConfig ? owner.getAndroidPackage('java/kotlin', this.enumName) : this.enumName
+      }
       default:
         throw new Error(`Language ${language} is not yet supported for NumberType!`)
     }
   }
   getExtraFiles(): SourceFile[] {
-    return [this.declarationFile]
+    const owner = this.declaration.getOwner('c++')
+    return owner.isExternalConfig ? [] : [this.declarationFile]
   }
   getRequiredImports(language: Language): SourceImport[] {
     const imports: SourceImport[] = []
     switch (language) {
-      case 'c++':
+      case 'c++': {
+        const owner = this.declaration.getOwner('c++')
         imports.push({
           language,
-          declaration: NitroConfig.current.getCxxHeader(this.declarationFile.name),
+          declaration: owner.getCxxHeader(this.declarationFile.name),
         })
         break
+      }
+      case 'swift': {
+        const owner = this.declaration.getOwner('swift')
+        if (owner.isExternalConfig) imports.push({ language: 'swift', name: owner.getAppleModuleName(), access: 'public' })
+        break
+      }
     }
     return imports
   }
