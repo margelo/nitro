@@ -34,6 +34,8 @@ export class KotlinEnumType extends EnumType implements KotlinType {
         if (options.fullyQualified || this.config.isExternalConfig) name = this.config.getCxxNamespace('c++', name)
         return getJniReferenceCode(name, options)
       }
+      case 'kotlin':
+        return this.config.isExternalConfig ? this.config.getAndroidPackage('java/kotlin', this.enumName) : this.enumName
       default:
         return super.getCode(language, options)
     }
@@ -66,9 +68,6 @@ export class KotlinEnumType extends EnumType implements KotlinType {
       case 'c++':
         return [{ language: 'c++', declaration: this.config.getCxxHeader(`${this.jniName}.hpp`, 'private') }]
       case 'kotlin':
-        if (this.config.isExternalConfig) {
-          return [{ language: 'kotlin', name: `${this.config.getAndroidPackage('java/kotlin')}.${this.enumName}` }]
-        }
         return []
       default:
         return super.getRequiredImports(language)

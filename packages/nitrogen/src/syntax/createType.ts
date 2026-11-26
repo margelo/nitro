@@ -1,3 +1,4 @@
+import { ValueTypeDeclaration } from './ValueTypeDeclaration.js'
 import { Node, ts, Type as TSMorphType, type Project, type Signature } from 'ts-morph'
 import { SourceError, withSourceLocation } from '../SourceError.js'
 import type { Type } from './types/Type.js'
@@ -156,6 +157,8 @@ export interface CreateTypeOptions {
 export interface TypeParsingTarget {
   readonly language: Language
   readonly platform: Platform
+  /** Inspect an external API without emitting language projections or foreign object adapters. */
+  readonly collectValueDeclarations?: boolean
   /** Definitions already being parsed; their recursive references need no files. */
   readonly foreignAncestors?: readonly HybridObjectType[]
 }
@@ -228,7 +231,7 @@ export function createType(
   // An ancestor reference has no definition files, so it must not enter the
   // cache used by complete references outside this declaration.
   let cache: Map<string, Type> | undefined
-  if (foreignAncestors.length === 0) cache = getTypeCache(type, language)
+  if (foreignAncestors.length === 0 && !target.collectValueDeclarations) cache = getTypeCache(type, language)
   const key = `${platform}:${getTypeId(type, isOptional)}`
   const known = cache?.get(key)
   if (known != null) {
@@ -321,7 +324,7 @@ export function createType(
       const typename = type.getSymbolOrThrow().getEscapedName()
       const declaration = type.getSymbolOrThrow().getValueDeclarationOrThrow()
       const enumDeclaration = declaration.asKindOrThrow(ts.SyntaxKind.EnumDeclaration)
-      return new EnumType(typename, enumDeclaration, getHybridObjectNitroModuleConfig(type) ?? NitroConfig.current)
+      return new EnumType(typename, enumDeclaration, ValueTypeDeclaration.fromType(typename, type, target.collectValueDeclarations))
     } else if (type.isUnion()) {
       // It is some kind of union;
       // - of string literals (then it's an enum)
@@ -340,7 +343,7 @@ export function createType(
           )
         }
         const typename = symbol.getEscapedName()
-        return new EnumType(typename, type, getHybridObjectNitroModuleConfig(type) ?? NitroConfig.current)
+        return new EnumType(typename, type, ValueTypeDeclaration.fromType(typename, type, target.collectValueDeclarations))
       } else {
         // It consists of different types - that means it's a variant!
         const unionConstituents = getUnionConstituents(type, typeNode)
@@ -392,8 +395,8 @@ export function createType(
       if (symbol == null) throw new Error(`Interface "${type.getText()}" does not have a Symbol!`)
       const typename = symbol.getName()
       const properties = getInterfaceProperties(target, type)
-      const sourceConfig = getHybridObjectNitroModuleConfig(type) ?? NitroConfig.current
-      return new StructType(typename, properties, sourceConfig)
+      const declaration = ValueTypeDeclaration.fromType(typename, type, target.collectValueDeclarations)
+      return new StructType(typename, properties, declaration)
     } else if (type.isObject()) {
       // It is an object. If it has a symbol/name, it is a `type T = ...` declaration, so a `struct`.
       // Otherwise, it is an anonymous/inline object, which cannot be represented in native.
@@ -402,8 +405,8 @@ export function createType(
         // it has a `type T = ...` declaration
         const typename = symbol.getName()
         const properties = getInterfaceProperties(target, type)
-        const sourceConfig = getHybridObjectNitroModuleConfig(type) ?? NitroConfig.current
-        return new StructType(typename, properties, sourceConfig)
+        const declaration = ValueTypeDeclaration.fromType(typename, type, target.collectValueDeclarations)
+        return new StructType(typename, properties, declaration)
       } else {
         // It's an anonymous object (`{ ... }`)
         throw new Error(

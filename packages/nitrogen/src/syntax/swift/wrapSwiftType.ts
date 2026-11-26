@@ -44,8 +44,11 @@ export function wrapSwiftType(type: Type, config: NitroConfig = NitroConfig.curr
       return new SwiftDirectType(type)
     case 'void':
       return new SwiftVoidType()
-    case 'enum':
-      return new SwiftEnumType(getTypeAs(type, EnumType), config)
+    case 'enum': {
+      const enumType = getTypeAs(type, EnumType)
+      const owner = enumType.declaration.getOwner('swift', config)
+      return new SwiftEnumType(enumType, owner)
+    }
     case 'callback':
       return new SwiftCallbackType(getTypeAs(type, CallbackType), config)
     case 'promise':
@@ -64,8 +67,11 @@ export function wrapSwiftType(type: Type, config: NitroConfig = NitroConfig.curr
       return new SwiftErrorType()
     case 'hybrid-object':
       return new SwiftHybridObjectType(getTypeAs(type, HybridObjectType))
-    case 'struct':
-      return new SwiftStructType(getTypeAs(type, StructType), config)
+    case 'struct': {
+      const structType = getTypeAs(type, StructType)
+      const owner = structType.declaration.getOwner('swift', config)
+      return new SwiftStructType(structType, owner)
+    }
     case 'variant':
       return new SwiftVariantType(getTypeAs(type, VariantType), config)
     default:

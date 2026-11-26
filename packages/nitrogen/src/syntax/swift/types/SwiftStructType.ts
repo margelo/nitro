@@ -1,3 +1,4 @@
+import { createImportedSwiftValue, getImportedSwiftValueName } from '../SwiftImportedValue.js'
 import type { Type, GetCodeOptions, TypeContext } from '../../types/Type.js'
 import type { CppHelper } from '../../c++/CppHelper.js'
 import type { SourceFile } from '../../SourceFile.js'
@@ -22,7 +23,7 @@ export class SwiftStructType extends StructType implements SwiftType {
     readonly config: NitroConfig = NitroConfig.current
   ) {
     const properties = type.properties.map((p) => new SwiftNamedType(p.name, wrapSwiftType(p, config)))
-    super(type.structName, properties, type.sourceConfig)
+    super(type.structName, properties, type.declaration)
     this.properties = properties
   }
 
@@ -35,7 +36,7 @@ export class SwiftStructType extends StructType implements SwiftType {
   }
   override getExtraFiles(): SourceFile[] {
     if (this.config.isExternalConfig) {
-      return []
+      return [createImportedSwiftValue(this.config, this.name)]
     }
     return [...this.properties.flatMap((p) => p.getExtraFiles()), ...createSwiftStructBridge(this)]
   }
@@ -90,7 +91,7 @@ export class SwiftStructType extends StructType implements SwiftType {
         return options.context === 'parameter' ? `const ${type}&` : type
       }
       case 'swift':
-        return this.config.isExternalConfig ? `${this.moduleName}.${this.name}` : this.name
+        return this.config.isExternalConfig ? getImportedSwiftValueName(this.config, this.name) : this.name
       default:
         return super.getCode(language, options)
     }
