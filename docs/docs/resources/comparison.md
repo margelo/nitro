@@ -387,34 +387,7 @@ public class MathModule: Module {
 
 #### Swift support
 
-Just like Nitro, Expo Modules are written in Swift, instead of Objective-C.
-
-Expo Modules however bridge through Objective-C, whereas Nitro bridges to Swift directly (using the new Swift &lt;&gt; C++ interop) which has proven to be much more efficient.
-
-<div className="side-by-side-container">
-<div className="side-by-side-block">
-
-```mermaid
----
-title: "Nitro Modules"
----
-graph LR;
-    JS--> C++ --> Swift;
-```
-
-</div>
-<div className="side-by-side-block">
-
-```mermaid
----
-title: "Expo Modules"
----
-graph LR;
-    JS--> C++ --> Objective-C --> Swift;
-```
-
-</div>
-</div>
+Just like Nitro, Expo Modules are written in Swift, instead of Objective-C. Both bridge to Swift directly using the new Swift &lt;&gt; C++ interop which has proven to be much more efficient compared to bridging through Objective-C.
 
 #### Kotlin coroutines
 
