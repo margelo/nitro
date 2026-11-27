@@ -20,6 +20,7 @@ import { Parameter } from './syntax/Parameter.js'
 import { getBaseTypes, getHybridObjectNitroModuleConfig } from './utils.js'
 import { NitroConfig } from './config/NitroConfig.js'
 import { isMemberOverridingFromBase } from './syntax/isMemberOverridingFromBase.js'
+import { CPP_RESERVED_KEYWORDS } from './constants/cpp-reserved.js'
 
 export function generatePlatformFiles(
   interfaceType: Type,
@@ -93,6 +94,11 @@ function getHybridObjectSpec(type: Type, language: Language): HybridObjectSpec {
       )
     }
 
+    if (CPP_RESERVED_KEYWORDS.includes(prop.getName())) {
+      throw new Error(
+        `${name}: Property "${prop.getName()}" is a reserved keyword in C++! Use a different name.`
+      )
+    }
     const parent = declaration.getParentOrThrow().getType()
 
     if (parent === type) {
