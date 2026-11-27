@@ -1,0 +1,33 @@
+name: Lint C++ (clang-tidy)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/lint-cpp-tidy.yml'
+      - 'config/.clang-tidy'
+      - '**/*.h'
+      - '**/*.hpp'
+      - '**/*.cpp'
+  pull_request:
+    paths:
+      - '.github/workflows/lint-cpp-tidy.yml'
+      - 'config/.clang-tidy'
+      - '**/*.h'
+      - '**/*.hpp'
+      - '**/*.cpp'
+
+jobs:
+  lint:
+    name: clang-tidy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install clang-tidy
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+
+      - name: Run clang-tidy
+        run: bun run clang-tidy
