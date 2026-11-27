@@ -318,3 +318,50 @@ class HybridImageCropper: HybridImageCropperSpec {
   }
 }
 ```
+
+## A handwritten Swift superclass
+
+Swift protocol extensions cannot store per-instance state. Set `superclass` on a root spec's Swift platform options to put shared storage
+beneath its generated base:
+
+```ts title="View.nitro.ts"
+import { Apple, type HybridObject } from 'nitro-core'
+
+@Apple({
+  language: 'swift',
+  allowMultipleImplementations: true,
+  allowInheritance: true,
+  superclass: { className: 'ViewStorage' },
+  protocolConformances: [{ protocol: 'NativeView' }],
+})
+export declare class View extends HybridObject {}
+export * from '#nitro/View'
+```
+
+```swift title="ViewStorage.swift"
+public class ViewStorage {
+  public var retainedObjects: [AnyObject] = []
+
+  public init() throws {}
+}
+```
+
+```swift title="NativeView.swift"
+public protocol NativeView {
+  var retainedObjects: [AnyObject] { get set }
+}
+```
+
+Nitrogen generates `HybridViewSpec_base: ViewStorage`. Its inherited stored property satisfies `NativeView.retainedObjects`, and generated
+descendants inherit that storage through `HybridViewSpec_base`.
+
+Only a root spec can declare `superclass`. Combining it with an existing HybridObject base is an error, even when that base already inherits
+the same handwritten class. Set the option once on the root and omit it on descendants.
+
+The handwritten class must be public and non-final, with a public, non-required, non-failable designated `init() throws`. The generated
+initializer overrides it and calls `try super.init()`. A non-throwing initializer cannot be overridden by Nitro's throwing initializer.
+Reserve `getCxxWrapper()` for the generated bases.
+
+For a class from another Swift module, set `superclass: { className: 'ViewStorage', module: 'MyViews' }`. Nitrogen emits
+`public import MyViews`, and the external superclass must be `open` so the generated base can subclass it. With `MemberImportVisibility`
+enabled, each handwritten implementation file must also `import MyViews` for inherited stored properties to satisfy protocol requirements.

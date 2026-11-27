@@ -6,6 +6,7 @@
 ///
 
 public import NitroModules
+public import NitroTestExternal
 
 /// See ``HybridBaseSpec``
 public protocol HybridBaseSpec_protocol: HybridBaseSpec_base, HybridObject {
@@ -35,9 +36,10 @@ public extension HybridBaseSpec_protocol {
 }
 
 /// See ``HybridBaseSpec``
-open class HybridBaseSpec_base {
+open class HybridBaseSpec_base: BaseStorage {
   private weak var cxxWrapper: HybridBaseSpec_cxx? = nil
-  public init() throws {
+  public override init() throws {
+    try super.init()
   }
   open func getCxxWrapper() -> HybridBaseSpec_cxx {
   #if DEBUG

@@ -10,7 +10,11 @@
       "apple": {
         "allowInheritance": true,
         "allowMultipleImplementations": true,
-        "language": "swift"
+        "language": "swift",
+        "superclass": {
+          "className": "BaseStorage",
+          "module": "NitroTestExternal"
+        }
       }
     },
     "Child": {

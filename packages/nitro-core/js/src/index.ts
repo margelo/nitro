@@ -9,6 +9,7 @@ export { Apple, iOS, Android } from './HybridObjectDecorators.js'
 export type {
   HybridObjectPlatformOptions,
   SwiftHybridObjectImplementation,
+  SwiftHybridObjectSuperclass,
   SwiftProtocolConformance,
   CppHybridObjectImplementation,
   KotlinHybridObjectImplementation,

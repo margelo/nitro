@@ -18,6 +18,7 @@ export interface Size {
   language: 'swift',
   allowMultipleImplementations: true,
   allowInheritance: true,
+  superclass: { className: 'BaseStorage', module: 'NitroTestExternal' },
 })
 @Android({
   language: 'kotlin',
