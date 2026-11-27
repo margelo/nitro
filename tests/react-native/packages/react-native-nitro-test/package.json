@@ -55,9 +55,9 @@
     "clean": "rm -rf android/build node_modules/**/android/build lib"
   },
   "devDependencies": {
-    "@types/react": "^19.3.0",
+    "@types/react": "^19.3.1",
     "nitrogen": "0.37.2",
-    "react": "19.3.0",
+    "react": "19.3.1",
     "react-native": "0.88.0",
     "react-native-nitro-modules": "0.37.2"
   },
