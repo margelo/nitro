@@ -193,6 +193,7 @@ export declare class TestObjectCpp extends HybridObject {
   optionalEnum?: Powertrain
   optionalOldEnum?: OldEnum
   optionalEnumPlusOne?: TruckPowertrain
+  optionalNamedVariant?: NamedVariant
   optionalCallback?: (value: number) => void
 
   // Kotlin/Swift simplify boolean names (has*/is*)
@@ -493,6 +494,7 @@ export declare class TestObjectSwiftKotlin extends HybridObject {
   optionalEnum?: Powertrain
   optionalOldEnum?: OldEnum
   optionalEnumPlusOne?: TruckPowertrain
+  optionalNamedVariant?: NamedVariant
   optionalCallback?: (value: number) => void
 
   // Kotlin/Swift simplify boolean names (has*/is*)

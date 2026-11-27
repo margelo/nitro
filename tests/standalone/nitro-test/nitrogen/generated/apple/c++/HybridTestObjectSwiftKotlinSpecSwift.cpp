@@ -130,6 +130,14 @@ namespace margelo::nitro::test {
     return _swiftPart.setOptionalEnumPlusOne(optionalEnumPlusOne);
   }
 
+  swift::Optional<::NitroTest::NamedVariant_cxx> HybridTestObjectSwiftKotlinSpecSwift::getOptionalNamedVariant() {
+    return _swiftPart.getOptionalNamedVariant();
+  }
+
+  void HybridTestObjectSwiftKotlinSpecSwift::setOptionalNamedVariant(const swift::Optional<::NitroTest::NamedVariant_cxx>& optionalNamedVariant) {
+    return _swiftPart.setOptionalNamedVariant(optionalNamedVariant);
+  }
+
   swift::Optional<Callback<void(double)>> HybridTestObjectSwiftKotlinSpecSwift::getOptionalCallback() {
     return _swiftPart.getOptionalCallback();
   }
@@ -1757,6 +1765,7 @@ namespace margelo::nitro::test {
       clazz.registerHybridProperty("optionalEnum", &HybridTestObjectSwiftKotlinSpecSwift::getOptionalEnum, &HybridTestObjectSwiftKotlinSpecSwift::setOptionalEnum);
       clazz.registerHybridProperty("optionalOldEnum", &HybridTestObjectSwiftKotlinSpecSwift::getOptionalOldEnum, &HybridTestObjectSwiftKotlinSpecSwift::setOptionalOldEnum);
       clazz.registerHybridProperty("optionalEnumPlusOne", &HybridTestObjectSwiftKotlinSpecSwift::getOptionalEnumPlusOne, &HybridTestObjectSwiftKotlinSpecSwift::setOptionalEnumPlusOne);
+      clazz.registerHybridProperty("optionalNamedVariant", &HybridTestObjectSwiftKotlinSpecSwift::getOptionalNamedVariant, &HybridTestObjectSwiftKotlinSpecSwift::setOptionalNamedVariant);
       clazz.registerHybridProperty("optionalCallback", &HybridTestObjectSwiftKotlinSpecSwift::getOptionalCallback, &HybridTestObjectSwiftKotlinSpecSwift::setOptionalCallback);
       clazz.registerHybridProperty("hasBoolean", &HybridTestObjectSwiftKotlinSpecSwift::getHasBoolean);
       clazz.registerHybridProperty("isBoolean", &HybridTestObjectSwiftKotlinSpecSwift::getIsBoolean);

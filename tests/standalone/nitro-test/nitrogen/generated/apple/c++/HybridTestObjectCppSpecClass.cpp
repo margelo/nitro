@@ -14,6 +14,7 @@
 #include <NitroTest/Powertrain.hpp>
 #include <NitroTest/OldEnum.hpp>
 #include <NitroTest/TruckPowertrain.hpp>
+#include <NitroTest/Car.hpp>
 #include <NitroModules/Callback.hpp>
 #include <functional>
 #include <NitroTest/HybridBaseSpecCxx.hpp>
@@ -21,7 +22,6 @@
 #include <memory>
 #include <NitroTest/Person.hpp>
 #include <NitroTest/PartialPerson.hpp>
-#include <NitroTest/Car.hpp>
 #include <NitroModules/Promise.hpp>
 #include <unordered_map>
 #include <NitroTest/HybridChildSpecCxx.hpp>
@@ -117,6 +117,7 @@ namespace margelo::nitro::test {
       clazz.registerHybridProperty("optionalEnum", &HybridTestObjectCppSpec::getOptionalEnum, &HybridTestObjectCppSpec::setOptionalEnum);
       clazz.registerHybridProperty("optionalOldEnum", &HybridTestObjectCppSpec::getOptionalOldEnum, &HybridTestObjectCppSpec::setOptionalOldEnum);
       clazz.registerHybridProperty("optionalEnumPlusOne", &HybridTestObjectCppSpec::getOptionalEnumPlusOne, &HybridTestObjectCppSpec::setOptionalEnumPlusOne);
+      clazz.registerHybridProperty("optionalNamedVariant", &HybridTestObjectCppSpec::getOptionalNamedVariant, &HybridTestObjectCppSpec::setOptionalNamedVariant);
       clazz.registerHybridProperty("optionalCallback", &HybridTestObjectCppSpec::getOptionalCallback, &HybridTestObjectCppSpec::setOptionalCallback);
       clazz.registerHybridProperty("hasBoolean", &HybridTestObjectCppSpec::getHasBoolean);
       clazz.registerHybridProperty("isBoolean", &HybridTestObjectCppSpec::getIsBoolean);

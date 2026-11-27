@@ -765,6 +765,17 @@ export const cases = {
       }).to.throw(`${testObject.constructor.name}.optionalEnumPlusOne: Cannot convert "_2stroke" to enum TruckPowertrain - invalid value!`)
     },
   }),
+  ...casesForTestObjects('optionalNamedVariant', {
+    'optionalNamedVariant roundtrips undefined': (testObject) => {
+      testObject.optionalNamedVariant = undefined
+      expect(testObject.optionalNamedVariant).to.equal(undefined)
+    },
+
+    'optionalNamedVariant roundtrips a value': (testObject) => {
+      testObject.optionalNamedVariant = 'hello'
+      expect(testObject.optionalNamedVariant).to.equal('hello')
+    },
+  }),
   ...namedCases('Generated enum string helpers', {
     'parseTruckPowertrain(...) parses every member': () => {
       const testObject = new TestObjectSwiftKotlin()

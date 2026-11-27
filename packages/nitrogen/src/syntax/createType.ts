@@ -356,7 +356,7 @@ export function createType(
           return variants[0]!
         }
 
-        const name = type.getAliasSymbol()?.getName()
+        const name = (type.getAliasSymbol() ?? type.getNonNullableType().getAliasSymbol())?.getName()
         return new VariantType(variants, name)
       }
     } else if (isDirectlyAnyHybridObject(type)) {

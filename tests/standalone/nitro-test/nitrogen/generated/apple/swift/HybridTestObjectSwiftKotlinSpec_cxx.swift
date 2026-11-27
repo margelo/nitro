@@ -255,6 +255,15 @@ public final class HybridTestObjectSwiftKotlinSpec_cxx {
     __implementation.optionalEnumPlusOne = optionalEnumPlusOne
   }
 
+  public final func getOptionalNamedVariant() -> NamedVariant_cxx? {
+    let value = __implementation.optionalNamedVariant
+    return value.map { NamedVariant_cxx($0) }
+  }
+
+  public final func setOptionalNamedVariant(optionalNamedVariant: NamedVariant_cxx?) -> Void {
+    __implementation.optionalNamedVariant = optionalNamedVariant.map { $0.value }
+  }
+
   public final func getOptionalCallback() -> (margelo.nitro.test.swift_bridge.Callback_void_double)? {
     let value = __implementation.optionalCallback
     return value.map { $0.toCpp() }

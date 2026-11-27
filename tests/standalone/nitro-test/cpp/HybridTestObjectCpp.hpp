@@ -63,6 +63,7 @@ private:
   std::optional<Powertrain> _optionalEnum;
   std::optional<OldEnum> _optionalOldEnum;
   std::optional<TruckPowertrain> _optionalEnumPlusOne;
+  std::optional<std::variant<std::string, Car>> _optionalNamedVariant;
   std::optional<Callback<void(double)>> _optionalCallback;
   bool _hasBooleanWritable = false;
   bool _isBooleanWritable = false;
@@ -123,6 +124,8 @@ public:
   void setOptionalOldEnum(const std::optional<OldEnum>& optionalOldEnum) override;
   std::optional<TruckPowertrain> getOptionalEnumPlusOne() override;
   void setOptionalEnumPlusOne(const std::optional<TruckPowertrain>& optionalEnumPlusOne) override;
+  std::optional<std::variant<std::string, Car>> getOptionalNamedVariant() override;
+  void setOptionalNamedVariant(const std::optional<std::variant<std::string, Car>>& optionalNamedVariant) override;
   std::optional<Callback<void(double /* value */)>> getOptionalCallback() override;
   void setOptionalCallback(const std::optional<Callback<void(double /* value */)>>& optionalCallback) override;
   bool getHasBoolean() override;
