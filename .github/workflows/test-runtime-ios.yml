@@ -146,10 +146,11 @@ jobs:
           SANITIZER: ${{ matrix.sanitizer.value }}
         run: bun tests/standalone/test-runner/ios/run.mjs --os 27 --sanitizer "$SANITIZER"
       - name: Upload test results
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: runtime-ios-results-${{ matrix.sanitizer.name }}
+          retention-days: 30
           path: |
             tests/standalone/.build/ios/${{ matrix.sanitizer.value }}/results/
             tests/standalone/test-runner/build/runtime-tests.js
