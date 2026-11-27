@@ -1,14 +1,14 @@
 /* Base Fonts */
 @font-face {
   font-family: 'Satoshi';
-  src: url('/fonts/Satoshi-Variable.woff2') format("woff2");
+  src: url('https://nitro.margelo.com/fonts/Satoshi-Variable.woff2') format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: block;
 }
 @font-face {
   font-family: "Clash Display";
-  src: url("/fonts/ClashDisplay-Variable.woff2") format("woff2");
+  src: url("https://nitro.margelo.com/fonts/ClashDisplay-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: block;
