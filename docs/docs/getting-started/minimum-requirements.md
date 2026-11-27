@@ -12,7 +12,7 @@ Nitro V1's React Native package requires React Native 0.88 or newer with the New
   <TabItem value="apple" label="Apple" default>
     - iOS 16, macOS 13, tvOS 16 or visionOS 1 or higher
     - Xcode with Swift 6.4 or higher
-    - Swift Package Manager integration (`npx react-native spm`)
+    - CocoaPods or Swift Package Manager integration
 
   </TabItem>
   <TabItem value="android" label="Android">
@@ -22,8 +22,7 @@ Nitro V1's React Native package requires React Native 0.88 or newer with the New
 
 </Tabs>
 
-For an existing CocoaPods project, run `npx react-native spm add --deintegrate` from the app directory to convert its iOS integration. This
-step requires CocoaPods to remove its existing integration. Nitro's podspec contains discovery metadata for the React Native CLI; native
-builds use SwiftPM.
+Keep the package manager your React Native app already uses. See [Installation](../resources/for-library-users) for CocoaPods and Swift
+Package Manager setup. Both build the same Nitro runtime and generated bindings.
 
 Standalone `nitro-core` projects do not depend on React Native.

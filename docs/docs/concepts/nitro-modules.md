@@ -33,7 +33,7 @@ Once you set up the library, you can start implementing your Hybrid Objects!
 
 With [Nitrogen](nitrogen) you can ✨ automagically ✨ generate all native interfaces from your TypeScript definitions. The generated Apple
 initialization code registers the classes with `HybridClassRegistry` when the library loads. Include it through the
-[SwiftPM setup](nitrogen#3-add-generated-sources-to-your-library).
+[Apple build setup](nitrogen#3-add-generated-sources-to-your-library).
 
 See [Hybrid Objects (Implementation)](hybrid-objects#implementation) for more information.
 

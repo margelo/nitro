@@ -66,7 +66,8 @@ Settings for the Apple platforms: iOS, macOS, tvOS and visionOS.
 
 ### `moduleName`
 
-The `moduleName` names the generated Swift module and SwiftPM library product. Use the same name in your library's `swiftpmConfig`:
+The `moduleName` names the generated Swift module for CocoaPods and Swift Package Manager, and the SwiftPM library product. Libraries that
+support SwiftPM must use the same name in `swiftpmConfig`:
 
 <div className="side-by-side-container">
   <div className="side-by-side-block">
@@ -90,8 +91,8 @@ The `moduleName` names the generated Swift module and SwiftPM library product. U
   </div>
 </div>
 
-See [Nitrogen's build setup](../concepts/nitrogen#3-add-generated-sources-to-your-library) for `Package.swift` and generated source
-configuration.
+See [Nitrogen's build setup](../concepts/nitrogen#3-add-generated-sources-to-your-library) for CocoaPods, `Package.swift` and generated
+source configuration.
 
 ## `android`
 

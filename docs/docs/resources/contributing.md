@@ -58,8 +58,8 @@ For iOS, set up React Native's SwiftPM dependencies from the repository root:
 bun example spm
 ```
 
-The example and benchmark apps use React Native 0.88 and SwiftPM. The remaining Podfiles and podspecs provide discovery metadata for React
-Native CLI; CocoaPods is not needed to build these apps.
+The example and benchmark apps use React Native 0.88 and SwiftPM. Nitro also supports CocoaPods through its podspecs and the generated
+CocoaPods configuration. CocoaPods is not needed to build these apps with SwiftPM.
 
 ### 4. Run the app
 
